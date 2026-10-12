@@ -21,7 +21,7 @@ body:has(.cp-home) { background: #fff !important; }
 .cp-shell {
   width: min(100%, 520px);
   margin: 0 auto;
-  padding: 0 0 8px;
+  padding: 0;
   background: #fff;
 }
 
