@@ -7,7 +7,7 @@ The user requested a compact homepage based on their mobile reference, with whit
 
 **Why:** The user now asked for white backgrounds and clearer card colors based on new references, but had previously said the financial platform is not authorized to present itself as Equinor.
 
-**How to apply:** Keep the homepage canvas and cards pure white, with clearly visible consistent edges and restrained shadows; use a generic crimson accent for key values and active states. Preserve live values, routes, and existing imagery; leave login/registration untouched and do not add Equinor assets or claims.
+**How to apply:** Keep the homepage canvas and card surfaces pure white; use clear black borders with deliberate offset shadows, plus a generic crimson accent for key values and active states. Preserve live values, routes, and existing imagery; leave login/registration untouched and do not add Equinor assets or claims.
 
 For the home announcement banner, use a real transparent PNG image asset for its icon, rather than a CSS-drawn or inline-vector icon.
 
