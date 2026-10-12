@@ -4,9 +4,11 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
-import { AlertTriangle, Banknote, ChevronRight, Loader2, Package, ShoppingBag } from "lucide-react";
+import { AlertTriangle, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
 import { useLocation } from "wouter";
 import type { Product } from "@shared/schema";
+import equipmentIcon from "@assets/IMG_20260829_070948_545_1791818775118.jpg";
+import revenueIcon from "@assets/IMG_20260829_070922_702_1791818835262.jpg";
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -112,6 +114,10 @@ export default function ProductsPage() {
           background: #fff0f3; color: #bd304c;
         }
         .cp-products-stat-icon svg { width: 22px; height: 22px; }
+        .cp-products-stat-icon--image {
+          overflow: hidden; border-color: #17191c; background: #000000;
+        }
+        .cp-products-stat-icon--image img { display: block; width: 100%; height: 100%; object-fit: contain; }
         .cp-products-stat-copy { flex: 1; min-width: 0; }
         .cp-products-stat-value {
           display: block; overflow: hidden; color: #000; font-size: clamp(15px,4.2vw,18px); font-weight: 800; line-height: 1.1;
@@ -232,7 +238,9 @@ export default function ProductsPage() {
             onClick={() => navigate("/my-products")}
             aria-label="Voir mes équipements achetés"
           >
-            <span className="cp-products-stat-icon"><Package aria-hidden="true" /></span>
+            <span className="cp-products-stat-icon cp-products-stat-icon--image">
+              <img src={equipmentIcon} alt="" aria-hidden="true" />
+            </span>
             <span className="cp-products-stat-copy">
               <strong className="cp-products-stat-value">{ownedCount ?? "—"}</strong>
               <small className="cp-products-stat-label">Mes équipements</small>
@@ -240,7 +248,9 @@ export default function ProductsPage() {
             <ChevronRight className="cp-products-stat-chevron" aria-hidden="true" size={18} />
           </button>
           <div className="cp-products-stat">
-            <span className="cp-products-stat-icon"><Banknote aria-hidden="true" /></span>
+            <span className="cp-products-stat-icon cp-products-stat-icon--image">
+              <img src={revenueIcon} alt="" aria-hidden="true" />
+            </span>
             <span className="cp-products-stat-copy">
               <strong className="cp-products-stat-value">{formatAmount(dailyRevenue)}</strong>
               <small className="cp-products-stat-label">Revenu quotidien</small>
