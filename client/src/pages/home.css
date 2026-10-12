@@ -62,8 +62,6 @@
   pointer-events: none;
 }
 
-.cp-feature-kicker { display: block; color: #ffd2b2; font-size: 10px; font-weight: 700; letter-spacing: .16em; }
-
 .cp-hero-dots {
   position: absolute;
   z-index: 3;
@@ -327,7 +325,6 @@
   color: #fffaf5;
 }
 
-.cp-feature-kicker { color: #ffd4b6; }
 .cp-feature h2 {
   max-width: 300px;
   margin: 6px 0 5px;

@@ -184,7 +184,6 @@ export default function HomePage() {
             <img className="cp-feature-image" src={chargerProduct} alt="Équipement de recharge pour véhicule électrique" />
             <div className="cp-feature-shade" />
             <div className="cp-feature-copy">
-              <span className="cp-feature-kicker">VOTRE ESPACE</span>
               <h2 id="feature-title">Tout est à portée de main.</h2>
               <p>Consultez vos informations et accédez rapidement aux services de votre compte.</p>
             </div>
