@@ -9,7 +9,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getCountriesForDisplay, getWithdrawalMethodsForCountry, type ApiCountry } from "@/lib/countries";
 import { Loader2, Plus, Trash2, CreditCard, ChevronLeft, ChevronRight, ChevronDown, Shield, Check, Search, X } from "lucide-react";
 import emptyIllustration from "@assets/illustration-8_1784762965573.png";
-import chargepointPromo from "@/assets/auth-chargepoint-combined.png";
+import { equinorOffshore } from "@/assets/equinor-media";
 import walletCardIcon from "@/assets/account-wallet.png";
 import { Link, useLocation, useSearch } from "wouter";
 import type { WithdrawalWallet } from "@shared/schema";
@@ -35,7 +35,7 @@ function getWalletOperatorIcon(paymentMethod: string) {
   if (method.includes("airtel")) return "/operators/airtel.png";
   if (method.includes("wave")) return "/operators/wave.png";
   if (method.includes("tmoney") || method.includes("t-money")) return "/operators/tmoney.png";
-  return "/chargepoint-icon-512.png";
+  return "/favicon.png?v=equinor";
 }
 
 const walletStyles = `
@@ -83,10 +83,10 @@ const walletStyles = `
     cursor: pointer;
   }
   .wallet-top-action {
-    background: #ff7a14;
-    border-color: #ff7a14;
+    background: #bd304c;
+    border-color: #bd304c;
     box-shadow: 0 3px 0 #111827;
-    color: #111827;
+    color: #ffffff;
   }
   .wallet-heading {
     min-width: 0;
@@ -95,7 +95,7 @@ const walletStyles = `
   .wallet-eyebrow {
     display: block;
     margin-bottom: 2px;
-    color: #c65100;
+    color: #9e263c;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .08em;
@@ -118,9 +118,9 @@ const walletStyles = `
     gap: 12px;
     margin-bottom: 16px;
     padding: 16px;
-    border: 1px solid #ffe0ca;
+    border: 1px solid #f0c5cf;
     border-radius: 20px;
-    background: #fff8f2;
+    background: #fff0f3;
   }
   .wallet-hero-icon {
     display: grid;
@@ -129,7 +129,7 @@ const walletStyles = `
     flex: none;
     place-items: center;
     border-radius: 15px;
-    background: #ff7a14;
+    background: #bd304c;
     color: #ffffff;
   }
   .wallet-hero h2 {
@@ -180,8 +180,8 @@ const walletStyles = `
     place-items: center;
     border: 2px solid #111827;
     border-radius: 9px;
-    background: #ff7a14;
-    color: #111827;
+    background: #bd304c;
+    color: #ffffff;
     font-size: 12px;
     font-weight: 800;
   }
@@ -231,7 +231,7 @@ const walletStyles = `
   }
   .wallet-selector svg {
     flex: none;
-    color: #c65100;
+    color: #9e263c;
   }
   .wallet-field {
     padding: 15px 16px 16px;
@@ -250,15 +250,15 @@ const walletStyles = `
     font-size: 15px;
   }
   .wallet-input:focus {
-    border-color: #ff7a14;
-    box-shadow: 0 1px 0 #ff7a14;
+    border-color: #bd304c;
+    box-shadow: 0 1px 0 #bd304c;
   }
   .wallet-input::placeholder {
     color: #b8aea7;
   }
   .wallet-error {
     margin: 6px 0 0;
-    color: #c03900;
+    color: #9e263c;
     font-size: 12px;
   }
   .wallet-note {
@@ -273,7 +273,7 @@ const walletStyles = `
   .wallet-note svg {
     flex: none;
     margin-top: 1px;
-    color: #ff7a14;
+    color: #bd304c;
   }
   .wallet-list-section {
     margin-bottom: 0;
@@ -295,7 +295,7 @@ const walletStyles = `
     border: 2px solid #111827;
     border-radius: 16px;
     padding: 20px;
-    background: linear-gradient(125deg, #c94f00 0%, #f26b08 48%, #ff982e 100%);
+    background: linear-gradient(125deg, #9e263c 0%, #bd304c 48%, #d94d69 100%);
     box-shadow: 0 4px 0 #111827, 0 9px 16px rgba(17, 24, 39, .18);
     color: #ffffff;
     transition: box-shadow .15s ease, transform .15s ease;
@@ -421,8 +421,8 @@ const walletStyles = `
   .wallet-icon-action:hover,
   .wallet-icon-action:focus-visible {
     border-color: #111827;
-    background: #fff0e5;
-    outline: 3px solid rgba(255, 122, 20, .22);
+    background: #fff0f3;
+    outline: 3px solid rgba(189, 48, 76, .22);
     outline-offset: 2px;
   }
   .wallet-empty {
@@ -475,17 +475,17 @@ const walletStyles = `
     gap: 8px;
     border: 2px solid #111827;
     border-radius: 11px;
-    background: #ff7a14;
+    background: #bd304c;
     box-shadow: 0 4px 0 #111827, 0 7px 14px rgba(17, 24, 39, .18);
-    color: #111827;
+    color: #ffffff;
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;
   }
   .wallet-primary:hover,
   .wallet-primary:focus-visible {
-    background: #e96808;
-    outline: 3px solid rgba(255, 122, 20, .28);
+    background: #9e263c;
+    outline: 3px solid rgba(189, 48, 76, .28);
     outline-offset: 2px;
   }
   .wallet-primary:disabled {
@@ -521,7 +521,7 @@ const walletStyles = `
     background-color: #ffffff;
     background-image:
       linear-gradient(rgba(255, 255, 255, .22), rgba(255, 255, 255, .22)),
-      url("${chargepointPromo}");
+      url("${equinorOffshore}");
     background-position: top center;
     background-repeat: no-repeat;
     background-size: 100% auto;
@@ -559,7 +559,7 @@ const walletStyles = `
   }
   .wallet-reference-row:hover,
   .wallet-reference-row:focus-visible {
-    background: #fff8f2;
+    background: #fff0f3;
     outline: none;
   }
   .wallet-reference-label {
@@ -1071,7 +1071,7 @@ export default function WalletPage() {
 
                 {isLoading ? (
                   <div className="flex justify-center py-12">
-                    <Loader2 className="w-6 h-6 animate-spin text-[#FF7A14]" />
+                    <Loader2 className="w-6 h-6 animate-spin text-[#bd304c]" />
                   </div>
                 ) : wallets && wallets.length > 0 ? (
                   <div className="wallet-list">

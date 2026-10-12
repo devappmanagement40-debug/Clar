@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#D40030",
+  "theme_color": "#bd304c",
   "orientation": "portrait",
   "icons": [
     {
@@ -15,7 +15,7 @@
       "purpose": "any"
     },
     {
-      "src": "/chargepoint-icon-512.png?v=equinor",
+      "src": "/equinor-icon-512.png?v=equinor",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

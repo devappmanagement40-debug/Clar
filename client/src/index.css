@@ -93,90 +93,177 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* TON green theme.
- * The dashboard keeps its own visual identity; App.tsx only adds this scope
+/* Equinor crimson theme.
+ * The homepage keeps its own visual identity; App.tsx adds this scope
  * to the other routes so the dashboard is not recolored by these overrides.
  */
-.ton-theme {
-  --ton-green: #00cc2c;
-  --ton-green-dark: #008f24;
-  --ton-green-deep: #006b1c;
-  --ton-green-soft: #e9f9ec;
-  --ton-gradient: linear-gradient(112deg, #00cc2c 0%, #008f24 100%);
+.equinor-theme {
+  --equinor-red: #bd304c;
+  --equinor-red-dark: #9e263c;
+  --equinor-red-deep: #7a1c31;
+  --equinor-red-soft: #fff0f3;
+  --equinor-gradient: linear-gradient(112deg, #bd304c 0%, #9e263c 100%);
 
-  --background: 120 25% 97%;
-  --foreground: 130 18% 13%;
-  --border: 130 18% 85%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 10%;
+  --border: 0 0% 85%;
   --card: 0 0% 100%;
-  --card-foreground: 130 18% 13%;
-  --card-border: 130 18% 90%;
+  --card-foreground: 0 0% 10%;
+  --card-border: 0 0% 90%;
   --popover: 0 0% 100%;
-  --popover-foreground: 130 18% 13%;
-  --popover-border: 130 18% 90%;
-  --primary: 133 100% 40%;
+  --popover-foreground: 0 0% 10%;
+  --popover-border: 0 0% 90%;
+  --primary: 348 59% 46%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 120 20% 94%;
-  --secondary-foreground: 130 18% 13%;
-  --muted: 120 16% 93%;
-  --muted-foreground: 130 8% 43%;
-  --accent: 125 65% 93%;
-  --accent-foreground: 133 100% 30%;
-  --input: 130 15% 84%;
-  --ring: 133 100% 40%;
-  --chart-1: 133 100% 40%;
-  --chart-2: 145 70% 38%;
-  --chart-3: 110 60% 42%;
-  --chart-4: 165 55% 40%;
-  --chart-5: 85 60% 42%;
+  --secondary: 345 45% 96%;
+  --secondary-foreground: 0 0% 12%;
+  --muted: 345 18% 96%;
+  --muted-foreground: 0 0% 43%;
+  --accent: 345 60% 94%;
+  --accent-foreground: 348 59% 38%;
+  --input: 0 0% 84%;
+  --ring: 348 59% 46%;
+  --chart-1: 348 59% 46%;
+  --chart-2: 337 58% 39%;
+  --chart-3: 8 68% 52%;
+  --chart-4: 325 54% 54%;
+  --chart-5: 355 45% 66%;
 }
 
-/* Recolor recurring hard-coded brand utilities without changing dashboard
- * styles, which intentionally lives outside .ton-theme.
+/* Recolor legacy brand utilities and orange accents across every non-home route.
  */
-.ton-theme [class~="text-[#3174d1]"],
-.ton-theme [class~="text-[#2196F3]"],
-.ton-theme [class~="text-[#1598e7]"],
-.ton-theme [class~="text-[#0789c9]"],
-.ton-theme [class~="text-[#7fc9ff]"],
-.ton-theme [class~="text-[#FF4500]"] {
-  color: var(--ton-green) !important;
+.equinor-theme [class~="text-[#3174d1]"],
+.equinor-theme [class~="text-[#2196F3]"],
+.equinor-theme [class~="text-[#1598e7]"],
+.equinor-theme [class~="text-[#0789c9]"],
+.equinor-theme [class~="text-[#7fc9ff]"],
+.equinor-theme [class~="text-[#FF4500]"],
+.equinor-theme [class~="text-[#FF7A14]"],
+.equinor-theme [class*="text-[#b84d00]"],
+.equinor-theme [class*="text-[#5b2500]"] {
+  color: #bd304c !important;
 }
 
-.ton-theme [class~="bg-[#3174d1]"],
-.ton-theme [class~="bg-[#2196F3]"],
-.ton-theme [class~="bg-[#55c9e5]"],
-.ton-theme [class~="bg-[#FF4500]"] {
-  background-color: var(--ton-green) !important;
+.equinor-theme [class~="bg-[#3174d1]"],
+.equinor-theme [class~="bg-[#2196F3]"],
+.equinor-theme [class~="bg-[#55c9e5]"],
+.equinor-theme [class~="bg-[#FF4500]"],
+.equinor-theme [class~="bg-[#FF7A14]"] {
+  background-color: #bd304c !important;
+  color: #ffffff !important;
 }
 
-.ton-theme [class~="border-[#3174d1]"],
-.ton-theme [class~="border-[#2196F3]"],
-.ton-theme [class~="border-[#55c9e5]"],
-.ton-theme [class~="border-[#7fc9ff]"],
-.ton-theme [class~="border-[#FF4500]"] {
-  border-color: var(--ton-green) !important;
+.equinor-theme [class*="bg-[#fff1e6]"] {
+  background-color: #fff0f3 !important;
+}
+
+.equinor-theme [class~="border-[#3174d1]"],
+.equinor-theme [class~="border-[#2196F3]"],
+.equinor-theme [class~="border-[#55c9e5]"],
+.equinor-theme [class~="border-[#7fc9ff]"],
+.equinor-theme [class~="border-[#FF4500]"],
+.equinor-theme [class*="border-[#FF7A14]"],
+.equinor-theme [class*="border-[#FF4500]"] {
+  border-color: #bd304c !important;
+}
+
+.equinor-theme [class*="ring-[#FF7A14]"],
+.equinor-theme [class*="ring-[#FF4500]"] {
+  --tw-ring-color: #bd304c !important;
+}
+
+.equinor-theme [class*="decoration-[#FF7A14]"] {
+  text-decoration-color: #bd304c !important;
+}
+
+.equinor-theme [class~="hover:text-[#b84d00]"]:hover {
+  color: #bd304c !important;
+}
+
+.equinor-theme [class*="text-orange-"],
+.equinor-theme [class*="text-amber-"] {
+  color: #9e263c !important;
+}
+
+.equinor-theme [class*="bg-orange-"],
+.equinor-theme [class*="bg-amber-"] {
+  background-color: #bd304c !important;
+}
+
+.equinor-theme [class*="bg-orange-50"],
+.equinor-theme [class*="bg-orange-100"],
+.equinor-theme [class*="bg-orange-200"],
+.equinor-theme [class*="bg-amber-50"],
+.equinor-theme [class*="bg-amber-100"],
+.equinor-theme [class*="bg-amber-200"] {
+  background-color: #fff0f3 !important;
+}
+
+.equinor-theme [class*="bg-orange-"][class*="/"],
+.equinor-theme [class*="bg-amber-"][class*="/"] {
+  background-color: rgb(189 48 76 / 14%) !important;
+}
+
+.equinor-theme [class~="bg-orange-500"],
+.equinor-theme [class~="bg-orange-600"],
+.equinor-theme [class~="bg-orange-700"],
+.equinor-theme [class~="bg-amber-500"],
+.equinor-theme [class~="bg-amber-600"],
+.equinor-theme [class~="bg-amber-700"] {
+  color: #ffffff !important;
+}
+
+.equinor-theme [class*="dark:bg-orange-950"],
+.equinor-theme [class*="dark:bg-amber-950"] {
+  background-color: #4b1c27 !important;
+  color: #ffffff !important;
+}
+
+.equinor-theme [class*="border-orange-"],
+.equinor-theme [class*="border-amber-"] {
+  border-color: #bd304c !important;
+}
+
+.equinor-theme [class*="ring-orange-"],
+.equinor-theme [class*="ring-amber-"] {
+  --tw-ring-color: #bd304c !important;
+}
+
+.equinor-theme [class*="from-orange-"],
+.equinor-theme [class*="from-amber-"] {
+  --tw-gradient-from: #bd304c !important;
+  --tw-gradient-to: rgb(189 48 76 / 0%) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.equinor-theme [class*="to-orange-"],
+.equinor-theme [class*="to-amber-"] {
+  --tw-gradient-to: #9e263c !important;
 }
 
 /* Inline gradients are used for the branded headers and action buttons.
  * Preserve black authentication overlays while changing colored gradients.
  */
-.ton-theme [style*="linear-gradient"]:not([style*="#000000"]):not([style*="rgb(0, 0, 0)"]):not([style*="rgba(0,0,0"]):not([style*="rgba(0, 0, 0"]) {
-  background: var(--ton-gradient) !important;
+.equinor-theme [style*="linear-gradient"]:not([style*="#000000"]):not([style*="rgb(0, 0, 0)"]):not([style*="rgba(0,0,0"]):not([style*="rgba(0, 0, 0"]) {
+  background: var(--equinor-gradient) !important;
 }
 
-.ton-theme [style*="#3174d1"],
-.ton-theme [style*="#55c9e5"],
-.ton-theme [style*="#2196F3"],
-.ton-theme [style*="#FF4500"],
-.ton-theme [style*="#E03E00"] {
-  border-color: var(--ton-green) !important;
-  color: var(--ton-green) !important;
+.equinor-theme [style*="#3174d1"],
+.equinor-theme [style*="#55c9e5"],
+.equinor-theme [style*="#2196F3"],
+.equinor-theme [style*="#FF4500"],
+.equinor-theme [style*="#E03E00"],
+.equinor-theme [style*="#ff7a14"],
+.equinor-theme [style*="#FF7A14"] {
+  border-color: #bd304c !important;
+  color: #bd304c !important;
 }
 
-.ton-theme [style*="linear-gradient"][style*="#3174d1"],
-.ton-theme [style*="linear-gradient"][style*="#55c9e5"],
-.ton-theme [style*="linear-gradient"][style*="#FF4500"],
-.ton-theme [style*="linear-gradient"][style*="#E03E00"] {
+.equinor-theme [style*="linear-gradient"][style*="#3174d1"],
+.equinor-theme [style*="linear-gradient"][style*="#55c9e5"],
+.equinor-theme [style*="linear-gradient"][style*="#FF4500"],
+.equinor-theme [style*="linear-gradient"][style*="#E03E00"],
+.equinor-theme [style*="linear-gradient"][style*="#ff7a14"] {
   color: white !important;
 }
 
@@ -411,8 +498,8 @@
 }
 
 .country-picker-search:focus-within {
-  border-color: #ff7a14;
-  box-shadow: 0 0 0 2px rgba(255, 122, 20, .18);
+  border-color: #bd304c;
+  box-shadow: 0 0 0 2px rgba(189, 48, 76, .18);
 }
 
 .country-picker-search svg {
@@ -507,7 +594,7 @@
   width: 18px;
   height: 18px;
   flex: none;
-  color: #c65100;
+  color: #9e263c;
   stroke-width: 2.5;
 }
 

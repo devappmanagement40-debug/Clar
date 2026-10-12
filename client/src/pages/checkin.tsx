@@ -5,9 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
-import chargepointLogo from "@assets/chargepoint_1790147948102.jpg";
-import chargepointHero from "@/assets/auth-chargepoint-combined.png";
-import chargepointDevice from "@assets/ChargePoint-Home-Flex-50A-CPH50-app-1280px__29346__78945__7114_1790148214522.png";
+import { equinorLogo, equinorOffshore, equinorPhone } from "@/assets/equinor-media";
 
 interface BonusStatus {
   canClaim: boolean;
@@ -60,7 +58,7 @@ export default function CheckinPage() {
         .checkin-reference {
           color: #111827;
           font-family: Inter, Arial, sans-serif;
-          background: #fff8f2;
+          background: #ffffff;
         }
         .checkin-reference .checkin-screen {
           width: 100%;
@@ -68,7 +66,7 @@ export default function CheckinPage() {
           min-height: 100%;
           margin: 0 auto;
           overflow: hidden;
-          background: #fff8f2;
+          background: #ffffff;
         }
         .checkin-reference .topbar {
           display: flex;
@@ -78,7 +76,7 @@ export default function CheckinPage() {
           gap: 10px;
           padding: 12px 16px;
           border-bottom: 2px solid #111827;
-          background: #fff8f2;
+          background: #ffffff;
         }
         .checkin-reference .back {
           display: inline-flex;
@@ -117,13 +115,13 @@ export default function CheckinPage() {
           border: 2px solid #111827;
           border-radius: 50%;
           background: #fff;
-          object-fit: cover;
+          object-fit: contain;
         }
         .checkin-reference .topbar-badge {
           padding: 8px 9px;
-          border: 2px solid #ff7a14;
+          border: 2px solid #bd304c;
           border-radius: 10px;
-          color: #e85d00;
+          color: #9e263c;
           font-size: 10px;
           font-weight: 800;
         }
@@ -202,17 +200,17 @@ export default function CheckinPage() {
           flex: 0 0 72px;
           place-items: center;
           overflow: hidden;
-          border: 2px solid #ff7a14;
+          border: 2px solid #bd304c;
           border-radius: 50%;
-          background: #fff3e8;
+          background: #fff0f3;
         }
         .checkin-reference .earnings-mark img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
         }
         .checkin-reference .earned-total {
-          color: #e85d00;
+          color: #9e263c;
           font-size: clamp(25px, 7vw, 34px);
           font-weight: 900;
           line-height: 1;
@@ -232,8 +230,8 @@ export default function CheckinPage() {
           margin-left: auto;
           border: 2px solid #111827;
           border-radius: 12px;
-          background: #ff7a14;
-          color: #111827;
+          background: #bd304c;
+          color: #ffffff;
           font-size: 24px;
           font-weight: 900;
         }
@@ -242,7 +240,7 @@ export default function CheckinPage() {
           padding: 18px;
           border: 2px solid #111827;
           border-radius: 14px;
-          background: #fff3e8;
+          background: #fff0f3;
         }
         .checkin-reference .reward-heading {
           margin: 0;
@@ -252,7 +250,7 @@ export default function CheckinPage() {
           line-height: 1.05;
         }
         .checkin-reference .reward-heading span {
-          color: #e85d00;
+          color: #9e263c;
         }
         .checkin-reference .reward-row {
           display: grid;
@@ -285,7 +283,7 @@ export default function CheckinPage() {
         .checkin-reference .reward-copy strong {
           display: block;
           margin-top: 4px;
-          color: #e85d00;
+          color: #9e263c;
           font-size: 30px;
           font-weight: 900;
           line-height: 1;
@@ -305,7 +303,7 @@ export default function CheckinPage() {
           text-align: center;
         }
         .checkin-reference .stat-value {
-          color: #e85d00;
+          color: #9e263c;
           font-size: 31px;
           font-weight: 900;
           line-height: 1;
@@ -333,8 +331,8 @@ export default function CheckinPage() {
           margin: 18px 32px 0;
           border: 2px solid #111827;
           border-radius: 12px;
-          background: #ff7a14;
-          color: #111827;
+          background: #bd304c;
+          color: #ffffff;
           font-size: 21px;
           font-weight: 900;
           line-height: 1;
@@ -345,7 +343,7 @@ export default function CheckinPage() {
           box-shadow: 0 1px 0 #111827;
         }
         .checkin-reference .claim:disabled {
-          background: #f6c39b;
+          background: #f2c4cf;
           color: #6b7280;
           box-shadow: 0 3px 0 #111827;
         }
@@ -363,7 +361,7 @@ export default function CheckinPage() {
           margin: 20px 16px 24px;
           padding: 20px 16px 8px;
           border: 2px solid #111827;
-          border-top: 5px solid #ff7a14;
+          border-top: 5px solid #bd304c;
           border-radius: 14px;
           background: #fff;
         }
@@ -382,7 +380,7 @@ export default function CheckinPage() {
           line-height: 1.5;
         }
         .checkin-reference .instruction b {
-          color: #ff7a14;
+          color: #bd304c;
           font-size: 16px;
         }
         @media (max-width: 360px) {
@@ -405,7 +403,7 @@ export default function CheckinPage() {
             <ChevronLeft aria-hidden="true" /><span>Retour</span>
           </button>
           <div className="brand">
-            <img src={chargepointLogo} alt="" />
+            <img src={equinorLogo} alt="Equinor" />
             <span>Check-in</span>
           </div>
           <span className="topbar-badge">POINTAGE</span>
@@ -413,7 +411,7 @@ export default function CheckinPage() {
 
         <section className="hero" aria-label="Check-in quotidien">
           <div className="hero-art">
-            <img src={chargepointHero} alt="" />
+            <img src={equinorPhone} alt="" />
           </div>
           <div className="hero-copy">
             <strong>Equinor</strong>
@@ -422,7 +420,7 @@ export default function CheckinPage() {
         </section>
 
         <section className="earnings-card" aria-label="Revenus du check-in">
-          <div className="earnings-mark"><img src={chargepointLogo} alt="" /></div>
+          <div className="earnings-mark"><img src={equinorLogo} alt="Equinor" /></div>
           <div>
             <p className="earned-total">{formatAmount(totalBonusClaimed)}</p>
             <p className="earned-heading">Bonus cumulé</p>
@@ -433,7 +431,7 @@ export default function CheckinPage() {
         <section className="reward-panel" aria-label="Récompense quotidienne">
           <h2 className="reward-heading">Récompense du <span>pointage quotidien</span></h2>
           <div className="reward-row">
-            <div className="reward-image"><img src={chargepointHero} alt="" /></div>
+            <div className="reward-image"><img src={equinorPhone} alt="" /></div>
             <div className="reward-copy">
               <p>Recevez une récompense chaque jour</p>
               <strong>20 à 50 {currency}</strong>
@@ -445,7 +443,7 @@ export default function CheckinPage() {
               <p className="stat-label">Jours de pointage</p>
             </div>
             <div className="stat">
-              <div className="stats-image"><img src={chargepointDevice} alt="" /></div>
+              <div className="stats-image"><img src={equinorOffshore} alt="" /></div>
               <p className="stat-label">Activité récente</p>
             </div>
           </div>

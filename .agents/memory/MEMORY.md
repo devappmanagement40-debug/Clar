@@ -1,4 +1,4 @@
-- [Brand transition](vestas-platform.md) — User reports official permission for supplied Equinor images in requested homepage banners; keep scope limited and leave login/registration unchanged.
+- [Brand transition](vestas-platform.md) — User reports permission for supplied and online Equinor imagery on non-home pages; don't claim Equinor owns or endorses the platform.
 - [New application transition](new-application-transition.md) — Treat the rebuild as a fresh application; preserve Supabase-managed schemas and confirm before further destructive changes.
 - [Deposit checkout routing](deposit-checkout-routing.md) — Clients must not choose payment aggregators; route automatically by country and keep provider names internal/admin-only.
 - [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).

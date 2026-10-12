@@ -1,6 +1,6 @@
 .cp-account {
-  --cp-orange: #ff7a14;
-  --cp-orange-dark: #9e4100;
+  --equinor-red: #bd304c;
+  --equinor-red-dark: #9e263c;
   --cp-ink: #15171a;
   --cp-panel: #fff;
   min-height: auto;
@@ -40,7 +40,7 @@
   border: 3px solid #fff;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 3px 12px rgba(255, 122, 20, .25);
+  box-shadow: 0 3px 12px rgba(189, 48, 76, .25);
 }
 
 .cp-profile-avatar img {
@@ -70,7 +70,7 @@
   justify-content: center;
   padding: 4px 12px;
   border-radius: 999px;
-  background: var(--cp-orange);
+  background: var(--equinor-red);
   color: #211308;
   font-size: 12px;
   font-weight: 800;
@@ -110,7 +110,7 @@
   padding: 18px 14px 18px 18px;
   border: 2px solid #090a0c;
   border-radius: 16px;
-  background: var(--cp-orange);
+  background: var(--equinor-red);
   box-shadow: 0 4px 0 #090a0c, 0 9px 18px rgba(0, 0, 0, .3);
 }
 
@@ -257,7 +257,7 @@
   padding: 7px 18px;
   border: 0;
   border-radius: 999px;
-  background: var(--cp-orange);
+  background: var(--equinor-red);
   color: #211308;
   font-size: 11px;
   font-weight: 800;
@@ -308,17 +308,17 @@
   gap: 7px;
   margin-top: 18px;
   padding: 10px;
-  border: 1px solid var(--cp-orange);
+  border: 1px solid var(--equinor-red);
   border-radius: 9px;
   background: transparent;
-  color: var(--cp-orange);
+  color: var(--equinor-red);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .cp-account button:focus-visible {
-  outline: 2px solid var(--cp-orange);
+  outline: 2px solid var(--equinor-red);
   outline-offset: 3px;
 }
 

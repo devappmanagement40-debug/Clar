@@ -76,7 +76,7 @@ export default function InvestPage() {
       {/* ── Header ── */}
       <div
         className="flex items-center justify-between px-4 py-3 shadow-sm"
-        style={{ background: "linear-gradient(135deg, #FF4500 0%, #E03E00 100%)" }}
+        style={{ background: "linear-gradient(135deg, #bd304c 0%, #9e263c 100%)" }}
       >
           <div className="flex items-center gap-2">
             <span className="text-white text-sm font-bold">Equinor</span>
@@ -138,7 +138,7 @@ export default function InvestPage() {
                     ].map(({ label, value }) => (
                       <div key={label} className="flex items-center justify-between">
                         <span className="text-gray-400 text-[11px]">{label}</span>
-                        <span className="font-bold text-[11px]" style={{ color: "var(--ton-green)" }}>{value}</span>
+                        <span className="font-bold text-[11px]" style={{ color: "var(--equinor-red)" }}>{value}</span>
                       </div>
                     ))}
                   </div>
@@ -172,7 +172,7 @@ export default function InvestPage() {
           >
             <div
               className="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl"
-              style={{ background: "linear-gradient(160deg, #FF4500 0%, #E03E00 100%)" }}
+              style={{ background: "linear-gradient(160deg, #bd304c 0%, #9e263c 100%)" }}
               onClick={e => e.stopPropagation()}
             >
               {/* ── Title block ── */}

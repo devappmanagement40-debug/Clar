@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import homeNavIcon from "@assets/20260228_010602_1787388821497.png";
-import productsNavIcon from "@/assets/chargepoint-products-nav.svg";
+import productsNavIcon from "@/assets/products-nav.svg";
 import teamNavIcon from "@/assets/team-nav.svg";
 import accountNavIcon from "@assets/20260228_010619_1787388821589.png";
 
@@ -15,20 +15,12 @@ export default function BottomNav() {
   const [location, navigate] = useLocation();
   const isTeam = location === "/team" || location.startsWith("/team-details");
   const isHome = location === "/";
-  const isProducts = location === "/products";
-  const isAccount = location === "/account";
-  const isAbout = location === "/about";
-  const isRules = location === "/rules";
-  const usesCrimsonBrand = isHome || isProducts;
-  const usesOrangeBrand = isTeam || isAccount || isAbout || isRules;
 
   return (
     <nav
       className={`bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t bg-white shadow-[0_-1px_2px_rgba(0,0,0,.05)] ${isHome ? "cp-bottom-nav" : ""}`}
       style={{
-        borderColor: usesCrimsonBrand
-          ? "rgba(189, 48, 76, 0.3)"
-          : usesOrangeBrand ? "rgba(255, 122, 20, 0.3)" : "rgba(0, 204, 44, 0.2)",
+        borderColor: "rgba(189, 48, 76, 0.3)",
       }}
       aria-label="Navigation principale"
     >
@@ -56,7 +48,7 @@ export default function BottomNav() {
                 aria-hidden="true"
                 className="bottom-nav-icon h-[32px] w-[32px]"
                 style={{
-                  backgroundColor: isActive ? (usesCrimsonBrand ? "#bd304c" : usesOrangeBrand ? "#ff7a14" : "#00cc2c") : "#8f969b",
+                  backgroundColor: isActive ? "#bd304c" : "#8f969b",
                   WebkitMaskImage: `url("${item.icon}")`,
                   maskImage: `url("${item.icon}")`,
                 }}
@@ -64,9 +56,7 @@ export default function BottomNav() {
               <span
                 className="text-[11px] font-medium leading-none"
                   style={{
-                    color: isActive
-                      ? usesCrimsonBrand ? "#9e263c" : usesOrangeBrand ? "#9e4100" : "#00cc2c"
-                      : "#55565a",
+                    color: isActive ? "#9e263c" : "#55565a",
                   }}
               >
                 {isHome ? homeLabel : item.label}

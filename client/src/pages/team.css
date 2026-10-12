@@ -25,7 +25,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 16px;
-  border-bottom: 3px solid #ff7a14;
+  border-bottom: 3px solid #bd304c;
   background: #ffffff;
 }
 
@@ -93,7 +93,7 @@
   margin: 0;
   padding: 0 18px;
   border-bottom: 2px solid #111827;
-  background: #ff7a14;
+  background: #bd304c;
   color: #111827;
   font-size: 19px;
   font-weight: 800;
@@ -147,7 +147,7 @@
   place-items: center;
   border: 2px solid #111827;
   border-radius: 9px;
-  background: #ff7a14;
+  background: #bd304c;
   color: #111827;
   box-shadow: 0 2px 0 #111827;
 }
@@ -160,7 +160,7 @@
 
 .team-copy:hover,
 .team-back:hover {
-  background: #ffe3ce;
+  background: #fff0f3;
 }
 
 .team-summary {
@@ -194,7 +194,7 @@
 
 .team-summary-item strong {
   max-width: 100%;
-  color: #9e4100;
+  color: #9e263c;
   font-size: 22px;
   font-weight: 800;
   line-height: 1.2;
@@ -216,10 +216,10 @@
   gap: 12px;
   margin: -8px 0 0;
   padding: 11px 13px;
-  border: 1px solid #a02719;
+  border: 1px solid #9e263c;
   border-radius: 9px;
   background: #fff4f2;
-  color: #a02719;
+  color: #9e263c;
   font-size: 13px;
 }
 
@@ -227,7 +227,7 @@
   flex: 0 0 auto;
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid #a02719;
+  border: 1px solid #9e263c;
   border-radius: 7px;
   background: #ffffff;
   color: #7f1d1d;
@@ -244,7 +244,7 @@
 .team-demo-note {
   margin: -8px 0 0;
   padding: 11px 13px;
-  border-left: 4px solid #ff7a14;
+  border-left: 4px solid #bd304c;
   background: #fff4e9;
   color: #374151;
   font-size: 13px;
@@ -281,7 +281,7 @@
 }
 
 .team-level-metrics strong {
-  color: #9e4100;
+  color: #9e263c;
   font-size: 24px;
   font-weight: 800;
 }
@@ -304,7 +304,7 @@
   padding: 9px 18px;
   border: 0;
   border-top: 2px solid #000000;
-  background: #ff7a14;
+  background: #bd304c;
   color: #111827;
   font: inherit;
   font-size: 14px;
@@ -314,7 +314,7 @@
 }
 
 .team-level-open:hover {
-  background: #ff9b4a;
+  background: #bd304c;
 }
 
 .team-level-open svg {
@@ -360,8 +360,8 @@
 }
 
 .team-share-links a:hover {
-  border-color: #ff7a14;
-  background: #fff5ed;
+  border-color: #bd304c;
+  background: #fff0f3;
 }
 
 .team-share-links img {

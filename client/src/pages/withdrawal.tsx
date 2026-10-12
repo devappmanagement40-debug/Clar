@@ -7,8 +7,7 @@ import { ChevronRight, Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import walletIcon from "@assets/téléchargement_(80)_1787363581764.png";
-import chargepointLogo from "@assets/chargepoint_1790147948102.jpg";
-import chargepointPromo from "@/assets/auth-chargepoint-combined.png";
+import { equinorLogo, equinorPhone } from "@/assets/equinor-media";
 
 interface WalletData {
   id: number;
@@ -165,7 +164,7 @@ export default function WithdrawalPage() {
   if (walletsLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#FF7A14]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
       </div>
     );
   }
@@ -180,7 +179,7 @@ export default function WithdrawalPage() {
       <style>{`
         .withdraw-reference {
           min-height: 100dvh;
-          background: #fff8f2;
+          background: #ffffff;
           color: #111827;
           font-family: Inter, Arial, sans-serif;
         }
@@ -190,14 +189,14 @@ export default function WithdrawalPage() {
           min-height: 100dvh;
           margin: 0 auto;
           overflow: hidden;
-          background: #fff8f2;
+          background: #ffffff;
         }
         .withdraw-reference .withdraw-hero {
           position: relative;
           box-sizing: border-box;
           min-height: 406px;
           padding: 0 16px 20px;
-          background: #fff8f2;
+          background: #ffffff;
           border-bottom: 2px solid #111827;
         }
         .withdraw-reference .history-button,
@@ -241,8 +240,8 @@ export default function WithdrawalPage() {
           width: 11px;
           height: 2px;
           content: "";
-          background: #ff7a14;
-          box-shadow: 0 6px 0 #ff7a14;
+          background: #bd304c;
+          box-shadow: 0 6px 0 #bd304c;
         }
         .withdraw-reference .history-icon::after {
           position: absolute;
@@ -272,7 +271,7 @@ export default function WithdrawalPage() {
           border: 2px solid #111827;
           border-radius: 13px;
           background: #fff;
-          background-image: url("${chargepointPromo}");
+          background-image: url("${equinorPhone}");
           background-position: center;
           background-size: cover;
           box-shadow: 0 4px 0 #111827;
@@ -303,7 +302,7 @@ export default function WithdrawalPage() {
           height: 38px;
           border: 2px solid #111827;
           border-radius: 50%;
-          object-fit: cover;
+          object-fit: contain;
         }
         .withdraw-reference .balance-card {
           position: relative;
@@ -312,19 +311,19 @@ export default function WithdrawalPage() {
           margin-top: 16px;
           border: 2px solid #111827;
           border-radius: 13px;
-          background: #ff7a14;
+          background: #bd304c;
           box-shadow: 0 4px 0 #111827;
         }
         .withdraw-reference .balance-label {
           margin: 20px 0 0 17px;
-          color: #111827;
+          color: #ffffff;
           font-size: 15px;
           font-weight: 800;
           line-height: 1;
         }
         .withdraw-reference .balance-value {
           margin: 16px 0 0 17px;
-          color: #111827;
+          color: #ffffff;
           font-size: 32px;
           font-weight: 800;
           line-height: .9;
@@ -348,7 +347,7 @@ export default function WithdrawalPage() {
         .withdraw-reference .wallet-mark img {
           width: 62px;
           height: 62px;
-          object-fit: cover;
+          object-fit: contain;
         }
         .withdraw-reference .amount-panel {
           box-sizing: border-box;
@@ -406,7 +405,7 @@ export default function WithdrawalPage() {
           padding: 14px;
           border: 2px solid #111827;
           border-radius: 12px;
-          background: #fff1e6;
+          background: #fff0f3;
           color: #4b5563;
           font-size: 13px;
           line-height: 1.45;
@@ -423,8 +422,8 @@ export default function WithdrawalPage() {
           gap: 8px;
           border: 2px solid #111827;
           border-radius: 10px;
-          background: #ff7a14;
-          color: #111827;
+          background: #bd304c;
+          color: #ffffff;
           font-weight: 800;
           box-shadow: 0 2px 0 #111827;
         }
@@ -461,7 +460,7 @@ export default function WithdrawalPage() {
           width: 22px;
           height: 22px;
           margin-left: auto;
-          color: #ff7a14;
+          color: #bd304c;
         }
         .withdraw-reference .wallet-copy {
           overflow: hidden;
@@ -474,7 +473,7 @@ export default function WithdrawalPage() {
           margin: 18px 16px 24px;
           padding: 22px 16px 10px;
           border: 2px solid #111827;
-          border-top: 5px solid #ff7a14;
+          border-top: 5px solid #bd304c;
           border-radius: 14px;
           background: #fff;
         }
@@ -487,7 +486,7 @@ export default function WithdrawalPage() {
         .withdraw-reference .instructions-title::before {
           content: "•";
           margin-right: 8px;
-          color: #ff7a14;
+          color: #bd304c;
           font-size: 24px;
           line-height: 0;
         }
@@ -507,7 +506,7 @@ export default function WithdrawalPage() {
           height: 6px;
           border-radius: 50%;
           content: "";
-          background: #ff7a14;
+          background: #bd304c;
         }
         .withdraw-reference .instruction strong { color: #111827; font-weight: 800; }
         .withdraw-reference .submit {
@@ -519,8 +518,8 @@ export default function WithdrawalPage() {
           margin: 18px 16px 0;
           border: 2px solid #111827;
           border-radius: 12px;
-          background: #ff7a14;
-          color: #111827;
+          background: #bd304c;
+          color: #ffffff;
           font-size: 16px;
           font-weight: 800;
           box-shadow: 0 4px 0 #111827;
@@ -550,7 +549,7 @@ export default function WithdrawalPage() {
             <span className="receipt-icon" />
           </div>
           <h1 className="withdraw-title">
-            <img className="withdraw-title-logo" src={chargepointLogo} alt="" />
+            <img className="withdraw-title-logo" src={equinorLogo} alt="Equinor" />
             <span>Retrait</span>
           </h1>
           <Link href="/history">
@@ -564,7 +563,7 @@ export default function WithdrawalPage() {
           <div className="balance-card">
             <p className="balance-label">Solde du compte</p>
             <p className="balance-value" data-testid="text-balance">{Math.round(balance).toLocaleString("fr-FR")}<span>{currency}</span></p>
-            <div className="wallet-mark" aria-hidden="true"><img src={chargepointLogo} alt="" /></div>
+            <div className="wallet-mark" aria-hidden="true"><img src={equinorLogo} alt="" /></div>
           </div>
         </section>
 

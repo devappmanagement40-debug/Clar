@@ -24,7 +24,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 16px;
-  border-bottom: 3px solid #ff7a14;
+  border-bottom: 3px solid #bd304c;
 }
 
 .team-details-header button {
@@ -41,7 +41,7 @@
 }
 
 .team-details-header button:hover {
-  background: #ffe3ce;
+  background: #fff0f3;
 }
 
 .team-details-header button svg {
@@ -87,7 +87,7 @@
 }
 
 .team-details-tabs button.is-active {
-  background: #ff7a14;
+  background: #bd304c;
   box-shadow: 0 4px 0 #111827;
 }
 
@@ -128,7 +128,7 @@
 
 .team-details-stats strong {
   max-width: 100%;
-  color: #9e4100;
+  color: #9e263c;
   font-size: clamp(18px, 5vw, 23px);
   font-weight: 800;
   overflow-wrap: anywhere;
@@ -142,7 +142,7 @@
 .team-details-demo-notice {
   margin: 0;
   padding: 11px 13px;
-  border-left: 4px solid #ff7a14;
+  border-left: 4px solid #bd304c;
   background: #fff4e9;
   color: #374151;
   font-size: 13px;
@@ -156,7 +156,7 @@
   margin: 0;
   padding: 0 18px;
   border-bottom: 2px solid #111827;
-  background: #ff7a14;
+  background: #bd304c;
   font-size: 19px;
   font-weight: 800;
 }
@@ -218,7 +218,7 @@
 
 .team-details-revenue {
   min-width: 0;
-  color: #9e4100;
+  color: #9e263c;
   font-weight: 800;
   overflow-wrap: anywhere;
 }
@@ -286,7 +286,7 @@
 .team-details-empty svg {
   width: 38px;
   height: 38px;
-  color: #9e4100;
+  color: #9e263c;
 }
 
 .team-details-empty strong {
@@ -300,7 +300,7 @@
   padding: 0 16px;
   border: 2px solid #111827;
   border-radius: 8px;
-  background: #ff7a14;
+  background: #bd304c;
   color: #111827;
   font: inherit;
   font-weight: 800;

@@ -3,10 +3,8 @@ name: Equinor product name
 description: Current product naming decision and remaining brand-identity constraints.
 ---
 
-The user reports that Equinor officially authorized the supplied images for use on this deposits-and-investments platform. Keep that authorization scoped to user-provided imagery in the homepage banners they request, including the rotating carousel and lower feature banner; do not infer permission to source additional Equinor assets or make broader affiliation claims. Leave login and registration unchanged.
+The user reports that Equinor officially authorized both supplied images and images found online for use on this deposits-and-investments platform, explicitly including pages outside the homepage. Do not infer endorsement claims beyond the user's report.
 
-**Why:** The user explicitly confirmed official authorization for these visuals after previously saying they did not have it.
+**Why:** The user explicitly confirmed authorization for online Equinor images on non-home pages.
 
-**How to apply:** Use supplied images only in the homepage banners the user requests, fully visible without cropping. Do not replace login/registration visuals, download other Equinor assets, or add claims beyond the reported authorization.
-
-The earlier login and registration pages remain outside the current image request; keep them unchanged.
+**How to apply:** Use supplied or properly sourced Equinor imagery in the requested app pages; keep the user-reported authorization separate from any claims that Equinor endorses or operates the platform.

@@ -137,13 +137,13 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           padding: 0;
           border: 0;
           border-radius: 16px;
-          background: #f7f4f2;
+          background: #ffffff;
         }
         .withdraw-modal-header {
           position: relative;
           min-height: 206px;
           padding: 26px 24px 0;
-          background: #ffca2b;
+          background: #bd304c;
           overflow: hidden;
         }
         .withdraw-modal-header::before,
@@ -151,7 +151,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           position: absolute;
           content: "";
           border-radius: 45%;
-          background: #fdb900;
+          background: #9e263c;
           transform: rotate(-14deg);
         }
         .withdraw-modal-header::before {
@@ -159,7 +159,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           left: -40px;
           width: 170px;
           height: 120px;
-          box-shadow: 95px 20px 0 -18px #fdb900;
+          box-shadow: 95px 20px 0 -18px #9e263c;
         }
         .withdraw-modal-header::after {
           top: 26px;
@@ -176,13 +176,13 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           z-index: 1;
         }
         .withdraw-modal-heading {
-          color: #111;
+          color: #ffffff;
           font-size: 28px;
           font-weight: 500;
           text-align: center;
         }
         .withdraw-modal-subtitle {
-          color: #946d23;
+          color: #fff0f3;
           text-align: center;
         }
         .withdraw-modal-balance {
@@ -193,8 +193,8 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           padding: 18px;
           border: 2px solid rgba(255,255,255,.9);
           border-radius: 12px;
-          background: linear-gradient(110deg, #ffd45d, #ffe69a);
-          color: #f36d17;
+          background: linear-gradient(110deg, #9e263c, #bd304c);
+          color: #ffffff;
         }
         .withdraw-modal-balance-label {
           font-size: 15px;
@@ -209,9 +209,9 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           position: relative;
           width: 62px;
           height: 46px;
-          border: 4px solid #f2b51d;
+          border: 4px solid #9e263c;
           border-radius: 8px;
-          background: #ffd85d;
+          background: #fff0f3;
           box-shadow: inset 0 8px 0 rgba(255,255,255,.3);
         }
         .withdraw-modal-wallet::after {
@@ -222,7 +222,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           height: 13px;
           border-radius: 4px;
           content: "";
-          background: #f2b51d;
+          background: #9e263c;
         }
         .withdraw-modal-body {
           padding: 20px 24px 24px;

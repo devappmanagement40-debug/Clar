@@ -26,8 +26,7 @@ import rulesIcon from "@/assets/account-rules.png";
 import logoutIcon from "@assets/logout_1787368185297.png";
 import checkinIcon from "@/assets/home-actions/checkin.png";
 import downloadIcon from "@assets/mine-mod-download-B1teb57W_1784762231070.png";
-import chargepointLogo from "@assets/chargepoint_1790147948102.jpg";
-import chargepointPromo from "@/assets/auth-chargepoint-combined.png";
+import { equinorLogo, equinorPhone } from "@/assets/equinor-media";
 import giftIcon from "@/assets/account-gift.png";
 import "./account.css";
 
@@ -455,7 +454,7 @@ export default function AccountPage() {
         <section className="cp-account-header" aria-label="Informations du compte">
           <div className="cp-profile-row">
             <div className="cp-profile-avatar">
-              <img src={chargepointLogo} alt="" />
+              <img src={equinorLogo} alt="Equinor" />
             </div>
             <div className="cp-profile-copy">
               <p className="cp-account-phone">+{phonePrefix} {user.phone}</p>
@@ -486,7 +485,7 @@ export default function AccountPage() {
         </section>
 
         <section className="cp-account-promo" aria-label="Présentation d'Equinor">
-          <img src={chargepointPromo} alt="" />
+          <img src={equinorPhone} alt="" />
           <div>
             <strong>Bienvenue chez Equinor</strong>
             <span>Des équipements pensés pour votre mobilité</span>

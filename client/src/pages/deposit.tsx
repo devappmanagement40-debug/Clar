@@ -11,8 +11,7 @@ import { Link } from "wouter";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import type { PaymentNumber } from "@shared/schema";
-import chargepointLogo from "@assets/chargepoint_1790147948102.jpg";
-import chargepointPromo from "@/assets/auth-chargepoint-combined.png";
+import { equinorLogo, equinorPlatform } from "@/assets/equinor-media";
 
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
 type DepositMethodChoice = { provider: DepositMethodId };
@@ -909,7 +908,7 @@ export default function DepositPage() {
           height: 38px;
           border: 2px solid #111827;
           border-radius: 50%;
-          object-fit: cover;
+          object-fit: contain;
         }
         .recharge-reference .history-button,
         .recharge-reference .recharge-back {
@@ -1130,10 +1129,10 @@ export default function DepositPage() {
       <div className="recharge-screen">
         <section className="recharge-hero" aria-label="Dépôt">
           <div className="recharge-hero-art">
-            <img src={chargepointPromo} alt="" />
+            <img src={equinorPlatform} alt="" />
           </div>
           <h1 className="recharge-title">
-            <img className="recharge-title-logo" src={chargepointLogo} alt="" />
+            <img className="recharge-title-logo" src={equinorLogo} alt="Equinor" />
             <span>Dépôt</span>
           </h1>
           <Link href="/history">

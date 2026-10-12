@@ -43,10 +43,10 @@ interface Transaction {
 
 type ActiveTab = "balance" | "deposits" | "withdrawals";
 
-const CARD_ORANGE = "#ff7a14";
+const CARD_ORANGE = "#bd304c";
 const CARD_DARK = "#111827";
 const CARD_SUCCESS = "#16a34a";
-const CARD_BACKGROUND = "#fff8f2";
+const CARD_BACKGROUND = "#fff0f3";
 
 const makeRef = (prefix: "D" | "W", id: number, date: string) => {
   const d = new Date(date);
@@ -98,9 +98,9 @@ const getStatusInfo = (status: string) => {
     case "rejected":
       return { label: "Paiement échoué", color: "#b42318" };
     case "processing":
-      return { label: "En traitement", color: "#d97706" };
+      return { label: "En traitement", color: "#bd304c" };
     default:
-      return { label: "En attente...", color: "#d97706" };
+      return { label: "En attente...", color: "#bd304c" };
   }
 };
 
@@ -303,8 +303,8 @@ export default function HistoryPage() {
           cursor: pointer;
         }
         .history-tab.active {
-          background: #ff7a14;
-          color: #111827;
+          background: #bd304c;
+          color: #ffffff;
           font-weight: 700;
         }
         .history-tab-arrow {
@@ -319,7 +319,7 @@ export default function HistoryPage() {
         .history-content {
           min-height: calc(100dvh - 156px);
           padding: 18px 16px 40px;
-          background: #fff8f2;
+          background: #fff0f3;
         }
         .history-list {
           display: grid;
