@@ -200,11 +200,12 @@ body:has(.cp-account) { background: #fff !important; }
 
 .cp-account-quick-actions button > span:first-child {
   display: grid;
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   place-items: center;
-  border-radius: 10px;
-  background: #fbf0f2;
+  border: 1.5px solid var(--account-card-border);
+  border-radius: 11px;
+  background: #fff3f5;
   color: var(--account-red);
 }
 
@@ -216,9 +217,9 @@ body:has(.cp-account) { background: #fff !important; }
 .cp-account-quick-actions button:active { transform: scale(.98); }
 
 .cp-account-quick-actions svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 1.9;
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.2;
 }
 
 .cp-account-promo {
@@ -338,20 +339,20 @@ body:has(.cp-account) { background: #fff !important; }
 
 .cp-service-icon {
   display: grid;
-  width: 31px;
-  height: 31px;
+  width: 36px;
+  height: 36px;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid var(--account-card-border);
+  border: 1.5px solid var(--account-card-border);
   border-radius: 10px;
   background: #fbf0f2;
   color: var(--account-red);
 }
 
 .cp-service-icon svg {
-  width: 17px;
-  height: 17px;
-  stroke-width: 1.8;
+  width: 21px;
+  height: 21px;
+  stroke-width: 2.1;
 }
 
 .cp-services-list button > span:nth-child(2) {

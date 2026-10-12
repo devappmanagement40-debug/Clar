@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode, type ApiCountry } from "@/lib/countries";
 import {
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  CalendarCheck,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  CheckCircle2,
   ChevronRight,
-  CircleHelp,
   CreditCard,
   Download,
   Gift,
+  HelpCircle,
   Headset,
   History,
   Info,
@@ -83,10 +83,10 @@ export default function AccountPage() {
   const formatAmount = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;
 
   const quickActions = [
-    { label: "Dépôt", icon: ArrowDownToLine, href: "/deposit" },
-    { label: "Retrait", icon: ArrowUpFromLine, href: "/withdrawal" },
-    { label: "Aide", icon: CircleHelp, href: "/service" },
-    { label: "Pointage", icon: CalendarCheck, href: "/checkin" },
+    { label: "Dépôt", icon: ArrowDownCircle, href: "/deposit" },
+    { label: "Retrait", icon: ArrowUpCircle, href: "/withdrawal" },
+    { label: "Aide", icon: HelpCircle, href: "/service" },
+    { label: "Pointage", icon: CheckCircle2, href: "/checkin" },
   ];
 
   const serviceItems = [
