@@ -51,7 +51,7 @@ export default function BottomNav() {
                 aria-hidden="true"
                 className="bottom-nav-icon h-[32px] w-[32px]"
                 style={{
-                  backgroundColor: isActive ? (usesOrangeBrand ? "#ff7a14" : "#00cc2c") : "#8f969b",
+                  backgroundColor: isActive ? (isHome ? "#bd304c" : usesOrangeBrand ? "#ff7a14" : "#00cc2c") : "#8f969b",
                   WebkitMaskImage: `url("${item.icon}")`,
                   maskImage: `url("${item.icon}")`,
                 }}
