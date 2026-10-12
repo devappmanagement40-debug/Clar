@@ -60,4 +60,17 @@ Tout compte qui ne satisfait pas ces contrôles — notamment à cause d’un aj
 6. Tester dépôts approuvés/refusés, bonus d’inscription, revenus journaliers, commissions, récompenses, achats, staking, retrait accepté/rejeté, et répétition des callbacks.
 7. Comparer `balance` historique et somme des deux soldes avant de basculer les lectures de l’application.
 
-**Aucune étape de migration ou de rapprochement n’a été exécutée pendant cette préparation.**
+## Résultat du rapprochement en lecture seule
+
+Instantané du 12 octobre 2026, calculé depuis la base Supabase configurée. Les requêtes ont été exécutées dans une transaction PostgreSQL `READ ONLY`, puis annulées; aucune valeur n’a été écrite.
+
+| Devise | Comptes | Solde actuel total | Dépôts approuvés hors frais | Achats/staking débités | Dépôt proposé | Revenus proposés |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| XOF | 2 | 2 048,00 | 0,00 | 0,00 | 0,00 | 2 048,00 |
+
+- La table des dépôts ne contient aucune ligne dans cet instantané.
+- L’historique contient 3 crédits de type `bonus`, pour un total de 2 048,00 XOF; aucun autre type de transaction n’est présent.
+- Pour les 2 comptes, le solde actuel correspond exactement au total net des transactions enregistrées; aucun écart de registre ni solde proposé négatif n’a été détecté.
+- Aucun nom, téléphone ni identifiant de compte n’a été exporté dans ce rapport.
+
+Ce rapprochement décrit uniquement l’état observé le 12 octobre 2026. Il ne valide pas une migration future et n’autorise aucun transfert automatique. Aucune migration ni écriture de rapprochement n’a été exécutée.
