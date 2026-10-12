@@ -42,6 +42,7 @@ body:has(.cp-home) { background: #fff !important; }
 }
 
 .cp-hero-slide {
+  position: relative;
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
@@ -54,6 +55,19 @@ body:has(.cp-home) { background: #fff !important; }
   height: 100%;
   object-fit: contain;
   object-position: center;
+}
+
+.cp-hero-slide--video { background: #111; }
+.cp-hero-slide--video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #111;
+}
+.cp-hero:has(.cp-hero-slide--video iframe) .cp-hero-dots {
+  top: 15px;
+  bottom: auto;
 }
 
 .cp-hero-dots {
