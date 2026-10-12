@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { getQueryFn } from "@/lib/queryClient";
+import { parseTeamStats, type TeamStats } from "@/lib/team-stats";
 import { Copy, Share2, X } from "lucide-react";
 import instagramIcon from "@assets/Instagram_icon_1787367952152.png";
 import facebookIcon from "@assets/images_(27)_1787367952249.png";
@@ -9,16 +11,7 @@ import whatsappIcon from "@assets/images_(26)_1787367952281.png";
 import telegramIcon from "@assets/tg-1_1787367952311.png";
 import "./team.css";
 
-interface TeamStats {
-  level1Count: number;
-  level2Count: number;
-  level3Count: number;
-  totalCommission: number;
-  level1Commission: number;
-  level2Commission: number;
-  level3Commission: number;
-  demoMemberCount: number;
-}
+const getTeamStatsPayload = getQueryFn<unknown>({ on401: "throw" });
 
 function asFiniteNumber(value: unknown): number | undefined {
   if (typeof value !== "number" && typeof value !== "string") return undefined;
@@ -44,6 +37,7 @@ export default function TeamPage() {
   const { toast } = useToast();
   const { data: stats, isLoading, isFetching, isError, refetch } = useQuery<TeamStats>({
     queryKey: ["/api/team/stats"],
+    queryFn: async (context) => parseTeamStats(await getTeamStatsPayload(context)),
     staleTime: 30_000,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
