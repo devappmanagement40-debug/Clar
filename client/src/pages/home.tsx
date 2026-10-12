@@ -13,14 +13,9 @@ import equinorScreen from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791814341065.jpg"
 import equinorLogo from "@assets/Equinor_1791812599322.png";
 
 const bannerSlides = [
-  { type: "image", image: offshorePlatform, alt: "Installation énergétique offshore en mer" },
-  { type: "image", image: johanSverdrupPlatform, alt: "Plateforme offshore Johan Sverdrup" },
-  {
-    type: "video",
-    videoId: "3GUklcv5CQ8",
-    title: "Reliable power in a changing energy world | Helge Haugane",
-  },
-  { type: "image", image: equinorScreen, alt: "Marque Equinor affichée sur un écran" },
+  { image: offshorePlatform, alt: "Installation énergétique offshore en mer" },
+  { image: johanSverdrupPlatform, alt: "Plateforme offshore Johan Sverdrup" },
+  { image: equinorScreen, alt: "Marque Equinor affichée sur un écran" },
 ] as const;
 
 const quickActions = [
@@ -68,9 +63,7 @@ export default function HomePage() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => {
-      setBannerIndex((current) =>
-        bannerSlides[current].type === "video" ? current : (current + 1) % bannerSlides.length
-      );
+      setBannerIndex((current) => (current + 1) % bannerSlides.length);
     }, 5000);
     return () => window.clearInterval(timer);
   }, []);
@@ -122,36 +115,20 @@ export default function HomePage() {
         <div className="cp-shell">
           <section className="cp-hero" aria-label="Bannière d’accueil">
             <div className="cp-hero-slides" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
-              {bannerSlides.map((slide, index) => (
-                <div
-                  className={`cp-hero-slide${slide.type === "video" ? " cp-hero-slide--video" : ""}`}
-                  key={slide.type === "video" ? slide.videoId : slide.image}
-                  aria-hidden={index !== bannerIndex}
-                >
-                  {slide.type === "video" ? (
-                    index === bannerIndex ? (
-                      <iframe
-                        src={`https://www.youtube-nocookie.com/embed/${slide.videoId}?rel=0&playsinline=1`}
-                        title={slide.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      />
-                    ) : null
-                  ) : (
-                    <img src={slide.image} alt={index === bannerIndex ? slide.alt : ""} />
-                  )}
+              {bannerSlides.map(({ image, alt }, index) => (
+                <div className="cp-hero-slide" key={image} aria-hidden={index !== bannerIndex}>
+                  <img src={image} alt={index === bannerIndex ? alt : ""} />
                 </div>
               ))}
             </div>
-            <div className="cp-hero-dots" role="group" aria-label="Médias de la bannière">
+            <div className="cp-hero-dots" role="group" aria-label="Images de la bannière">
               {bannerSlides.map((slide, index) => (
                 <button
-                  key={slide.type === "video" ? slide.videoId : slide.image}
+                  key={slide.image}
                   type="button"
                   className={index === bannerIndex ? "is-active" : ""}
                   onClick={() => setBannerIndex(index)}
-                  aria-label={`Afficher le média ${index + 1} sur ${bannerSlides.length}`}
+                  aria-label={`Afficher l'image ${index + 1} sur ${bannerSlides.length}`}
                   aria-pressed={index === bannerIndex}
                 />
               ))}
