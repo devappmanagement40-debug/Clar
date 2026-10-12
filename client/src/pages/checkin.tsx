@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
 import { CalendarCheck, ChevronLeft, Coins, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
-import { equinorLogo, equinorPhone } from "@/assets/equinor-media";
+import { equinorLogo, equinorOffshore, equinorPhone } from "@/assets/equinor-media";
 
 interface BonusStatus {
   canClaim: boolean;
@@ -230,12 +230,42 @@ export default function CheckinPage() {
           text-align: center;
         }
         .checkin-reference .stat {
+          position: relative;
+          isolation: isolate;
           min-height: 100px;
-          padding: 12px 8px;
+          overflow: hidden;
           border: 2px solid #111827;
           border-radius: 12px;
           background: #fff;
           text-align: center;
+        }
+        .checkin-reference .stat::after {
+          position: absolute;
+          z-index: 1;
+          inset: 0;
+          background: rgba(255, 255, 255, .48);
+          content: "";
+          pointer-events: none;
+        }
+        .checkin-reference .stat-background {
+          position: absolute;
+          z-index: 0;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: .62;
+          pointer-events: none;
+        }
+        .checkin-reference .stat-content {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          min-height: 100px;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 6px;
         }
         .checkin-reference .stats {
           display: grid;
@@ -394,14 +424,20 @@ export default function CheckinPage() {
         <section className="earnings-card" aria-label="Bilan de vos récompenses">
           <div className="stats">
             <div className="stat">
-              <Coins className="stat-icon" aria-hidden="true" />
-              <p className="stat-value secondary">{formatAmount(totalBonusClaimed)}</p>
-              <p className="stat-label">Bonus cumulés</p>
+              <img className="stat-background" src={equinorOffshore} alt="" aria-hidden="true" />
+              <div className="stat-content">
+                <Coins className="stat-icon" aria-hidden="true" />
+                <p className="stat-value secondary">{formatAmount(totalBonusClaimed)}</p>
+                <p className="stat-label">Bonus cumulés</p>
+              </div>
             </div>
             <div className="stat">
-              <CalendarCheck className="stat-icon" aria-hidden="true" />
-              <p className="stat-value">{bonusStatus?.daysPointed || 0}</p>
-              <p className="stat-label">Pointages validés</p>
+              <img className="stat-background" src={equinorPhone} alt="" aria-hidden="true" />
+              <div className="stat-content">
+                <CalendarCheck className="stat-icon" aria-hidden="true" />
+                <p className="stat-value">{bonusStatus?.daysPointed || 0}</p>
+                <p className="stat-label">Pointages validés</p>
+              </div>
             </div>
           </div>
         </section>
