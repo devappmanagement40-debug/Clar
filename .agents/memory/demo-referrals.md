@@ -9,4 +9,4 @@ When a user explicitly requests fictitious referrals saved to their real account
 
 **How to apply:** Preserve the distinction whenever referral displays, earnings calculations, activity announcements, contact actions, or cleanup of demo members change. Keep genuine financial totals separate from demonstration data, and never treat these records as genuine paying referrals.
 
-On the homepage, preserve the existing horizontal notice ticker as decorative display-only content, disconnected from actual balances or payout events. Do not add unwanted visible “Exemple”, “Fictif” or “Démo” wording to it. This does not automatically authorize hiding or deleting separate demo referrals on the Team pages.
+On the homepage, preserve the horizontal notice ticker as decorative display-only content. If a vertical activity feed is requested, render each entry as its own framed block rather than as a table or one shared panel; keep all entries disconnected from actual balances or payout events. Do not add unwanted visible “Exemple”, “Fictif” or “Démo” wording. This does not automatically authorize hiding or deleting separate demo referrals on the Team pages.

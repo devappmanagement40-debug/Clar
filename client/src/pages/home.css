@@ -265,6 +265,46 @@ body:has(.cp-home) { background: #fff !important; }
   object-position: center;
 }
 
+.cp-user-activity {
+  width: calc(100% - 36px);
+  margin: 14px 18px 0;
+}
+.cp-user-activity-window { height: 322px; overflow: hidden; }
+.cp-user-activity-track {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: cp-user-activity-rise 25s linear infinite;
+}
+.cp-user-activity-row {
+  box-sizing: border-box;
+  display: flex;
+  height: 58px;
+  flex: 0 0 58px;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid #17191c;
+  border-radius: 14px;
+  padding: 0 12px;
+  background: #fff;
+  color: var(--cp-ink);
+  box-shadow: 0 2px 0 #17191c, 0 5px 12px rgba(17, 24, 39, .14);
+  font: 700 14px/1.2 "DM Sans", sans-serif;
+}
+.cp-user-activity-avatar {
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border: 1px solid var(--cp-line);
+  border-radius: 50%;
+  padding: 2px;
+  background: #fff;
+  object-fit: contain;
+}
+.cp-user-activity-text { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+@keyframes cp-user-activity-rise { to { transform: translateY(-330px); } }
+
 .cp-bottom-nav {
   border-color: rgba(189, 48, 76, .2) !important;
   background: #fff !important;
@@ -382,7 +422,8 @@ body:has(.cp-home) { background: #fff !important; }
 
 @media (max-width: 390px) {
   .cp-overview { padding-right: 14px; padding-left: 14px; }
-  .cp-actions, .cp-feature { margin-right: 14px; margin-left: 14px; }
+  .cp-actions, .cp-feature, .cp-user-activity { margin-right: 14px; margin-left: 14px; }
+  .cp-user-activity { width: calc(100% - 28px); }
   .cp-notice { width: calc(100% - 28px); margin-right: 14px; margin-left: 14px; }
   .cp-action { font-size: 10px; }
   .cp-action-icon { width: 35px; }
@@ -414,5 +455,6 @@ body:has(.cp-home) { background: #fff !important; }
   .cp-action, .cp-balance, .cp-notice { transition: none; }
   .cp-notice-track { animation: none; }
   .cp-notice-group:not(:first-child) { display: none; }
+  .cp-user-activity-track { animation: none; }
   .cp-overview, .cp-actions, .cp-feature { animation: none; }
 }
