@@ -3,11 +3,9 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock3, CreditCard, Loader2, MapPin } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
-import walletIcon from "@assets/téléchargement_(80)_1787363581764.png";
-import { equinorLogo, equinorPhone } from "@/assets/equinor-media";
 
 interface WalletData {
   id: number;
@@ -22,6 +20,21 @@ interface WalletData {
 interface UserProduct {
   id: number;
   status: string;
+}
+
+function maskWalletAccount(accountNumber: string) {
+  const digits = accountNumber.replace(/\D/g, "");
+  if (digits.length < 6) return accountNumber;
+
+  const hiddenLength = Math.min(6, digits.length - 5);
+  return `${digits.slice(0, 3)}${"•".repeat(hiddenLength)}${digits.slice(-2)}`;
+}
+
+function formatWalletLabel(wallet: WalletData | null) {
+  if (!wallet) return "Choisissez votre portefeuille";
+  const method = typeof wallet.paymentMethod === "string" ? wallet.paymentMethod.trim().toUpperCase() : "";
+  const accountNumber = typeof wallet.accountNumber === "string" ? maskWalletAccount(wallet.accountNumber) : "";
+  return [method, accountNumber].filter(Boolean).join(" - ") || "Portefeuille enregistré";
 }
 
 export default function WithdrawalPage() {
@@ -175,7 +188,7 @@ export default function WithdrawalPage() {
   const hasWallets = wallets.length > 0;
 
   return (
-    <main className="withdraw-reference min-h-screen bg-[#f7f4f2]">
+    <main className="withdraw-reference">
       <style>{`
         .withdraw-reference {
           min-height: 100dvh;
@@ -184,20 +197,22 @@ export default function WithdrawalPage() {
           font-family: Inter, Arial, sans-serif;
         }
         .withdraw-reference .withdraw-screen {
+          box-sizing: border-box;
           width: 100%;
           max-width: 512px;
           min-height: 100dvh;
           margin: 0 auto;
           overflow: hidden;
+          padding-bottom: calc(64px + env(safe-area-inset-bottom));
           background: #ffffff;
         }
         .withdraw-reference .withdraw-hero {
           position: relative;
           box-sizing: border-box;
-          min-height: 406px;
-          padding: 0 16px 20px;
+          min-height: 196px;
+          padding: 0 16px 16px;
           background: #ffffff;
-          border-bottom: 2px solid #111827;
+          border-bottom: 1px solid #e5e7eb;
         }
         .withdraw-reference .history-button,
         .withdraw-reference .withdraw-back {
@@ -205,14 +220,16 @@ export default function WithdrawalPage() {
           z-index: 3;
           top: 16px;
           display: grid;
-          width: 42px;
-          height: 42px;
+          width: 40px;
+          height: 40px;
           place-items: center;
           border: 2px solid #111827;
-          border-radius: 11px;
+          border-radius: 10px;
           padding: 0;
           background: #fff;
           box-shadow: 0 3px 0 #111827;
+          color: #bd304c;
+          text-decoration: none;
         }
         .withdraw-reference .history-button {
           right: 16px;
@@ -225,56 +242,11 @@ export default function WithdrawalPage() {
           transform: translateY(2px);
           box-shadow: 0 1px 0 #111827;
         }
-        .withdraw-reference .history-icon {
-          position: relative;
-          width: 22px;
-          height: 25px;
-          border: 2px solid #111827;
-          border-radius: 4px;
-          background: transparent;
-        }
-        .withdraw-reference .history-icon::before {
-          position: absolute;
-          top: 5px;
-          left: 4px;
-          width: 11px;
-          height: 2px;
-          content: "";
-          background: #bd304c;
-          box-shadow: 0 6px 0 #bd304c;
-        }
-        .withdraw-reference .history-icon::after {
-          position: absolute;
-          right: -7px;
-          bottom: -6px;
-          width: 10px;
-          height: 10px;
-          border: 2px solid #111827;
-          border-radius: 50%;
-          content: "";
-          background: #fff;
-        }
         .withdraw-reference .withdraw-back::before {
-          width: 13px;
-          height: 13px;
-          border-bottom: 3px solid #111827;
-          border-left: 3px solid #111827;
-          content: "";
-          transform: rotate(45deg) translate(2px, -2px);
+          content: none;
         }
         .withdraw-reference .hero-art {
-          position: relative;
-          width: 100%;
-          height: 176px;
-          overflow: hidden;
-          margin-top: 76px;
-          border: 2px solid #111827;
-          border-radius: 13px;
-          background: #fff;
-          background-image: url("${equinorPhone}");
-          background-position: center;
-          background-size: cover;
-          box-shadow: 0 4px 0 #111827;
+          display: none;
         }
         .withdraw-reference .hero-pattern,
         .withdraw-reference .receipt-icon {
@@ -283,72 +255,67 @@ export default function WithdrawalPage() {
         .withdraw-reference .withdraw-title {
           position: absolute;
           z-index: 2;
-          top: 21px;
+          top: 17px;
           right: 70px;
           left: 70px;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 9px;
+          gap: 0;
           margin: 0;
           color: #111827;
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 800;
           line-height: 1.2;
           text-align: center;
         }
-        .withdraw-reference .withdraw-title-logo {
-          width: 38px;
-          height: 38px;
-          border: 2px solid #111827;
-          border-radius: 50%;
-          object-fit: contain;
-        }
         .withdraw-reference .balance-card {
-          position: relative;
-          height: 116px;
-          overflow: hidden;
-          margin-top: 16px;
+          display: flex;
+          box-sizing: border-box;
+          min-height: 116px;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          margin-top: 64px;
+          padding: 16px;
           border: 2px solid #111827;
           border-radius: 13px;
-          background: #bd304c;
-          box-shadow: 0 4px 0 #111827;
+          background: #ffffff;
+          box-shadow: 0 3px 0 #111827;
         }
         .withdraw-reference .balance-label {
-          margin: 20px 0 0 17px;
-          color: #ffffff;
-          font-size: 15px;
-          font-weight: 800;
-          line-height: 1;
+          margin: 8px 0 0;
+          color: #4b5563;
+          font-size: 14px;
+          font-weight: 500;
         }
         .withdraw-reference .balance-value {
-          margin: 16px 0 0 17px;
-          color: #ffffff;
-          font-size: 32px;
+          margin: 0;
+          color: #111827;
+          font-size: 28px;
           font-weight: 800;
-          line-height: .9;
+          line-height: 1.1;
+          white-space: nowrap;
         }
         .withdraw-reference .balance-value span {
-          margin-left: 5px;
-          font-size: 20px;
+          display: none;
         }
-        .withdraw-reference .wallet-mark {
-          position: absolute;
-          top: 15px;
-          right: 16px;
-          display: grid;
-          width: 84px;
-          height: 84px;
-          place-items: center;
-          border: 2px solid #111827;
-          border-radius: 50%;
-          background: #fff;
+        .withdraw-reference .balance-copy { min-width: 0; }
+        .withdraw-reference .country-chip {
+          display: inline-flex;
+          min-height: 38px;
+          align-items: center;
+          gap: 7px;
+          flex-shrink: 0;
+          padding: 0 10px;
+          border: 1px solid #bd304c;
+          border-radius: 999px;
+          background: #fff5f7;
+          color: #111827;
+          font-size: 12px;
+          font-weight: 700;
         }
-        .withdraw-reference .wallet-mark img {
-          width: 62px;
-          height: 62px;
-          object-fit: contain;
-        }
+        .withdraw-reference .country-chip svg { color: #bd304c; }
         .withdraw-reference .amount-panel {
           box-sizing: border-box;
           min-height: 154px;
@@ -372,6 +339,7 @@ export default function WithdrawalPage() {
           background: #fff;
         }
         .withdraw-reference .amount-field input {
+          flex: 1;
           width: 100%;
           min-width: 0;
           height: 100%;
@@ -384,7 +352,7 @@ export default function WithdrawalPage() {
         }
         .withdraw-reference .amount-field input::placeholder { color: #6b7280; opacity: 1; }
         .withdraw-reference .amount-currency {
-          padding-right: 16px;
+          padding: 0 0 0 14px;
           color: #111827;
           font-size: 18px;
           font-weight: 800;
@@ -398,6 +366,7 @@ export default function WithdrawalPage() {
           font-size: 13px;
           font-weight: 700;
         }
+        .withdraw-reference .amount-details strong { color: #111827; }
         .withdraw-reference .prepayment-notice {
           display: grid;
           gap: 7px;
@@ -450,11 +419,12 @@ export default function WithdrawalPage() {
           transform: translateY(2px);
           box-shadow: 0 1px 0 #111827;
         }
-        .withdraw-reference .wallet-choice img {
+        .withdraw-reference .wallet-choice > svg:first-child {
           width: 34px;
           height: 34px;
           margin-right: 10px;
-          object-fit: contain;
+          flex-shrink: 0;
+          color: #bd304c;
         }
         .withdraw-reference .wallet-choice svg:last-child {
           width: 22px;
@@ -470,7 +440,7 @@ export default function WithdrawalPage() {
           white-space: nowrap;
         }
         .withdraw-reference .instructions {
-          margin: 18px 16px 24px;
+          margin: 18px 16px 8px;
           padding: 22px 16px 10px;
           border: 2px solid #111827;
           border-top: 5px solid #bd304c;
@@ -530,13 +500,12 @@ export default function WithdrawalPage() {
         }
         .withdraw-reference .submit:disabled { opacity: .6; }
         @media (max-width: 360px) {
-          .withdraw-reference .withdraw-hero { min-height: 384px; padding-right: 12px; padding-left: 12px; }
+          .withdraw-reference .withdraw-hero { min-height: 190px; padding-right: 12px; padding-left: 12px; }
           .withdraw-reference .history-button { right: 12px; }
           .withdraw-reference .withdraw-back { left: 12px; }
-          .withdraw-reference .hero-art { height: 154px; }
-          .withdraw-reference .balance-card { margin-top: 14px; }
-          .withdraw-reference .wallet-mark { transform: scale(.86); transform-origin: top right; }
-          .withdraw-reference .balance-value { font-size: 28px; }
+          .withdraw-reference .balance-card { margin-top: 64px; padding: 12px; }
+          .withdraw-reference .balance-value { font-size: 23px; }
+          .withdraw-reference .country-chip { gap: 4px; padding: 0 7px; font-size: 11px; }
           .withdraw-reference .amount-details { font-size: 12px; }
           .withdraw-reference .instruction { font-size: 14px; }
         }
@@ -544,45 +513,58 @@ export default function WithdrawalPage() {
 
       <div className="withdraw-screen">
         <section className="withdraw-hero" aria-label="Retrait">
-          <div className="hero-art" aria-hidden="true">
-            <div className="hero-pattern" />
-            <span className="receipt-icon" />
-          </div>
           <h1 className="withdraw-title">
-            <img className="withdraw-title-logo" src={equinorLogo} alt="Equinor" />
             <span>Retrait</span>
           </h1>
-          <Link href="/history">
-            <button className="history-button" aria-label="Historique des transactions">
-              <span className="history-icon" aria-hidden="true" />
-            </button>
+          <Link href="/history" className="history-button" aria-label="Historique des transactions">
+            <Clock3 aria-hidden="true" />
           </Link>
-          <Link href="/account">
-            <button className="withdraw-back" data-testid="button-back" aria-label="Retour" />
+          <Link href="/account" className="withdraw-back" data-testid="button-back" aria-label="Retour">
+            <ArrowLeft aria-hidden="true" />
           </Link>
           <div className="balance-card">
-            <p className="balance-label">Solde du compte</p>
-            <p className="balance-value" data-testid="text-balance">{Math.round(balance).toLocaleString("fr-FR")}<span>{currency}</span></p>
-            <div className="wallet-mark" aria-hidden="true"><img src={equinorLogo} alt="" /></div>
+            <div className="balance-copy">
+              <p className="balance-value" data-testid="text-balance">
+                {currency} {Math.round(balance).toLocaleString("fr-FR")}
+              </p>
+              <p className="balance-label">Solde du compte</p>
+            </div>
+            <div className="country-chip">
+              <MapPin size={16} aria-hidden="true" />
+              <span>{countryInfo?.name || user.country}</span>
+            </div>
           </div>
         </section>
 
+        <button
+          onClick={() => navigate(hasWallets ? "/wallet?from=withdrawal" : "/wallet")}
+          className="wallet-choice"
+          data-testid="button-select-wallet"
+        >
+          <CreditCard aria-hidden="true" />
+          <span className="wallet-copy">{formatWalletLabel(selectedWallet)}</span>
+          <ChevronRight aria-hidden="true" />
+        </button>
+
         <section className="amount-panel" aria-label="Montant de retrait">
-          <p className="amount-label">Veuillez saisir le montant de retrait</p>
+          <p className="amount-label">Montant du retrait</p>
           <label className="amount-field">
+            <span className="amount-currency">{currency}</span>
             <input
               type="number"
+              min={minWithdrawal}
               value={amount}
               onChange={(event) => setAmount(event.target.value ? Number(event.target.value) : "")}
-              placeholder="montant"
+              placeholder="Veuillez saisir le montant"
               data-testid="input-withdrawal-amount"
               aria-label="Montant de retrait"
             />
-            <span className="amount-currency">{currency}</span>
           </label>
           <div className="amount-details">
-            <span>Montant reçu: {amountAfterFees.toLocaleString("fr-FR")}</span>
-            <span>Taxe: {withdrawalFee.toFixed(2)}%</span>
+            <span>
+              Montant reçu : <strong>{currency} {amountAfterFees.toLocaleString("fr-FR")}</strong>
+            </span>
+            <span>Frais : {withdrawalFee.toFixed(2)} %</span>
           </div>
           {withdrawalPrepaymentEnabled && (
             <div className="prepayment-notice">
@@ -608,30 +590,16 @@ export default function WithdrawalPage() {
         </section>
 
         <button
-          onClick={() => navigate(hasWallets ? "/wallet?from=withdrawal" : "/wallet")}
-          className="wallet-choice"
-          data-testid="button-select-wallet"
-        >
-          <img src={walletIcon} alt="" />
-          <span className="wallet-copy">
-            {selectedWallet
-              ? selectedWallet.accountNumber
-              : "Choisissez votre portefeuille"}
-          </span>
-          <ChevronRight aria-hidden="true" />
-        </button>
-
-        <button
           onClick={handleSubmit}
           disabled={withdrawMutation.isPending}
           className="submit"
           data-testid="button-submit-withdrawal"
         >
-          {withdrawMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Retirez votre argent maintenant"}
+          {withdrawMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Retirer l'argent maintenant"}
         </button>
 
         <section className="instructions" aria-label="Instructions de retrait">
-          <h2 className="instructions-title">Instructions de Retrait :</h2>
+          <h2 className="instructions-title">Instructions de retrait</h2>
           <p className="instruction"><strong>Montant minimum de retrait :</strong> {minWithdrawal.toLocaleString("fr-FR")} {currency}</p>
           <p className="instruction"><strong>Heures de retrait :</strong> de {withdrawalStartHour}h à {withdrawalEndHour}h</p>
           <p className="instruction"><strong>Frais de retrait :</strong> {withdrawalFee} % par transaction</p>
