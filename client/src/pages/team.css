@@ -56,15 +56,6 @@
   background: linear-gradient(90deg, rgba(18, 27, 30, .78) 0%, rgba(18, 27, 30, .52) 51%, rgba(18, 27, 30, .08) 100%);
 }
 .team-banner-copy { padding: 20px 18px; }
-.team-banner-copy > span {
-  display: block;
-  margin-bottom: 7px;
-  color: #f4dce1;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
 .team-banner h2 {
   margin: 0;
   font-family: "Manrope", sans-serif;

@@ -140,7 +140,6 @@ export default function TeamPage() {
             )}
             <div className="team-banner-shade" />
             <div className="team-banner-copy">
-              <span>Mon réseau</span>
               <h2>Créez votre équipe</h2>
             </div>
             <span className="team-banner-rule" aria-hidden="true" />
