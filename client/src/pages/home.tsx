@@ -41,11 +41,11 @@ const announcementLibrary = [
 ] as const;
 
 const userActivityLibrary = [
-  "059****899 a gagné 2 000 F de bonus",
-  "056****862 a acheté le VIP 5",
-  "052**85 a obtenu 20 000 F de bonus d'équipe",
-  "07****26 a retiré 32 400 F",
-  "07****42 a obtenu 12 500 F de bonus d'équipe",
+  "059****899 a reçu un bonus de 2 000 XOF",
+  "056****862 a souscrit à l’offre VIP 5",
+  "052**85 a reçu un bonus d’équipe de 20 000 XOF",
+  "07****26 a effectué un retrait de 32 400 XOF",
+  "07****42 a reçu une commission de parrainage de 12 500 XOF",
 ] as const;
 
 export default function HomePage() {
