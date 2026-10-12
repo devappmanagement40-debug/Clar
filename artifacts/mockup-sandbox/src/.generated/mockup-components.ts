@@ -4,13 +4,13 @@ export const modules: ModuleMap = {
   "./components/mockups/chargepoint-welcome/ChargePointReference.tsx": () => import("../components/mockups/chargepoint-welcome/ChargePointReference.tsx"),
   "./components/mockups/chargepoint-welcome/Current.tsx": () => import("../components/mockups/chargepoint-welcome/Current.tsx"),
   "./components/mockups/chargepoint-welcome/Professional.tsx": () => import("../components/mockups/chargepoint-welcome/Professional.tsx"),
+  "./components/mockups/robotpay-manual-number/Centered.tsx": () => import("../components/mockups/robotpay-manual-number/Centered.tsx"),
+  "./components/mockups/robotpay-manual-number/Current.tsx": () => import("../components/mockups/robotpay-manual-number/Current.tsx"),
   "./components/mockups/equinor-auth/AuthPreview.tsx": () => import("../components/mockups/equinor-auth/AuthPreview.tsx"),
   "./components/mockups/equinor-auth/CurrentLogin.tsx": () => import("../components/mockups/equinor-auth/CurrentLogin.tsx"),
   "./components/mockups/equinor-auth/CurrentRegister.tsx": () => import("../components/mockups/equinor-auth/CurrentRegister.tsx"),
   "./components/mockups/equinor-auth/EquinorLogin.tsx": () => import("../components/mockups/equinor-auth/EquinorLogin.tsx"),
   "./components/mockups/equinor-auth/EquinorRegister.tsx": () => import("../components/mockups/equinor-auth/EquinorRegister.tsx"),
-  "./components/mockups/robotpay-manual-number/Centered.tsx": () => import("../components/mockups/robotpay-manual-number/Centered.tsx"),
-  "./components/mockups/robotpay-manual-number/Current.tsx": () => import("../components/mockups/robotpay-manual-number/Current.tsx"),
   "./components/mockups/robotpay-operator-cards/Current.tsx": () => import("../components/mockups/robotpay-operator-cards/Current.tsx"),
   "./components/mockups/robotpay-operator-cards/Refined.tsx": () => import("../components/mockups/robotpay-operator-cards/Refined.tsx")
 };

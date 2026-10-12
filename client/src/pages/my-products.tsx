@@ -1,22 +1,8 @@
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { Loader2 } from "lucide-react";
-
-import emptyProductsIllustration from "@assets/generated_images/chargepoint-empty-products.png";
-import chargepointLogo from "@assets/chargepoint_1790147948102.jpg";
-import chargepointPromo from "@/assets/auth-chargepoint-combined.png";
-import chargepointProduct1 from "@assets/ChargePoint-CPF50-electric-car-fleet-charging-station-EVSE-1_1790160713799.jpg";
-import chargepointProduct2 from "@assets/ChargePoint-Home-Flex-50A-CPH50-app-1280px__29346__78945__7114_1790148214522.png";
-import chargepointProduct3 from "@assets/overview-chargeflex-no-bg.png";
-import chargepointProduct4 from "@assets/overview-cpf50-no-bg.png";
-
-const PRODUCT_IMAGES = [
-  chargepointProduct1,
-  chargepointProduct2,
-  chargepointProduct3,
-  chargepointProduct4,
-];
+import { Loader2, PackageOpen } from "lucide-react";
+import equinorProductBanner from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791819301503.jpg";
 
 export default function MyProductsPage() {
   const { user } = useAuth();
@@ -50,13 +36,13 @@ export default function MyProductsPage() {
   };
 
   return (
-    <main className="products-reference min-h-full bg-[#f1fff4] pb-24">
+    <main className="products-reference min-h-full bg-white pb-24">
       <style>{`
         .products-reference { color: #151515; font-family: Inter, Arial, sans-serif; }
         .products-reference .products-screen { width: 100%; max-width: 500px; margin: 0 auto; overflow: hidden; }
-         .products-reference .products-hero { position: relative; height: min(70.31vw, 360px); min-height: 270px; overflow: hidden; background: #3fcb2d; }
-         .products-reference .products-hero img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; pointer-events: none; }
-         .products-reference .stat-panel { position: absolute; top: 58%; z-index: 1; display: flex; height: 38%; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 24px; background: #4bcf37; color: #fff; text-align: center; pointer-events: none; }
+         .products-reference .products-hero { position: relative; height: min(70.31vw, 360px); min-height: 270px; overflow: hidden; background: #bd304c; }
+         .products-reference .products-hero img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 48%; pointer-events: none; }
+         .products-reference .stat-panel { position: absolute; top: 58%; z-index: 1; display: flex; height: 38%; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 24px; background: #bd304c; color: #fff; text-align: center; pointer-events: none; }
          .products-reference .stat-panel.our { left: 4%; width: 45%; }
          .products-reference .stat-panel.my { right: 4%; width: 45%; }
          .products-reference .stat-value { display: block; max-width: 100%; overflow: hidden; padding: 0 8px; font-size: clamp(20px, 5vw, 30px); font-weight: 500; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
@@ -66,14 +52,14 @@ export default function MyProductsPage() {
          .products-reference .stat-toggle.my { right: 4%; width: 45%; }
          .products-reference .product-list { padding: 0 12px 20px; background: white; }
          .products-reference .product-card { position: relative; height: 265px; margin-bottom: 0; overflow: hidden; border: 0; border-bottom: 1px solid #eeeeee; border-radius: 0; background: white; box-shadow: none; }
-         .products-reference .product-picture { position: absolute; top: 12px; right: 7px; left: auto; width: 154px; height: 154px; overflow: hidden; border: 2px solid #7fc9a2; border-radius: 11px; background: #fff; }
+          .products-reference .product-picture { position: absolute; top: 12px; right: 7px; left: auto; width: 154px; height: 154px; overflow: hidden; border: 2px solid #bd304c; border-radius: 11px; background: #fff; }
          .products-reference .product-picture img { width: 100%; height: 100%; object-fit: cover; }
          .products-reference .product-details { position: absolute; top: 17px; left: 31px; right: 181px; overflow: hidden; }
-         .products-reference .product-name { overflow: hidden; color: #42bd45; font-size: 23px; font-weight: 500; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+          .products-reference .product-name { overflow: hidden; color: #bd304c; font-size: 23px; font-weight: 500; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
          .products-reference .product-price { margin-top: 22px; color: #171717; font-size: 17px; font-weight: 400; }
          .products-reference .product-line { margin-top: 12px; color: #171717; font-size: 16px; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; }
          .products-reference .product-line strong { margin-left: 8px; color: #171717; font-weight: 400; }
-         .products-reference .buy { position: absolute; right: 7px; bottom: 25px; display: grid; width: 154px; height: 61px; place-items: center; border-radius: 14px; background: linear-gradient(180deg, #43d338 0%, #19b948 100%); color: white; font-size: 18px; font-weight: 400; line-height: 1.1; text-align: center; }
+          .products-reference .buy { position: absolute; right: 7px; bottom: 25px; display: grid; width: 154px; height: 61px; place-items: center; border-radius: 14px; background: linear-gradient(180deg, #bd304c 0%, #9e263c 100%); color: white; font-size: 18px; font-weight: 400; line-height: 1.1; text-align: center; }
          .products-reference .my-card { height: 265px; padding-bottom: 0; }
          .products-reference .my-card .product-details { position: absolute; top: 17px; left: 31px; right: 181px; margin-left: 0; padding-top: 0; padding-right: 0; }
          .products-reference .my-card .product-picture { top: 12px; }
@@ -91,14 +77,14 @@ export default function MyProductsPage() {
            .products-reference .product-line { margin-top: 9px; font-size: 13px; }
            .products-reference .buy { right: 5px; width: 112px; height: 52px; font-size: 14px; }
         }
-         .products-reference {
-           min-height: 100dvh;
-           background: #fff8f2;
+          .products-reference {
+            min-height: 100dvh;
+            background: #ffffff;
            color: #111827;
          }
          .products-reference .products-screen {
            max-width: 512px;
-           background: #fff8f2;
+            background: #ffffff;
          }
          .products-reference .products-header {
            display: flex;
@@ -108,15 +94,7 @@ export default function MyProductsPage() {
            gap: 9px;
            padding: 12px 16px;
            border-bottom: 2px solid #111827;
-           background: #fff8f2;
-         }
-         .products-reference .products-header img {
-           width: 38px;
-           height: 38px;
-           border: 2px solid #111827;
-           border-radius: 50%;
-           background: #fff;
-           object-fit: cover;
+            background: #ffffff;
          }
          .products-reference .products-header strong {
            color: #111827;
@@ -127,41 +105,12 @@ export default function MyProductsPage() {
            height: 238px;
            min-height: 0;
            border-bottom: 2px solid #111827;
-           background: #111827;
-         }
-         .products-reference .products-hero::after {
-           position: absolute;
-           z-index: 0;
-           inset: 0;
-           background: linear-gradient(180deg, rgba(17,24,39,.05), rgba(17,24,39,.62));
-           content: "";
+            background: #bd304c;
          }
          .products-reference .products-hero img {
            position: relative;
            z-index: 0;
            object-position: center;
-         }
-         .products-reference .hero-copy {
-           position: absolute;
-           z-index: 3;
-           top: 18px;
-           right: 18px;
-           left: 18px;
-           color: #fff;
-           text-align: center;
-           text-shadow: 0 2px 4px rgba(0,0,0,.35);
-         }
-         .products-reference .hero-copy strong {
-           display: block;
-           font-size: 27px;
-           font-weight: 900;
-           line-height: 1;
-         }
-         .products-reference .hero-copy span {
-           display: block;
-           margin-top: 5px;
-           font-size: 12px;
-           font-weight: 700;
          }
          .products-reference .stat-panel {
            top: auto;
@@ -174,7 +123,8 @@ export default function MyProductsPage() {
            box-shadow: 0 3px 0 #111827;
          }
          .products-reference .stat-panel.active {
-           background: #ff7a14;
+            background: #bd304c;
+            color: #ffffff;
          }
          .products-reference .stat-panel.our,
          .products-reference .stat-toggle.our { left: 16px; width: calc(50% - 22px); }
@@ -200,7 +150,7 @@ export default function MyProductsPage() {
          }
          .products-reference .product-list {
            padding: 18px 16px 28px;
-           background: #fff8f2;
+            background: #ffffff;
          }
          .products-reference .product-card {
            display: grid;
@@ -218,11 +168,13 @@ export default function MyProductsPage() {
          }
          .products-reference .product-picture {
            position: static;
+            display: grid;
            grid-column: 2;
            grid-row: 1;
            width: 100%;
            height: 116px;
-           border: 2px solid #ff7a14;
+            place-items: center;
+            border: 2px solid #bd304c;
            border-radius: 10px;
          }
          .products-reference .product-picture img {
@@ -230,8 +182,9 @@ export default function MyProductsPage() {
            height: 100%;
            padding: 6px;
            object-fit: contain;
-           background: #fff8f2;
+            background: #ffffff;
          }
+          .products-reference .product-picture > svg { width: 42px; height: 42px; color: #bd304c; }
          .products-reference .product-details,
          .products-reference .my-card .product-details {
            position: static;
@@ -241,7 +194,7 @@ export default function MyProductsPage() {
            overflow: hidden;
          }
          .products-reference .product-name {
-           color: #e85d00;
+            color: #bd304c;
            font-size: 19px;
            font-weight: 900;
            white-space: normal;
@@ -271,8 +224,8 @@ export default function MyProductsPage() {
            height: auto;
            border: 2px solid #111827;
            border-radius: 11px;
-           background: #ff7a14;
-           color: #111827;
+            background: #bd304c;
+            color: #ffffff;
            font-size: 13px;
            font-weight: 900;
            box-shadow: 0 3px 0 #111827;
@@ -288,9 +241,9 @@ export default function MyProductsPage() {
            border-radius: 14px;
            background: #fff;
          }
-         .products-reference .empty img { width: 120px; height: 120px; }
+          .products-reference .empty > svg { width: 52px; height: 52px; color: #bd304c; }
          @media (max-width: 360px) {
-           .products-reference .products-hero { height: 228px; }
+          .products-reference .products-hero { height: 228px; }
            .products-reference .product-list { padding-right: 12px; padding-left: 12px; }
            .products-reference .product-card {
              grid-template-columns: minmax(0, 1fr) 104px;
@@ -306,12 +259,10 @@ export default function MyProductsPage() {
 
       <div className="products-screen">
         <header className="products-header">
-          <img src={chargepointLogo} alt="" />
           <strong>Mes produits</strong>
         </header>
         <section className="products-hero" aria-label="Produits">
-          <img src={chargepointPromo} alt="" />
-          <div className="hero-copy"><strong>Equinor</strong><span>Vos produits achetés et leurs revenus</span></div>
+          <img src={equinorProductBanner} alt="" />
           <div className="stat-panel my my-only active" aria-label={`Revenus : ${formatStatAmount(totalUserEarnings)}`}>
             <span className="stat-value">{formatStatAmount(totalUserEarnings)}</span>
             <span className="stat-label">Revenus cumulés</span>
@@ -322,16 +273,16 @@ export default function MyProductsPage() {
           <div>
               {loadingUserProducts ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-[#FF7A14]" />
+                    <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
                 </div>
               ) : allUserProducts.length === 0 ? (
                 <div className="empty">
-                  <img src={emptyProductsIllustration} alt="Aucun produit acheté" />
+                  <PackageOpen aria-hidden="true" />
                   <p>Aucun produit Equinor acheté</p>
                   <p className="text-sm text-gray-400">Achetez des produits pour commencer à gagner</p>
                 </div>
               ) : (
-                allUserProducts.map((up: any, index: number) => {
+                allUserProducts.map((up: any) => {
                   const cycleDays = up.product?.cycleDays || 60;
                   const daysRemaining = up.daysRemaining || 0;
                   const daysCompleted = Math.max(0, cycleDays - daysRemaining);
@@ -343,7 +294,13 @@ export default function MyProductsPage() {
                       className="product-card my-card"
                       data-testid={`my-product-card-${up.id}`}
                     >
-                      <div className="product-picture"><img src={up.product?.imageUrl || PRODUCT_IMAGES[index % PRODUCT_IMAGES.length]} alt={up.product?.name || "Produit"} /></div>
+                      <div className="product-picture">
+                        {up.product?.imageUrl ? (
+                          <img src={up.product.imageUrl} alt={up.product?.name || "Produit"} />
+                        ) : (
+                          <PackageOpen aria-hidden="true" />
+                        )}
+                      </div>
                       <div className="product-details">
                         <p className="product-name">{up.product?.name || "Produit"}</p>
                         <p className="product-price">{Number(up.product?.price || 0).toLocaleString("fr-FR")} {currency}</p>
