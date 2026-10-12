@@ -9,7 +9,7 @@ import "./home.css";
 
 import offshorePlatform from "@assets/image_1791813575847.jpg";
 import johanSverdrupPlatform from "@assets/1277577_1791813575929.jpg";
-import equinorScreen from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791813575978.jpg";
+import equinorScreen from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791814341065.jpg";
 
 const bannerSlides = [
   { image: offshorePlatform, alt: "Installation énergétique offshore en mer" },
@@ -168,11 +168,12 @@ export default function HomePage() {
             ))}
           </section>
 
-          <section className="cp-feature cp-feature--awaiting-image" aria-labelledby="feature-title">
-            <div className="cp-feature-copy">
-              <h2 id="feature-title">Tout est à portée de main.</h2>
-              <p>Consultez vos informations et accédez rapidement aux services de votre compte.</p>
-            </div>
+          <section className="cp-feature cp-feature--image" aria-label="Bannière Equinor">
+            <img
+              className="cp-feature-image"
+              src={equinorScreen}
+              alt="Marque Equinor affichée sur un écran"
+            />
           </section>
         </div>
       </main>
