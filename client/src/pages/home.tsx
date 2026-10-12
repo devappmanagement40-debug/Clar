@@ -3,13 +3,11 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { ChevronRight, Send } from "lucide-react";
+import { ChevronRight, Send, Info } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
 
-import chargePointLogo from "@assets/chargepoint_1790147948102.jpg";
 import noticeBell from "@/assets/notice-bell.png";
-import announcementStar from "@/assets/announcement-star.png";
 import depositIcon from "@/assets/home-actions/deposit.png";
 import withdrawalIcon from "@/assets/home-actions/withdrawal.png";
 import supportIcon from "@/assets/home-actions/support.png";
@@ -19,15 +17,6 @@ import electricBus from "@assets/banner-filtered/electric-bus.jpg";
 import homeCharging from "@assets/banner-filtered/home-charging.jpg";
 import publicCharger from "@assets/banner-filtered/public-charger.jpg";
 import chargerProduct from "@assets/banner-filtered/charger-product.jpg";
-import chargeflexOverview from "@assets/overview-chargeflex-no-bg.png";
-import cpf50Overview from "@assets/overview-cpf50-no-bg.png";
-import ct4000 from "@assets/CT4000-Top-main-with-energy-star_1790148214627.png";
-import doosanLogo from "@assets/6790d8bd04714fedd7593cb6_Doosan_Group_and_Corporation_-_Logo.s_1784561452870.png";
-import intelLogo from "@assets/Intel-logo-2022_1782688971182.png";
-import sybotxLogo from "@/assets/Logo_SYBOTX_recadre_1786844134617.png";
-import vestasLogo from "@/assets/vestas-logo_1783210030332.png";
-import elfLogo from "@/assets/images/elf-logo-card.png";
-import jollibeeLogo from "@/assets/jollibee_logo.png";
 
 interface Withdrawal {
   amount: string;
@@ -46,7 +35,7 @@ const bannerSlides = [
   { image: electricBus, alt: "Bus électrique en charge" },
   { image: homeCharging, alt: "Recharge d'un véhicule à domicile" },
   { image: publicCharger, alt: "Bornes de recharge dans un espace public" },
-  { image: chargerProduct, alt: "Équipement présenté sur la plateforme" },
+  { image: chargerProduct, alt: "Équipement de recharge" },
 ] as const;
 
 const announcementLibrary = [
@@ -64,41 +53,28 @@ const announcementLibrary = [
   "07****18 a retiré 11 250 F",
 ] as const;
 
-const partners = [
-  { name: "Doosan", logo: doosanLogo, className: "cp-partner-logo-wide" },
-  { name: "Vestas", logo: vestasLogo, className: "cp-partner-logo-wide" },
-  { name: "ELF", logo: elfLogo, className: "cp-partner-logo-elf" },
-  { name: "SYBOTX", logo: sybotxLogo, className: "cp-partner-logo-sybotx" },
-  { name: "Intel", logo: intelLogo, className: "cp-partner-logo-intel" },
-  { name: "Jollibee", logo: jollibeeLogo, className: "cp-partner-logo-jollibee" },
-] as const;
-
 export default function HomePage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const { data: settings } = useQuery<Record<string, string>>({ queryKey: ["/api/settings"] });
-  const { data: withdrawals } = useQuery<Withdrawal[]>({ queryKey: ["/api/withdrawals/history"], enabled: !!user });
+  const { data: withdrawals } = useQuery<Withdrawal[]>({
+    queryKey: ["/api/withdrawals/history"],
+    enabled: !!user,
+  });
   const [welcomePopupOpen, setWelcomePopupOpen] = useState(false);
   const [bannerIndex, setBannerIndex] = useState(0);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
       setBannerIndex((current) => (current + 1) % bannerSlides.length);
-    }, 4500);
+    }, 5000);
     return () => window.clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    setWelcomePopupOpen(true);
-  }, []);
-
   if (!user) return null;
-  const country = getCountryByCode(user.country);
-  const currency = country?.currency || "XOF";
+  const currency = getCountryByCode(user.country)?.currency || "XOF";
   const balance = Number.parseFloat(user.balance || "0");
   const totalEarnings = Number.parseFloat(user.totalEarnings || "0");
-  const groupLink = settings?.groupLink || "";
-  const popupButtonLabel = settings?.popupButtonLabel || settings?.groupLabel || "Rejoindre le groupe Telegram Officiel";
   const formatMoney = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;
   const popupCurrency = currency === "FCFA" ? "XOF" : currency;
   const formatPopupMoney = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${popupCurrency}`;
@@ -124,24 +100,24 @@ export default function HomePage() {
     `Limite quotidienne de retrait : ${maxWithdrawalsPerDay} demande${maxWithdrawalsPerDay === 1 ? "" : "s"} par jour.`,
     `Horaires de retrait : de ${withdrawalStartHour} h à ${withdrawalEndHour} h.`,
     "Délai de traitement : généralement sous 2 heures et, exceptionnellement, jusqu’à 24 heures.",
-    ...(withdrawalPrepaymentEnabled
-      ? ["Prépaiement : 25 % du montant demandé, avant traitement."]
-      : []),
+    ...(withdrawalPrepaymentEnabled ? ["Prépaiement : 25 % du montant demandé, avant traitement."] : []),
     `Bonus de pointage quotidien : de ${formatPopupMoney(20)} à ${formatPopupMoney(50)}, disponible une fois toutes les 24 heures.`,
     "Avant de confirmer une demande, vérifiez les coordonnées du portefeuille et le montant net affiché.",
   ];
   const withdrawnTotal = withdrawals?.filter((item) => item.status === "approved")
     .reduce((sum, item) => sum + (Number.parseFloat(item.amount) || 0), 0);
+  const groupLink = settings?.groupLink || "";
+  const popupButtonLabel = "Rejoindre le groupe d’entraide";
 
   return (
     <>
       <main className="cp-home">
         <div className="cp-shell">
-          <section className="cp-hero" aria-label="Equinor">
+          <section className="cp-hero" aria-label="Bannière d’accueil">
             <div className="cp-hero-slides" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
               {bannerSlides.map(({ image, alt }, index) => (
                 <div className="cp-hero-slide" key={image} aria-hidden={index !== bannerIndex}>
-                  <img src={image} alt={alt} />
+                  <img src={image} alt={index === bannerIndex ? alt : ""} />
                 </div>
               ))}
             </div>
@@ -159,19 +135,39 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section className="cp-actions" aria-label="Actions rapides">
-            {quickActions.map(({ label, href, icon }) => (
-              <button key={label} className="cp-action" onClick={() => navigate(href)}>
-                <span className="cp-action-icon">
-                  <img src={icon} alt="" />
-                </span>
-                <span>{label}</span>
+          <section className="cp-overview" aria-labelledby="overview-title">
+            <header className="cp-section-heading">
+              <h2 id="overview-title">Mon compte</h2>
+              <button className="cp-info-button" type="button" onClick={() => setWelcomePopupOpen(true)}>
+                <Info size={16} aria-hidden="true" />
+                <span>Conditions</span>
               </button>
-            ))}
+            </header>
+            <div className="cp-metrics">
+              <button className="cp-balance" type="button" onClick={() => navigate("/wallet")} aria-label={`Voir le portefeuille, solde ${formatMoney(balance)}`}>
+                <strong data-testid="text-balance">{formatMoney(balance)}</strong>
+                <span className="cp-balance-label">Solde du compte</span>
+              </button>
+              <article className="cp-stat cp-stat-earnings">
+                <strong data-testid="text-total-earnings">{formatMoney(totalEarnings)}</strong>
+                <span className="cp-stat-label">Revenus cumulés</span>
+              </article>
+            </div>
+            <div className="cp-withdrawn-summary">
+              <span>Retraits approuvés</span>
+              <strong>{withdrawnTotal === undefined ? "—" : formatMoney(withdrawnTotal)}</strong>
+              {withdrawnTotal === undefined && <small>Historique indisponible</small>}
+            </div>
           </section>
 
-          <button className="cp-notice" type="button" onClick={() => setWelcomePopupOpen(true)} aria-label="Ouvrir les informations Equinor" aria-describedby="cp-notice-messages">
-            <span className="cp-notice-icon"><img src={noticeBell} alt="" width={26} height={26} /></span>
+          <button
+            className="cp-notice"
+            type="button"
+            onClick={() => setWelcomePopupOpen(true)}
+            aria-label="Ouvrir les informations du compte"
+            aria-describedby="cp-notice-messages"
+          >
+            <span className="cp-notice-icon"><img src={noticeBell} alt="" width={24} height={24} /></span>
             <span className="cp-notice-marquee" aria-hidden="true">
               <span className="cp-notice-track">
                 {[0, 1].map((copy) => (
@@ -179,11 +175,7 @@ export default function HomePage() {
                     {announcementLibrary.map((announcement, index) => (
                       <span className="cp-notice-item" key={`${copy}-${index}`}>
                         <span>{announcement}</span>
-                        <span className="cp-notice-stars" aria-hidden="true">
-                          {[0, 1, 2].map((star) => (
-                            <img src={announcementStar} alt="" key={star} />
-                          ))}
-                        </span>
+                        {index < announcementLibrary.length - 1 && <span className="cp-notice-separator" aria-hidden="true" />}
                       </span>
                     ))}
                   </span>
@@ -193,45 +185,24 @@ export default function HomePage() {
             <span className="sr-only" id="cp-notice-messages">{announcementLibrary.join(". ")}</span>
           </button>
 
-          <section className="cp-overview" aria-labelledby="overview-title">
-            <header className="cp-section-heading">
-              <h2 id="overview-title">Aperçu</h2>
-            </header>
-            <div className="cp-metrics">
-              <button className="cp-balance" type="button" onClick={() => navigate("/wallet")} aria-label={`Voir le portefeuille, solde ${formatMoney(balance)}`}>
-                <div className="cp-balance-image"><img src={ct4000} alt="" /></div>
-                <strong data-testid="text-balance">{formatMoney(balance)}</strong>
-                <span className="cp-card-note">Solde</span>
+          <section className="cp-actions" aria-label="Actions rapides">
+            {quickActions.map(({ label, href, icon }) => (
+              <button key={label} className="cp-action" type="button" onClick={() => navigate(href)}>
+                <span className="cp-action-icon">
+                  <img src={icon} alt="" />
+                </span>
+                <span>{label}</span>
               </button>
-              <div className="cp-stack">
-                <article className="cp-stat cp-stat-orange">
-                  <img className="cp-stat-image cp-stat-image-chargeflex" src={chargeflexOverview} alt="" />
-                  <strong data-testid="text-total-earnings">{formatMoney(totalEarnings)}</strong>
-                  <span>Cumul</span>
-                </article>
-                <article className="cp-stat cp-stat-ink">
-                  <img className="cp-stat-image cp-stat-image-cpf50" src={cpf50Overview} alt="" />
-                  <strong>{withdrawnTotal === undefined ? "—" : formatMoney(withdrawnTotal)}</strong>
-                  <span>Retrait</span>
-                  {withdrawnTotal === undefined && <small>Historique indisponible</small>}
-                </article>
-              </div>
-            </div>
+            ))}
           </section>
 
-          <section className="cp-partners" aria-labelledby="partners-title">
-            <header className="cp-partners-heading">
-              <h2 id="partners-title">Nos partenaires</h2>
-            </header>
-            <div className="cp-partners-grid">
-              {partners.map(({ name, logo, className }) => (
-                <article className="cp-partner-card" key={name}>
-                  <div className="cp-partner-logo">
-                    <img className={className} src={logo} alt="" />
-                  </div>
-                  <span>{name}</span>
-                </article>
-              ))}
+          <section className="cp-feature" aria-labelledby="feature-title">
+            <img className="cp-feature-image" src={chargerProduct} alt="Équipement de recharge pour véhicule électrique" />
+            <div className="cp-feature-shade" />
+            <div className="cp-feature-copy">
+              <span className="cp-feature-kicker">VOTRE ESPACE</span>
+              <h2 id="feature-title">Tout est à portée de main.</h2>
+              <p>Consultez vos informations et accédez rapidement aux services de votre compte.</p>
             </div>
           </section>
         </div>
@@ -239,16 +210,16 @@ export default function HomePage() {
 
       <Dialog open={welcomePopupOpen} onOpenChange={setWelcomePopupOpen}>
         <DialogContent className="cp-dialog z-[60]" overlayClassName="cp-dialog-overlay">
-          <DialogClose className="cp-dialog-brand-close" aria-label="Fermer le popup">
-            <img src={chargePointLogo} alt="" />
+          <DialogClose className="cp-dialog-brand-close" aria-label="Fermer les conditions">
+            <img src={noticeBell} alt="" />
           </DialogClose>
           <div className="cp-dialog-mark" aria-hidden="true">
-            <img src={chargePointLogo} alt="" />
+            <img src={noticeBell} alt="" />
           </div>
           <div className="cp-dialog-copy">
-            <DialogTitle className="cp-dialog-title">Message de bienvenue Equinor</DialogTitle>
+            <DialogTitle className="cp-dialog-title">Informations utiles</DialogTitle>
             <DialogDescription className="cp-dialog-message">
-              Bienvenue sur Equinor. Avant toute opération, veuillez consulter les principales conditions applicables aux dépôts, aux retraits et aux bonus.
+              Consultez les principales conditions applicables aux dépôts, aux retraits et au pointage.
             </DialogDescription>
             <ol className="cp-dialog-list">
               {popupRules.map((rule) => <li key={rule}>{rule}</li>)}
@@ -262,7 +233,7 @@ export default function HomePage() {
                 <ChevronRight size={19} aria-hidden="true" />
               </a>
             )}
-            <button className="cp-dialog-close" type="button" onClick={() => setWelcomePopupOpen(false)}>D’ACCORD</button>
+            <button className="cp-dialog-close" type="button" onClick={() => setWelcomePopupOpen(false)}>FERMER</button>
           </div>
         </DialogContent>
       </Dialog>

@@ -3,11 +3,11 @@ name: Page visual styling
 description: Existing page layout and color decisions that remain separate from the Equinor name.
 ---
 
-Existing page colors and layouts remain in place until the user requests a visual rebrand. The home dashboard should remain a compact application screen with a pure-white canvas, clearly separated functional sections, and its existing actions and live account data intact. Keep untouched pages in their existing styling; do not perform a global recolor based only on the Equinor name.
+The user requested a compact homepage layout based on their mobile reference while retaining the existing orange/white palette, account fields, quick actions, and fixed horizontal bottom navigation. Leave login and registration pages untouched. Treat the supplied screenshot as a layout reference only; keep existing homepage imagery until the user provides authorized replacement files. Do not imply Equinor affiliation.
 
-**Why:** The user selected Equinor as the product name but has not specified official colors or requested a visual redesign.
+**Why:** The user explicitly asked to reuse the homepage structure while preserving the platform's current colors and fields; they also stated the financial platform is not authorized to present itself as Equinor.
 
-**How to apply:** Preserve existing styling unless the user requests a visual identity update. On home, prefer white module backgrounds and spacing or borders between the banner and functional sections; preserve routes and real values.
+**How to apply:** Reorder the homepage without replacing live account values or action routes. Keep the current assets until authorized replacements arrive, and do not add Equinor marks or affiliation claims.
 
 For the home announcement banner, use a real transparent PNG image asset for its icon, rather than a CSS-drawn or inline-vector icon.
 
@@ -21,8 +21,8 @@ The four home action icons should follow the same native-image rule while preser
 
 **How to apply:** Use transparent PNGs for Dépôt, Retrait, Aide and Pointage; keep the dark outline and orange accent balance rather than recoloring the entire icon.
 
-Home announcement text should be easy to read: use a bold, enlarged treatment and a transparent orange star PNG as the separator between messages.
+The latest homepage reference shows small bullet separators in the scrolling activity strip; keep that strip display-only and separate from the account ledger.
 
-**Why:** The user found the earlier ticker text too small and requested a native orange star instead of the small CSS separator.
+**Why:** The user provided a newer homepage reference and asked to apply its structure while preserving the current platform fields.
 
-**How to apply:** Keep the ticker's messages scrolling, make the text visibly bold, and use an image asset for each orange star separator.
+**How to apply:** Preserve the decorative scrolling examples, use simple bullet separators, and do not present them as live transactions or alter account balances.

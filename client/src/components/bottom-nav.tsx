@@ -35,6 +35,7 @@ export default function BottomNav() {
           return (
             <button
               key={item.path}
+              type="button"
               onClick={() => {
                 navigate(item.path);
                 if (item.path === "/") {
@@ -44,6 +45,7 @@ export default function BottomNav() {
               className="flex h-full flex-1 flex-col items-center justify-center gap-[2px]"
               data-testid={`nav-${item.label.toLowerCase()}`}
               aria-current={isActive ? "page" : undefined}
+              aria-label={homeLabel}
             >
               <span
                 aria-hidden="true"
