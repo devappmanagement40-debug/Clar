@@ -4,21 +4,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
-import { AlertTriangle, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
+import { AlertTriangle, Banknote, ChevronRight, Loader2, Package, ShoppingBag } from "lucide-react";
 import { useLocation } from "wouter";
 import type { Product } from "@shared/schema";
-
-import chargepointLogo from "@assets/chargepoint_1790147948102.jpg";
-import chargepointPromo from "@/assets/auth-chargepoint-combined.png";
-import emptyProductsIllustration from "@assets/generated_images/chargepoint-empty-products.png";
-import chargepointProduct1 from "@assets/ChargePoint-CPF50-electric-car-fleet-charging-station-EVSE-1_1790160713799.jpg";
-import chargepointProduct2 from "@assets/ChargePoint-Home-Flex-50A-CPH50-app-1280px__29346__78945__7114_1790148214522.png";
-import chargepointProduct3 from "@assets/overview-chargeflex-no-bg.png";
-import chargepointProduct4 from "@assets/overview-cpf50-no-bg.png";
-
-const PRODUCT_IMAGES = [
-  chargepointProduct1, chargepointProduct2, chargepointProduct3, chargepointProduct4,
-];
 
 interface ProductWithOwnership extends Product {
   isOwned: boolean;
@@ -32,7 +20,12 @@ export default function ProductsPage() {
   const [, navigate] = useLocation();
   const [selectedProduct, setSelectedProduct] = useState<ProductWithOwnership | null>(null);
 
-  const { data: products, isLoading } = useQuery<ProductWithOwnership[]>({
+  const {
+    data: products,
+    isLoading,
+    isError: productsError,
+    refetch: refetchProducts,
+  } = useQuery<ProductWithOwnership[]>({
     queryKey: ["/api/products"],
   });
 
@@ -66,225 +59,264 @@ export default function ProductsPage() {
 
   const country = getCountryByCode(user.country);
   const currency = country?.currency || "FCFA";
-  const formatAmount = (value: number) => `${currency} ${Math.round(value).toLocaleString("fr-FR")}`;
+  const formatAmount = (value: number | null) =>
+    value !== null && Number.isFinite(value)
+      ? `${currency} ${Math.round(value).toLocaleString("fr-FR")}`
+      : "—";
   const availableProducts = products?.filter(product => !product.isFree) || [];
   const activeUserProducts = (userProducts || []).filter(product => product.status === "active");
-  const ownedCount = activeUserProducts.length;
-  const dailyRevenue = activeUserProducts.reduce(
-    (sum, item) => sum + Number(item.product?.dailyEarnings || 0),
-    0,
-  );
+  const ownedCount = userProducts === undefined ? null : activeUserProducts.length;
+  const dailyRevenue = userProducts === undefined
+    ? null
+    : activeUserProducts.reduce<number | null>((sum, item) => {
+        const amount = Number(item.product?.dailyEarnings);
+        return sum !== null && Number.isFinite(amount) ? sum + amount : null;
+      }, 0);
 
   return (
     <main className="cp-products-page">
       <style>{`
         .cp-products-page {
-          min-height: 100%;
-          padding-bottom: 76px;
+          min-height: 100dvh;
+          padding-bottom: calc(78px + env(safe-area-inset-bottom));
           background: #ffffff;
-          color: #111827;
+          color: #17191c;
           font-family: Inter, Arial, sans-serif;
         }
         .cp-products-shell { width: 100%; max-width: 512px; margin: 0 auto; background: #ffffff; }
-        .cp-products-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 13px 18px;
-          border-bottom: 2px solid #111827;
-          background: #ffffff;
-        }
-        .cp-products-brand { display: flex; align-items: center; gap: 10px; }
-        .cp-products-brand img {
-          width: 36px; height: 36px; border: 2px solid #111827;
-          border-radius: 50%; object-fit: cover; background: #fff;
-        }
-        .cp-products-brand strong { font-size: 18px; font-weight: 900; }
-        .cp-products-service {
-          border: 2px solid #111827; border-radius: 10px; padding: 7px 10px;
-          background: #ffffff; color: #111827; font-size: 12px; font-weight: 800;
-          box-shadow: 0 2px 0 #111827;
-        }
-        .cp-products-hero {
-          position: relative; min-height: 158px; overflow: hidden;
-          border-bottom: 2px solid #111827; background: #fff8f2;
-        }
-        .cp-products-hero img { width: 100%; height: 158px; object-fit: cover; opacity: .8; }
-        .cp-products-hero::after {
-          position: absolute; inset: 0;
-          background: linear-gradient(90deg, rgba(255,255,255,.96), rgba(255,248,242,.18));
-          content: "";
-        }
-        .cp-products-hero-copy {
-          position: absolute; z-index: 1; top: 26px; left: 20px; max-width: 260px;
-        }
-        .cp-products-hero-copy h1 { margin: 0; color: #111827; font-size: 29px; font-weight: 950; line-height: 1; }
-        .cp-products-hero-copy p { margin: 9px 0 0; color: #374151; font-size: 13px; line-height: 1.35; }
         .cp-products-stats {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-          padding: 16px 18px 4px; background: #ffffff;
+          display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
+          padding: 16px 18px 14px; background: #ffffff;
         }
         .cp-products-stat {
-          display: flex; min-height: 84px; align-items: center; gap: 11px;
-          padding: 12px; border: 2px solid #111827; border-radius: 12px;
-          background: #ffffff; box-shadow: 0 3px 0 #111827;
+          display: flex; min-width: 0; min-height: 82px; align-items: center; gap: 10px;
+          padding: 11px; border: 2px solid #17191c; border-radius: 14px;
+          background: #ffffff; color: #17191c;
+          box-shadow: 0 3px 0 #17191c, 0 7px 16px rgba(17,24,39,.12);
+        }
+        .cp-products-stat-link {
+          width: 100%; font: inherit; text-align: left; cursor: pointer;
+          transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease;
+        }
+        .cp-products-stat-link:hover { background: #fff7f8; box-shadow: 0 4px 0 #17191c, 0 9px 18px rgba(17,24,39,.15); }
+        .cp-products-stat-link:active { transform: translateY(1px); }
+        .cp-products-stat-link:focus-visible,
+        .cp-product-buy:focus-visible,
+        .cp-products-retry:focus-visible,
+        .cp-products-modal-actions button:focus-visible {
+          outline: 3px solid rgba(189,48,76,.35); outline-offset: 3px;
         }
         .cp-products-stat-icon {
           display: grid; width: 42px; height: 42px; flex: 0 0 42px;
-          place-items: center; border-radius: 11px; background: #ff7a14; color: #111827;
+          place-items: center; border: 1px solid #f0dadd; border-radius: 12px;
+          background: #fff0f3; color: #bd304c;
         }
         .cp-products-stat-icon svg { width: 22px; height: 22px; }
-        .cp-products-stat-value { display: block; color: #111827; font-size: 18px; font-weight: 900; }
-        .cp-products-stat-label { display: block; margin-top: 4px; color: #4b5563; font-size: 11px; }
-        .cp-products-section-title {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 18px 18px 12px;
+        .cp-products-stat-copy { flex: 1; min-width: 0; }
+        .cp-products-stat-value {
+          display: block; overflow: hidden; color: #000; font-size: clamp(15px,4.2vw,18px); font-weight: 800; line-height: 1.1;
+          text-overflow: ellipsis; white-space: nowrap;
         }
-        .cp-products-section-title h2 { margin: 0; color: #111827; font-size: 19px; font-weight: 900; }
-        .cp-products-section-title span { color: #4b5563; font-size: 12px; }
+        .cp-products-stat-label { display: block; margin-top: 5px; color: #625e63; font-size: 12px; line-height: 1.2; }
+        .cp-products-stat-chevron { flex: 0 0 auto; color: #bd304c; }
         .cp-products-list { display: grid; gap: 14px; padding: 0 18px; }
         .cp-product-card {
-          display: grid; grid-template-columns: 118px minmax(0, 1fr);
-          gap: 14px; padding: 15px; border: 2px solid #111827;
-          border-radius: 14px; background: #ffffff; box-shadow: 0 4px 0 #111827;
+          display: grid; grid-template-columns: 116px minmax(0, 1fr);
+          gap: 12px; padding: 14px; border: 2px solid #17191c;
+          border-radius: 16px; background: #ffffff;
+          box-shadow: 0 3px 0 #17191c, 0 8px 18px rgba(17,24,39,.14);
+          transition: box-shadow .16s ease, transform .16s ease;
         }
-        .cp-product-card.is-unavailable { border-color: #9ca3af; box-shadow: 0 4px 0 #9ca3af; }
-        .cp-product-card.is-unavailable .cp-product-image { border-color: #9ca3af; filter: grayscale(.35); }
+        .cp-product-card:hover { box-shadow: 0 4px 0 #17191c, 0 11px 22px rgba(17,24,39,.16); }
+        .cp-product-card.is-unavailable { border-color: #9ca3af; box-shadow: 0 3px 0 #9ca3af, 0 7px 14px rgba(17,24,39,.08); }
+        .cp-product-card.is-unavailable .cp-product-image { border-color: #9ca3af; }
         .cp-product-image {
-          width: 118px; height: 118px; overflow: hidden; border: 2px solid #ff7a14;
-          border-radius: 11px; background: #fff8f2;
+          position: relative; width: 116px; height: 116px; overflow: hidden;
+          border: 2px solid #17191c; border-radius: 12px; background: #fff4f6;
         }
-        .cp-product-image img { width: 100%; height: 100%; padding: 7px; object-fit: contain; background: #fff8f2; }
+        .cp-product-image-placeholder {
+          position: absolute; inset: 0; display: grid; place-items: center;
+          background: #fff4f6; color: #bd304c;
+        }
+        .cp-product-image img {
+          position: absolute; z-index: 1; inset: 0; display: block;
+          width: 100%; height: 100%; object-fit: cover; background: #fff;
+        }
         .cp-product-info { min-width: 0; }
         .cp-product-name {
-          margin: 1px 0 10px; color: #111827; font-size: 18px; font-weight: 900;
+          margin: 1px 0 10px; color: #17191c; font-size: 18px; font-weight: 800;
           line-height: 1.15; overflow-wrap: anywhere;
         }
         .cp-product-line {
-          display: flex; justify-content: space-between; gap: 8px;
-          margin-top: 6px; color: #4b5563; font-size: 12px;
+          display: flex; align-items: flex-start; justify-content: space-between; gap: 7px;
+          margin-top: 7px; color: #625e63; font-size: 12px; line-height: 1.25;
         }
-        .cp-product-line strong { color: #111827; font-weight: 800; text-align: right; }
-        .cp-product-line.revenue strong { color: #e85d00; }
+        .cp-product-line span { flex: 1; min-width: 0; }
+        .cp-product-line strong { max-width: 60%; color: #17191c; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+        .cp-product-line.revenue strong { color: #9e263c; }
         .cp-product-buy {
-          grid-column: 2; justify-self: end; min-width: 126px; margin-top: -2px;
-          padding: 10px 18px; border: 2px solid #111827; border-radius: 11px;
-          background: #ff7a14; color: #111827; font-size: 14px; font-weight: 900;
-          box-shadow: 0 3px 0 #111827, 0 7px 14px rgba(17,24,39,.14);
+          display: inline-flex; grid-column: 2; min-height: 42px; align-items: center;
+          justify-content: center; justify-self: end; gap: 6px; min-width: 126px; margin-top: 2px;
+          padding: 9px 16px; border: 2px solid #17191c; border-radius: 11px;
+          background: #bd304c; color: #ffffff; font-size: 14px; font-weight: 800;
+          box-shadow: 0 3px 0 #17191c, 0 6px 12px rgba(17,24,39,.14);
+          transition: transform .16s ease, background-color .16s ease;
         }
-        .cp-product-buy:active { transform: translateY(1px); }
+        .cp-product-buy:hover:not(:disabled) { transform: translateY(-1px); background: #a92642; }
+        .cp-product-buy:active:not(:disabled) { transform: translateY(1px); }
         .cp-product-buy.is-unavailable {
           border-color: #9ca3af; background: #e5e7eb; color: #6b7280;
           box-shadow: 0 3px 0 #9ca3af; cursor: not-allowed;
         }
         .cp-products-empty {
           display: flex; min-height: 260px; flex-direction: column; align-items: center;
-          justify-content: center; gap: 8px; border: 2px solid #111827; border-radius: 14px;
-          background: #ffffff; color: #4b5563; text-align: center; box-shadow: 0 4px 0 #111827;
+          justify-content: center; gap: 10px; border: 2px solid #17191c; border-radius: 16px;
+          padding: 20px; background: #ffffff; color: #625e63; text-align: center;
+          box-shadow: 0 3px 0 #17191c, 0 8px 18px rgba(17,24,39,.12);
         }
-        .cp-products-empty img { width: 130px; height: 130px; object-fit: contain; }
-        .cp-products-empty p { margin: 0; font-size: 14px; }
+        .cp-products-empty > svg { color: #bd304c; }
+        .cp-products-empty p { max-width: 280px; margin: 0; font-size: 14px; line-height: 1.4; }
+        .cp-products-retry {
+          min-height: 42px; margin-top: 4px; padding: 9px 16px;
+          border: 2px solid #17191c; border-radius: 10px; background: #bd304c;
+          color: #fff; font-size: 13px; font-weight: 800;
+        }
         .cp-products-modal-backdrop {
           position: fixed; z-index: 60; inset: 0; display: grid; place-items: center;
-          padding: 18px; background: rgba(17,24,39,.35);
+          padding: 18px; background: rgba(17,24,39,.42);
         }
         .cp-products-modal {
-          width: 100%; max-width: 390px; padding: 20px; border: 2px solid #111827;
-          border-radius: 14px; background: #ffffff; box-shadow: 0 6px 0 #111827, 0 20px 60px rgba(0,0,0,.25);
+          width: 100%; max-width: 390px; padding: 20px; border: 2px solid #17191c;
+          border-radius: 16px; background: #ffffff; box-shadow: 0 4px 0 #17191c, 0 20px 60px rgba(0,0,0,.25);
         }
-        .cp-products-modal h2 { margin: 0; color: #111827; font-size: 21px; font-weight: 900; }
-        .cp-products-modal p { margin: 8px 0 0; color: #4b5563; font-size: 13px; line-height: 1.4; }
+        .cp-products-modal h2 { margin: 0; color: #17191c; font-size: 21px; font-weight: 800; }
+        .cp-products-modal p { margin: 8px 0 0; color: #625e63; font-size: 13px; line-height: 1.45; }
         .cp-products-modal-warning {
-          display: flex; gap: 8px; margin-top: 15px; padding: 10px;
-          border: 1px solid #ff0000; border-radius: 10px; background: #fff1f0; color: #ff0000;
-          font-size: 12px;
+          display: flex; align-items: flex-start; gap: 8px; margin-top: 15px; padding: 10px;
+          border: 1px solid #fda4af; border-radius: 10px; background: #fff1f2; color: #9f1239;
+          font-size: 12px; line-height: 1.35;
         }
         .cp-products-modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .cp-products-modal-actions button {
-          padding: 11px; border: 2px solid #111827; border-radius: 10px;
-          background: #ffffff; color: #111827; font-weight: 800;
+          min-height: 44px; padding: 10px; border: 2px solid #17191c; border-radius: 10px;
+          background: #ffffff; color: #17191c; font-weight: 800;
         }
-        .cp-products-modal-actions button:last-child { border-color: #ff7a14; background: #ff7a14; color: #111827; }
+        .cp-products-modal-actions button:last-child { border-color: #17191c; background: #bd304c; color: #ffffff; }
         @media (max-width: 370px) {
-          .cp-product-card { grid-template-columns: 94px minmax(0, 1fr); gap: 10px; padding: 11px; }
-          .cp-product-image { width: 94px; height: 108px; }
+          .cp-products-stats { gap: 8px; padding-right: 14px; padding-left: 14px; }
+          .cp-products-stat { gap: 8px; padding: 9px; }
+          .cp-products-stat-icon { width: 36px; height: 36px; flex-basis: 36px; }
+          .cp-products-list { padding-right: 14px; padding-left: 14px; }
+          .cp-product-card { grid-template-columns: 84px minmax(0, 1fr); gap: 8px; padding: 10px; }
+          .cp-product-image { width: 84px; height: 84px; }
           .cp-product-name { font-size: 16px; }
-          .cp-product-line { font-size: 11px; }
+          .cp-product-line { gap: 5px; font-size: 11px; }
           .cp-product-buy { min-width: 108px; padding: 9px 12px; font-size: 12px; }
+        }
+        @media (max-width: 340px) {
+          .cp-product-card { grid-template-columns: 72px minmax(0, 1fr); gap: 7px; padding: 9px; }
+          .cp-product-image { width: 72px; height: 72px; }
+          .cp-product-name { font-size: 15px; }
+          .cp-product-line { font-size: 10.5px; }
+          .cp-product-buy { min-width: 100px; }
         }
       `}</style>
 
       <div className="cp-products-shell">
-        <header className="cp-products-header">
-          <div className="cp-products-brand">
-            <img src={chargepointLogo} alt="" />
-            <strong>Produits</strong>
-          </div>
-          <button className="cp-products-service" onClick={() => navigate("/service")}>Service</button>
-        </header>
-
-        <section className="cp-products-hero" aria-label="Catalogue Equinor">
-          <img src={chargepointPromo} alt="" />
-          <div className="cp-products-hero-copy">
-            <h1>Produits Equinor</h1>
-            <p>Choisissez un produit et commencez à recevoir vos revenus quotidiens.</p>
-          </div>
-        </section>
+        <h1 className="sr-only">Produits Equinor</h1>
 
         <section className="cp-products-stats" aria-label="Résumé des produits">
+          <button
+            className="cp-products-stat cp-products-stat-link"
+            type="button"
+            onClick={() => navigate("/my-products")}
+            aria-label="Voir mes équipements achetés"
+          >
+            <span className="cp-products-stat-icon"><Package aria-hidden="true" /></span>
+            <span className="cp-products-stat-copy">
+              <strong className="cp-products-stat-value">{ownedCount ?? "—"}</strong>
+              <small className="cp-products-stat-label">Mes équipements</small>
+            </span>
+            <ChevronRight className="cp-products-stat-chevron" aria-hidden="true" size={18} />
+          </button>
           <div className="cp-products-stat">
-            <span className="cp-products-stat-icon"><ShoppingBag aria-hidden="true" /></span>
-            <span><strong className="cp-products-stat-value">{ownedCount}</strong><small className="cp-products-stat-label">Mes équipements</small></span>
-          </div>
-          <div className="cp-products-stat">
-            <span className="cp-products-stat-icon"><span aria-hidden="true">XAF</span></span>
-            <span><strong className="cp-products-stat-value">{formatAmount(dailyRevenue)}</strong><small className="cp-products-stat-label">Revenu quotidien</small></span>
+            <span className="cp-products-stat-icon"><Banknote aria-hidden="true" /></span>
+            <span className="cp-products-stat-copy">
+              <strong className="cp-products-stat-value">{formatAmount(dailyRevenue)}</strong>
+              <small className="cp-products-stat-label">Revenu quotidien</small>
+            </span>
           </div>
         </section>
-
-        <div className="cp-products-section-title">
-          <h2>Nos produits</h2>
-        </div>
 
         <section className="cp-products-list" aria-label="Produits disponibles">
           {isLoading ? (
-            <div className="cp-products-empty"><Loader2 className="animate-spin" /><p>Chargement des produits...</p></div>
+            <div className="cp-products-empty" role="status">
+              <Loader2 className="animate-spin" aria-hidden="true" size={30} />
+              <p>Chargement des produits…</p>
+            </div>
+          ) : productsError && !products ? (
+            <div className="cp-products-empty" role="alert">
+              <AlertTriangle aria-hidden="true" size={34} />
+              <p>Impossible de charger les produits pour le moment.</p>
+              <button className="cp-products-retry" type="button" onClick={() => { void refetchProducts(); }}>
+                Réessayer
+              </button>
+            </div>
           ) : availableProducts.length === 0 ? (
-            <div className="cp-products-empty">
-              <img src={emptyProductsIllustration} alt="" />
+            <div className="cp-products-empty" role="status">
+              <ShoppingBag aria-hidden="true" size={38} />
               <p>Aucun produit disponible pour le moment</p>
             </div>
-          ) : availableProducts.map((product, index) => (
-            <article className={`cp-product-card${product.isActive ? "" : " is-unavailable"}`} key={product.id} data-testid={`product-card-${product.id}`}>
-              <div className="cp-product-image"><img src={product.imageUrl || PRODUCT_IMAGES[index % PRODUCT_IMAGES.length]} alt={product.name} /></div>
-              <div className="cp-product-info">
-                <h3 className="cp-product-name">
-                  {product.name}
-                  {!product.isActive && <span className="ml-2 text-xs font-bold uppercase text-gray-500">Indisponible</span>}
-                </h3>
-                <div className="cp-product-line"><span>Prix :</span><strong>{formatAmount(Number(product.price))}</strong></div>
-                <div className="cp-product-line revenue"><span>Revenu quotidien :</span><strong>{formatAmount(Number(product.dailyEarnings))}</strong></div>
-                <div className="cp-product-line revenue"><span>Revenu total :</span><strong>{formatAmount(Number(product.totalReturn))}</strong></div>
-                <div className="cp-product-line"><span>Cycle :</span><strong>{product.cycleDays} jours</strong></div>
-              </div>
-              <button
-                className={`cp-product-buy${product.isActive ? "" : " is-unavailable"}`}
-                onClick={() => product.isActive && setSelectedProduct(product)}
-                disabled={!product.isActive}
-                aria-disabled={!product.isActive}
-                data-testid={`button-purchase-${product.id}`}
-              >
-                {product.isActive ? <>Acheter <ChevronRight aria-hidden="true" size={16} /></> : "Indisponible"}
-              </button>
-            </article>
-          ))}
+          ) : availableProducts.map(product => {
+              const imageUrl = product.imageUrl?.trim();
+              return (
+                <article className={`cp-product-card${product.isActive ? "" : " is-unavailable"}`} key={product.id} data-testid={`product-card-${product.id}`}>
+                  <div className="cp-product-image">
+                    <span className="cp-product-image-placeholder"><ShoppingBag aria-hidden="true" size={30} /></span>
+                    {imageUrl && (
+                      <img
+                        src={imageUrl}
+                        alt={product.name}
+                        loading="lazy"
+                        onError={event => { event.currentTarget.style.display = "none"; }}
+                      />
+                    )}
+                  </div>
+                  <div className="cp-product-info">
+                    <h2 className="cp-product-name">
+                      {product.name}
+                      {!product.isActive && <span className="ml-2 text-xs font-bold uppercase text-gray-500">Indisponible</span>}
+                    </h2>
+                    <div className="cp-product-line"><span>Prix :</span><strong>{formatAmount(Number(product.price))}</strong></div>
+                    <div className="cp-product-line revenue"><span>Revenu quotidien :</span><strong>{formatAmount(Number(product.dailyEarnings))}</strong></div>
+                    <div className="cp-product-line revenue"><span>Revenu total :</span><strong>{formatAmount(Number(product.totalReturn))}</strong></div>
+                    <div className="cp-product-line"><span>Cycle :</span><strong>{Number.isFinite(Number(product.cycleDays)) ? `${product.cycleDays} jours` : "—"}</strong></div>
+                  </div>
+                  <button
+                    className={`cp-product-buy${product.isActive ? "" : " is-unavailable"}`}
+                    onClick={() => product.isActive && setSelectedProduct(product)}
+                    disabled={!product.isActive}
+                    aria-label={product.isActive ? `Acheter ${product.name}` : `${product.name} indisponible`}
+                    data-testid={`button-purchase-${product.id}`}
+                  >
+                    {product.isActive ? <>Acheter <ChevronRight aria-hidden="true" size={16} /></> : "Indisponible"}
+                  </button>
+                </article>
+              );
+            })}
         </section>
       </div>
 
       {selectedProduct && (
         <div className="cp-products-modal-backdrop" onClick={() => setSelectedProduct(null)}>
-          <div className="cp-products-modal" onClick={event => event.stopPropagation()}>
-            <h2>{selectedProduct.name}</h2>
+          <div
+            className="cp-products-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cp-product-confirm-title"
+            onClick={event => event.stopPropagation()}
+          >
+            <h2 id="cp-product-confirm-title">{selectedProduct.name}</h2>
             <p>Après l’achat, vos revenus seront crédités quotidiennement pendant {selectedProduct.cycleDays} jours.</p>
             <div className="cp-product-line"><span>Prix :</span><strong>{formatAmount(Number(selectedProduct.price))}</strong></div>
             <div className="cp-product-line revenue"><span>Revenu quotidien :</span><strong>{formatAmount(Number(selectedProduct.dailyEarnings))}</strong></div>
