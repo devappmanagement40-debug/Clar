@@ -51,6 +51,20 @@ export default function AccountPage() {
   const { data: apiCountries } = useQuery<ApiCountry[]>({
     queryKey: ["/api/countries"],
   });
+  const {
+    data: purchasedProducts,
+    isLoading: purchasedProductsLoading,
+    isError: purchasedProductsError,
+  } = useQuery<Array<{
+    product?: {
+      name?: string;
+      sortOrder?: number;
+      isFree?: boolean;
+    } | null;
+  }>>({
+    queryKey: ["/api/user/products"],
+    enabled: !!user,
+  });
   const verifyPinMutation = useMutation({
     mutationFn: async (pin: string) => {
       const res = await apiRequest("POST", "/api/admin/verify-pin", { pin });
@@ -81,6 +95,22 @@ export default function AccountPage() {
   const earnings = Number.parseFloat(user.totalEarnings || "0");
   const phonePrefix = country?.phonePrefix || "";
   const formatAmount = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;
+  const vipLevel = Math.max(
+    0,
+    ...(purchasedProducts || [])
+      .filter((purchase) => purchase.product && !purchase.product.isFree)
+      .map(({ product }) => {
+        const namedVipLevel = /^VIP\s*(\d+)$/i.exec(product?.name || "");
+        if (namedVipLevel) return Number(namedVipLevel[1]);
+        const offerOrder = Number(product?.sortOrder);
+        return Number.isInteger(offerOrder) && offerOrder >= 0 ? offerOrder + 1 : 0;
+      }),
+  );
+  const vipBadge = purchasedProductsLoading
+    ? "VIP…"
+    : purchasedProductsError || !purchasedProducts
+      ? "VIP —"
+      : `VIP ${vipLevel}`;
 
   const quickActions = [
     { label: "Dépôt", icon: ArrowDownCircle, href: "/deposit" },
@@ -175,7 +205,7 @@ export default function AccountPage() {
             </div>
             <div className="cp-profile-copy">
               <p className="cp-account-phone">+{phonePrefix} {user.phone}</p>
-              <span className="cp-account-level">Membre</span>
+              <span className="cp-account-level">{vipBadge}</span>
             </div>
           </div>
           <section className="cp-account-summaries" aria-label="Résumé du compte">
