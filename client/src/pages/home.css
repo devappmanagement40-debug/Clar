@@ -424,6 +424,8 @@ body:has(.cp-home) { background: #fff !important; }
   .cp-overview { padding-right: 14px; padding-left: 14px; }
   .cp-actions, .cp-feature, .cp-user-activity { margin-right: 14px; margin-left: 14px; }
   .cp-user-activity { width: calc(100% - 28px); }
+  .cp-user-activity-row { gap: 8px; padding-right: 9px; padding-left: 9px; }
+  .cp-user-activity-avatar { width: 36px; height: 36px; flex-basis: 36px; }
   .cp-notice { width: calc(100% - 28px); margin-right: 14px; margin-left: 14px; }
   .cp-action { font-size: 10px; }
   .cp-action-icon { width: 35px; }

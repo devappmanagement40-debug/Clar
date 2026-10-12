@@ -70,9 +70,14 @@ export default function HomePage() {
 
   if (!user) return null;
   const currency = getCountryByCode(user.country)?.currency || "XOF";
+  const localizeActivityCurrency = (message: string) =>
+    message.replace(/\bF\b/g, currency).replaceAll("XOF", currency);
+  const announcementMessages = announcementLibrary.map(localizeActivityCurrency);
+  const userActivityMessages = userActivityLibrary.map(localizeActivityCurrency);
   const balance = Number.parseFloat(user.balance || "0");
   const totalEarnings = Number.parseFloat(user.totalEarnings || "0");
-  const formatMoney = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;
+  const formatMoney = (amount: number) =>
+    Number.isFinite(amount) ? `${Math.round(amount).toLocaleString("fr-FR")} ${currency}` : "—";
   const popupCurrency = currency === "FCFA" ? "XOF" : currency;
   const formatPopupMoney = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${popupCurrency}`;
   const parseIntegerSetting = (key: string, fallback: number) => {
@@ -116,7 +121,7 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <div className="cp-hero-dots" aria-label="Images de la bannière">
+            <div className="cp-hero-dots" role="group" aria-label="Images de la bannière">
               {bannerSlides.map((slide, index) => (
                 <button
                   key={slide.image}
@@ -158,17 +163,17 @@ export default function HomePage() {
               <span className="cp-notice-track">
                 {[0, 1].map((copy) => (
                   <span className="cp-notice-group" key={copy}>
-                    {announcementLibrary.map((announcement, index) => (
+                    {announcementMessages.map((announcement, index) => (
                       <span className="cp-notice-item" key={`${copy}-${index}`}>
                         <span>{announcement}</span>
-                        {index < announcementLibrary.length - 1 && <span className="cp-notice-separator" aria-hidden="true" />}
+                        {index < announcementMessages.length - 1 && <span className="cp-notice-separator" aria-hidden="true" />}
                       </span>
                     ))}
                   </span>
                 ))}
               </span>
             </span>
-            <span className="sr-only" id="cp-notice-messages">{announcementLibrary.join(". ")}</span>
+            <span className="sr-only" id="cp-notice-messages">{announcementMessages.join(". ")}</span>
           </button>
 
           <section className="cp-actions" aria-label="Actions rapides">
@@ -193,7 +198,7 @@ export default function HomePage() {
           <section className="cp-user-activity" aria-label="Activités affichées">
             <div className="cp-user-activity-window" aria-hidden="true">
               <div className="cp-user-activity-track">
-                {[...userActivityLibrary, ...userActivityLibrary].map((activity, index) => (
+                {[...userActivityMessages, ...userActivityMessages].map((activity, index) => (
                   <article className="cp-user-activity-row" key={`${index}-${activity}`}>
                     <img className="cp-user-activity-avatar" src={equinorLogo} alt="" />
                     <span className="cp-user-activity-text">{activity}</span>
@@ -201,7 +206,7 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <span className="sr-only">{userActivityLibrary.join(". ")}</span>
+            <span className="sr-only">{userActivityMessages.join(". ")}</span>
           </section>
 
         </div>
