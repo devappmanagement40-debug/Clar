@@ -278,7 +278,7 @@
   min-width: 0;
   flex: 1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: 1fr 26px;
+  grid-template-rows: 1fr;
 }
 .team-level-metric {
   display: flex;
@@ -301,27 +301,6 @@
   overflow-wrap: anywhere;
 }
 .team-level-metric span { color: #555658; font-size: 9px; font-weight: 600; line-height: 1.2; }
-.team-level-open {
-  display: flex;
-  min-width: 0;
-  grid-column: 1 / -1;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  border: 0;
-  border-top: 1px solid #eeeae5;
-  background: #fff;
-  color: var(--team-red-dark);
-  font: inherit;
-  font-size: 9px;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-  transition: background 160ms ease;
-}
-.team-level-open:hover { background: #fbf5f6; }
-.team-level-open svg { width: 13px; height: 13px; }
-
 .team-share {
   padding: 13px;
   border: 2px solid #161616;

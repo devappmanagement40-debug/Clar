@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { useLocation } from "wouter";
-import { ChevronRight, Copy, Share2, X } from "lucide-react";
+import { Copy, Share2, X } from "lucide-react";
 import instagramIcon from "@assets/Instagram_icon_1787367952152.png";
 import facebookIcon from "@assets/images_(27)_1787367952249.png";
 import whatsappIcon from "@assets/images_(26)_1787367952281.png";
@@ -43,7 +42,6 @@ export default function TeamPage() {
   const [bannerImageFailed, setBannerImageFailed] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
-  const [, navigate] = useLocation();
   const { data: stats, isLoading, isFetching, isError, refetch } = useQuery<TeamStats>({
     queryKey: ["/api/team/stats"],
     staleTime: 30_000,
@@ -123,9 +121,9 @@ export default function TeamPage() {
     : undefined;
   const demoMemberCount = asFiniteNumber(stats?.demoMemberCount);
   const levels = [
-    { label: "LV1", count: stats?.level1Count, commission: stats?.level1Commission, rate: settings?.level1Commission, level: 1 },
-    { label: "LV2", count: stats?.level2Count, commission: stats?.level2Commission, rate: settings?.level2Commission, level: 2 },
-    { label: "LV3", count: stats?.level3Count, commission: stats?.level3Commission, rate: settings?.level3Commission, level: 3 },
+    { label: "LV1", count: stats?.level1Count, commission: stats?.level1Commission, rate: settings?.level1Commission },
+    { label: "LV2", count: stats?.level2Count, commission: stats?.level2Commission, rate: settings?.level2Commission },
+    { label: "LV3", count: stats?.level3Count, commission: stats?.level3Commission, rate: settings?.level3Commission },
   ];
   const shareLinks = [
     { name: "WhatsApp", icon: whatsappIcon, url: `https://wa.me/?text=${encodeURIComponent(referralMessage)}` },
@@ -236,9 +234,6 @@ export default function TeamPage() {
                     <strong>{formatNumber(level.commission, isLoading)} <small>XOF</small></strong>
                     <span>Commissions</span>
                   </div>
-                  <button type="button" className="team-level-open" onClick={() => navigate(`/team-details?level=${level.level}`)} aria-label={`Voir les membres du niveau ${level.level}`}>
-                    <span>Voir les membres</span><ChevronRight aria-hidden="true" />
-                  </button>
                 </div>
               </article>
             ))}
