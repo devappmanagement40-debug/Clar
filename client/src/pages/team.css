@@ -202,37 +202,6 @@
 .team-summary-card span { color: #626365; font-size: 10px; font-weight: 600; line-height: 1.3; }
 .team-summary-card-accent span { color: rgba(255,255,255,.92); }
 
-.team-more-stats {
-  overflow: hidden;
-  border: 1px solid #161616;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 2px 0 #161616;
-}
-.team-more-stats > summary {
-  display: flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 0 12px;
-  color: #565657;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  list-style: none;
-}
-.team-more-stats > summary::-webkit-details-marker { display: none; }
-.team-more-stats > summary svg { width: 15px; height: 15px; color: var(--team-red-dark); transition: transform 160ms ease; }
-.team-more-stats[open] > summary { border-bottom: 1px solid #eeeae5; }
-.team-more-stats[open] > summary svg { transform: rotate(180deg); }
-.team-more-stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.team-more-stat { display: flex; min-height: 53px; justify-content: center; flex-direction: column; gap: 3px; padding: 8px 11px; border-bottom: 1px solid #eeeae5; }
-.team-more-stat:nth-child(odd) { border-right: 1px solid #eeeae5; }
-.team-more-stat:last-child { border-bottom: 0; }
-.team-more-stat strong { font-family: "Manrope", sans-serif; font-size: 14px; font-weight: 800; line-height: 1.15; }
-.team-more-stat span { color: var(--team-muted); font-size: 9px; line-height: 1.3; }
-
 .team-demo-note {
   margin: -4px 0 0;
   padding: 8px 10px;
@@ -246,21 +215,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 10px 11px;
-  border: 1px solid #d7a7b0;
-  border-radius: 4px;
+  border: 2px solid #161616;
+  border-radius: 10px;
   background: #fff1f3;
   color: #81243a;
   font-size: 11px;
   line-height: 1.4;
+  box-shadow: 0 2px 0 #161616;
 }
+.team-error > span { min-width: 0; flex: 1 1 160px; }
 .team-error button {
   min-height: 32px;
+  min-width: 94px;
   flex: 0 0 auto;
   padding: 0 10px;
   border: 0;
-  border-radius: 3px;
+  border-radius: 7px;
   background: var(--team-red);
   color: #fff;
   font: inherit;
@@ -349,13 +322,6 @@
 .team-level-open:hover { background: #fbf5f6; }
 .team-level-open svg { width: 13px; height: 13px; }
 
-.team-explainer {
-  margin: -3px 2px 0;
-  color: #656668;
-  font-size: 10px;
-  line-height: 1.5;
-}
-
 .team-share {
   padding: 13px;
   border: 2px solid #161616;
@@ -405,8 +371,7 @@
 .team-share-note { margin: 9px 0 0; color: var(--team-muted); font-size: 9px; line-height: 1.45; }
 
 .team-page button:focus-visible,
-.team-page a:focus-visible,
-.team-more-stats summary:focus-visible { outline: 2px solid var(--team-red-dark); outline-offset: 2px; }
+.team-page a:focus-visible { outline: 2px solid var(--team-red-dark); outline-offset: 2px; }
 
 @media (min-width: 600px) {
   .team-content { gap: 16px; padding: 17px 19px 96px; }

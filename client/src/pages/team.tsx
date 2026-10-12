@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { ChevronDown, ChevronRight, Copy, Share2, X } from "lucide-react";
+import { ChevronRight, Copy, Share2, X } from "lucide-react";
 import instagramIcon from "@assets/Instagram_icon_1787367952152.png";
 import facebookIcon from "@assets/images_(27)_1787367952249.png";
 import whatsappIcon from "@assets/images_(26)_1787367952281.png";
@@ -18,22 +19,28 @@ interface TeamStats {
   level2Commission: number;
   level3Commission: number;
   demoMemberCount: number;
-  totalDepositAmount: number;
-  totalWithdrawalAmount: number;
-  todayNewMembers: number;
-  todayDepositAmount: number;
-  todayWithdrawalAmount: number;
+}
+
+function asFiniteNumber(value: unknown): number | undefined {
+  if (typeof value !== "number" && typeof value !== "string") return undefined;
+  if (typeof value === "string" && value.trim() === "") return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
 }
 
 function formatNumber(value: number | undefined, loading: boolean) {
-  return loading ? "…" : value === undefined ? "—" : value.toLocaleString("fr-FR");
+  if (loading) return "…";
+  return asFiniteNumber(value)?.toLocaleString("fr-FR") ?? "—";
 }
 
-function formatRate(value: string | undefined) {
-  return value === undefined || value === "" ? "—" : `${value}%`;
+function formatRate(value: string | undefined, loading: boolean) {
+  if (loading) return "…";
+  const rate = asFiniteNumber(value);
+  return rate === undefined || rate < 0 ? "—" : `${rate.toLocaleString("fr-FR")}%`;
 }
 
 export default function TeamPage() {
+  const [bannerImageFailed, setBannerImageFailed] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -43,7 +50,13 @@ export default function TeamPage() {
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
   });
-  const { data: settings } = useQuery<Record<string, string>>({
+  const {
+    data: settings,
+    isLoading: isSettingsLoading,
+    isFetching: isSettingsFetching,
+    isError: isSettingsError,
+    refetch: refetchSettings,
+  } = useQuery<Record<string, string>>({
     queryKey: ["/api/settings"],
   });
 
@@ -102,20 +115,17 @@ export default function TeamPage() {
     await copy(referralMessage, "Message d'invitation");
   };
 
-  const totalMembers = stats
-    ? stats.level1Count + stats.level2Count + stats.level3Count
+  const memberCounts = stats
+    ? [asFiniteNumber(stats.level1Count), asFiniteNumber(stats.level2Count), asFiniteNumber(stats.level3Count)]
+    : [];
+  const totalMembers = stats && memberCounts.every((count): count is number => count !== undefined)
+    ? memberCounts.reduce((sum, count) => sum + count, 0)
     : undefined;
+  const demoMemberCount = asFiniteNumber(stats?.demoMemberCount);
   const levels = [
     { label: "LV1", count: stats?.level1Count, commission: stats?.level1Commission, rate: settings?.level1Commission, level: 1 },
     { label: "LV2", count: stats?.level2Count, commission: stats?.level2Commission, rate: settings?.level2Commission, level: 2 },
     { label: "LV3", count: stats?.level3Count, commission: stats?.level3Commission, rate: settings?.level3Commission, level: 3 },
-  ];
-  const networkStats = [
-    { label: "Dépôts cumulés", value: stats?.totalDepositAmount },
-    { label: "Retraits cumulés", value: stats?.totalWithdrawalAmount },
-    { label: "Nouveaux membres aujourd'hui", value: stats?.todayNewMembers },
-    { label: "Dépôts aujourd'hui", value: stats?.todayDepositAmount },
-    { label: "Retraits aujourd'hui", value: stats?.todayWithdrawalAmount },
   ];
   const shareLinks = [
     { name: "WhatsApp", icon: whatsappIcon, url: `https://wa.me/?text=${encodeURIComponent(referralMessage)}` },
@@ -127,9 +137,15 @@ export default function TeamPage() {
   return (
     <main className="team-page">
       <div className="team-page-inner">
-        <div className="team-content" aria-busy={isLoading || isFetching}>
+        <div className="team-content" aria-busy={isLoading || isFetching || isSettingsLoading || isSettingsFetching}>
           <section className="team-banner" aria-label="Votre réseau">
-            <img src="/images/equinor/products/offshore-platform.jpg" alt="Plateforme offshore au large" />
+            {!bannerImageFailed && (
+              <img
+                src="/images/equinor/products/offshore-platform.jpg"
+                alt="Plateforme offshore au large"
+                onError={() => setBannerImageFailed(true)}
+              />
+            )}
             <div className="team-banner-shade" />
             <div className="team-banner-copy">
               <span>Mon réseau</span>
@@ -179,32 +195,25 @@ export default function TeamPage() {
             </article>
           </section>
 
-          <details className="team-more-stats">
-            <summary>
-              <span>Autres statistiques du réseau</span>
-              <ChevronDown aria-hidden="true" />
-            </summary>
-            <div className="team-more-stats-grid">
-              {networkStats.map((item) => (
-                <div className="team-more-stat" key={item.label}>
-                  <strong>{formatNumber(item.value, isLoading)}</strong>
-                  <span>{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </details>
-
-          {!!stats?.demoMemberCount && (
+          {demoMemberCount !== undefined && demoMemberCount > 0 && (
             <p className="team-demo-note">
-              {stats.demoMemberCount} membre{stats.demoMemberCount === 1 ? "" : "s"} de démonstration sont inclus dans le total des membres.
+              {formatNumber(demoMemberCount, false)} membre{demoMemberCount === 1 ? "" : "s"} de démonstration sont inclus dans le total des membres.
             </p>
           )}
 
           {isError && (
             <div className="team-error" role="alert">
-              <span>Impossible de charger les statistiques de l'équipe.</span>
+              <span>{stats ? "Actualisation impossible. Les valeurs affichées peuvent ne pas être à jour." : "Impossible de charger les statistiques de l'équipe."}</span>
               <button type="button" onClick={() => void refetch()} disabled={isFetching}>
                 {isFetching ? "Chargement…" : "Réessayer"}
+              </button>
+            </div>
+          )}
+          {isSettingsError && (
+            <div className="team-error" role="alert">
+              <span>{settings ? "Impossible d'actualiser les taux affichés." : "Impossible de charger les taux de commission."}</span>
+              <button type="button" onClick={() => void refetchSettings()} disabled={isSettingsFetching}>
+                {isSettingsFetching ? "Chargement…" : "Réessayer"}
               </button>
             </div>
           )}
@@ -216,7 +225,7 @@ export default function TeamPage() {
                 <div className="team-level-rail">{level.label}</div>
                 <div className="team-level-content">
                   <div className="team-level-metric">
-                    <strong>{formatRate(level.rate)}</strong>
+                    <strong>{formatRate(level.rate, isSettingsLoading)}</strong>
                     <span>Commission</span>
                   </div>
                   <div className="team-level-metric">
@@ -261,8 +270,9 @@ export default function TeamPage() {
                   event.preventDefault();
                   const instagramTab = window.open("about:blank", "_blank");
                   if (instagramTab) instagramTab.opener = null;
-                  void copy(referralMessage, "Message d'invitation").then(() => {
-                    instagramTab?.location.replace("https://www.instagram.com/");
+                   void copy(referralMessage, "Message d'invitation").then((copied) => {
+                     if (copied) instagramTab?.location.replace("https://www.instagram.com/");
+                     else instagramTab?.close();
                   });
                 }}>
                 <img src={instagramIcon} alt="" /><span>Instagram</span>
