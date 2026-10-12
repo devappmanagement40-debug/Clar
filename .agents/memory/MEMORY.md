@@ -14,6 +14,7 @@
 - [Fictitious financial examples](demo-referrals.md) — Keep varied home activity messages display-only; show each vertical entry as its own framed block, not a table.
 - [Dev workflow port conflict](workflow-port-conflict.md) — a failed restart can leave a prior server child listening on port 5000; inspect the listener before retrying.
 - [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits remain protected; only earnings, commissions, bonuses, and other non-deposit funds are withdrawable.
+- [VIP levels](vip-levels.md) — new accounts start at VIP 0; the highest ranked paid offer purchased determines the displayed level.
 - [VIP duration](vip-duration.md) — Product cycle length is admin-managed; startup code must never force a fixed duration.
 - [Mockup sandbox isolation](mockup-sandbox-dependencies.md) — Separate dependencies and preview ports mean a main-app screenshot can misreport a healthy sandbox preview.
 - [Workflow secret scope](workflow-secret-scope.md) — One-off shell commands may lack secrets available to the managed app workflow; use scoped presence checks and guarded execution.
