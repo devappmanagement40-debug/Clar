@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 13px 13px 94px;
+  padding: 13px 13px calc(65px + env(safe-area-inset-bottom));
 }
 
 .team-banner {
@@ -353,7 +353,7 @@
 .team-page a:focus-visible { outline: 2px solid var(--team-red-dark); outline-offset: 2px; }
 
 @media (min-width: 600px) {
-  .team-content { gap: 16px; padding: 17px 19px 96px; }
+  .team-content { gap: 16px; padding: 17px 19px calc(65px + env(safe-area-inset-bottom)); }
   .team-banner { min-height: 180px; }
   .team-banner-copy { padding: 25px 23px; }
   .team-level { min-height: 102px; }
