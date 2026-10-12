@@ -38,6 +38,73 @@ const productSchema = z.object({
 
 type ProductForm = z.infer<typeof productSchema>;
 
+const equinorPreviewProducts = [
+  {
+    name: "Énergie Essentielle",
+    price: 3500,
+    dailyEarnings: 800,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/offshore-platform.jpg",
+    isActive: true,
+  },
+  {
+    name: "Énergie Plus",
+    price: 10000,
+    dailyEarnings: 2550,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/offshore-rig.jpg",
+    isActive: true,
+  },
+  {
+    name: "Énergie Premium",
+    price: 20000,
+    dailyEarnings: 5200,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/equinor-brand.jpg",
+    isActive: true,
+  },
+  {
+    name: "Énergie Horizon",
+    price: 5000,
+    dailyEarnings: 1200,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/offshore-platform.jpg",
+    isActive: false,
+  },
+  {
+    name: "Énergie Atlas",
+    price: 15000,
+    dailyEarnings: 3800,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/offshore-rig.jpg",
+    isActive: false,
+  },
+  {
+    name: "Énergie Performance",
+    price: 25000,
+    dailyEarnings: 6500,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/equinor-brand.jpg",
+    isActive: false,
+  },
+  {
+    name: "Énergie Excellence",
+    price: 50000,
+    dailyEarnings: 13000,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/offshore-platform.jpg",
+    isActive: false,
+  },
+  {
+    name: "Énergie Signature",
+    price: 100000,
+    dailyEarnings: 26000,
+    cycleDays: 150,
+    imageUrl: "/images/equinor/products/offshore-rig.jpg",
+    isActive: false,
+  },
+] as const;
+
 export default function AdminProducts() {
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -75,6 +142,58 @@ export default function AdminProducts() {
     },
     onError: (error: any) => {
       toast({ title: "Création du produit impossible", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const previewProductsMutation = useMutation({
+    mutationFn: async () => {
+      if (!products) throw new Error("Le catalogue n’est pas encore chargé.");
+
+      const existingNames = new Set(products.map(product => product.name.trim().toLocaleLowerCase("fr")));
+      const productsToCreate = equinorPreviewProducts.filter(
+        product => !existingNames.has(product.name.toLocaleLowerCase("fr")),
+      );
+      if (productsToCreate.length === 0) {
+        return { created: 0, alreadyPresent: equinorPreviewProducts.length };
+      }
+
+      const nextSortOrder = products.reduce((highest, product) => Math.max(highest, product.sortOrder), -1) + 1;
+      for (let index = 0; index < productsToCreate.length; index += 1) {
+        const product = productsToCreate[index];
+        const response = await apiRequest("POST", "/api/admin/products", {
+          ...product,
+          sortOrder: nextSortOrder + index,
+          isFree: false,
+        });
+        if (!response.ok) {
+          const result = await response.json().catch(() => ({}));
+          throw new Error(result.message || `La création de « ${product.name} » a échoué.`);
+        }
+      }
+
+      return {
+        created: productsToCreate.length,
+        alreadyPresent: equinorPreviewProducts.length - productsToCreate.length,
+      };
+    },
+    onSuccess: ({ created, alreadyPresent }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/products/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: created ? `${created} produit(s) ajouté(s)` : "Les huit offres sont déjà présentes",
+        description: created
+          ? `${alreadyPresent} déjà présent(s). Les trois premières offres sont actives ; les cinq montants d’exemple restent inactifs.`
+          : "Aucune nouvelle fiche n’a été créée.",
+      });
+    },
+    onError: (error: Error) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/products/all"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: "Ajout des offres interrompu",
+        description: `${error.message} Recharge la page avant de réessayer pour éviter les doublons.`,
+        variant: "destructive",
+      });
     },
   });
 
@@ -260,13 +379,38 @@ export default function AdminProducts() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{products?.length || 0} produit(s)</p>
-        <Button onClick={() => { setShowCreateForm(true); createForm.reset(); }} data-testid="button-add-product">
-          <Plus className="w-4 h-4 mr-2" />
-          Nouveau produit
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!products || isLoading || previewProductsMutation.isPending}
+            onClick={() => {
+              if (window.confirm(
+                "Ajouter les huit fiches ? Les trois premières seront actives et achetables. Les cinq autres utiliseront des montants d’exemple et resteront inactives jusqu’à leur modification dans l’administration.",
+              )) {
+                previewProductsMutation.mutate();
+              }
+            }}
+            data-testid="button-add-equinor-preview-products"
+          >
+            {previewProductsMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4 mr-2" />
+            )}
+            Ajouter 8 offres
+          </Button>
+          <Button onClick={() => { setShowCreateForm(true); createForm.reset(); }} data-testid="button-add-product">
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau produit
+          </Button>
+        </div>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Les fiches ajoutées ici restent modifiables. Les cinq offres supplémentaires sont inactives avec des montants provisoires.
+      </p>
 
       {isLoading ? (
         Array(4).fill(0).map((_, i) => <Skeleton key={i} className="h-32" />)
