@@ -215,12 +215,12 @@ export default function TasksPage() {
                   >
                     <div className="flex items-center justify-between gap-3 border-b border-black/15 px-3 py-2.5">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[10px] font-extrabold ${
+                        className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-extrabold ${
                           task.isCompleted
-                            ? "bg-gray-100 text-gray-800"
+                            ? "border-gray-300 bg-gray-100 text-gray-800"
                             : isClaimable
-                              ? "bg-[#bd304c] text-white"
-                              : "bg-[#fff0f3] text-[#9e263c]"
+                              ? "border-[#bd304c] bg-[#bd304c] text-white"
+                              : "border-[#bd304c] bg-white text-[#bd304c]"
                         }`}
                       >
                         {task.isCompleted && <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />}
