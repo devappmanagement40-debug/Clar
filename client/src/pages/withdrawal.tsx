@@ -208,6 +208,7 @@ export default function WithdrawalPage() {
         }
         .withdraw-reference .withdraw-hero {
           position: relative;
+          display: flow-root;
           box-sizing: border-box;
           min-height: 196px;
           padding: 0 16px 16px;
