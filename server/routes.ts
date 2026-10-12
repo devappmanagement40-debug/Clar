@@ -10,6 +10,8 @@ import {
   depositSchema,
   walletSchema,
   phoneNumberSchema,
+  insertTaskSchema,
+  updateTaskSchema,
   type ClapayPayout,
 } from "@shared/schema";
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
@@ -2728,6 +2730,68 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
   });
 
   // Tasks
+  app.get("/api/admin/tasks", requireAdmin, async (_req, res) => {
+    try {
+      res.json(await storage.getAdminTasks());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/tasks", requireAdmin, async (req, res) => {
+    const parsed = insertTaskSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: parsed.error.issues[0]?.message || "Les données du palier sont invalides." });
+    }
+
+    try {
+      const task = await storage.createTask(parsed.data);
+      await storage.logAdminAction(req.session.userId!, "create_task", null, `Palier ${task.name} créé`);
+      res.status(201).json(task);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/tasks/:id", requireAdmin, async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: "Identifiant de palier invalide." });
+    }
+
+    const parsed = updateTaskSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: parsed.error.issues[0]?.message || "Les modifications du palier sont invalides." });
+    }
+
+    try {
+      const task = await storage.updateTask(id, parsed.data);
+      if (!task) return res.status(404).json({ message: "Palier introuvable." });
+      await storage.logAdminAction(req.session.userId!, "update_task", null, `Palier ${task.name} modifié`);
+      res.json(task);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/tasks/:id", requireAdmin, async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: "Identifiant de palier invalide." });
+    }
+
+    try {
+      const task = await storage.getAdminTask(id);
+      if (!task) return res.status(404).json({ message: "Palier introuvable." });
+      await storage.deleteTask(id);
+      await storage.logAdminAction(req.session.userId!, "delete_task", null, `Palier ${task.name} supprimé`);
+      res.json({ success: true });
+    } catch (error: any) {
+      const status = error.message.includes("déjà été réclamé") ? 409 : 400;
+      res.status(status).json({ message: error.message });
+    }
+  });
+
   app.get("/api/tasks", requireAuth, async (req, res) => {
     try {
       const tasks = await storage.getTasksWithStatus(req.session.userId!);

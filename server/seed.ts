@@ -155,7 +155,7 @@ export async function seed() {
       .onConflictDoNothing()
       .returning({ key: platformSettings.key });
 
-    if (!seedMarker) return { inserted: 0, alreadyApplied: true };
+    if (!seedMarker) return { inserted: 0, alreadyApplied: true, existing: 0 };
 
     const existingProducts = await tx.select({
       name: products.name,
@@ -198,20 +198,81 @@ export async function seed() {
     console.log(`Initial product offers added: ${initialOffersResult.inserted}; existing products preserved`);
   }
 
-  // Seed tasks only if table is empty (first install only — never overwrite admin changes)
-  const existingTasks = await db.select().from(tasks);
-  if (existingTasks.length === 0) {
-    await db.insert(tasks).values([
-      { name: "Parrain Bronze", description: "Inviter 3 personnes a investir", requiredInvites: 3, reward: 350, sortOrder: 1 },
-      { name: "Parrain Argent", description: "Inviter 5 personnes a investir", requiredInvites: 5, reward: 750, sortOrder: 2 },
-      { name: "Parrain Or", description: "Inviter 10 personnes a investir", requiredInvites: 10, reward: 2500, sortOrder: 3 },
-      { name: "Parrain Platine", description: "Inviter 30 personnes a investir", requiredInvites: 30, reward: 6500, sortOrder: 4 },
-      { name: "Parrain Diamant", description: "Inviter 100 personnes a investir", requiredInvites: 100, reward: 15000, sortOrder: 5 },
-      { name: "Parrain Elite", description: "Inviter 300 personnes a investir", requiredInvites: 300, reward: 50000, sortOrder: 6 },
-    ]);
-    console.log("Tasks seeded (first install)");
+  // Apply defaults once only. Persisting the marker means admin deletions stay deleted after a restart.
+  const initialTasksSeedKey = "migration_initial_tasks_applied";
+  const initialTasksSeedResult = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: initialTasksSeedKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+
+    if (!seedMarker) return { inserted: 0, alreadyApplied: true };
+
+    const existingTasks = await tx.select().from(tasks);
+    if (existingTasks.length === 0) {
+      await tx.insert(tasks).values([
+        { name: "Parrain Bronze", description: "Inviter 3 personnes a investir", requiredInvites: 3, reward: 350, sortOrder: 1 },
+        { name: "Parrain Argent", description: "Inviter 5 personnes a investir", requiredInvites: 5, reward: 750, sortOrder: 2 },
+        { name: "Parrain Or", description: "Inviter 10 personnes a investir", requiredInvites: 10, reward: 2500, sortOrder: 3 },
+        { name: "Parrain Platine", description: "Inviter 30 personnes a investir", requiredInvites: 30, reward: 6500, sortOrder: 4 },
+        { name: "Parrain Diamant", description: "Inviter 100 personnes a investir", requiredInvites: 100, reward: 15000, sortOrder: 5 },
+        { name: "Parrain Elite", description: "Inviter 300 personnes a investir", requiredInvites: 300, reward: 50000, sortOrder: 6 },
+      ]);
+    }
+
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, initialTasksSeedKey));
+    return {
+      inserted: existingTasks.length === 0 ? 6 : 0,
+      alreadyApplied: false,
+      existing: existingTasks.length,
+    };
+  });
+  if (initialTasksSeedResult.alreadyApplied) {
+    console.log("Initial task catalog bootstrap already applied");
+  } else if (initialTasksSeedResult.inserted > 0) {
+    console.log(`Initial task catalog added: ${initialTasksSeedResult.inserted}`);
   } else {
-    console.log(`Tasks skipped — ${existingTasks.length} existing tasks preserved`);
+    console.log(`Initial task catalog preserved; ${initialTasksSeedResult.existing} task(s) already existed`);
+  }
+
+  // Add the requested seventh milestone once; this marker prevents deleted admin-managed tasks from being reseeded.
+  const seventhTaskSeedKey = "migration_initial_task_seven_applied";
+  const seventhTaskSeedResult = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: seventhTaskSeedKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+
+    if (!seedMarker) return { added: false, alreadyApplied: true };
+
+    const currentTasks = await tx.select().from(tasks);
+    const alreadyExists = currentTasks.some(
+      task => task.name.trim().toLocaleLowerCase("fr") === "parrain émeraude",
+    );
+
+    if (!alreadyExists) {
+      const sortOrder = currentTasks.reduce((highest, task) => Math.max(highest, task.sortOrder), 0) + 1;
+      await tx.insert(tasks).values({
+        name: "Parrain Émeraude",
+        description: "Inviter 500 personnes à rejoindre votre équipe",
+        requiredInvites: 500,
+        reward: 100000,
+        sortOrder,
+        isActive: true,
+      });
+    }
+
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, seventhTaskSeedKey));
+    return { added: !alreadyExists, alreadyApplied: false };
+  });
+  if (seventhTaskSeedResult.added) {
+    console.log("Seventh task milestone added; it remains editable in administration");
+  } else if (seventhTaskSeedResult.alreadyApplied) {
+    console.log("Seventh task milestone bootstrap already applied");
   }
 
   // Check if payment channels exist

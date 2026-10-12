@@ -4,7 +4,7 @@ import {
   paymentChannels, paymentNumbers, stakingProducts, userStakings, referralCommissions, tasks, userTasks, transactions, platformSettings, adminAuditLog,
   giftCodes, giftCodeClaims, countries, clapayPayouts,
   type User, type Product, type UserProduct, type Deposit, type Withdrawal, type WithdrawalWallet,
-  type PaymentChannel, type PaymentNumber, type StakingProduct, type UserStaking, type ReferralCommission, type Task, type UserTask, type Transaction, type PlatformSetting,
+  type PaymentChannel, type PaymentNumber, type StakingProduct, type UserStaking, type ReferralCommission, type Task, type InsertTask, type UserTask, type Transaction, type PlatformSetting,
   type GiftCode, type GiftCodeClaim, type Country,
   type WithdrawalFeePayment, type ClapayPayout
 } from "@shared/schema";
@@ -132,6 +132,11 @@ export interface IStorage {
   
   // Tasks
   getTasks(): Promise<Task[]>;
+  getAdminTasks(): Promise<Task[]>;
+  getAdminTask(id: number): Promise<Task | undefined>;
+  createTask(data: InsertTask): Promise<Task>;
+  updateTask(id: number, data: Partial<InsertTask>): Promise<Task | undefined>;
+  deleteTask(id: number): Promise<void>;
   getTasksWithStatus(userId: number): Promise<(Task & { isCompleted: boolean; canClaim: boolean; currentInvites: number })[]>;
   claimTask(userId: number, taskId: number): Promise<void>;
   
@@ -1393,6 +1398,40 @@ export class DatabaseStorage implements IStorage {
   // Tasks
   async getTasks(): Promise<Task[]> {
     return await db.select().from(tasks).where(eq(tasks.isActive, true)).orderBy(tasks.sortOrder);
+  }
+
+  async getAdminTasks(): Promise<Task[]> {
+    return await db.select().from(tasks).orderBy(tasks.sortOrder, tasks.id);
+  }
+
+  async getAdminTask(id: number): Promise<Task | undefined> {
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+    return task || undefined;
+  }
+
+  async createTask(data: InsertTask): Promise<Task> {
+    const [task] = await db.insert(tasks).values(data).returning();
+    return task;
+  }
+
+  async updateTask(id: number, data: Partial<InsertTask>): Promise<Task | undefined> {
+    const [task] = await db.update(tasks).set(data).where(eq(tasks.id, id)).returning();
+    return task || undefined;
+  }
+
+  async deleteTask(id: number): Promise<void> {
+    const [existingTask] = await db.select({ id: tasks.id }).from(tasks).where(eq(tasks.id, id)).limit(1);
+    if (!existingTask) throw new Error("Palier introuvable.");
+
+    const [existingClaim] = await db.select({ id: userTasks.id })
+      .from(userTasks)
+      .where(eq(userTasks.taskId, id))
+      .limit(1);
+    if (existingClaim) {
+      throw new Error("Ce palier a déjà été réclamé. Désactivez-le pour conserver l’historique des récompenses.");
+    }
+
+    await db.delete(tasks).where(eq(tasks.id, id));
   }
 
   async getTasksWithStatus(userId: number): Promise<(Task & { isCompleted: boolean; canClaim: boolean; currentInvites: number })[]> {

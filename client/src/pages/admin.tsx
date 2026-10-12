@@ -10,6 +10,7 @@ import AdminWithdrawals from "@/components/admin/withdrawals";
 import AdminClapayPayouts from "@/components/admin/clapay-payouts";
 import AdminUsers from "@/components/admin/users";
 import AdminProducts from "@/components/admin/products";
+import AdminTasks from "@/components/admin/tasks";
 import AdminPaymentNumbers from "@/components/admin/payment-numbers";
 import AdminSettings from "@/components/admin/settings";
 import AdminGiftCodes from "@/components/admin/gift-codes";
@@ -42,6 +43,7 @@ export default function AdminPage() {
               <TabsTrigger value="clapay-payouts" data-testid="tab-clapay-payouts">Payout Clapay</TabsTrigger>
               <TabsTrigger value="users" data-testid="tab-users">Utilisateurs</TabsTrigger>
               <TabsTrigger value="products" data-testid="tab-products">Produits</TabsTrigger>
+              <TabsTrigger value="tasks" data-testid="tab-tasks">Paliers</TabsTrigger>
               <TabsTrigger value="payment-numbers" data-testid="tab-payment-numbers">Numéros</TabsTrigger>
               <TabsTrigger value="countries" data-testid="tab-countries">Pays</TabsTrigger>
               <TabsTrigger value="giftcodes" data-testid="tab-giftcodes">Codes Cadeaux</TabsTrigger>
@@ -72,6 +74,10 @@ export default function AdminPage() {
 
           <TabsContent value="products" className="mt-4">
             <AdminProducts />
+          </TabsContent>
+
+          <TabsContent value="tasks" className="mt-4">
+            <AdminTasks />
           </TabsContent>
 
           <TabsContent value="payment-numbers" className="mt-4">

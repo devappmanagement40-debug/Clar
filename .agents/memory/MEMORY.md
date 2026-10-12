@@ -16,6 +16,7 @@
 - [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits remain protected; only earnings, commissions, bonuses, and other non-deposit funds are withdrawable.
 - [VIP levels](vip-levels.md) — new accounts start at VIP 0; the highest ranked paid offer purchased determines the displayed level.
 - [VIP duration](vip-duration.md) — Product cycle length is admin-managed; startup code must never force a fixed duration.
+- [Task milestone management](task-milestones.md) — Keep task thresholds and rewards database-driven, editable in admin, and never restore deleted values on app startup.
 - [Mockup sandbox isolation](mockup-sandbox-dependencies.md) — Separate dependencies and preview ports mean a main-app screenshot can misreport a healthy sandbox preview.
 - [Workflow secret scope](workflow-secret-scope.md) — One-off shell commands may lack secrets available to the managed app workflow; use scoped presence checks and guarded execution.
 - [Telegram bot polling](telegram-bot-polling.md) — Run one production getUpdates poller per bot token; parallel pollers conflict.

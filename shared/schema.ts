@@ -377,6 +377,20 @@ export const insertUserSchema = createInsertSchema(users).omit({
 });
 
 export const insertCountrySchema = createInsertSchema(countries).omit({ id: true });
+export const insertTaskSchema = createInsertSchema(tasks)
+  .omit({ id: true })
+  .extend({
+    name: z.string().trim().min(2, "Le nom doit contenir au moins 2 caractères").max(80),
+    description: z.string().trim().min(2, "La description est requise").max(300),
+    requiredInvites: z.number().int().min(1, "Le nombre d’invitations doit être supérieur à zéro"),
+    reward: z.number().int().min(0, "La récompense ne peut pas être négative"),
+    sortOrder: z.number().int().min(0, "L’ordre ne peut pas être négatif"),
+    isActive: z.boolean().default(true),
+  });
+export const updateTaskSchema = insertTaskSchema
+  .partial()
+  .strict()
+  .refine((data) => Object.keys(data).length > 0, "Aucune modification fournie");
 
 export const phoneNumberSchema = z.string()
   .trim()
@@ -438,6 +452,7 @@ export type WithdrawalWallet = typeof withdrawalWallets.$inferSelect;
 export type PaymentChannel = typeof paymentChannels.$inferSelect;
 export type ReferralCommission = typeof referralCommissions.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
+export type InsertTask = z.infer<typeof insertTaskSchema>;
 export type UserTask = typeof userTasks.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type PlatformSetting = typeof platformSettings.$inferSelect;
