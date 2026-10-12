@@ -34,11 +34,57 @@ body:has(.cp-home) { background: #fff !important; }
   background: #fff;
 }
 
-.cp-hero--awaiting-images {
-  background:
-    radial-gradient(ellipse at 82% 28%, rgba(189, 48, 76, .12), transparent 34%),
-    radial-gradient(ellipse at 18% 82%, rgba(189, 48, 76, .07), transparent 38%),
-    linear-gradient(135deg, #fff 12%, #f8f5f6 100%);
+.cp-hero-slides {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform .7s cubic-bezier(.22, .61, .36, 1);
+}
+
+.cp-hero-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}
+
+.cp-hero-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.cp-hero-dots {
+  position: absolute;
+  z-index: 3;
+  right: 16px;
+  bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 2px 8px rgba(17, 24, 39, .16);
+}
+
+.cp-hero-dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 1px solid #8c8588;
+  border-radius: 99px;
+  background: #c9c4c6;
+  cursor: pointer;
+  transition: width .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.cp-hero-dots button.is-active {
+  width: 20px;
+  border-color: var(--cp-accent);
+  background: var(--cp-accent);
 }
 
 .cp-overview {

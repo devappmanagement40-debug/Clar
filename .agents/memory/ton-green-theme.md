@@ -3,23 +3,17 @@ name: Page visual styling
 description: Existing page layout and color decisions that remain separate from the Equinor name.
 ---
 
-The user requested a compact homepage based on their mobile reference, with white card surfaces and a more visible generic red accent. Preserve live account fields, quick actions, and the fixed horizontal bottom navigation. Leave login and registration untouched. Treat supplied Equinor-branded pictures as color/layout references only; do not add their logo, photos, or affiliation claims.
+The user requested a compact homepage based on their mobile reference, with white card surfaces and a more visible crimson accent. Preserve live account fields, quick actions, and the fixed horizontal bottom navigation. Leave login and registration untouched. The user reports official authorization for the supplied Equinor images in the homepage carousel; see [the brand authorization scope](vestas-platform.md).
 
-**Why:** The user now asked for white backgrounds and clearer card colors based on new references, but had previously said the financial platform is not authorized to present itself as Equinor.
+**Why:** The user asked for white backgrounds and clearer card colors based on their references and later confirmed authorization for the supplied carousel images.
 
-**How to apply:** Keep the homepage canvas and card surfaces pure white; use clear black borders with deliberate offset shadows, plus a generic crimson accent for key values and active states. Preserve live values, routes, and existing imagery; leave login/registration untouched and do not add Equinor assets or claims.
+**How to apply:** Keep the homepage canvas and card surfaces pure white; use clear black borders with deliberate offset shadows and a crimson accent. Preserve live values and routes. Display the user-supplied authorized images only in the homepage carousel, fully visible without cropping; leave login/registration untouched.
 
-For the home announcement banner, use a real transparent PNG image asset for its icon, rather than a CSS-drawn or inline-vector icon.
+Use native SVG icons from the existing icon set for homepage quick actions, the announcement bell, and the information dialog, colored with the page's crimson accent.
 
-**Why:** The user explicitly requested a PNG icon with a native-app feel for this banner and rejected CSS-based icon graphics.
+**Why:** The user asked for native icons in the homepage palette while keeping the rest of the page unchanged.
 
-**How to apply:** Preserve the banner icon as an image element in future redesigns; CSS may size and position the image, but should not draw the icon itself.
-
-The four home action icons should follow the same native-image rule while their surrounding cards use the current white and generic-red palette.
-
-**Why:** The user requested more visible white cards and a red accent while preserving the platform's existing actions.
-
-**How to apply:** Keep the transparent PNG assets for Dépôt, Retrait, Aide and Pointage; apply palette updates to card surfaces and borders rather than substituting branded icons.
+**How to apply:** Keep those native SVG icons and their current crimson color on the homepage; preserve their actions and layout, and do not change icon assets on other pages.
 
 The latest homepage reference shows small bullet separators in the scrolling activity strip; keep that strip display-only and separate from the account ledger.
 

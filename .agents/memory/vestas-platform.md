@@ -3,10 +3,10 @@ name: Equinor product name
 description: Current product naming decision and remaining brand-identity constraints.
 ---
 
-The user later asked to keep the existing Equinor name and leave login/registration unchanged, while still not confirming authorization to present this deposits-and-investments platform as Equinor. Until clarified, do not source official Equinor imagery or imply an affiliation. The user chose to wait and send images they are authorized to use.
+The user reports that Equinor officially authorized the supplied images for use on this deposits-and-investments platform. Keep that authorization scoped to the user-provided imagery in the homepage carousel; do not infer permission to source additional Equinor assets or make broader affiliation claims. Leave login and registration unchanged.
 
-**Why:** The user selected waiting for authorized image files after clarifying the platform's current visual scope.
+**Why:** The user explicitly confirmed official authorization for these visuals after previously saying they did not have it.
 
-**How to apply:** Leave login and registration pages untouched. Do not download Equinor photos/logos or add claims of affiliation. Wait for the user's authorized images before replacing other decorative site imagery; preserve real payment-provider and operator icons.
+**How to apply:** Use the supplied images only in the homepage rotating banner, fully visible without cropping. Do not replace login/registration visuals, download other Equinor assets, or add claims beyond the reported authorization.
 
-The previously supplied Equinor login and registration photos must not be treated as authorized brand assets for this financial platform.
+The earlier login and registration pages remain outside the current image request; keep them unchanged.

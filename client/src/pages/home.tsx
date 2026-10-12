@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +6,16 @@ import { getCountryByCode } from "@/lib/countries";
 import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle, Send } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
+
+import offshorePlatform from "@assets/image_1791813575847.jpg";
+import johanSverdrupPlatform from "@assets/1277577_1791813575929.jpg";
+import equinorScreen from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791813575978.jpg";
+
+const bannerSlides = [
+  { image: offshorePlatform, alt: "Installation énergétique offshore en mer" },
+  { image: johanSverdrupPlatform, alt: "Plateforme offshore Johan Sverdrup" },
+  { image: equinorScreen, alt: "Marque Equinor affichée sur un écran" },
+] as const;
 
 const quickActions = [
   { label: "Dépôt", href: "/deposit", icon: ArrowDownCircle },
@@ -34,6 +44,16 @@ export default function HomePage() {
   const [, navigate] = useLocation();
   const { data: settings } = useQuery<Record<string, string>>({ queryKey: ["/api/settings"] });
   const [welcomePopupOpen, setWelcomePopupOpen] = useState(false);
+  const [bannerIndex, setBannerIndex] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => {
+      setBannerIndex((current) => (current + 1) % bannerSlides.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   if (!user) return null;
   const currency = getCountryByCode(user.country)?.currency || "XOF";
   const balance = Number.parseFloat(user.balance || "0");
@@ -74,7 +94,27 @@ export default function HomePage() {
     <>
       <main className="cp-home">
         <div className="cp-shell">
-          <section className="cp-hero cp-hero--awaiting-images" aria-hidden="true" />
+          <section className="cp-hero" aria-label="Bannière d’accueil">
+            <div className="cp-hero-slides" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
+              {bannerSlides.map(({ image, alt }, index) => (
+                <div className="cp-hero-slide" key={image} aria-hidden={index !== bannerIndex}>
+                  <img src={image} alt={index === bannerIndex ? alt : ""} />
+                </div>
+              ))}
+            </div>
+            <div className="cp-hero-dots" aria-label="Images de la bannière">
+              {bannerSlides.map((slide, index) => (
+                <button
+                  key={slide.image}
+                  type="button"
+                  className={index === bannerIndex ? "is-active" : ""}
+                  onClick={() => setBannerIndex(index)}
+                  aria-label={`Afficher l'image ${index + 1} sur ${bannerSlides.length}`}
+                  aria-pressed={index === bannerIndex}
+                />
+              ))}
+            </div>
+          </section>
 
           <section className="cp-overview" aria-labelledby="overview-title">
             <header className="cp-section-heading">
