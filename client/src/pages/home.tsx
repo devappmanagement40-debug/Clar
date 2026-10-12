@@ -46,6 +46,11 @@ const userActivityLibrary = [
   "052**85 a reçu un bonus d’équipe de 20 000 XOF",
   "07****26 a effectué un retrait de 32 400 XOF",
   "07****42 a reçu une commission de parrainage de 12 500 XOF",
+  "05****91 a souscrit à l’offre VIP 2",
+  "01****73 a souscrit à l’offre VIP 1",
+  "07****18 a souscrit à l’offre VIP 3",
+  "05****47 a reçu une prime de fidélité de 27 800 XOF",
+  "01****29 a souscrit à l’offre VIP 4",
 ] as const;
 
 export default function HomePage() {

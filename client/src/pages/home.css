@@ -274,7 +274,7 @@ body:has(.cp-home) { background: #fff !important; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-  animation: cp-user-activity-rise 25s linear infinite;
+  animation: cp-user-activity-rise 50s linear infinite;
 }
 .cp-user-activity-row {
   box-sizing: border-box;
@@ -303,7 +303,7 @@ body:has(.cp-home) { background: #fff !important; }
   object-fit: contain;
 }
 .cp-user-activity-text { min-width: 0; flex: 1; overflow-wrap: anywhere; }
-@keyframes cp-user-activity-rise { to { transform: translateY(-330px); } }
+@keyframes cp-user-activity-rise { to { transform: translateY(-660px); } }
 
 .cp-bottom-nav {
   border-color: rgba(189, 48, 76, .2) !important;
