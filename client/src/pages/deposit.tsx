@@ -898,11 +898,12 @@ export default function DepositPage() {
           width: 42px;
           height: 42px;
           place-items: center;
-          border: 0;
-          border-radius: 10px;
+          border: 1.5px solid #eab1be;
+          border-radius: 12px;
           padding: 0;
-          background: #fff;
-          color: ${TON_GREEN};
+          background: #fff0f3;
+          color: ${TON_GREEN_DARK};
+          box-shadow: 0 2px 0 #f2c2cc;
         }
         .recharge-reference .history-button {
           right: 16px;
@@ -912,8 +913,10 @@ export default function DepositPage() {
         }
         .recharge-reference .history-button:active,
         .recharge-reference .recharge-back:active {
+          transform: translateY(1px);
           color: ${TON_GREEN_DARK};
-          background: #fff7f8;
+          background: #ffe4ea;
+          box-shadow: 0 1px 0 #f2c2cc;
         }
         .recharge-reference .account-summary {
           display: flex;
@@ -953,6 +956,12 @@ export default function DepositPage() {
         }
         .recharge-reference .country-chip-icon {
           flex: 0 0 auto;
+          box-sizing: content-box;
+          width: 20px;
+          height: 20px;
+          padding: 5px;
+          border-radius: 50%;
+          background: #ffe4ea;
           color: ${TON_GREEN};
         }
         .recharge-reference .country-chip-name {
@@ -1075,12 +1084,13 @@ export default function DepositPage() {
         }
         .recharge-reference .country-option-icon {
           display: grid;
-          width: 30px;
-          height: 30px;
-          flex: 0 0 30px;
+          width: 38px;
+          height: 38px;
+          flex: 0 0 38px;
           place-items: center;
-          border: 1.5px solid #d1d5db;
-          border-radius: 8px;
+          border: 1.5px solid #eab1be;
+          border-radius: 10px;
+          background: #fff0f3;
           color: ${TON_GREEN};
         }
         .recharge-reference .country-option-name {
@@ -1093,12 +1103,19 @@ export default function DepositPage() {
           color: #fff;
         }
         .recharge-reference .country-option.is-selected .country-option-icon {
-          border-color: rgb(255 255 255 / 70%);
-          color: #fff;
+          border-color: #fff;
+          background: #fff;
+          color: ${TON_GREEN_DARK};
         }
         .recharge-reference .country-option-check {
           flex: 0 0 auto;
-          color: #fff;
+          box-sizing: content-box;
+          width: 18px;
+          height: 18px;
+          padding: 3px;
+          border-radius: 50%;
+          background: #fff;
+          color: ${TON_GREEN_DARK};
         }
         .recharge-reference .continue {
           display: flex;
@@ -1181,12 +1198,12 @@ export default function DepositPage() {
           <h1 className="recharge-title">Recharge</h1>
           <Link href="/account">
             <button className="recharge-back" aria-label="Retour">
-              <ChevronLeft className="h-6 w-6" aria-hidden="true" />
+              <ChevronLeft className="h-6 w-6" strokeWidth={2.6} aria-hidden="true" />
             </button>
           </Link>
           <Link href="/history">
             <button className="history-button" aria-label="Historique des transactions">
-              <Clock className="h-5 w-5" aria-hidden="true" />
+              <Clock className="h-6 w-6" strokeWidth={2.4} aria-hidden="true" />
             </button>
           </Link>
         </header>
@@ -1197,7 +1214,7 @@ export default function DepositPage() {
             <p className="balance-label">Solde du compte</p>
           </div>
           <div className="country-chip" aria-live="polite">
-            <Wallet className="country-chip-icon h-5 w-5" aria-hidden="true" />
+            <Wallet className="country-chip-icon h-5 w-5" strokeWidth={2.4} aria-hidden="true" />
             <span className="country-chip-name">{countryInfo?.name || "Sélectionnez un pays"}</span>
           </div>
         </section>
@@ -1247,10 +1264,10 @@ export default function DepositPage() {
                   data-testid={`deposit-country-${item.code.toLowerCase()}`}
                 >
                   <span className="country-option-icon" aria-hidden="true">
-                    <CreditCard className="h-5 w-5" />
+                    <CreditCard className="h-6 w-6" strokeWidth={2.4} />
                   </span>
                   <span className="country-option-name">{item.name}</span>
-                  {isSelected && <Check className="country-option-check h-5 w-5" aria-hidden="true" />}
+                  {isSelected && <Check className="country-option-check h-5 w-5" strokeWidth={2.8} aria-hidden="true" />}
                 </button>
               );
             })}
