@@ -34,45 +34,12 @@ body:has(.cp-home) { background: #fff !important; }
   background: #fff;
 }
 
-.cp-hero-slides {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  transition: transform .7s cubic-bezier(.22, .61, .36, 1);
+.cp-hero--awaiting-images {
+  background:
+    radial-gradient(ellipse at 82% 28%, rgba(189, 48, 76, .12), transparent 34%),
+    radial-gradient(ellipse at 18% 82%, rgba(189, 48, 76, .07), transparent 38%),
+    linear-gradient(135deg, #fff 12%, #f8f5f6 100%);
 }
-
-.cp-hero-slide { position: relative; flex: 0 0 100%; width: 100%; height: 100%; }
-.cp-hero-slide img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-
-.cp-feature-shade {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(28, 27, 25, .66), rgba(28, 27, 25, .05) 85%),
-    linear-gradient(0deg, rgba(28, 27, 25, .26), transparent 48%);
-  pointer-events: none;
-}
-
-.cp-hero-dots {
-  position: absolute;
-  z-index: 3;
-  right: 16px;
-  bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.cp-hero-dots button {
-  width: 8px;
-  height: 8px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, .9);
-  border-radius: 99px;
-  background: rgba(255, 255, 255, .65);
-  cursor: pointer;
-}
-.cp-hero-dots button.is-active { width: 20px; border-color: var(--cp-accent); background: var(--cp-accent); }
 
 .cp-overview {
   margin: 0;
@@ -238,15 +205,25 @@ body:has(.cp-home) { background: #fff !important; }
   overflow: hidden;
   border: 2px solid #17191c;
   border-radius: 16px;
-  background: #63534b;
+  background: #fff;
   box-shadow: 0 3px 0 #17191c, 0 8px 18px rgba(17, 24, 39, .18);
   animation: cp-rise .45s .16s ease both;
 }
-.cp-feature-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.cp-feature .cp-feature-shade { background: linear-gradient(0deg, rgba(31, 27, 27, .78), rgba(31, 27, 27, .02) 78%); }
+.cp-feature--awaiting-image {
+  display: grid;
+  align-items: center;
+  background: linear-gradient(135deg, #fff 10%, #faf6f7 100%);
+}
 .cp-feature-copy { position: absolute; z-index: 2; right: 20px; bottom: 20px; left: 20px; color: #fff; }
+.cp-feature--awaiting-image .cp-feature-copy {
+  position: relative;
+  inset: auto;
+  padding: 24px;
+  color: var(--cp-ink);
+}
 .cp-feature h2 { max-width: 300px; margin: 6px 0 5px; font: 600 23px/1.08 "Space Grotesk", sans-serif; letter-spacing: -.04em; }
 .cp-feature p { max-width: 340px; margin: 0; color: rgba(255,255,255,.9); font-size: 12px; line-height: 1.5; }
+.cp-feature--awaiting-image p { color: var(--cp-muted); }
 
 .cp-bottom-nav {
   border-color: rgba(189, 48, 76, .2) !important;
@@ -391,7 +368,7 @@ body:has(.cp-home) { background: #fff !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cp-hero-slides, .cp-action-icon, .cp-dialog-telegram, .cp-dialog-close,
+  .cp-action-icon, .cp-dialog-telegram, .cp-dialog-close,
   .cp-action, .cp-balance, .cp-notice { transition: none; }
   .cp-notice-track { animation: none; }
   .cp-notice-group:not(:first-child) { display: none; }

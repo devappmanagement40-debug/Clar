@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -12,25 +12,12 @@ import depositIcon from "@/assets/home-actions/deposit.png";
 import withdrawalIcon from "@/assets/home-actions/withdrawal.png";
 import supportIcon from "@/assets/home-actions/support.png";
 import checkinIcon from "@/assets/home-actions/checkin.png";
-import chargingStationUser from "@assets/banner-filtered/charging-station-user.jpg";
-import electricBus from "@assets/banner-filtered/electric-bus.jpg";
-import homeCharging from "@assets/banner-filtered/home-charging.jpg";
-import publicCharger from "@assets/banner-filtered/public-charger.jpg";
-import chargerProduct from "@assets/banner-filtered/charger-product.jpg";
 
 const quickActions = [
   { label: "Dépôt", href: "/deposit", icon: depositIcon },
   { label: "Retrait", href: "/withdrawal", icon: withdrawalIcon },
   { label: "Aide", href: "/service", icon: supportIcon },
   { label: "Pointage", href: "/checkin", icon: checkinIcon },
-] as const;
-
-const bannerSlides = [
-  { image: chargingStationUser, alt: "Conducteur utilisant une borne de recharge" },
-  { image: electricBus, alt: "Bus électrique en charge" },
-  { image: homeCharging, alt: "Recharge d'un véhicule à domicile" },
-  { image: publicCharger, alt: "Bornes de recharge dans un espace public" },
-  { image: chargerProduct, alt: "Équipement de recharge" },
 ] as const;
 
 const announcementLibrary = [
@@ -53,15 +40,6 @@ export default function HomePage() {
   const [, navigate] = useLocation();
   const { data: settings } = useQuery<Record<string, string>>({ queryKey: ["/api/settings"] });
   const [welcomePopupOpen, setWelcomePopupOpen] = useState(false);
-  const [bannerIndex, setBannerIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setBannerIndex((current) => (current + 1) % bannerSlides.length);
-    }, 5000);
-    return () => window.clearInterval(timer);
-  }, []);
-
   if (!user) return null;
   const currency = getCountryByCode(user.country)?.currency || "XOF";
   const balance = Number.parseFloat(user.balance || "0");
@@ -102,27 +80,7 @@ export default function HomePage() {
     <>
       <main className="cp-home">
         <div className="cp-shell">
-          <section className="cp-hero" aria-label="Bannière d’accueil">
-            <div className="cp-hero-slides" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
-              {bannerSlides.map(({ image, alt }, index) => (
-                <div className="cp-hero-slide" key={image} aria-hidden={index !== bannerIndex}>
-                  <img src={image} alt={index === bannerIndex ? alt : ""} />
-                </div>
-              ))}
-            </div>
-            <div className="cp-hero-dots" aria-label="Images de la bannière">
-              {bannerSlides.map((slide, index) => (
-                <button
-                  key={slide.image}
-                  type="button"
-                  className={index === bannerIndex ? "is-active" : ""}
-                  onClick={() => setBannerIndex(index)}
-                  aria-label={`Afficher l'image ${index + 1}`}
-                  aria-pressed={index === bannerIndex}
-                />
-              ))}
-            </div>
-          </section>
+          <section className="cp-hero cp-hero--awaiting-images" aria-hidden="true" />
 
           <section className="cp-overview" aria-labelledby="overview-title">
             <header className="cp-section-heading">
@@ -176,9 +134,7 @@ export default function HomePage() {
             ))}
           </section>
 
-          <section className="cp-feature" aria-labelledby="feature-title">
-            <img className="cp-feature-image" src={chargerProduct} alt="Équipement de recharge pour véhicule électrique" />
-            <div className="cp-feature-shade" />
+          <section className="cp-feature cp-feature--awaiting-image" aria-labelledby="feature-title">
             <div className="cp-feature-copy">
               <h2 id="feature-title">Tout est à portée de main.</h2>
               <p>Consultez vos informations et accédez rapidement aux services de votre compte.</p>
