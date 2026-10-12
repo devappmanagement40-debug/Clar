@@ -22,34 +22,12 @@
 .auth-reference .auth-background-image {
   position: absolute;
   inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-}
-
-.auth-reference .auth-background-image {
-  z-index: 0;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
-  transform: translate(-50%, -50%);
-  -webkit-mask-image: linear-gradient(
-    180deg,
-    transparent 0%,
-    #000 9%,
-    #000 91%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    180deg,
-    transparent 0%,
-    #000 9%,
-    #000 91%,
-    transparent 100%
-  );
 }
 
 .auth-reference::before {
@@ -58,9 +36,9 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgb(80 80 80 / 34%) 0%,
-    rgb(75 75 75 / 43%) 52%,
-    rgb(65 65 65 / 49%) 100%
+    rgb(80 80 80 / 18%) 0%,
+    rgb(75 75 75 / 24%) 52%,
+    rgb(65 65 65 / 30%) 100%
   );
   content: "";
   pointer-events: none;
@@ -294,18 +272,12 @@
 }
 
 @media (min-width: 768px) {
-  .auth-reference .auth-background-image {
-    width: auto;
-    height: 100%;
-    max-width: 100%;
-  }
-
   .auth-reference::before {
     background: linear-gradient(
       180deg,
-      rgb(80 80 80 / 30%) 0%,
-      rgb(75 75 75 / 42%) 52%,
-      rgb(65 65 65 / 48%) 100%
+      rgb(80 80 80 / 18%) 0%,
+      rgb(75 75 75 / 24%) 52%,
+      rgb(65 65 65 / 30%) 100%
     );
   }
 }

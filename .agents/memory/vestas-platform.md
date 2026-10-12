@@ -9,8 +9,8 @@ The user has chosen **Equinor** as the product name and supplied Equinor backgro
 
 **How to apply:** Use Equinor in app text, metadata, and user-facing messages. Keep the supplied red limited to login and registration until the user expands the rebrand scope. Do not invent replacement logos.
 
-For the supplied login and registration photos, do not add a blurred, enlarged duplicate or crop out the full image. On portrait screens, use the Equinor-red background to fill the extra space around the landscape photo.
+For the supplied login and registration photos, prioritize a clear, full-screen background like the portrait reference; do not add an artificial blur. The source photos are landscape, so use a cover crop and position it to keep the Equinor branding visible.
 
-**Why:** The user reported that the blurred portions made the authentication pages look wrong.
+**Why:** The user asked for the background image to be clearly visible like the original reference after the contained layout left large plain-red areas.
 
-**How to apply:** Preserve the supplied photos' aspect ratio on login and registration; keep any fill areas sharp and brand-colored.
+**How to apply:** Fill the login and registration viewport with the supplied image, keep the overlay light, and tune the focal position for mobile without adding a blurred duplicate.
