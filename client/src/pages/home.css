@@ -23,7 +23,7 @@
 .cp-hero {
   position: relative;
   isolation: isolate;
-  height: clamp(180px, 46vw, 235px);
+  height: clamp(240px, 65vw, 320px);
   margin: 0;
   overflow: hidden;
   border-radius: 0;
