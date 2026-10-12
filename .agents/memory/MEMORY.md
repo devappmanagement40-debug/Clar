@@ -13,7 +13,7 @@
 - [Country availability](country-availability.md) — retire countries by deactivating them, not deleting historical records; confirm existing-account impact first.
 - [Fictitious financial examples](demo-referrals.md) — Keep varied home activity messages display-only; show each vertical entry as its own framed block, not a table.
 - [Dev workflow port conflict](workflow-port-conflict.md) — a failed restart can leave a prior server child listening on port 5000; inspect the listener before retrying.
-- [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits are separate and locked; daily earnings and signup bonus go to the sole withdrawable earnings balance.
+- [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits are separate and locked; all non-deposit credits go to the sole withdrawable earnings balance.
 - [VIP levels](vip-levels.md) — new accounts start at VIP 0; the highest ranked paid offer purchased determines the displayed level.
 - [VIP duration](vip-duration.md) — Product cycle length is admin-managed; startup code must never force a fixed duration.
 - [Task milestone management](task-milestones.md) — Keep task thresholds and rewards database-driven, editable in admin, and never restore deleted values on app startup.
