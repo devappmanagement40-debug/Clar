@@ -3,9 +3,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { CalendarCheck, ChevronLeft, Coins, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
-import { equinorLogo, equinorOffshore, equinorPhone } from "@/assets/equinor-media";
+import { equinorLogo, equinorPhone } from "@/assets/equinor-media";
 
 interface BonusStatus {
   canClaim: boolean;
@@ -19,7 +19,7 @@ export default function CheckinPage() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
 
-  const { data: bonusStatus } = useQuery<BonusStatus>({
+  const { data: bonusStatus, isLoading: bonusStatusLoading } = useQuery<BonusStatus>({
     queryKey: ["/api/daily-bonus-status"],
     refetchInterval: 60000,
   });
@@ -50,7 +50,7 @@ export default function CheckinPage() {
   const currency = country?.currency || "XOF";
   const totalBonusClaimed = bonusStatus?.totalBonusClaimed || 0;
   const canClaim = Boolean(bonusStatus?.canClaim);
-  const formatAmount = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")}${currency}`;
+  const formatAmount = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;
 
   return (
     <main className="checkin-reference min-h-full bg-[#f4f4f4] pb-20">
@@ -73,8 +73,8 @@ export default function CheckinPage() {
           min-height: 72px;
           align-items: center;
           justify-content: space-between;
-          gap: 10px;
-          padding: 12px 16px;
+          gap: 8px;
+          padding: 12px;
           border-bottom: 2px solid #111827;
           background: #ffffff;
         }
@@ -104,25 +104,25 @@ export default function CheckinPage() {
         .checkin-reference .brand {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           color: #111827;
-          font-size: 19px;
+          font-size: 15px;
           font-weight: 800;
         }
         .checkin-reference .brand img {
-          width: 34px;
-          height: 34px;
+          width: 32px;
+          height: 32px;
           border: 2px solid #111827;
           border-radius: 50%;
           background: #fff;
           object-fit: contain;
         }
         .checkin-reference .topbar-badge {
-          padding: 8px 9px;
+          padding: 6px 7px;
           border: 2px solid #bd304c;
           border-radius: 10px;
           color: #9e263c;
-          font-size: 10px;
+          font-size: 8px;
           font-weight: 800;
         }
         .checkin-reference .hero {
@@ -171,81 +171,39 @@ export default function CheckinPage() {
         }
         .checkin-reference .hero-copy strong {
           display: block;
-          font-size: 28px;
+          font-size: 27px;
           font-weight: 900;
           line-height: 1;
         }
         .checkin-reference .hero-copy span {
+          display: inline-block;
+          max-width: 320px;
+          margin-top: 5px;
           font-size: 13px;
           font-weight: 700;
         }
         .checkin-reference .earnings-card {
           position: relative;
           z-index: 4;
-          display: flex;
-          min-height: 116px;
-          align-items: center;
-          gap: 13px;
-          margin: 16px 16px 0;
+          margin: 14px 16px 0;
+          padding: 12px;
+          border: 2px solid #111827;
+          border-radius: 14px;
+          background: #fff;
+          box-shadow: 0 4px 0 #111827;
+        }
+        .checkin-reference .reward-panel {
+          margin: 14px 16px 0;
           padding: 16px;
           border: 2px solid #111827;
           border-radius: 14px;
           background: #fff;
           box-shadow: 0 4px 0 #111827;
         }
-        .checkin-reference .earnings-mark {
-          display: grid;
-          width: 72px;
-          height: 72px;
-          flex: 0 0 72px;
-          place-items: center;
-          overflow: hidden;
-          border: 2px solid #bd304c;
-          border-radius: 50%;
-          background: #fff0f3;
-        }
-        .checkin-reference .earnings-mark img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-        }
-        .checkin-reference .earned-total {
-          color: #9e263c;
-          font-size: clamp(25px, 7vw, 34px);
-          font-weight: 900;
-          line-height: 1;
-        }
-        .checkin-reference .earned-heading {
-          margin-top: 7px;
-          color: #111827;
-          font-size: 14px;
-          font-weight: 700;
-        }
-        .checkin-reference .earnings-check {
-          display: grid;
-          width: 45px;
-          height: 45px;
-          flex: 0 0 45px;
-          place-items: center;
-          margin-left: auto;
-          border: 2px solid #111827;
-          border-radius: 12px;
-          background: #bd304c;
-          color: #ffffff;
-          font-size: 24px;
-          font-weight: 900;
-        }
-        .checkin-reference .reward-panel {
-          margin: 18px 16px 0;
-          padding: 18px;
-          border: 2px solid #111827;
-          border-radius: 14px;
-          background: #fff0f3;
-        }
         .checkin-reference .reward-heading {
           margin: 0;
           color: #111827;
-          font-size: 21px;
+          font-size: 19px;
           font-weight: 900;
           line-height: 1.05;
         }
@@ -253,58 +211,48 @@ export default function CheckinPage() {
           color: #9e263c;
         }
         .checkin-reference .reward-row {
-          display: grid;
-          grid-template-columns: 112px minmax(0, 1fr);
-          gap: 14px;
-          align-items: center;
-          margin-top: 16px;
-        }
-        .checkin-reference .reward-image,
-        .checkin-reference .stats-image {
-          width: 100%;
-          height: 86px;
-          overflow: hidden;
-          border: 2px solid #111827;
-          border-radius: 10px;
-          background: #fff;
-        }
-        .checkin-reference .reward-image img,
-        .checkin-reference .stats-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
+          margin-top: 12px;
         }
         .checkin-reference .reward-copy p {
           margin: 0;
           color: #4b5563;
           font-size: 14px;
           line-height: 1.35;
+          text-align: center;
         }
         .checkin-reference .reward-copy strong {
           display: block;
-          margin-top: 4px;
+          margin-top: 8px;
           color: #9e263c;
-          font-size: 30px;
+          font-size: clamp(30px, 8vw, 38px);
           font-weight: 900;
           line-height: 1;
-        }
-        .checkin-reference .stats {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 10px;
-          margin-top: 14px;
+          text-align: center;
         }
         .checkin-reference .stat {
-          min-height: 104px;
-          padding: 13px 10px;
+          min-height: 100px;
+          padding: 12px 8px;
           border: 2px solid #111827;
           border-radius: 12px;
           background: #fff;
           text-align: center;
         }
+        .checkin-reference .stats {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+        .checkin-reference .stat-icon {
+          width: 22px;
+          height: 22px;
+          margin-bottom: 5px;
+          color: #bd304c;
+          stroke-width: 2.4;
+        }
         .checkin-reference .stat-value {
+          margin: 0;
           color: #9e263c;
-          font-size: 31px;
+          font-size: 28px;
           font-weight: 900;
           line-height: 1;
         }
@@ -313,10 +261,10 @@ export default function CheckinPage() {
           font-size: 17px;
         }
         .checkin-reference .stat-value.secondary {
-          font-size: 25px;
+          font-size: clamp(16px, 4vw, 22px);
         }
         .checkin-reference .stat-label {
-          margin-top: 9px;
+          margin: 7px 0 0;
           color: #4b5563;
           font-size: 12px;
           font-weight: 700;
@@ -324,16 +272,17 @@ export default function CheckinPage() {
         }
         .checkin-reference .claim {
           display: flex;
-          width: calc(100% - 64px);
+          width: calc(100% - 32px);
           min-height: 58px;
           align-items: center;
           justify-content: center;
-          margin: 18px 32px 0;
+          gap: 9px;
+          margin: 14px 16px 0;
           border: 2px solid #111827;
           border-radius: 12px;
           background: #bd304c;
           color: #ffffff;
-          font-size: 21px;
+          font-size: clamp(16px, 4.8vw, 19px);
           font-weight: 900;
           line-height: 1;
           box-shadow: 0 4px 0 #111827;
@@ -351,15 +300,9 @@ export default function CheckinPage() {
           width: 24px;
           height: 24px;
         }
-        .checkin-reference .next-claim {
-          margin: 10px 16px 0;
-          color: #6b7280;
-          font-size: 12px;
-          text-align: center;
-        }
         .checkin-reference .instructions {
-          margin: 20px 16px 24px;
-          padding: 20px 16px 8px;
+          margin: 14px 16px 24px;
+          padding: 16px 16px 7px;
           border: 2px solid #111827;
           border-top: 5px solid #bd304c;
           border-radius: 14px;
@@ -389,10 +332,7 @@ export default function CheckinPage() {
           .checkin-reference .earnings-card,
           .checkin-reference .reward-panel,
           .checkin-reference .instructions { margin-right: 12px; margin-left: 12px; }
-          .checkin-reference .reward-row { grid-template-columns: 96px minmax(0, 1fr); gap: 10px; }
-          .checkin-reference .reward-image,
-          .checkin-reference .stats-image { height: 76px; }
-          .checkin-reference .claim { width: calc(100% - 48px); margin-right: 24px; margin-left: 24px; }
+          .checkin-reference .claim { width: calc(100% - 24px); margin-right: 12px; margin-left: 12px; }
           .checkin-reference .instruction { font-size: 13px; }
         }
       `}</style>
@@ -404,47 +344,27 @@ export default function CheckinPage() {
           </button>
           <div className="brand">
             <img src={equinorLogo} alt="Equinor" />
-            <span>Check-in</span>
+            <span>Pointage du jour</span>
           </div>
-          <span className="topbar-badge">POINTAGE</span>
+          <span className="topbar-badge">BONUS QUOTIDIEN</span>
         </header>
 
-        <section className="hero" aria-label="Check-in quotidien">
+        <section className="hero" aria-label="Bonus quotidien">
           <div className="hero-art">
             <img src={equinorPhone} alt="" />
           </div>
           <div className="hero-copy">
-            <strong>Equinor</strong>
-            <span>Votre récompense quotidienne</span>
+            <strong>Bonus du jour</strong>
+            <span>Validez votre présence toutes les 24 heures</span>
           </div>
-        </section>
-
-        <section className="earnings-card" aria-label="Revenus du check-in">
-          <div className="earnings-mark"><img src={equinorLogo} alt="Equinor" /></div>
-          <div>
-            <p className="earned-total">{formatAmount(totalBonusClaimed)}</p>
-            <p className="earned-heading">Bonus cumulé</p>
-          </div>
-          <div className="earnings-check" aria-hidden="true">✓</div>
         </section>
 
         <section className="reward-panel" aria-label="Récompense quotidienne">
-          <h2 className="reward-heading">Récompense du <span>pointage quotidien</span></h2>
+          <h2 className="reward-heading">Votre récompense quotidienne</h2>
           <div className="reward-row">
-            <div className="reward-image"><img src={equinorPhone} alt="" /></div>
             <div className="reward-copy">
-              <p>Recevez une récompense chaque jour</p>
+              <p>Montant attribué après validation</p>
               <strong>20 à 50 {currency}</strong>
-            </div>
-          </div>
-          <div className="stats">
-            <div className="stat">
-              <p className="stat-value">{bonusStatus?.daysPointed || 0}</p>
-              <p className="stat-label">Jours de pointage</p>
-            </div>
-            <div className="stat">
-              <div className="stats-image"><img src={equinorOffshore} alt="" /></div>
-              <p className="stat-label">Activité récente</p>
             </div>
           </div>
         </section>
@@ -452,26 +372,45 @@ export default function CheckinPage() {
         <button
           className="claim"
           onClick={() => claimMutation.mutate()}
-          disabled={!canClaim || claimMutation.isPending}
+          disabled={bonusStatusLoading || !canClaim || claimMutation.isPending}
           data-testid="button-pointer"
         >
           {claimMutation.isPending ? (
-            <Loader2 className="animate-spin" />
+            <>
+              <Loader2 className="animate-spin" />
+              <span>Validation en cours…</span>
+            </>
+          ) : bonusStatusLoading ? (
+            "Chargement…"
           ) : canClaim ? (
-            "Check-in"
+            "Valider mon pointage"
           ) : (
-            `${bonusStatus?.hoursRemaining || 0}h`
+            bonusStatus
+              ? `Disponible dans ${bonusStatus.hoursRemaining} h`
+              : "Statut indisponible"
           )}
         </button>
-        {!canClaim && bonusStatus?.hoursRemaining ? (
-          <p className="next-claim">Prochain check-in dans {bonusStatus.hoursRemaining}h</p>
-        ) : null}
+
+        <section className="earnings-card" aria-label="Bilan de vos récompenses">
+          <div className="stats">
+            <div className="stat">
+              <Coins className="stat-icon" aria-hidden="true" />
+              <p className="stat-value secondary">{formatAmount(totalBonusClaimed)}</p>
+              <p className="stat-label">Bonus cumulés</p>
+            </div>
+            <div className="stat">
+              <CalendarCheck className="stat-icon" aria-hidden="true" />
+              <p className="stat-value">{bonusStatus?.daysPointed || 0}</p>
+              <p className="stat-label">Pointages validés</p>
+            </div>
+          </div>
+        </section>
 
         <section className="instructions" aria-label="Instructions du pointage">
-          <h2>Comment fonctionne le pointage ?</h2>
-          <p className="instruction"><b>1.</b><span>Effectuez votre pointage une fois par jour pour recevoir la récompense.</span></p>
-          <p className="instruction"><b>2.</b><span>La récompense est ajoutée automatiquement à votre solde après validation.</span></p>
-          <p className="instruction"><b>3.</b><span>Revenez chaque jour pour continuer à cumuler vos bonus.</span></p>
+          <h2>À retenir</h2>
+          <p className="instruction"><b>1.</b><span>Vous pouvez valider un pointage toutes les 24 heures.</span></p>
+          <p className="instruction"><b>2.</b><span>Chaque validation rapporte un bonus aléatoire de 20 à 50 {currency}.</span></p>
+          <p className="instruction"><b>3.</b><span>Le bonus est ajouté à votre solde après validation.</span></p>
         </section>
       </div>
     </main>
