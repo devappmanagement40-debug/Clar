@@ -1,4 +1,5 @@
 - [Brand transition](vestas-platform.md) — Equinor is current; use the supplied red on login and registration first, not as an unapproved full-app rebrand.
+- [New application transition](new-application-transition.md) — Treat the rebuild as a fresh application; preserve Supabase-managed schemas and confirm before further destructive changes.
 - [Deposit checkout routing](deposit-checkout-routing.md) — Clients must not choose payment aggregators; route automatically by country and keep provider names internal/admin-only.
 - [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).
 - [SendavaPay integration](sendavapay-integration.md) — Payin deposit flow: backend creates+initiates, user phone auto-used, OTP/redirect handled, webhook HMAC verified.

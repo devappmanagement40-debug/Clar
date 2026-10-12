@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { FALLBACK_COUNTRIES, type ApiCountry } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
-import { ChevronDown, Eye, EyeOff, Loader2, LockKeyhole, Smartphone } from "lucide-react";
+import { ChevronDown, Loader2, Smartphone } from "lucide-react";
 import loginBackground from "@assets/0_45528_1791799291731.jpg";
 import "./auth-pages.css";
 
@@ -26,13 +26,11 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       phone: "",
-      country: "NE",
+      country: "CI",
       password: "",
     },
   });
@@ -85,7 +83,9 @@ export default function LoginPage() {
   const displayedPrefix = countryData?.phonePrefix || (countriesLoading ? "..." : "");
 
   return (
-    <main className="auth-reference auth-login" style={{ backgroundImage: `url("${loginBackground}")` }}>
+    <main className="auth-reference auth-login">
+      <img className="auth-background-fill" src={loginBackground} alt="" aria-hidden="true" />
+      <img className="auth-background-image" src={loginBackground} alt="" aria-hidden="true" />
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="login-title">
           <h1 id="login-title" className="auth-visually-hidden">Connexion à Equinor</h1>
@@ -99,17 +99,18 @@ export default function LoginPage() {
                   <span>+{displayedPrefix}</span>
                    <ChevronDown className="auth-country-arrow" aria-hidden="true" />
                 </button>
-                 <input {...form.register("phone")} type="tel" inputMode="tel" autoComplete="username" placeholder="Numéro de téléphone" aria-label="Numéro de téléphone" aria-invalid={!!form.formState.errors.phone} aria-describedby={form.formState.errors.phone ? "login-phone-error" : undefined} data-testid="input-phone" />
+                  <input {...form.register("phone")} type="tel" inputMode="tel" autoComplete="username" placeholder="Entrez votre numéro de téléphone" aria-label="Numéro de téléphone" aria-invalid={!!form.formState.errors.phone} aria-describedby={form.formState.errors.phone ? "login-phone-error" : undefined} data-testid="input-phone" />
               </div>
                {form.formState.errors.country && <p id="login-country-error" role="alert" className="auth-error">{form.formState.errors.country.message}</p>}
                {form.formState.errors.phone && <p id="login-phone-error" role="alert" className="auth-error">{form.formState.errors.phone.message}</p>}
 
                <div className={`auth-field${form.formState.errors.password ? " has-error" : ""}`}>
-                <LockKeyhole className="auth-field-icon" aria-hidden="true" />
-                 <input {...form.register("password")} type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Mot de passe" aria-label="Mot de passe" aria-invalid={!!form.formState.errors.password} aria-describedby={form.formState.errors.password ? "login-password-error" : undefined} data-testid="input-password" />
-                 <button type="button" className="auth-visibility" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"} aria-pressed={showPassword}>
-                   {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
-                 </button>
+                 <svg className="auth-field-icon auth-solid-lock" viewBox="0 0 24 24" aria-hidden="true">
+                   <path d="M7 10V7a5 5 0 0 1 10 0v3h1.25A2.75 2.75 0 0 1 21 12.75v7.5A2.75 2.75 0 0 1 18.25 23h-12.5A2.75 2.75 0 0 1 3 20.25v-7.5A2.75 2.75 0 0 1 5.75 10H7Zm2.2 0h5.6V7a2.8 2.8 0 0 0-5.6 0v3Z" />
+                   <circle cx="12" cy="16" r="1.35" fill="#fff" />
+                   <path d="M11.3 16h1.4l.55 2.8h-2.5l.55-2.8Z" fill="#fff" />
+                 </svg>
+                   <input {...form.register("password")} type="password" autoComplete="current-password" placeholder="Entrez votre mot de passe" aria-label="Mot de passe" aria-invalid={!!form.formState.errors.password} aria-describedby={form.formState.errors.password ? "login-password-error" : undefined} data-testid="input-password" />
               </div>
                {form.formState.errors.password && <p id="login-password-error" role="alert" className="auth-error">{form.formState.errors.password.message}</p>}
             </div>

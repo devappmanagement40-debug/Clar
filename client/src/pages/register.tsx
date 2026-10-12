@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { FALLBACK_COUNTRIES, type ApiCountry } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
-import { ChevronDown, Code2, Eye, EyeOff, Loader2, LockKeyhole, Smartphone } from "lucide-react";
+import { ChevronDown, Loader2, Smartphone } from "lucide-react";
 import registerBackground from "@assets/0_45533_1791799295363.jpg";
 import "./auth-pages.css";
 
@@ -32,9 +32,6 @@ export default function RegisterPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-
   const params = new URLSearchParams(searchString);
   // Referral links use /html/register?code=ABC123.
   const currentInvitationMatch = searchString.match(/[?&]code=([^&?#]+)/i);
@@ -48,7 +45,7 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       phone: "",
-      country: "NE",
+      country: "CI",
       password: "",
       confirmPassword: "",
       invitationCode: refCode,
@@ -102,7 +99,9 @@ export default function RegisterPage() {
   const displayedPrefix = countryData?.phonePrefix || (countriesLoading ? "..." : "");
 
   return (
-    <main className="auth-reference auth-register" style={{ backgroundImage: `url("${registerBackground}")` }}>
+    <main className="auth-reference auth-register">
+      <img className="auth-background-fill" src={registerBackground} alt="" aria-hidden="true" />
+      <img className="auth-background-image" src={registerBackground} alt="" aria-hidden="true" />
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="register-title">
           <h1 id="register-title" className="auth-visually-hidden">Créer un compte Equinor</h1>
@@ -116,38 +115,44 @@ export default function RegisterPage() {
                   <span>+{displayedPrefix}</span>
                    <ChevronDown className="auth-country-arrow" aria-hidden="true" />
                 </button>
-                 <input {...form.register("phone")} type="tel" inputMode="tel" autoComplete="username" placeholder="Numéro de téléphone" aria-label="Numéro de téléphone" aria-invalid={!!form.formState.errors.phone} aria-describedby={form.formState.errors.phone ? "register-phone-error" : undefined} data-testid="input-phone" />
+                  <input {...form.register("phone")} type="tel" inputMode="tel" autoComplete="username" placeholder="Entrez votre numéro de téléphone" aria-label="Numéro de téléphone" aria-invalid={!!form.formState.errors.phone} aria-describedby={form.formState.errors.phone ? "register-phone-error" : undefined} data-testid="input-phone" />
               </div>
                {form.formState.errors.country && <p id="register-country-error" role="alert" className="auth-error">{form.formState.errors.country.message}</p>}
                {form.formState.errors.phone && <p id="register-phone-error" role="alert" className="auth-error">{form.formState.errors.phone.message}</p>}
 
                <div className={`auth-field${form.formState.errors.password ? " has-error" : ""}`}>
-                <LockKeyhole className="auth-field-icon" aria-hidden="true" />
-                 <input {...form.register("password")} type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="Mot de passe" aria-label="Mot de passe" aria-invalid={!!form.formState.errors.password} aria-describedby={form.formState.errors.password ? "register-password-error" : undefined} data-testid="input-password" />
-                 <button type="button" className="auth-visibility" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"} aria-pressed={showPassword}>
-                   {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
-                 </button>
+                 <svg className="auth-field-icon auth-solid-lock" viewBox="0 0 24 24" aria-hidden="true">
+                   <path d="M7 10V7a5 5 0 0 1 10 0v3h1.25A2.75 2.75 0 0 1 21 12.75v7.5A2.75 2.75 0 0 1 18.25 23h-12.5A2.75 2.75 0 0 1 3 20.25v-7.5A2.75 2.75 0 0 1 5.75 10H7Zm2.2 0h5.6V7a2.8 2.8 0 0 0-5.6 0v3Z" />
+                   <circle cx="12" cy="16" r="1.35" fill="#fff" />
+                   <path d="M11.3 16h1.4l.55 2.8h-2.5l.55-2.8Z" fill="#fff" />
+                 </svg>
+                   <input {...form.register("password")} type="password" autoComplete="new-password" placeholder="Entrez votre mot de passe" aria-label="Mot de passe" aria-invalid={!!form.formState.errors.password} aria-describedby={form.formState.errors.password ? "register-password-error" : undefined} data-testid="input-password" />
               </div>
                {form.formState.errors.password && <p id="register-password-error" role="alert" className="auth-error">{form.formState.errors.password.message}</p>}
 
                <div className={`auth-field${form.formState.errors.confirmPassword ? " has-error" : ""}`}>
-                <LockKeyhole className="auth-field-icon" aria-hidden="true" />
-                 <input {...form.register("confirmPassword")} type={showConfirmation ? "text" : "password"} autoComplete="new-password" placeholder="Confirmer le mot de passe" aria-label="Confirmer le mot de passe" aria-invalid={!!form.formState.errors.confirmPassword} aria-describedby={form.formState.errors.confirmPassword ? "register-confirm-error" : undefined} data-testid="input-confirm-password" />
-                 <button type="button" className="auth-visibility" onClick={() => setShowConfirmation((value) => !value)} aria-label={showConfirmation ? "Masquer la confirmation" : "Afficher la confirmation"} aria-pressed={showConfirmation}>
-                   {showConfirmation ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
-                 </button>
+                 <svg className="auth-field-icon auth-solid-lock" viewBox="0 0 24 24" aria-hidden="true">
+                   <path d="M7 10V7a5 5 0 0 1 10 0v3h1.25A2.75 2.75 0 0 1 21 12.75v7.5A2.75 2.75 0 0 1 18.25 23h-12.5A2.75 2.75 0 0 1 3 20.25v-7.5A2.75 2.75 0 0 1 5.75 10H7Zm2.2 0h5.6V7a2.8 2.8 0 0 0-5.6 0v3Z" />
+                   <circle cx="12" cy="16" r="1.35" fill="#fff" />
+                   <path d="M11.3 16h1.4l.55 2.8h-2.5l.55-2.8Z" fill="#fff" />
+                 </svg>
+                   <input {...form.register("confirmPassword")} type="password" autoComplete="new-password" placeholder="Saisissez à nouveau le mot de passe" aria-label="Confirmer le mot de passe" aria-invalid={!!form.formState.errors.confirmPassword} aria-describedby={form.formState.errors.confirmPassword ? "register-confirm-error" : undefined} data-testid="input-confirm-password" />
               </div>
                {form.formState.errors.confirmPassword && <p id="register-confirm-error" role="alert" className="auth-error">{form.formState.errors.confirmPassword.message}</p>}
 
               <div className="auth-field">
-                <Code2 className="auth-field-icon" aria-hidden="true" />
-                 <input {...form.register("invitationCode")} placeholder="Code d'invitation" aria-label="Code d'invitation" data-testid="input-invitation-code" />
+                 <svg className="auth-field-icon auth-solid-user" viewBox="0 0 24 24" aria-hidden="true">
+                   <circle cx="12" cy="7" r="4" />
+                   <path d="M4 21v-1.2A7.8 7.8 0 0 1 11.8 12h.4a7.8 7.8 0 0 1 7.8 7.8V21H4Z" />
+                 </svg>
+                  <span className="auth-invitation-prefix" aria-hidden="true">+</span>
+                  <input {...form.register("invitationCode")} placeholder="Code d'invitation" aria-label="Code d'invitation" data-testid="input-invitation-code" />
               </div>
             </div>
 
             <button type="button" className="auth-switch" onClick={() => navigate("/login")} data-testid="link-login">Aller à la connexion &gt;</button>
             <button type="submit" disabled={isLoading} className="auth-submit" data-testid="button-register">
-              {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "S'inscrire"}
+              {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "S’inscrire"}
             </button>
           </form>
         </section>

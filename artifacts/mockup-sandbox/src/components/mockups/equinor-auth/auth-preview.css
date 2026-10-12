@@ -11,37 +11,70 @@
   min-height: 100vh;
   overflow: hidden;
   background-color: #a90d2e;
-  background-position: center 46%;
-  background-repeat: no-repeat;
-  background-size: cover;
   color: #171717;
-  font-family: Inter, Arial, sans-serif;
+  font-family: Roboto, "Segoe UI", sans-serif;
+}
+
+.auth-preview-background-fill,
+.auth-preview-background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.auth-preview-background-fill {
+  z-index: 0;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.78;
+  filter: blur(30px) brightness(0.75);
+  transform: scale(1.08);
+}
+
+.auth-preview-background-image {
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  transform: translate(-50%, -50%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 9%, #000 91%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 9%, #000 91%, transparent 100%);
 }
 
 .auth-preview-equinor::before {
   position: absolute;
-  z-index: 0;
+  z-index: 1;
   inset: 0;
-  background: linear-gradient(180deg, rgb(13 16 22 / 26%), rgb(13 16 22 / 52%));
+  background: linear-gradient(180deg, rgb(80 80 80 / 34%), rgb(65 65 65 / 49%));
   content: "";
 }
 
 .auth-preview-screen {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   min-height: 100vh;
   place-items: center;
-  padding: 28px 24px;
+  padding: 24px 24px;
 }
 
 .auth-preview-panel {
-  width: min(100%, 430px);
+  width: min(100%, 410px);
+  transform: translateY(3vh);
+}
+
+.auth-preview-register .auth-preview-panel {
+  transform: translateY(11vh);
 }
 
 .auth-preview-fields {
   display: grid;
-  gap: 14px;
+  gap: 15px;
 }
 
 .auth-preview-field {
@@ -50,10 +83,10 @@
   height: 58px;
   align-items: center;
   border: 1px solid rgb(255 255 255 / 88%);
-  border-radius: 12px;
-  padding: 0 15px;
-  background: rgb(255 255 255 / 97%);
-  box-shadow: 0 5px 16px rgb(0 0 0 / 18%);
+  border-radius: 11px;
+  padding: 0 14px;
+  background: rgb(255 255 255 / 98%);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 12%);
 }
 
 .auth-preview-field input {
@@ -64,7 +97,7 @@
   outline: 0;
   background: transparent;
   color: #272727;
-  font: 500 16px Inter, Arial, sans-serif;
+  font: 500 18px Roboto, "Segoe UI", sans-serif;
 }
 
 .auth-preview-field input::placeholder {
@@ -82,7 +115,7 @@
   padding: 0;
   background: transparent;
   color: #555;
-  font: 600 16px Inter, Arial, sans-serif;
+  font: 600 18px Roboto, "Segoe UI", sans-serif;
 }
 
 .auth-preview-country svg:first-child {
@@ -96,39 +129,23 @@
 }
 
 .auth-preview-field-icon {
-  width: 22px;
-  height: 22px;
+  width: 25px;
+  height: 25px;
   flex: none;
-  margin-right: 12px;
-  color: #858585;
-  stroke-width: 2.6;
-}
-
-.auth-preview-eye {
-  display: grid;
-  width: 36px;
-  height: 42px;
-  flex: none;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  color: #777;
-}
-
-.auth-preview-eye svg {
-  width: 20px;
-  height: 20px;
+  margin-right: 13px;
+  color: #898989;
+  fill: currentColor;
 }
 
 .auth-preview-switch {
   display: block;
   width: fit-content;
-  margin: 16px 0 13px auto;
+  margin: 14px 0 12px auto;
   border: 0;
   padding: 2px 0;
   background: transparent;
   color: #fff;
-  font: 500 16px Inter, Arial, sans-serif;
+  font: 600 18px Roboto, "Segoe UI", sans-serif;
   text-align: right;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -138,14 +155,29 @@
 .auth-preview-submit {
   display: grid;
   width: 100%;
-  min-height: 60px;
+  min-height: 58px;
   place-items: center;
   border: 0;
-  border-radius: 12px;
+  border-radius: 9px;
   background: #fff;
   color: var(--auth-red);
-  font: 800 22px Inter, Arial, sans-serif;
-  box-shadow: 0 6px 18px rgb(0 0 0 / 20%);
+  font: 800 22px Roboto, "Segoe UI", sans-serif;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+}
+
+.auth-preview-invitation-prefix {
+  flex: none;
+  margin-right: 10px;
+  color: #424242;
+  font: 600 18px Roboto, "Segoe UI", sans-serif;
+}
+
+@media (min-width: 768px) {
+  .auth-preview-background-image {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+  }
 }
 
 .auth-preview-legacy {
