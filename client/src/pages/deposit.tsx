@@ -17,8 +17,8 @@ import chargepointPromo from "@/assets/auth-chargepoint-combined.png";
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
 type DepositMethodChoice = { provider: DepositMethodId };
 
-const TON_GREEN = "#FF7A14";
-const TON_GREEN_DARK = "#E85D00";
+const TON_GREEN = "#D40030";
+const TON_GREEN_DARK = "#A60026";
 const TON_GRADIENT = `linear-gradient(112deg, ${TON_GREEN} 0%, ${TON_GREEN_DARK} 100%)`;
 const SOLEASPAY_PENDING_DEPOSIT_KEY = "soleaspay-pending-deposit";
 
@@ -28,7 +28,7 @@ const DEPOSIT_STEP_STYLES = `
     max-width: 512px;
     margin: 0 auto;
     overflow: hidden;
-    background: #fff8f2;
+    background: #fff7f8;
     color: #111827;
     font-family: Inter, Arial, sans-serif;
   }
@@ -40,7 +40,7 @@ const DEPOSIT_STEP_STYLES = `
     gap: 12px;
     padding: 14px 16px;
     border-bottom: 2px solid #111827;
-    background: #fff8f2;
+    background: #fff7f8;
   }
   .deposit-step-shell .deposit-step-back {
     display: inline-flex;
@@ -84,9 +84,9 @@ const DEPOSIT_STEP_STYLES = `
     border-radius: 14px;
     background: #fff;
   }
-  .deposit-step-shell .deposit-step-card-orange {
+  .deposit-step-shell .deposit-step-card-accent {
     border-color: ${TON_GREEN};
-    background: #fff3e8;
+    background: #fff0f3;
   }
   .deposit-step-shell .deposit-step-field {
     border: 2px solid #111827 !important;
@@ -98,7 +98,7 @@ const DEPOSIT_STEP_STYLES = `
     border: 2px solid #111827 !important;
     border-radius: 12px !important;
     background: ${TON_GREEN} !important;
-    color: #111827 !important;
+    color: #fff !important;
     font-weight: 800 !important;
     box-shadow: 0 4px 0 #111827;
   }
@@ -120,7 +120,7 @@ const DEPOSIT_STEP_STYLES = `
     place-items: center;
     border: 2px solid #111827;
     border-radius: 50%;
-    background: #fff3e8;
+    background: #fff0f3;
   }
   .deposit-step-shell .deposit-step-icon svg {
     color: ${TON_GREEN};
@@ -132,7 +132,7 @@ const DEPOSIT_STEP_STYLES = `
   }
   .deposit-step-shell .deposit-step-operator-selected {
     border-color: ${TON_GREEN} !important;
-    background: #fff3e8 !important;
+    background: #fff0f3 !important;
   }
   .deposit-step-shell .deposit-step-otp {
     border: 2px solid #111827 !important;
@@ -847,11 +847,11 @@ export default function DepositPage() {
 
   // ── STEP 1: Amount ─────────────────────────────────────────────────────────
   if (step === "amount") return (
-    <main className="recharge-reference min-h-screen bg-[#f7f3f0]">
+    <main className="recharge-reference min-h-screen bg-[#faf6f7]">
       <style>{`
         .recharge-reference {
           min-height: 100dvh;
-          background: #fff8f2;
+          background: #fff7f8;
           color: #111827;
           font-family: Inter, Arial, sans-serif;
         }
@@ -861,7 +861,7 @@ export default function DepositPage() {
           min-height: 100dvh;
           margin: 0 auto;
           overflow: hidden;
-          background: #fff8f2;
+          background: #fff7f8;
         }
         .recharge-reference .recharge-hero {
           position: relative;
@@ -869,7 +869,7 @@ export default function DepositPage() {
           height: 286px;
           min-height: 0;
           padding: 0 16px 20px;
-          background: #fff8f2;
+          background: #fff7f8;
           border-bottom: 2px solid #111827;
         }
         .recharge-reference .recharge-hero-art {
@@ -951,8 +951,8 @@ export default function DepositPage() {
           width: 11px;
           height: 2px;
           content: "";
-          background: #ff7a14;
-          box-shadow: 0 6px 0 #ff7a14;
+          background: ${TON_GREEN};
+          box-shadow: 0 6px 0 ${TON_GREEN};
         }
         .recharge-reference .history-icon::after {
           position: absolute;
@@ -995,12 +995,12 @@ export default function DepositPage() {
         .recharge-reference .preset.active {
           background: ${TON_GRADIENT};
           border-color: #111827;
-          color: #111827;
+          color: #fff;
           box-shadow: 0 3px 0 #111827;
         }
         .recharge-reference .amount-label {
           margin: 20px 0 9px;
-          color: #111827;
+          color: #fff;
           font-size: 16px;
           font-weight: 800;
         }
@@ -1077,7 +1077,7 @@ export default function DepositPage() {
           margin: 18px 16px 24px;
           padding: 22px 16px 10px;
           border: 2px solid #111827;
-          border-top: 5px solid #ff7a14;
+          border-top: 5px solid ${TON_GREEN};
           border-radius: 14px;
           background: #fff;
           color: #4b5563;
@@ -1091,7 +1091,7 @@ export default function DepositPage() {
         .recharge-reference .instructions-title::before {
           content: "•";
           margin-right: 8px;
-          color: #ff7a14;
+          color: ${TON_GREEN};
           font-size: 24px;
           line-height: 0;
         }
@@ -1110,7 +1110,7 @@ export default function DepositPage() {
           height: 6px;
           border-radius: 50%;
           content: "";
-          background: #ff7a14;
+          background: ${TON_GREEN};
         }
         .recharge-reference .instruction strong { color: #111827; font-weight: 800; }
         @media (max-width: 360px) {
@@ -1234,12 +1234,12 @@ export default function DepositPage() {
       </header>
 
       <div className="deposit-step-content space-y-4 pb-10">
-        <div className="deposit-step-card deposit-step-card-orange p-4 flex items-center gap-3">
+        <div className="deposit-step-card deposit-step-card-accent p-4 flex items-center gap-3">
           {selectedNumber.logoUrl ? (
             <img src={selectedNumber.logoUrl} alt={selectedNumber.operatorName} className="w-10 h-10 rounded-lg object-contain" />
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border-2 border-[#FF7A14]">
-              <Phone className="w-5 h-5 text-[#FF7A14]" />
+            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border-2 border-[#D40030]">
+              <Phone className="w-5 h-5 text-[#D40030]" />
             </div>
           )}
           <div className="flex-1">
@@ -1249,12 +1249,12 @@ export default function DepositPage() {
                 href={selectedNumber.paymentLink}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-1 flex items-center gap-1 text-sm font-bold text-[#E85D00] underline"
+                className="mt-1 flex items-center gap-1 text-sm font-bold text-[#A60026] underline"
               >
                 <ExternalLink className="h-4 w-4" /> Ouvrir le lien de paiement
               </a>
             ) : (
-              <p className="font-bold text-[#E85D00] text-sm">{selectedNumber.operatorName} — {selectedNumber.phone}</p>
+              <p className="font-bold text-[#A60026] text-sm">{selectedNumber.operatorName} — {selectedNumber.phone}</p>
             )}
             <p className="text-xs text-gray-500">{selectedNumber.ownerName}</p>
           </div>
@@ -1306,11 +1306,11 @@ export default function DepositPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             className={`w-full border-2 border-dashed rounded-xl py-7 flex flex-col items-center gap-2 transition-colors ${
-              screenshot ? "border-[#FF7A14] bg-[#FFF3E8]" : "border-gray-300 bg-gray-50 hover:border-[#FF7A14] hover:bg-[#FFF3E8]"
+              screenshot ? "border-[#D40030] bg-[#FFF0F3]" : "border-gray-300 bg-gray-50 hover:border-[#D40030] hover:bg-[#FFF0F3]"
             }`}
           >
             {screenshot ? (
-              <><CheckCircle className="w-8 h-8 text-[#FF7A14]" /><p className="text-sm font-medium text-[#E85D00]">{screenshotName}</p><p className="text-xs text-gray-400">Appuyez pour changer</p></>
+              <><CheckCircle className="w-8 h-8 text-[#D40030]" /><p className="text-sm font-medium text-[#A60026]">{screenshotName}</p><p className="text-xs text-gray-400">Appuyez pour changer</p></>
             ) : (
               <><ImageIcon className="w-8 h-8 text-gray-400" /><p className="text-sm font-medium text-gray-600">Appuyez pour ajouter la capture</p><p className="text-xs text-gray-400">JPG, PNG — max 5 Mo</p></>
             )}
@@ -1354,15 +1354,15 @@ export default function DepositPage() {
         <div className="deposit-step-summary mx-0 p-4 flex items-center justify-between">
           <div>
             <p className="text-xs text-gray-500">Montant à déposer</p>
-            <p className="text-xl font-bold text-[#E85D00]">{Number(amount).toLocaleString()} {currency}</p>
+            <p className="text-xl font-bold text-[#A60026]">{Number(amount).toLocaleString()} {currency}</p>
           </div>
-          <button onClick={() => setStep("amount")} className="text-xs text-[#E85D00] underline">Modifier</button>
+          <button onClick={() => setStep("amount")} className="text-xs text-[#A60026] underline">Modifier</button>
         </div>
 
         {/* Info card */}
         <div className="deposit-step-card p-4 space-y-2">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-[#FF7A14]" />
+            <Zap className="w-5 h-5 text-[#D40030]" />
             <p className="font-semibold text-gray-900 text-sm">Comment ça marche ?</p>
           </div>
           <p className="text-xs text-gray-600 leading-relaxed">
@@ -1408,13 +1408,13 @@ export default function DepositPage() {
         <Link href="/history"><button className="deposit-step-history">Historique</button></Link>
       </header>
       <div className="deposit-step-summary mx-4 mt-4 p-4 flex items-center justify-between">
-        <div><p className="text-xs text-gray-500">Montant à déposer</p><p className="text-xl font-bold text-[#E85D00]">{Number(amount).toLocaleString()} {currency}</p></div>
-        <button onClick={() => setStep("amount")} className="text-xs text-[#E85D00] underline">Modifier</button>
+        <div><p className="text-xs text-gray-500">Montant à déposer</p><p className="text-xl font-bold text-[#A60026]">{Number(amount).toLocaleString()} {currency}</p></div>
+        <button onClick={() => setStep("amount")} className="text-xs text-[#A60026] underline">Modifier</button>
       </div>
       <div className="deposit-step-content space-y-4 pb-10">
         <div>
           <p className="text-sm font-semibold text-gray-800 mb-2">Pays</p>
-          {ashtechCountriesLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#FF7A14] mx-auto" /> : (
+          {ashtechCountriesLoading ? <Loader2 className="w-6 h-6 animate-spin text-[#D40030] mx-auto" /> : (
             <select value={ashtechCountry} onChange={(e) => { setAshtechCountry(e.target.value); setAshtechOperator(""); }}
               className="deposit-step-field w-full px-4 py-4 text-sm text-gray-700 outline-none appearance-none">
               {availableAshtechCountries.map(c => <option key={c.code} value={c.code}>{c.name} ({c.currency})</option>)}
@@ -1438,7 +1438,7 @@ export default function DepositPage() {
                 return <button key={`${name}-${index}`} onClick={() => setAshtechOperator(name)}
                   className={`deposit-step-operator w-full flex items-center justify-between px-4 py-4 ${ashtechOperator === name ? "deposit-step-operator-selected" : ""}`}>
                   <span className="font-semibold text-gray-900 text-sm">{name}</span>
-                  {ashtechOperator === name && <CheckCircle className="w-5 h-5 text-[#FF7A14]" />}
+                  {ashtechOperator === name && <CheckCircle className="w-5 h-5 text-[#D40030]" />}
                 </button>;
               })}
             </div>
@@ -1460,9 +1460,9 @@ export default function DepositPage() {
         <button onClick={() => setStep("ashtech-operator")} className="deposit-step-back"><ChevronLeft className="w-5 h-5" /><span>Code OTP</span></button>
       </header>
       <div className="deposit-step-content space-y-5 pb-10">
-        <div className="deposit-step-card deposit-step-card-orange p-4">
+        <div className="deposit-step-card deposit-step-card-accent p-4">
           <p className="font-bold text-gray-900 text-sm mb-2">Code à composer</p>
-          {ashtechUssdCode && <p className="deposit-step-otp px-4 py-3 text-center font-mono font-black text-2xl text-[#E85D00] tracking-widest">{ashtechUssdCode}</p>}
+          {ashtechUssdCode && <p className="deposit-step-otp px-4 py-3 text-center font-mono font-black text-2xl text-[#A60026] tracking-widest">{ashtechUssdCode}</p>}
           <p className="text-sm text-gray-600 mt-3">
             {ashtechUssdCode
               ? "Composez ce code sur votre téléphone pour obtenir le code OTP, puis saisissez-le ci-dessous."
@@ -1470,7 +1470,7 @@ export default function DepositPage() {
           </p>
         </div>
         <input type="text" inputMode="numeric" value={ashtechOtp} onChange={(e) => setAshtechOtp(e.target.value)} maxLength={8}
-          placeholder="Code OTP reçu par SMS" className="deposit-step-otp w-full px-4 py-4 text-center text-2xl tracking-widest font-black text-gray-800 outline-none focus:border-[#FF7A14]" />
+          placeholder="Code OTP reçu par SMS" className="deposit-step-otp w-full px-4 py-4 text-center text-2xl tracking-widest font-black text-gray-800 outline-none focus:border-[#D40030]" />
         <button onClick={() => ashtechCollectMutation.mutate(ashtechOtp)} disabled={!ashtechOtp.trim() || ashtechCollectMutation.isPending}
           className="deposit-step-primary w-full py-5 disabled:opacity-40" style={{ background: TON_GRADIENT }}>
           {ashtechCollectMutation.isPending ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Vérification...</span> : "Valider le code OTP"}
@@ -1487,7 +1487,7 @@ export default function DepositPage() {
         <button onClick={() => setStep("ashtech-operator")} className="deposit-step-back"><ChevronLeft className="w-5 h-5" /><span>Finaliser le paiement</span></button>
       </header>
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-6">
-        <div className="deposit-step-icon"><ExternalLink className="w-10 h-10 text-[#FF7A14]" /></div>
+        <div className="deposit-step-icon"><ExternalLink className="w-10 h-10 text-[#D40030]" /></div>
         <div><p className="font-bold text-gray-900 text-xl mb-2">Finaliser avec Wave</p><p className="text-sm text-gray-500">Ouvrez la page Wave pour confirmer votre dépôt de <strong>{Number(amount).toLocaleString()} {currency}</strong>.</p></div>
         <a href={ashtechWaveUrl} target="_blank" rel="noopener noreferrer" onClick={() => { setAshtechPolling(true); setStep("ashtech-waiting"); }}
           className="deposit-step-primary w-full py-5 flex items-center justify-center gap-2" style={{ background: TON_GRADIENT }}>
@@ -1503,7 +1503,7 @@ export default function DepositPage() {
       <DepositStepStyles />
       <header className="deposit-step-header"><span className="font-semibold text-base text-gray-800">Paiement en cours</span></header>
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-6">
-        <div className="deposit-step-icon"><RefreshCw className="w-10 h-10 text-[#FF7A14] animate-spin" style={{ animationDuration: "2s" }} /></div>
+        <div className="deposit-step-icon"><RefreshCw className="w-10 h-10 text-[#D40030] animate-spin" style={{ animationDuration: "2s" }} /></div>
         <div><p className="font-bold text-gray-900 text-xl">En attente de confirmation</p><p className="text-sm text-gray-500 mt-2">Validez le paiement sur votre téléphone. Cette page se met à jour automatiquement.</p></div>
         <div className="flex gap-3 w-full"><Link href="/history" className="flex-1"><button className="deposit-step-secondary w-full py-3 text-sm">Voir l'historique</button></Link>
           <button onClick={() => { setStep("amount"); setAmount(""); setAshtechDepositId(null); setAshtechPolling(false); setAshtechStatus(""); }} className="deposit-step-secondary flex-1 py-3 text-sm">Nouvelle recharge</button>
@@ -1521,8 +1521,8 @@ export default function DepositPage() {
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-6">
         <div className="deposit-step-icon">
           {soleaspayStatus === "approved"
-            ? <CheckCircle className="w-10 h-10 text-[#FF7A14]" />
-            : <RefreshCw className={`w-10 h-10 ${soleaspayStatus === "rejected" ? "text-red-400" : "text-[#FF7A14] animate-spin"}`} />}
+            ? <CheckCircle className="w-10 h-10 text-[#D40030]" />
+            : <RefreshCw className={`w-10 h-10 ${soleaspayStatus === "rejected" ? "text-red-400" : "text-[#D40030] animate-spin"}`} />}
         </div>
         <div>
           <p className="font-bold text-gray-900 text-xl">
@@ -1591,9 +1591,9 @@ export default function DepositPage() {
       <div className="deposit-step-summary mx-4 mt-4 p-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-gray-500">Montant à déposer</p>
-          <p className="text-xl font-bold text-[#E85D00]">{Number(amount).toLocaleString()} {currency}</p>
+          <p className="text-xl font-bold text-[#A60026]">{Number(amount).toLocaleString()} {currency}</p>
         </div>
-        <button onClick={() => setStep("amount")} className="text-xs text-[#E85D00] underline">Modifier</button>
+        <button onClick={() => setStep("amount")} className="text-xs text-[#A60026] underline">Modifier</button>
       </div>
 
       <div className="deposit-step-content space-y-4 pb-10">
@@ -1632,7 +1632,7 @@ export default function DepositPage() {
           <p className="text-sm font-semibold text-gray-800 mb-2">Opérateur Mobile Money</p>
           {svOperatorsLoading ? (
             <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-[#FF7A14]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#D40030]" />
             </div>
           ) : svOperators.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
@@ -1657,17 +1657,17 @@ export default function DepositPage() {
                         <img src={icon} alt={op.name} className="w-10 h-10 rounded-full object-cover border border-gray-100" />
                       ) : (
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
-                          svOperator?.id === op.id ? "bg-[#FF7A14] text-gray-900" : "bg-gray-100 text-gray-600"
+                          svOperator?.id === op.id ? "bg-[#D40030] text-white" : "bg-gray-100 text-gray-600"
                         }`}>
                           {op.name.charAt(0)}
                         </div>
                       )}
                       <div className="text-left">
                         <p className="font-semibold text-gray-900 text-sm">{op.name}</p>
-                        {op.requiresOtp && <p className="text-xs text-[#E85D00]">Code OTP requis</p>}
+                        {op.requiresOtp && <p className="text-xs text-[#A60026]">Code OTP requis</p>}
                       </div>
                     </div>
-                    {svOperator?.id === op.id && <CheckCircle className="w-5 h-5 text-[#FF7A14]" />}
+                    {svOperator?.id === op.id && <CheckCircle className="w-5 h-5 text-[#D40030]" />}
                   </button>
                 );
               })}
@@ -1705,29 +1705,29 @@ export default function DepositPage() {
       <div className="deposit-step-content space-y-5 pb-10">
 
         {/* Step 1 — Dial USSD code */}
-        <div className="deposit-step-card deposit-step-card-orange p-4">
+        <div className="deposit-step-card deposit-step-card-accent p-4">
           <div className="flex items-center gap-2 mb-3">
-           <div className="w-7 h-7 rounded-full bg-[#FF7A14] flex items-center justify-center flex-shrink-0">
-              <span className="text-gray-900 font-bold text-xs">1</span>
+           <div className="w-7 h-7 rounded-full bg-[#D40030] flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-xs">1</span>
             </div>
             <p className="font-bold text-gray-900 text-sm">Composez ce code sur votre téléphone</p>
           </div>
           {svUssdCode ? (
              <div className="deposit-step-otp px-4 py-3 text-center">
-              <p className="font-mono font-black text-2xl text-[#E85D00] tracking-widest">{svUssdCode}</p>
+              <p className="font-mono font-black text-2xl text-[#A60026] tracking-widest">{svUssdCode}</p>
               <p className="text-xs text-gray-400 mt-1">Composez ce code USSD sur votre téléphone</p>
             </div>
           ) : (
             <p className="text-sm text-gray-600">
-              Composez le code USSD de votre opérateur (ex&nbsp;: <span className="font-mono font-bold text-[#E85D00]">*144#</span>) sur votre téléphone pour recevoir le code OTP par SMS.
+              Composez le code USSD de votre opérateur (ex&nbsp;: <span className="font-mono font-bold text-[#A60026]">*144#</span>) sur votre téléphone pour recevoir le code OTP par SMS.
             </p>
           )}
         </div>
 
         {/* Step 2 — Enter OTP */}
-        <div className="deposit-step-card deposit-step-card-orange p-4">
+        <div className="deposit-step-card deposit-step-card-accent p-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-full bg-[#FF7A14] flex items-center justify-center flex-shrink-0">
+            <div className="w-7 h-7 rounded-full bg-[#D40030] flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-xs">2</span>
             </div>
             <p className="font-bold text-gray-900 text-sm">Entrez le code OTP reçu par SMS</p>
@@ -1741,7 +1741,7 @@ export default function DepositPage() {
             value={svOtp}
             onChange={(e) => setSvOtp(e.target.value)}
             placeholder="Code OTP reçu par SMS"
-           className="deposit-step-otp w-full px-4 py-4 text-center text-2xl tracking-widest font-black text-gray-800 outline-none focus:border-[#FF7A14]"
+           className="deposit-step-otp w-full px-4 py-4 text-center text-2xl tracking-widest font-black text-gray-800 outline-none focus:border-[#D40030]"
             maxLength={8}
           />
         </div>
@@ -1773,7 +1773,7 @@ export default function DepositPage() {
 
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-6">
         <div className="deposit-step-icon">
-          <ExternalLink className="w-10 h-10 text-[#FF7A14]" />
+          <ExternalLink className="w-10 h-10 text-[#D40030]" />
         </div>
         <div>
           <p className="font-bold text-gray-900 text-xl mb-2">Finaliser sur l'application</p>
@@ -1808,7 +1808,7 @@ export default function DepositPage() {
         {svStatus === "approved" ? (
           <>
             <div className="deposit-step-icon">
-              <CheckCircle className="w-10 h-10 text-[#FF7A14]" />
+              <CheckCircle className="w-10 h-10 text-[#D40030]" />
             </div>
             <div>
               <p className="font-bold text-gray-900 text-xl">Paiement confirmé !</p>
@@ -1847,7 +1847,7 @@ export default function DepositPage() {
         ) : (
           <>
             <div className="deposit-step-icon">
-              <RefreshCw className="w-10 h-10 text-[#FF7A14] animate-spin" style={{ animationDuration: "2s" }} />
+               <RefreshCw className="w-10 h-10 text-[#D40030] animate-spin" style={{ animationDuration: "2s" }} />
             </div>
             <div>
               <p className="font-bold text-gray-900 text-xl">En attente de confirmation</p>

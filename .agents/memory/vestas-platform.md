@@ -3,11 +3,11 @@ name: Equinor product name
 description: Current product naming decision and remaining brand-identity constraints.
 ---
 
-The user has chosen **Equinor** as the product name and supplied Equinor background photos for the login and registration pages. Use the red from those references on those two pages first; this does not authorize a full-app rebrand. Replacement logos elsewhere are still unspecified.
+The user has chosen **Equinor** as the product name and supplied Equinor background photos for the login and registration pages. They have since expanded the Equinor red treatment to the deposit page; this does not authorize a full-app rebrand. Replacement logos elsewhere are still unspecified.
 
-**Why:** The user requested Equinor and explicitly chose the red in the supplied auth backgrounds to replace ChargePoint orange, with auth pages as the first scope.
+**Why:** The user requested Equinor, first scoped the supplied red to authentication, then explicitly asked to replace orange with Equinor red on the deposit page.
 
-**How to apply:** Use Equinor in app text, metadata, and user-facing messages. Keep the supplied red limited to login and registration until the user expands the rebrand scope. Do not invent replacement logos.
+**How to apply:** Use Equinor in app text, metadata, and user-facing messages. Apply the red treatment to login, registration, and deposits; preserve unrelated page styling and payment-provider behavior. Do not invent replacement logos.
 
 For the supplied login and registration photos, prioritize a clear, full-screen background like the portrait reference; do not add an artificial blur. The source photos are landscape, so use a cover crop and position it to keep the Equinor branding visible.
 
