@@ -1,53 +1,54 @@
 .cp-account {
-  --equinor-red: #bd304c;
-  --equinor-red-dark: #9e263c;
-  --cp-ink: #15171a;
-  --cp-panel: #fff;
-  min-height: auto;
-  padding-bottom: 0;
-  background: #fff;
-  color: var(--cp-ink);
-  font-family: "DM Sans", Arial, sans-serif;
+  --account-red: #bd304c;
+  --account-red-deep: #98263d;
+  --account-ink: #201d1e;
+  --account-muted: #777174;
+  --account-paper: #fff;
+  --account-canvas: #f7f4f3;
+  min-height: 100dvh;
+  padding: 0 0 calc(78px + env(safe-area-inset-bottom));
+  background: var(--account-canvas);
+  color: var(--account-ink);
+  font-family: "DM Sans", sans-serif;
 }
 
 .cp-account-shell {
-  width: min(100%, 500px);
-  min-height: auto;
+  width: min(100%, 520px);
+  min-height: 100dvh;
   margin: 0 auto;
-  overflow: hidden;
-  background: #fff;
+  padding: 10px 14px 24px;
 }
 
 .cp-account-header {
-  padding: 24px 16px 18px;
-  background: #fff;
+  padding: 13px 3px 15px;
 }
 
 .cp-profile-row {
   display: flex;
-  min-height: 86px;
+  min-height: 82px;
   align-items: center;
-  gap: 12px;
+  gap: 13px;
 }
 
 .cp-profile-avatar {
   display: grid;
+  width: 58px;
+  height: 58px;
   flex: 0 0 auto;
-  width: 76px;
-  height: 76px;
   place-items: center;
   overflow: hidden;
-  border: 3px solid #fff;
+  border: 1px solid rgba(189, 48, 76, .2);
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 3px 12px rgba(189, 48, 76, .25);
+  box-shadow: 0 5px 15px rgba(90, 30, 42, .1);
 }
 
 .cp-profile-avatar img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 6px;
 }
 
 .cp-profile-copy {
@@ -55,307 +56,330 @@
 }
 
 .cp-account-phone {
+  overflow: hidden;
   margin: 0 0 8px;
-  color: var(--cp-ink);
-  font-size: clamp(18px, 5.2vw, 24px);
-  font-weight: 600;
-  letter-spacing: -.03em;
-  line-height: 1.1;
+  color: var(--account-ink);
+  font-size: clamp(16px, 4.7vw, 20px);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.12;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .cp-account-level {
   display: inline-flex;
-  min-width: 46px;
-  justify-content: center;
-  padding: 4px 12px;
+  min-height: 23px;
+  align-items: center;
+  padding: 4px 11px;
+  border: 1px solid rgba(189, 48, 76, .18);
   border-radius: 999px;
-  background: var(--equinor-red);
-  color: #211308;
-  font-size: 12px;
-  font-weight: 800;
+  background: #fbecef;
+  color: var(--account-red-deep);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .015em;
   line-height: 1;
 }
 
 .cp-logout-top {
   display: flex;
   flex: 0 0 auto;
-  min-width: 62px;
   margin-left: auto;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   border: 0;
   background: transparent;
-  color: var(--cp-ink);
+  color: var(--account-muted);
   font-size: 10px;
   cursor: pointer;
 }
 
-.cp-logout-top img {
-  display: block;
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-  filter: brightness(0) saturate(100%);
+.cp-logout-top svg {
+  width: 19px;
+  height: 19px;
 }
 
-.cp-balance-card {
-  display: flex;
-  min-height: 112px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 20px;
-  padding: 18px 14px 18px 18px;
-  border: 2px solid #090a0c;
-  border-radius: 16px;
-  background: var(--equinor-red);
-  box-shadow: 0 4px 0 #090a0c, 0 9px 18px rgba(0, 0, 0, .3);
-}
-
-.cp-balance-card > div {
-  min-width: 0;
-}
-
-.cp-balance-card span {
-  display: block;
-  color: #3f1b05;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.cp-balance-card strong {
-  display: block;
-  margin-top: 5px;
+.cp-account-summaries {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow: hidden;
-  color: #17191c;
-  font: 700 clamp(25px, 8vw, 34px)/1 "Space Grotesk", sans-serif;
-  letter-spacing: -.05em;
+  border: 1px solid #eee6e6;
+  border-radius: 17px;
+  background: var(--account-paper);
+  box-shadow: 0 6px 18px rgba(64, 35, 41, .045);
+}
+
+.cp-account-summary {
+  min-width: 0;
+  padding: 16px 12px 17px;
+  text-align: center;
+}
+
+.cp-account-summary + .cp-account-summary {
+  position: relative;
+}
+
+.cp-account-summary + .cp-account-summary::before {
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 0;
+  width: 1px;
+  background: #eee7e7;
+  content: "";
+}
+
+.cp-account-summary strong {
+  display: block;
+  overflow: hidden;
+  color: var(--account-ink);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(17px, 5vw, 22px);
+  font-weight: 700;
+  letter-spacing: -.045em;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.cp-balance-card button {
-  flex: 0 0 auto;
-  padding: 10px 13px;
-  border: 1.5px solid #17191c;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .13);
-  color: #17191c;
+.cp-account-summary span {
+  display: block;
+  margin-top: 6px;
+  color: #625c5f;
   font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.cp-balance-card button span {
-  display: inline;
-  margin-left: 3px;
-  color: inherit;
-  font-size: 16px;
-  line-height: 0;
+  font-weight: 500;
 }
 
 .cp-account-quick-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0 12px;
-  padding: 13px 7px 12px;
-  border: 2px solid #111827;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 4px 0 #111827, 0 7px 14px rgba(17, 24, 39, .18);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 10px;
+  padding: 12px 5px 11px;
+  border: 1px solid #eee6e6;
+  border-radius: 16px;
+  background: var(--account-paper);
+  box-shadow: 0 5px 16px rgba(64, 35, 41, .035);
 }
 
 .cp-account-quick-actions button,
-.cp-services-grid button {
+.cp-services-list button {
   display: flex;
   min-width: 0;
   align-items: center;
   border: 0;
   background: transparent;
-  color: var(--cp-ink);
+  color: var(--account-ink);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .cp-account-quick-actions button {
+  min-height: 62px;
   flex-direction: column;
+  justify-content: center;
   gap: 7px;
-  padding: 2px 3px;
-  font-size: 12px;
+  padding: 2px;
+  font-size: 11px;
+  font-weight: 600;
   text-align: center;
 }
 
-.cp-account-quick-actions img,
-.cp-services-grid img {
-  display: block;
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  filter: brightness(0) saturate(100%) invert(72%) sepia(94%) saturate(1927%) hue-rotate(338deg) brightness(101%) contrast(101%);
+.cp-account-quick-actions button > span:first-child {
+  display: grid;
+  width: 35px;
+  height: 35px;
+  place-items: center;
+  border-radius: 12px;
+  background: #fbf0f2;
+  color: var(--account-red);
 }
 
-.cp-services-grid img.cp-gift-icon {
-  filter: brightness(0) saturate(100%) invert(72%) sepia(94%) saturate(1927%) hue-rotate(338deg) brightness(101%) contrast(101%);
-  border-radius: 4px;
+.cp-account-quick-actions svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.9;
 }
 
 .cp-account-promo {
   position: relative;
-  min-height: 128px;
-  margin: 14px 12px 0;
+  min-height: 160px;
+  margin-top: 11px;
   overflow: hidden;
-  border: 2px solid #111827;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 4px 0 #111827, 0 7px 14px rgba(17, 24, 39, .18);
+  border-radius: 16px;
+  background: #2b2d2c;
+  box-shadow: 0 7px 20px rgba(46, 29, 33, .12);
+  isolation: isolate;
 }
 
 .cp-account-promo::after {
   position: absolute;
+  z-index: 0;
   inset: 0;
-  background: linear-gradient(90deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .58) 48%, rgba(255, 255, 255, .9));
+  background: linear-gradient(90deg, rgba(24, 24, 24, .08) 0%, rgba(17, 16, 17, .34) 42%, rgba(17, 16, 17, .8) 100%);
   content: "";
 }
 
 .cp-account-promo > img {
   position: absolute;
+  z-index: -1;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: .3;
-  filter: saturate(.8) brightness(1);
+  object-position: center;
 }
 
 .cp-account-promo > div {
   position: relative;
   z-index: 1;
   display: flex;
-  min-height: 128px;
+  min-height: 160px;
+  width: 100%;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 16px;
-  color: var(--cp-ink);
-  text-align: center;
+  padding: 18px 16px;
+  color: #fff;
+  text-align: right;
 }
 
 .cp-account-promo strong {
-  font-size: clamp(17px, 5vw, 22px);
+  max-width: 74%;
+  font-size: clamp(19px, 5.4vw, 24px);
   font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.05;
 }
 
 .cp-account-promo span {
-  margin-top: 7px;
+  max-width: 72%;
+  margin-top: 8px;
   font-size: 12px;
+  line-height: 1.35;
 }
 
 .cp-account-promo button {
-  margin-top: 10px;
-  padding: 7px 18px;
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 0 20px;
   border: 0;
   border-radius: 999px;
-  background: var(--equinor-red);
-  color: #211308;
-  font-size: 11px;
-  font-weight: 800;
+  background: var(--account-red);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .cp-account-services {
-  margin: 14px 12px 0;
-  padding: 16px 10px 14px;
-  border: 2px solid #111827;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 4px 0 #111827, 0 7px 14px rgba(17, 24, 39, .18);
+  margin-top: 11px;
+  padding: 15px 14px 7px;
+  border: 1px solid #eee6e6;
+  border-radius: 16px;
+  background: var(--account-paper);
+  box-shadow: 0 5px 16px rgba(64, 35, 41, .035);
 }
 
 .cp-account-services h2 {
-  margin: 0 0 15px 9px;
-  color: var(--cp-ink);
-  font: 600 18px/1 "Space Grotesk", sans-serif;
-}
-
-.cp-services-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 19px 4px;
-}
-
-.cp-services-grid button {
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 7px;
-  padding: 0 2px;
-  font-size: 11px;
-  line-height: 1.25;
-  text-align: center;
-}
-
-.cp-services-grid button span {
-  max-width: 100%;
-  white-space: pre-line;
-}
-
-.cp-admin-button {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  margin-top: 18px;
-  padding: 10px;
-  border: 1px solid var(--equinor-red);
-  border-radius: 9px;
-  background: transparent;
-  color: var(--equinor-red);
-  font-size: 12px;
+  margin: 0 0 7px;
+  color: var(--account-ink);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  cursor: pointer;
+  letter-spacing: -.02em;
+}
+
+.cp-services-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.cp-services-list button {
+  min-height: 49px;
+  gap: 12px;
+  padding: 0 1px;
+  border-bottom: 1px solid #f1eded;
+  text-align: left;
+}
+
+.cp-services-list button:last-child {
+  border-bottom: 0;
+}
+
+.cp-service-icon {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  background: #fbf0f2;
+  color: var(--account-red);
+}
+
+.cp-service-icon svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.8;
+}
+
+.cp-services-list button > span:nth-child(2) {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cp-service-chevron {
+  width: 16px;
+  height: 16px;
+  color: #aaa2a4;
+}
+
+.cp-services-list .cp-admin-row .cp-service-icon {
+  background: #f8e7eb;
+}
+
+.cp-services-list .cp-logout-row {
+  color: var(--account-red-deep);
 }
 
 .cp-account button:focus-visible {
-  outline: 2px solid var(--equinor-red);
+  outline: 2px solid var(--account-red);
   outline-offset: 3px;
 }
 
-@media (max-width: 360px) {
-  .cp-account-header {
-    padding-right: 10px;
-    padding-left: 10px;
+@media (min-width: 600px) {
+  .cp-account-shell {
+    padding-top: 22px;
   }
 
-  .cp-profile-row {
-    gap: 9px;
+  .cp-account-promo,
+  .cp-account-services,
+  .cp-account-quick-actions {
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .cp-account-shell {
+    padding-right: 10px;
+    padding-left: 10px;
   }
 
   .cp-profile-avatar {
-    width: 68px;
-    height: 68px;
+    width: 52px;
+    height: 52px;
   }
 
-  .cp-account-phone {
-    font-size: 17px;
-  }
-
-  .cp-logout-top {
-    min-width: 54px;
-  }
-
-  .cp-balance-card {
-    padding-right: 10px;
-    padding-left: 13px;
-  }
-
-  .cp-balance-card strong {
-    font-size: 24px;
-  }
-
-  .cp-balance-card button {
-    padding-right: 10px;
-    padding-left: 10px;
+  .cp-account-promo,
+  .cp-account-promo > div {
+    min-height: 148px;
   }
 }
