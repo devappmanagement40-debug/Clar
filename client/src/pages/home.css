@@ -145,8 +145,9 @@ body:has(.cp-home) { background: #fff !important; }
   border: 1px solid #f0dadd;
   border-radius: 9px;
   background: var(--cp-accent-soft);
+  color: var(--cp-accent);
 }
-.cp-notice-icon img { display: block; width: 21px; height: 21px; object-fit: contain; }
+.cp-notice-icon svg { display: block; width: 21px; height: 21px; }
 .cp-notice-marquee {
   flex: 1;
   min-width: 0;
@@ -192,8 +193,8 @@ body:has(.cp-home) { background: #fff !important; }
   transition: transform .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease, box-shadow .18s ease;
 }
 .cp-action:hover { border-color: #17191c; background: #fff8f9; color: var(--cp-accent-deep); box-shadow: 0 3px 0 #17191c, 0 6px 12px rgba(17, 24, 39, .14); }
-.cp-action-icon { display: grid; width: 39px; height: 37px; place-items: center; transition: transform .18s ease; }
-.cp-action-icon img { display: block; width: 35px; height: 35px; object-fit: contain; }
+.cp-action-icon { display: grid; width: 39px; height: 37px; place-items: center; color: var(--cp-accent); transition: transform .18s ease; }
+.cp-action-icon svg { display: block; width: 28px; height: 28px; }
 .cp-action:hover .cp-action-icon { transform: translateY(-2px); }
 .cp-action:active, .cp-balance:active { transform: scale(.98); }
 
@@ -269,9 +270,10 @@ body:has(.cp-home) { background: #fff !important; }
   border-radius: 10px;
   padding: 5px;
   background: #fff;
+  color: var(--cp-accent);
   cursor: pointer;
 }
-.cp-dialog-brand-close img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.cp-dialog-brand-close svg { display: block; }
 .cp-dialog-brand-close:focus-visible,
 .cp-dialog-telegram:focus-visible,
 .cp-dialog-close:focus-visible { outline: 3px solid rgba(189, 48, 76, .4); outline-offset: 3px; }
@@ -288,8 +290,9 @@ body:has(.cp-home) { background: #fff !important; }
   border: 1px solid #e8cbd1;
   border-radius: 15px;
   background: var(--cp-accent-soft);
+  color: var(--cp-accent);
 }
-.cp-dialog-mark img { display: block; width: 30px; height: 30px; object-fit: contain; }
+.cp-dialog-mark svg { display: block; width: 30px; height: 30px; }
 .cp-dialog-copy {
   display: flex;
   min-height: 0;

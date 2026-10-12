@@ -3,21 +3,15 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { ChevronRight, Send } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle, Send } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
 
-import noticeBell from "@/assets/notice-bell.png";
-import depositIcon from "@/assets/home-actions/deposit.png";
-import withdrawalIcon from "@/assets/home-actions/withdrawal.png";
-import supportIcon from "@/assets/home-actions/support.png";
-import checkinIcon from "@/assets/home-actions/checkin.png";
-
 const quickActions = [
-  { label: "Dépôt", href: "/deposit", icon: depositIcon },
-  { label: "Retrait", href: "/withdrawal", icon: withdrawalIcon },
-  { label: "Aide", href: "/service", icon: supportIcon },
-  { label: "Pointage", href: "/checkin", icon: checkinIcon },
+  { label: "Dépôt", href: "/deposit", icon: ArrowDownCircle },
+  { label: "Retrait", href: "/withdrawal", icon: ArrowUpCircle },
+  { label: "Aide", href: "/service", icon: HelpCircle },
+  { label: "Pointage", href: "/checkin", icon: CheckCircle2 },
 ] as const;
 
 const announcementLibrary = [
@@ -105,7 +99,7 @@ export default function HomePage() {
             aria-label="Ouvrir les informations du compte"
             aria-describedby="cp-notice-messages"
           >
-            <span className="cp-notice-icon"><img src={noticeBell} alt="" width={24} height={24} /></span>
+            <span className="cp-notice-icon"><Bell size={19} strokeWidth={2.2} aria-hidden="true" /></span>
             <span className="cp-notice-marquee" aria-hidden="true">
               <span className="cp-notice-track">
                 {[0, 1].map((copy) => (
@@ -124,10 +118,10 @@ export default function HomePage() {
           </button>
 
           <section className="cp-actions" aria-label="Actions rapides">
-            {quickActions.map(({ label, href, icon }) => (
+            {quickActions.map(({ label, href, icon: Icon }) => (
               <button key={label} className="cp-action" type="button" onClick={() => navigate(href)}>
                 <span className="cp-action-icon">
-                  <img src={icon} alt="" />
+                  <Icon size={28} strokeWidth={2.1} aria-hidden="true" />
                 </span>
                 <span>{label}</span>
               </button>
@@ -146,10 +140,10 @@ export default function HomePage() {
       <Dialog open={welcomePopupOpen} onOpenChange={setWelcomePopupOpen}>
         <DialogContent className="cp-dialog z-[60]" overlayClassName="cp-dialog-overlay">
           <DialogClose className="cp-dialog-brand-close" aria-label="Fermer les conditions">
-            <img src={noticeBell} alt="" />
+            <Bell size={20} strokeWidth={2.1} aria-hidden="true" />
           </DialogClose>
           <div className="cp-dialog-mark" aria-hidden="true">
-            <img src={noticeBell} alt="" />
+            <Bell size={29} strokeWidth={2.1} />
           </div>
           <div className="cp-dialog-copy">
             <DialogTitle className="cp-dialog-title">Informations utiles</DialogTitle>
