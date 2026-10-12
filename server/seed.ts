@@ -1,5 +1,6 @@
 import { db } from "./db";
-import { users, tasks, paymentChannels, platformSettings, countries } from "@shared/schema";
+import { users, tasks, paymentChannels, platformSettings, countries, products } from "@shared/schema";
+import { equinorInitialOffers } from "@shared/equinor-initial-offers";
 import bcrypt from "bcrypt";
 import { eq, sql } from "drizzle-orm";
 
@@ -145,7 +146,57 @@ export async function seed() {
     console.log(`Countries skipped — ${existingCountries.length} existing countries preserved`);
   }
 
-  // Product and staking catalogs are administered in the panel; do not seed hardcoded catalog entries.
+  // Insert the approved initial offers once. The marker and rows share a transaction,
+  // so later starts preserve admin edits and deletions instead of reseeding the catalog.
+  const productCatalogSeedKey = "migration_initial_equinor_offers_applied";
+  const initialOffersResult = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: productCatalogSeedKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+
+    if (!seedMarker) return { inserted: 0, alreadyApplied: true };
+
+    const existingProducts = await tx.select({
+      name: products.name,
+      sortOrder: products.sortOrder,
+    }).from(products);
+    const existingNames = new Set(
+      existingProducts.map(product => product.name.trim().toLocaleLowerCase("fr")),
+    );
+    const offersToInsert = equinorInitialOffers.filter(
+      offer => !existingNames.has(offer.name.toLocaleLowerCase("fr")),
+    );
+    const firstSortOrder = existingProducts.reduce(
+      (highest, product) => Math.max(highest, product.sortOrder),
+      -1,
+    ) + 1;
+
+    if (offersToInsert.length > 0) {
+      await tx.insert(products).values(offersToInsert.map((offer, index) => ({
+        name: offer.name,
+        price: offer.price,
+        dailyEarnings: offer.dailyEarnings,
+        cycleDays: offer.cycleDays,
+        totalReturn: offer.dailyEarnings * offer.cycleDays,
+        imageUrl: offer.imageUrl,
+        isFree: false,
+        isActive: offer.isActive,
+        sortOrder: firstSortOrder + index,
+      })));
+    }
+
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, productCatalogSeedKey));
+
+    return { inserted: offersToInsert.length, alreadyApplied: false };
+  });
+  if (initialOffersResult.alreadyApplied) {
+    console.log("Initial product offers skipped — bootstrap already applied");
+  } else {
+    console.log(`Initial product offers added: ${initialOffersResult.inserted}; existing products preserved`);
+  }
 
   // Seed tasks only if table is empty (first install only — never overwrite admin changes)
   const existingTasks = await db.select().from(tasks);

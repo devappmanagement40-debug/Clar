@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { equinorInitialOffers } from "@shared/equinor-initial-offers";
 import { Edit, Loader2, TrendingUp, Plus, Trash2 } from "lucide-react";
 import type { Product } from "@shared/schema";
 
@@ -37,73 +38,6 @@ const productSchema = z.object({
 });
 
 type ProductForm = z.infer<typeof productSchema>;
-
-const equinorPreviewProducts = [
-  {
-    name: "Énergie Essentielle",
-    price: 3500,
-    dailyEarnings: 800,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-platform.jpg",
-    isActive: true,
-  },
-  {
-    name: "Énergie Plus",
-    price: 10000,
-    dailyEarnings: 2550,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-rig.jpg",
-    isActive: true,
-  },
-  {
-    name: "Énergie Premium",
-    price: 20000,
-    dailyEarnings: 5200,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/equinor-brand.jpg",
-    isActive: true,
-  },
-  {
-    name: "Énergie Horizon",
-    price: 5000,
-    dailyEarnings: 1200,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-platform.jpg",
-    isActive: false,
-  },
-  {
-    name: "Énergie Atlas",
-    price: 15000,
-    dailyEarnings: 3800,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-rig.jpg",
-    isActive: false,
-  },
-  {
-    name: "Énergie Performance",
-    price: 25000,
-    dailyEarnings: 6500,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/equinor-brand.jpg",
-    isActive: false,
-  },
-  {
-    name: "Énergie Excellence",
-    price: 50000,
-    dailyEarnings: 13000,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-platform.jpg",
-    isActive: false,
-  },
-  {
-    name: "Énergie Signature",
-    price: 100000,
-    dailyEarnings: 26000,
-    cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-rig.jpg",
-    isActive: false,
-  },
-] as const;
 
 export default function AdminProducts() {
   const { toast } = useToast();
@@ -145,16 +79,16 @@ export default function AdminProducts() {
     },
   });
 
-  const previewProductsMutation = useMutation({
+  const initialOffersMutation = useMutation({
     mutationFn: async () => {
       if (!products) throw new Error("Le catalogue n’est pas encore chargé.");
 
       const existingNames = new Set(products.map(product => product.name.trim().toLocaleLowerCase("fr")));
-      const productsToCreate = equinorPreviewProducts.filter(
+      const productsToCreate = equinorInitialOffers.filter(
         product => !existingNames.has(product.name.toLocaleLowerCase("fr")),
       );
       if (productsToCreate.length === 0) {
-        return { created: 0, alreadyPresent: equinorPreviewProducts.length };
+        return { created: 0, alreadyPresent: equinorInitialOffers.length };
       }
 
       const nextSortOrder = products.reduce((highest, product) => Math.max(highest, product.sortOrder), -1) + 1;
@@ -173,7 +107,7 @@ export default function AdminProducts() {
 
       return {
         created: productsToCreate.length,
-        alreadyPresent: equinorPreviewProducts.length - productsToCreate.length,
+        alreadyPresent: equinorInitialOffers.length - productsToCreate.length,
       };
     },
     onSuccess: ({ created, alreadyPresent }) => {
@@ -385,17 +319,17 @@ export default function AdminProducts() {
           <Button
             type="button"
             variant="outline"
-            disabled={!products || isLoading || previewProductsMutation.isPending}
+            disabled={!products || isLoading || initialOffersMutation.isPending}
             onClick={() => {
               if (window.confirm(
                 "Ajouter les huit fiches ? Les trois premières seront actives et achetables. Les cinq autres utiliseront des montants d’exemple et resteront inactives jusqu’à leur modification dans l’administration.",
               )) {
-                previewProductsMutation.mutate();
+                initialOffersMutation.mutate();
               }
             }}
-            data-testid="button-add-equinor-preview-products"
+            data-testid="button-add-initial-equinor-offers"
           >
-            {previewProductsMutation.isPending ? (
+            {initialOffersMutation.isPending ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Plus className="w-4 h-4 mr-2" />
