@@ -100,7 +100,6 @@ export default function RegisterPage() {
 
   return (
     <main className="auth-reference auth-register">
-      <img className="auth-background-fill" src={registerBackground} alt="" aria-hidden="true" />
       <img className="auth-background-image" src={registerBackground} alt="" aria-hidden="true" />
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="register-title">

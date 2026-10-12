@@ -84,7 +84,6 @@ export default function LoginPage() {
 
   return (
     <main className="auth-reference auth-login">
-      <img className="auth-background-fill" src={loginBackground} alt="" aria-hidden="true" />
       <img className="auth-background-image" src={loginBackground} alt="" aria-hidden="true" />
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="login-title">
