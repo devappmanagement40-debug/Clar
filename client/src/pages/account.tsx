@@ -134,7 +134,7 @@ export default function AccountPage() {
 
     if (isInstalled) {
       toast({
-        title: "ChargePoint est déjà installée",
+        title: "Equinor est déjà installée",
         description: "Vous pouvez ouvrir l’application depuis l’écran d’accueil de votre appareil.",
       });
       return;
@@ -150,7 +150,7 @@ export default function AccountPage() {
           outcome === "accepted"
             ? {
                 title: "Installation lancée",
-                description: "ChargePoint est en cours d’installation sur votre appareil.",
+                description: "Equinor est en cours d’installation sur votre appareil.",
               }
             : {
                 title: "Installation annulée",
@@ -171,7 +171,7 @@ export default function AccountPage() {
       /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     toast({
-      title: "Installer ChargePoint",
+      title: "Installer Equinor",
       description: isIos
         ? "Dans Safari, touchez Partager puis « Sur l’écran d’accueil »."
         : "Dans le menu de votre navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».",
@@ -455,7 +455,7 @@ export default function AccountPage() {
         <section className="cp-account-header" aria-label="Informations du compte">
           <div className="cp-profile-row">
             <div className="cp-profile-avatar">
-              <img src={chargepointLogo} alt="ChargePoint" />
+              <img src={chargepointLogo} alt="" />
             </div>
             <div className="cp-profile-copy">
               <p className="cp-account-phone">+{phonePrefix} {user.phone}</p>
@@ -485,10 +485,10 @@ export default function AccountPage() {
           ))}
         </section>
 
-        <section className="cp-account-promo" aria-label="Solutions ChargePoint">
+        <section className="cp-account-promo" aria-label="Présentation d'Equinor">
           <img src={chargepointPromo} alt="" />
           <div>
-            <strong>Solutions de recharge ChargePoint</strong>
+            <strong>Bienvenue chez Equinor</strong>
             <span>Des équipements pensés pour votre mobilité</span>
             <button type="button" onClick={() => navigate("/my-products")}>Voir mes produits achetés</button>
           </div>

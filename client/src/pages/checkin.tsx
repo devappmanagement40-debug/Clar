@@ -405,7 +405,7 @@ export default function CheckinPage() {
             <ChevronLeft aria-hidden="true" /><span>Retour</span>
           </button>
           <div className="brand">
-            <img src={chargepointLogo} alt="ChargePoint" />
+            <img src={chargepointLogo} alt="" />
             <span>Check-in</span>
           </div>
           <span className="topbar-badge">POINTAGE</span>
@@ -413,16 +413,16 @@ export default function CheckinPage() {
 
         <section className="hero" aria-label="Check-in quotidien">
           <div className="hero-art">
-            <img src={chargepointHero} alt="Bornes de recharge ChargePoint" />
+            <img src={chargepointHero} alt="" />
           </div>
           <div className="hero-copy">
-            <strong>ChargePoint</strong>
+            <strong>Equinor</strong>
             <span>Votre récompense quotidienne</span>
           </div>
         </section>
 
         <section className="earnings-card" aria-label="Revenus du check-in">
-          <div className="earnings-mark"><img src={chargepointLogo} alt="ChargePoint" /></div>
+          <div className="earnings-mark"><img src={chargepointLogo} alt="" /></div>
           <div>
             <p className="earned-total">{formatAmount(totalBonusClaimed)}</p>
             <p className="earned-heading">Bonus cumulé</p>
@@ -433,7 +433,7 @@ export default function CheckinPage() {
         <section className="reward-panel" aria-label="Récompense quotidienne">
           <h2 className="reward-heading">Récompense du <span>pointage quotidien</span></h2>
           <div className="reward-row">
-            <div className="reward-image"><img src={chargepointHero} alt="Solutions de recharge ChargePoint" /></div>
+            <div className="reward-image"><img src={chargepointHero} alt="" /></div>
             <div className="reward-copy">
               <p>Recevez une récompense chaque jour</p>
               <strong>20 à 50 {currency}</strong>
@@ -445,7 +445,7 @@ export default function CheckinPage() {
               <p className="stat-label">Jours de pointage</p>
             </div>
             <div className="stat">
-              <div className="stats-image"><img src={chargepointDevice} alt="Borne ChargePoint et application" /></div>
+              <div className="stats-image"><img src={chargepointDevice} alt="" /></div>
               <p className="stat-label">Activité récente</p>
             </div>
           </div>

@@ -46,7 +46,7 @@ const bannerSlides = [
   { image: electricBus, alt: "Bus électrique en charge" },
   { image: homeCharging, alt: "Recharge d'un véhicule à domicile" },
   { image: publicCharger, alt: "Bornes de recharge dans un espace public" },
-  { image: chargerProduct, alt: "Équipement de recharge ChargePoint" },
+  { image: chargerProduct, alt: "Équipement présenté sur la plateforme" },
 ] as const;
 
 const announcementLibrary = [
@@ -137,7 +137,7 @@ export default function HomePage() {
     <>
       <main className="cp-home">
         <div className="cp-shell">
-          <section className="cp-hero" aria-label="ChargePoint">
+          <section className="cp-hero" aria-label="Equinor">
             <div className="cp-hero-slides" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
               {bannerSlides.map(({ image, alt }, index) => (
                 <div className="cp-hero-slide" key={image} aria-hidden={index !== bannerIndex}>
@@ -170,7 +170,7 @@ export default function HomePage() {
             ))}
           </section>
 
-          <button className="cp-notice" type="button" onClick={() => setWelcomePopupOpen(true)} aria-label="Ouvrir les informations ChargePoint" aria-describedby="cp-notice-messages">
+          <button className="cp-notice" type="button" onClick={() => setWelcomePopupOpen(true)} aria-label="Ouvrir les informations Equinor" aria-describedby="cp-notice-messages">
             <span className="cp-notice-icon"><img src={noticeBell} alt="" width={26} height={26} /></span>
             <span className="cp-notice-marquee" aria-hidden="true">
               <span className="cp-notice-track">
@@ -246,9 +246,9 @@ export default function HomePage() {
             <img src={chargePointLogo} alt="" />
           </div>
           <div className="cp-dialog-copy">
-            <DialogTitle className="cp-dialog-title">Message de bienvenue ChargePoint</DialogTitle>
+            <DialogTitle className="cp-dialog-title">Message de bienvenue Equinor</DialogTitle>
             <DialogDescription className="cp-dialog-message">
-              Bienvenue sur ChargePoint. Avant toute opération, veuillez consulter les principales conditions applicables aux dépôts, aux retraits et aux bonus.
+              Bienvenue sur Equinor. Avant toute opération, veuillez consulter les principales conditions applicables aux dépôts, aux retraits et aux bonus.
             </DialogDescription>
             <ol className="cp-dialog-list">
               {popupRules.map((rule) => <li key={rule}>{rule}</li>)}

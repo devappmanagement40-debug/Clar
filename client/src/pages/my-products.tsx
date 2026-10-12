@@ -306,12 +306,12 @@ export default function MyProductsPage() {
 
       <div className="products-screen">
         <header className="products-header">
-          <img src={chargepointLogo} alt="ChargePoint" />
+          <img src={chargepointLogo} alt="" />
           <strong>Mes produits</strong>
         </header>
         <section className="products-hero" aria-label="Produits">
-          <img src={chargepointPromo} alt="Solutions de recharge ChargePoint" />
-          <div className="hero-copy"><strong>ChargePoint</strong><span>Vos produits achetés et leurs revenus</span></div>
+          <img src={chargepointPromo} alt="" />
+          <div className="hero-copy"><strong>Equinor</strong><span>Vos produits achetés et leurs revenus</span></div>
           <div className="stat-panel my my-only active" aria-label={`Revenus : ${formatStatAmount(totalUserEarnings)}`}>
             <span className="stat-value">{formatStatAmount(totalUserEarnings)}</span>
             <span className="stat-label">Revenus cumulés</span>
@@ -327,7 +327,7 @@ export default function MyProductsPage() {
               ) : allUserProducts.length === 0 ? (
                 <div className="empty">
                   <img src={emptyProductsIllustration} alt="Aucun produit acheté" />
-                  <p>Aucun produit ChargePoint acheté</p>
+                  <p>Aucun produit Equinor acheté</p>
                   <p className="text-sm text-gray-400">Achetez des produits pour commencer à gagner</p>
                 </div>
               ) : (

@@ -18,16 +18,16 @@ export default function AboutPage() {
 
         <div className="cp-about-body">
           <p className="cp-about-lead">
-            ChargePoint est une plateforme numérique créée en 2024 pour rendre les solutions de recharge, les produits connectés et les services associés plus simples, plus accessibles et plus transparents pour tous.
+            Equinor est une plateforme numérique qui rassemble les services, les opérations et les produits proposés dans un espace personnel simple d’accès.
           </p>
 
           <p>
-            Créée en 2024, ChargePoint s’adresse aux particuliers, aux professionnels et aux partenaires qui souhaitent accéder à une plateforme moderne, suivre leurs activités et découvrir des produits conçus pour générer une valeur progressive dans le temps.
+            Equinor s’adresse aux utilisateurs qui souhaitent accéder à une plateforme moderne, suivre leurs activités et consulter les informations liées aux produits disponibles.
           </p>
 
           <h2>Notre histoire</h2>
           <p>
-            ChargePoint est née d’une idée simple : les utilisateurs doivent pouvoir accéder à des services modernes depuis une seule plateforme, avec des informations compréhensibles et un accompagnement disponible à chaque étape. Dès sa création, la marque a été pensée autour d’une expérience mobile rapide, claire et adaptée aux besoins quotidiens.
+            Equinor repose sur une idée simple : les utilisateurs doivent pouvoir accéder à leurs services depuis une seule plateforme, avec des informations compréhensibles et un accompagnement disponible à chaque étape. L’expérience est conçue pour être claire et adaptée aux besoins quotidiens.
           </p>
           <p>
             Notre développement repose sur l’écoute des utilisateurs, l’amélioration continue de nos outils et la volonté de construire une relation durable avec notre communauté. Chaque évolution de la plateforme vise à faciliter l’accès aux produits, le suivi des activités et la compréhension des services proposés.
@@ -35,7 +35,7 @@ export default function AboutPage() {
 
           <h2>Notre mission</h2>
           <p>
-            La mission de ChargePoint est de rapprocher la technologie des utilisateurs. Nous voulons proposer un espace unique dans lequel chacun peut découvrir les solutions disponibles, consulter les informations importantes, suivre ses opérations et trouver rapidement de l’aide lorsqu’il en a besoin.
+            La mission d’Equinor est de proposer un espace unique dans lequel chacun peut découvrir les solutions disponibles, consulter les informations importantes, suivre ses opérations et trouver rapidement de l’aide lorsqu’il en a besoin.
           </p>
           <p>
             Nous travaillons pour que la technologie ne soit pas une source de complexité. Les parcours sont conçus avec des étapes simples, des indications visibles et des informations présentées dans un langage accessible, quel que soit le niveau d’expérience numérique de l’utilisateur.
@@ -43,7 +43,7 @@ export default function AboutPage() {
 
           <h2>Notre vision pour les investisseurs africains</h2>
           <p>
-            ChargePoint souhaite contribuer à un accès plus simple aux opportunités numériques pour les investisseurs africains. Notre vision est de créer une plateforme pensée pour les réalités locales, avec des parcours adaptés au téléphone, des moyens de paiement accessibles et des informations compréhensibles avant chaque décision.
+            Equinor souhaite contribuer à un accès plus simple aux services numériques, avec des parcours adaptés au téléphone, des moyens de paiement accessibles et des informations compréhensibles avant chaque décision.
           </p>
           <p>
             Nous voulons donner à chaque membre la possibilité de commencer progressivement, de suivre son activité et de mieux comprendre la manière dont un produit fonctionne. L’objectif n’est pas de promettre une richesse immédiate, mais de construire une expérience structurée dans laquelle l’utilisateur peut avancer avec des informations claires et une visibilité sur ses opérations.
@@ -51,7 +51,7 @@ export default function AboutPage() {
 
           <h2>Que se passe-t-il lorsqu’un produit est acheté ?</h2>
           <p>
-            Lorsqu’un investisseur achète un produit ChargePoint, l’achat est enregistré dans son espace personnel. Il peut ensuite retrouver le produit dans la section <strong>Mes produits achetés</strong>, avec les informations importantes : le prix du produit, la durée du cycle, le revenu quotidien prévu, le revenu total prévu, la date d’achat et l’évolution de son activité.
+            Lorsqu’un investisseur achète un produit, l’achat est enregistré dans son espace personnel. Il peut ensuite retrouver le produit dans la section <strong>Mes produits achetés</strong>, avec les informations importantes : le prix du produit, la durée du cycle, le revenu quotidien prévu, le revenu total prévu, la date d’achat et l’évolution de son activité.
           </p>
           <p>
             Chaque produit possède ses propres conditions. Une fois le produit activé, les revenus associés sont calculés selon le produit choisi, sa durée et les règles présentées au moment de l’achat. Les gains sont ensuite suivis dans l’espace personnel afin que l’investisseur puisse consulter l’évolution de ses revenus et l’état de son produit.
@@ -68,7 +68,7 @@ export default function AboutPage() {
           <h2>Ce que nous proposons</h2>
           <ul>
             <li>Une plateforme mobile pensée pour être simple à utiliser au quotidien.</li>
-            <li>Des solutions et produits liés à la recharge et aux équipements connectés.</li>
+            <li>Un catalogue de produits avec leurs conditions et informations associées.</li>
             <li>Un espace personnel pour consulter son solde, son historique et ses activités.</li>
             <li>Un suivi des produits acquis, de leur fonctionnement et des revenus associés lorsqu’ils sont applicables.</li>
             <li>Des moyens d’assistance et d’accompagnement pour répondre aux questions des utilisateurs.</li>
@@ -77,13 +77,13 @@ export default function AboutPage() {
 
           <h2>Nos objectifs</h2>
           <p>
-            Notre premier objectif est de rendre les services numériques plus accessibles en Afrique et dans les marchés où ChargePoint est disponible. Nous souhaitons développer des outils adaptés aux réalités locales, aux moyens de paiement utilisés par les communautés et aux habitudes des utilisateurs.
+            Notre premier objectif est de rendre les services numériques plus accessibles sur les marchés où Equinor est disponible. Nous souhaitons développer des outils adaptés aux réalités locales, aux moyens de paiement utilisés par les communautés et aux habitudes des utilisateurs.
           </p>
           <p>
             Nous voulons également continuer à améliorer la qualité de nos produits, renforcer la rapidité de notre assistance et offrir une meilleure visibilité sur chaque opération. La confiance se construit avec des informations claires, un historique compréhensible et des règles présentées avant chaque action importante.
           </p>
           <p>
-            À long terme, ChargePoint a pour ambition de devenir un espace de référence pour les solutions de recharge et les services numériques associés : une plateforme fiable, pratique et capable d’évoluer avec les besoins de ses utilisateurs.
+            À long terme, Equinor a pour ambition de proposer une plateforme fiable, pratique et capable d’évoluer avec les besoins de ses utilisateurs.
           </p>
 
           <h2>Nos engagements</h2>
@@ -98,10 +98,10 @@ export default function AboutPage() {
 
           <h2>Notre vision</h2>
           <p>
-            Nous imaginons un avenir dans lequel l’accès aux équipements, aux services de recharge et aux outils numériques ne dépend plus de parcours compliqués. ChargePoint veut contribuer à cette évolution en réunissant technologie, simplicité et accompagnement dans une même expérience.
+            Nous imaginons un avenir dans lequel l’accès aux services et aux outils numériques ne dépend plus de parcours compliqués. Equinor veut contribuer à cette évolution en réunissant simplicité et accompagnement dans une même expérience.
           </p>
           <p>
-            Merci de faire partie de l’aventure ChargePoint. Vos retours, vos suggestions et votre confiance nous aident à construire une plateforme plus utile, plus claire et plus proche des besoins réels de sa communauté.
+            Merci de faire partie de l’aventure Equinor. Vos retours, vos suggestions et votre confiance nous aident à construire une plateforme plus utile, plus claire et plus proche des besoins réels de sa communauté.
           </p>
         </div>
       </div>

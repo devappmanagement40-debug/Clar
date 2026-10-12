@@ -139,10 +139,10 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const usesChargePointShell = location === "/account" || location === "/about" || location === "/rules";
+  const usesEquinorShell = location === "/account" || location === "/about" || location === "/rules";
 
   return (
-    <div className={`min-h-screen ${usesChargePointShell ? "bg-white pb-0" : "bg-background pb-16"}`}>
+    <div className={`min-h-screen ${usesEquinorShell ? "bg-white pb-0" : "bg-background pb-16"}`}>
       {children}
       <BottomNav />
     </div>

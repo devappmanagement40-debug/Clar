@@ -10,7 +10,6 @@ import emptyIllustration from "@assets/illustration-8_1784762965573.png";
 import { useLocation } from "wouter";
 import type { Product } from "@shared/schema";
 
-import tonLogo  from "@assets/images_(25)_1787362424281.png";
 import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import productImg1 from "@assets/téléchargement_(16)_1784561452683.jpeg";
 import productImg2 from "@assets/téléchargement_(20)_1784561452229.jpeg";
@@ -80,8 +79,7 @@ export default function InvestPage() {
         style={{ background: "linear-gradient(135deg, #FF4500 0%, #E03E00 100%)" }}
       >
           <div className="flex items-center gap-2">
-            <img src={tonLogo} alt="Stone by ton" className="h-8 w-8 rounded-md object-contain" />
-            <span className="text-white text-sm font-bold">Stone by ton</span>
+            <span className="text-white text-sm font-bold">Equinor</span>
           </div>
         <button
           onClick={() => navigate("/service")}

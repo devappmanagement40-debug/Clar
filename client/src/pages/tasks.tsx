@@ -9,7 +9,6 @@ import { Link } from "wouter";
 import type { Task } from "@shared/schema";
 import jollibeeImg from "@assets/images_(55)_1786844134544.jpeg";
 import emptyIllustration from "@assets/illustration-8_1784762965573.png";
-import tonLogo from "@assets/images_(25)_1787362424281.png";
 import iconBronze from "@assets/344464_1773318022355.png";
 import iconArgent from "@assets/817729_1773318022328.png";
 import iconOr from "@assets/sac-argent-gros-tas-illustration-icone-argent-comptant-icone-p_1773318022388.jpg";
@@ -84,7 +83,7 @@ export default function TasksPage() {
       <div className="relative overflow-hidden" style={{ height: "260px" }}>
         <img
           src={jollibeeImg}
-          alt="Stone by ton"
+          alt="Visuel du programme de parrainage Equinor"
           className="w-full h-full object-cover object-center"
         />
         {/* Dark gradient overlay */}
@@ -105,8 +104,7 @@ export default function TasksPage() {
           </Link>
           <div className="flex-1 flex justify-center">
             <div className="flex items-center gap-2">
-              <img src={tonLogo} alt="Stone by ton" className="h-8 w-8 rounded-md object-contain" />
-              <span className="text-white text-sm font-bold">Stone by ton</span>
+              <span className="text-white text-sm font-bold">Equinor</span>
             </div>
           </div>
           <div className="w-9" />

@@ -1,13 +1,13 @@
 ---
-name: Page branding scope
-description: Scope of ChargePoint orange versus the legacy TON green styling.
+name: Page visual styling
+description: Existing page layout and color decisions that remain separate from the Equinor name.
 ---
 
-The previous TON green refresh is legacy styling on pages not yet rebranded. New pages redesigned from user-provided mockups use ChargePoint orange, including authentication and the home dashboard. The home dashboard should remain a compact application screen with a pure-white canvas, clearly separated functional sections, and its existing actions and live account data intact. Keep untouched pages in their existing styling; do not perform a global recolor.
+Existing page colors and layouts remain in place until the user requests a visual rebrand. The home dashboard should remain a compact application screen with a pure-white canvas, clearly separated functional sections, and its existing actions and live account data intact. Keep untouched pages in their existing styling; do not perform a global recolor based only on the Equinor name.
 
-**Why:** The user previously requested TON green outside the dashboard, but subsequently chose ChargePoint as the new company. They explicitly requested a ChargePoint version of a supplied home-page screenshot with a pure white background, superseding the earlier request to preserve the old dashboard design. They later emphasized that home should have the professional finish of registration without becoming a marketing page: it is an app under development.
+**Why:** The user selected Equinor as the product name but has not specified official colors or requested a visual redesign.
 
-**How to apply:** Use ChargePoint orange for newly requested redesigns, not a global theme change. On home, prefer white module backgrounds and spacing or borders between the banner and functional sections rather than colored page backgrounds; preserve routes and real values. Preserve older screens until explicitly requested.
+**How to apply:** Preserve existing styling unless the user requests a visual identity update. On home, prefer white module backgrounds and spacing or borders between the banner and functional sections; preserve routes and real values.
 
 For the home announcement banner, use a real transparent PNG image asset for its icon, rather than a CSS-drawn or inline-vector icon.
 

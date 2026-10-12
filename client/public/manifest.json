@@ -1,7 +1,7 @@
 {
-  "name": "ChargePoint",
-  "short_name": "ChargePoint",
-  "description": "ChargePoint, votre espace personnel pour accéder à vos services financiers.",
+  "name": "Equinor",
+  "short_name": "Equinor",
+  "description": "Equinor, votre espace personnel pour accéder à vos services.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -9,13 +9,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon.png?v=chargepoint",
+      "src": "/favicon.png?v=equinor",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/chargepoint-icon-512.png?v=chargepoint",
+      "src": "/chargepoint-icon-512.png?v=equinor",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

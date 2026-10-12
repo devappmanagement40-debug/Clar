@@ -70,19 +70,19 @@ export default function ServicePage() {
             </button>
           </Link>
           <div className="service-brand">
-            <img className="service-logo" src={chargepointLogo} alt="ChargePoint" />
+            <img className="service-logo" src={chargepointLogo} alt="" />
             <h1 className="service-title">Service client</h1>
           </div>
         </header>
 
-        <section className="benefits" aria-label="ChargePoint">
-          <img className="benefit-banner" src={chargepointPromo} alt="Solutions de recharge ChargePoint" />
+        <section className="benefits" aria-label="Présentation d'Equinor">
+          <img className="benefit-banner" src={chargepointPromo} alt="" />
         </section>
 
         <section className="telegram-section" aria-labelledby="support-heading">
-          <h2 id="support-heading" className="telegram-title">Assistance ChargePoint</h2>
+          <h2 id="support-heading" className="telegram-title">Assistance Equinor</h2>
           <div className="telegram-grid">
-            <img className="bike-image" src={chargepointDevice} alt="Borne de recharge ChargePoint" />
+            <img className="bike-image" src={chargepointDevice} alt="" />
             <div className="telegram-actions">
               {supportLinks.map((link) => (
                 <button key={link.testId} type="button" className={`telegram-link ${link.size}`} onClick={() => window.open(link.href, "_blank")} data-testid={link.testId}>

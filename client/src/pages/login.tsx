@@ -127,9 +127,9 @@ export default function LoginPage() {
 
       <div className="auth-screen">
         <section className="auth-panel">
-          <h1 className="auth-brand">ChargePoint</h1>
+          <h1 className="auth-brand">Equinor</h1>
           <div className="auth-illustration-frame" onContextMenu={(event) => event.preventDefault()} onDragStart={(event) => event.preventDefault()}>
-            <img className="auth-illustration" src={loginIllustration} alt="Borne domestique et station de recharge ChargePoint" draggable={false} />
+            <img className="auth-illustration" src={loginIllustration} alt="Illustration de présentation de la plateforme Equinor" draggable={false} />
           </div>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <input type="hidden" {...form.register("country")} />

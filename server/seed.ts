@@ -189,7 +189,7 @@ export async function seed() {
     { key: "groupType", value: "telegram" },
     { key: "groupLabel", value: "Groupe de discussion" },
     { key: "popupButtonLabel", value: "Cliquez ici pour rejoindre le groupe Telegram" },
-    { key: "noticeText", value: "Bienvenue sur Stone by ton ! Découvrez nos pierres naturelles, travertins, carrelages et parements muraux." },
+    { key: "noticeText", value: "Bienvenue sur Equinor ! Consultez les conditions des dépôts, retraits et bonus avant toute opération." },
     { key: "supportEnabled", value: "true" },
     { key: "support2Enabled", value: "true" },
     { key: "channelEnabled", value: "true" },

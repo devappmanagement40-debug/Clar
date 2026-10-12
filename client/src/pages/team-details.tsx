@@ -59,8 +59,8 @@ export default function TeamDetailsPage() {
   const demoInvested = selected.members.reduce((total, member) => total + (member.demoPreview?.totalInvested || 0), 0);
   const hasDemoMembers = selected.members.some(member => member.isDemo);
   const message = activeLevel === 1
-    ? "Bonjour ! Je suis votre parrain sur ChargePoint. Je voulais m'assurer que tout se passe bien pour vous. Si vous avez des questions sur l'inscription, les produits ou l'utilisation de l'application, dites-moi ce qui n'est pas clair. Je prendrai le temps de vous expliquer et de vous accompagner étape par étape. N'hésitez pas à m'écrire ici !"
-    : "Bonjour ! Je fais partie de votre équipe de parrainage sur ChargePoint. Je voulais m'assurer que tout se passe bien pour vous. Si vous avez des questions sur l'inscription, les produits ou l'utilisation de l'application, dites-moi ce qui n'est pas clair. Je prendrai le temps de vous expliquer et de vous accompagner étape par étape. N'hésitez pas à m'écrire ici !";
+    ? "Bonjour ! Je suis votre parrain sur Equinor. Je voulais m'assurer que tout se passe bien pour vous. Si vous avez des questions sur l'inscription, les produits ou l'utilisation de l'application, dites-moi ce qui n'est pas clair. Je prendrai le temps de vous expliquer et de vous accompagner étape par étape. N'hésitez pas à m'écrire ici !"
+    : "Bonjour ! Je fais partie de votre équipe de parrainage sur Equinor. Je voulais m'assurer que tout se passe bien pour vous. Si vous avez des questions sur l'inscription, les produits ou l'utilisation de l'application, dites-moi ce qui n'est pas clair. Je prendrai le temps de vous expliquer et de vous accompagner étape par étape. N'hésitez pas à m'écrire ici !";
 
   return (
     <main className="team-details-page">
@@ -70,7 +70,7 @@ export default function TeamDetailsPage() {
             <ChevronLeft aria-hidden="true" />
           </button>
           <h1 data-testid="text-page-title">Détails de l'équipe</h1>
-          <span>ChargePoint</span>
+          <span>Equinor</span>
         </header>
 
         <div className="team-details-content" aria-busy={isLoading || isFetching}>

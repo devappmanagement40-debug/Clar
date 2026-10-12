@@ -89,7 +89,7 @@ export default function RegisterPage() {
         password: data.password,
         invitationCode: data.invitationCode,
       });
-      toast({ title: "Inscription réussie !", description: "Bienvenue sur ChargePoint !" });
+      toast({ title: "Inscription réussie !", description: "Bienvenue sur Equinor !" });
       navigate("/");
     } catch (error: any) {
       toast({ title: "Inscription impossible", description: error.message || "Vérifiez vos informations et réessayez.", variant: "destructive" });
@@ -144,9 +144,9 @@ export default function RegisterPage() {
 
       <div className="auth-screen">
         <section className="auth-panel">
-          <h1 className="auth-title">ChargePoint</h1>
+          <h1 className="auth-title">Equinor</h1>
           <div className="auth-illustration-frame" onContextMenu={(event) => event.preventDefault()} onDragStart={(event) => event.preventDefault()}>
-            <img className="auth-illustration" src={registerIllustration} alt="Borne domestique et station de recharge ChargePoint" draggable={false} />
+            <img className="auth-illustration" src={registerIllustration} alt="Illustration de présentation de la plateforme Equinor" draggable={false} />
           </div>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <input type="hidden" {...form.register("country")} />

@@ -82,7 +82,7 @@ export default function GiftCodePage() {
           <h1>Échanger un cadeau</h1>
         </header>
         <div className="gift-banner">
-          <img className="gift-hero" src={chargepointPromo} alt="Plateforme ChargePoint et borne de recharge" data-testid="img-gift-banner" />
+          <img className="gift-hero" src={chargepointPromo} alt="" data-testid="img-gift-banner" />
         </div>
         <p className="gift-description">Vous pouvez obtenir un code cadeau dans le groupe</p>
         <a className="gift-telegram" href={settings?.groupLink || "https://t.me/sybotx"} target="_blank" rel="noreferrer">

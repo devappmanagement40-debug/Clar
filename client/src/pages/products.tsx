@@ -217,16 +217,16 @@ export default function ProductsPage() {
       <div className="cp-products-shell">
         <header className="cp-products-header">
           <div className="cp-products-brand">
-            <img src={chargepointLogo} alt="ChargePoint" />
+            <img src={chargepointLogo} alt="" />
             <strong>Produits</strong>
           </div>
           <button className="cp-products-service" onClick={() => navigate("/service")}>Service</button>
         </header>
 
-        <section className="cp-products-hero" aria-label="Catalogue ChargePoint">
+        <section className="cp-products-hero" aria-label="Catalogue Equinor">
           <img src={chargepointPromo} alt="" />
           <div className="cp-products-hero-copy">
-            <h1>Équipements ChargePoint</h1>
+            <h1>Produits Equinor</h1>
             <p>Choisissez un produit et commencez à recevoir vos revenus quotidiens.</p>
           </div>
         </section>

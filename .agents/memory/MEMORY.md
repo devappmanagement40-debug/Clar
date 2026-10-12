@@ -1,12 +1,11 @@
-- [Brand transition](vestas-platform.md) — ChargePoint is the new direction for authentication; other Stone by ton branding has not been explicitly replaced.
+- [Brand transition](vestas-platform.md) — Equinor is the current product name; official logo and colors are not yet specified.
 - [Deposit checkout routing](deposit-checkout-routing.md) — Clients must not choose payment aggregators; route automatically by country and keep provider names internal/admin-only.
 - [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).
 - [SendavaPay integration](sendavapay-integration.md) — Payin deposit flow: backend creates+initiates, user phone auto-used, OTP/redirect handled, webhook HMAC verified.
 - [Imported database setup](imported-database-setup.md) — Preserve an existing Replit session table when applying a first-run Drizzle schema.
 - [Plesk and GitHub](plesk-github-deployment.md) — Plesk deploys the committed dist build; Replit Git Provider auth is separate from the GitHub connector.
 - [Login privacy](login-privacy.md) — Do not persist passwords or phone numbers in browser storage; privacy scans classify remembered phone numbers as sensitive.
-- [Page branding scope](ton-green-theme.md) — Home is a pure-white ChargePoint app dashboard with separate functional sections; untouched legacy pages keep their styles.
-- [ChargePoint orange](chargepoint-brand.md) — Official brand orange is #FF7A14; use dark text for readable orange buttons.
+- [Page branding scope](ton-green-theme.md) — Keep existing page styling until the user supplies Equinor brand colors or asks for a visual rebrand.
 - [InPay callback classification](inpay-callbacks.md) — InPay payin and payout callbacks can both include order_number; classify using the merchant reference prefix first.
 - [InPay IP whitelist](inpay-ip-whitelist.md) — InPay rejects API calls with errno 5 until the server's public egress IP is whitelisted.
 - [AshtechPay Burkina flow](ashtechpay-burkina.md) — BF uses exact operator names and requires the returned reference on OTP retries.

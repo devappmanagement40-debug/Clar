@@ -1,5 +1,5 @@
-const CACHE_NAME = "chargepoint-v2";
-const STATIC_ASSETS = ["/", "/manifest.json", "/favicon.png?v=chargepoint", "/chargepoint-icon-512.png?v=chargepoint"];
+const CACHE_NAME = "equinor-v3";
+const STATIC_ASSETS = ["/", "/manifest.json", "/favicon.png?v=equinor", "/chargepoint-icon-512.png?v=equinor"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

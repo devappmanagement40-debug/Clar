@@ -42,8 +42,8 @@ export default function TeamPage() {
   if (!user) return null;
 
   const referralLink = `https://ellvpscc.site/html/register?code=${encodeURIComponent(user.referralCode)}`;
-  const referralMessage = `Rejoins mon équipe sur ChargePoint ! Inscris-toi avec mon lien de parrainage :\n${referralLink}\nMon code d'invitation : ${user.referralCode}`;
-  const referralText = "Rejoins mon équipe sur ChargePoint ! Inscris-toi avec mon lien de parrainage.";
+  const referralMessage = `Rejoins mon équipe sur Equinor ! Inscris-toi avec mon lien de parrainage :\n${referralLink}\nMon code d'invitation : ${user.referralCode}`;
+  const referralText = "Rejoins mon équipe sur Equinor ! Inscris-toi avec mon lien de parrainage.";
   const shareLinks = [
     { name: "WhatsApp", icon: whatsappIcon, url: `https://wa.me/?text=${encodeURIComponent(referralMessage)}` },
     { name: "Telegram", icon: telegramIcon, url: `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(`${referralText} Mon code d'invitation : ${user.referralCode}`)}` },
@@ -83,7 +83,7 @@ export default function TeamPage() {
             <ChevronLeft aria-hidden="true" />
           </button>
           <h1>Équipe</h1>
-          <span className="team-header-brand">ChargePoint</span>
+          <span className="team-header-brand">Equinor</span>
         </header>
 
         <div className="team-content" aria-busy={isLoading || isFetching}>
@@ -156,7 +156,7 @@ export default function TeamPage() {
           <section className="team-share" aria-label="Partager mon invitation">
             <h2>Partager</h2>
             <div className="team-share-body">
-              <p>Invite tes proches à rejoindre ton équipe ChargePoint.</p>
+              <p>Invite tes proches à rejoindre ton équipe Equinor.</p>
               <div className="team-share-links">
                 {shareLinks.map(target => (
                   <a

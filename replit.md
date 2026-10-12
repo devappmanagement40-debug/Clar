@@ -1,8 +1,8 @@
-# Stone by ton - Online Stone & Tile Platform
+# Equinor - Digital Services Platform
 
 ## Overview
 
-Stone by ton is a French company founded in 2013, based in Six-Fours-les-Plages in the Var. The platform presents a range of natural stone, travertine, tiles, and wall cladding for indoor and outdoor floors and walls.
+Equinor is the product name used by this application. The platform provides user accounts, product information, deposits, withdrawals, rewards, and referral features.
 
 ## User Preferences
 
