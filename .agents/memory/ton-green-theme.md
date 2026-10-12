@@ -3,11 +3,11 @@ name: Page visual styling
 description: Existing page layout and color decisions that remain separate from the Equinor name.
 ---
 
-The user requested a compact homepage layout based on their mobile reference while retaining the existing orange/white palette, account fields, quick actions, and fixed horizontal bottom navigation. Leave login and registration pages untouched. Treat the supplied screenshot as a layout reference only; keep existing homepage imagery until the user provides authorized replacement files. Do not imply Equinor affiliation.
+The user requested a compact homepage based on their mobile reference, with white card surfaces and a more visible generic red accent. Preserve live account fields, quick actions, and the fixed horizontal bottom navigation. Leave login and registration untouched. Treat supplied Equinor-branded pictures as color/layout references only; do not add their logo, photos, or affiliation claims.
 
-**Why:** The user explicitly asked to reuse the homepage structure while preserving the platform's current colors and fields; they also stated the financial platform is not authorized to present itself as Equinor.
+**Why:** The user now asked for white backgrounds and clearer card colors based on new references, but had previously said the financial platform is not authorized to present itself as Equinor.
 
-**How to apply:** Reorder the homepage without replacing live account values or action routes. Keep the current assets until authorized replacements arrive, and do not add Equinor marks or affiliation claims.
+**How to apply:** Use white surfaces and a generic red accent on homepage cards; preserve live values and routes. Keep current imagery until authorized independent-brand assets arrive.
 
 For the home announcement banner, use a real transparent PNG image asset for its icon, rather than a CSS-drawn or inline-vector icon.
 
@@ -15,11 +15,11 @@ For the home announcement banner, use a real transparent PNG image asset for its
 
 **How to apply:** Preserve the banner icon as an image element in future redesigns; CSS may size and position the image, but should not draw the icon itself.
 
-The four home action icons should follow the same native-image rule while preserving their established dark-line/orange-accent appearance.
+The four home action icons should follow the same native-image rule while their surrounding cards use the current white and generic-red palette.
 
-**Why:** The user asked to keep the prior visual style and only replace the implementation with transparent PNG assets.
+**Why:** The user requested more visible white cards and a red accent while preserving the platform's existing actions.
 
-**How to apply:** Use transparent PNGs for Dépôt, Retrait, Aide and Pointage; keep the dark outline and orange accent balance rather than recoloring the entire icon.
+**How to apply:** Keep the transparent PNG assets for Dépôt, Retrait, Aide and Pointage; apply palette updates to card surfaces and borders rather than substituting branded icons.
 
 The latest homepage reference shows small bullet separators in the scrolling activity strip; keep that strip display-only and separate from the account ledger.
 

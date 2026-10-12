@@ -6,7 +6,7 @@
 - [Imported database setup](imported-database-setup.md) — Whitelist app tables, preserve `session`, and remember Drizzle push `--verbose` still applies changes.
 - [Plesk and GitHub](plesk-github-deployment.md) — Plesk deploys the committed dist build; Replit Git Provider auth is separate from the GitHub connector.
 - [Login privacy](login-privacy.md) — Do not persist passwords or phone numbers in browser storage; privacy scans classify remembered phone numbers as sensitive.
-- [Page branding scope](ton-green-theme.md) — Keep existing page styling until the user supplies Equinor brand colors or asks for a visual rebrand.
+- [Page branding scope](ton-green-theme.md) — Home cards use white surfaces with a generic red accent; leave auth pages untouched and avoid Equinor assets or affiliation claims.
 - [InPay callback classification](inpay-callbacks.md) — InPay payin and payout callbacks can both include order_number; classify using the merchant reference prefix first.
 - [InPay IP whitelist](inpay-ip-whitelist.md) — InPay rejects API calls with errno 5 until the server's public egress IP is whitelisted.
 - [AshtechPay Burkina flow](ashtechpay-burkina.md) — BF uses exact operator names and requires the returned reference on OTP retries.
