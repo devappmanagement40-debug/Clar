@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { ChevronLeft, ChevronRight, Copy, Share2, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Copy, Share2, X } from "lucide-react";
 import instagramIcon from "@assets/Instagram_icon_1787367952152.png";
 import facebookIcon from "@assets/images_(27)_1787367952249.png";
 import whatsappIcon from "@assets/images_(26)_1787367952281.png";
@@ -30,8 +30,7 @@ function formatNumber(value: number | undefined, loading: boolean) {
 }
 
 function formatRate(value: string | undefined) {
-  if (value === undefined || value === "") return "—";
-  return `${value}%`;
+  return value === undefined || value === "" ? "—" : `${value}%`;
 }
 
 export default function TeamPage() {
@@ -51,26 +50,36 @@ export default function TeamPage() {
   if (!user) return null;
 
   const referralLink = `${window.location.origin}/html/register?code=${encodeURIComponent(user.referralCode)}`;
-  const referralMessage = `Rejoins mon équipe sur Equinor ! Inscris-toi avec mon lien de parrainage :\n${referralLink}\nMon code d'invitation : ${user.referralCode}`;
-  const referralText = `Rejoins mon équipe sur Equinor ! Mon code d'invitation : ${user.referralCode}`;
-  const shareUrl = encodeURIComponent(referralLink);
-  const shareText = encodeURIComponent(referralText);
+  const referralMessage = `Rejoins mon équipe ! Voici mon lien d'invitation :\n${referralLink}\nMon code : ${user.referralCode}`;
+  const referralText = `Rejoins mon équipe ! Mon code d'invitation : ${user.referralCode}`;
+  const encodedLink = encodeURIComponent(referralLink);
+  const encodedText = encodeURIComponent(referralText);
+
+  const legacyCopy = (value: string) => {
+    const field = document.createElement("textarea");
+    field.value = value;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.opacity = "0";
+    document.body.appendChild(field);
+    try {
+      field.select();
+      if (!document.execCommand("copy")) throw new Error("Clipboard unavailable");
+    } finally {
+      document.body.removeChild(field);
+    }
+  };
 
   const copy = async (value: string, description: string) => {
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(value);
+        try {
+          await navigator.clipboard.writeText(value);
+        } catch {
+          legacyCopy(value);
+        }
       } else {
-        const field = document.createElement("textarea");
-        field.value = value;
-        field.setAttribute("readonly", "");
-        field.style.position = "fixed";
-        field.style.opacity = "0";
-        document.body.appendChild(field);
-        field.select();
-        const copied = document.execCommand("copy");
-        document.body.removeChild(field);
-        if (!copied) throw new Error("Clipboard unavailable");
+        legacyCopy(value);
       }
       toast({ title: `${description} copié` });
       return true;
@@ -83,7 +92,7 @@ export default function TeamPage() {
   const shareNatively = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Mon équipe Equinor", text: referralText, url: referralLink });
+        await navigator.share({ title: "Invitation à rejoindre mon équipe", text: referralText, url: referralLink });
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") return;
         await copy(referralMessage, "Message d'invitation");
@@ -110,92 +119,84 @@ export default function TeamPage() {
   ];
   const shareLinks = [
     { name: "WhatsApp", icon: whatsappIcon, url: `https://wa.me/?text=${encodeURIComponent(referralMessage)}` },
-    { name: "Telegram", icon: telegramIcon, url: `https://t.me/share/url?url=${shareUrl}&text=${shareText}` },
-    { name: "Facebook", icon: facebookIcon, url: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}` },
-    { name: "X", url: `https://x.com/intent/post?url=${shareUrl}&text=${shareText}` },
+    { name: "Telegram", icon: telegramIcon, url: `https://t.me/share/url?url=${encodedLink}&text=${encodedText}` },
+    { name: "Facebook", icon: facebookIcon, url: `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}&quote=${encodedText}` },
+    { name: "X", url: `https://x.com/intent/post?url=${encodedLink}&text=${encodedText}` },
   ];
 
   return (
     <main className="team-page">
       <div className="team-page-inner">
-        <header className="team-header">
-          <button type="button" className="team-back" onClick={() => navigate("/")} aria-label="Retour à l'accueil">
-            <ChevronLeft aria-hidden="true" />
-          </button>
-          <div className="team-heading">
-            <span>Votre réseau</span>
-            <h1>Équipe</h1>
-          </div>
-          <span className="team-wordmark">equinor<span>.</span></span>
-        </header>
-
         <div className="team-content" aria-busy={isLoading || isFetching}>
-          <section className="team-hero" aria-label="Votre équipe Equinor">
-            <img src="/images/equinor/products/offshore-platform.jpg" alt="Plateforme offshore Equinor au large" />
-            <div className="team-hero-shade" />
-            <div className="team-hero-copy">
-              <span className="team-kicker">Ensemble, plus loin</span>
-              <h2>Votre équipe.<br />Votre énergie.</h2>
-              <p>Invitez votre réseau et suivez sa progression, niveau par niveau.</p>
+          <section className="team-banner" aria-label="Votre réseau">
+            <img src="/images/equinor/products/offshore-platform.jpg" alt="Plateforme offshore au large" />
+            <div className="team-banner-shade" />
+            <div className="team-banner-copy">
+              <span>Mon réseau</span>
+              <h2>Créez votre équipe</h2>
             </div>
-            <span className="team-hero-mark" aria-hidden="true">E</span>
+            <span className="team-banner-rule" aria-hidden="true" />
           </section>
 
           <section className="team-invite" aria-label="Invitation">
-            <div className="team-section-heading">
-              <span className="team-index">01</span>
-              <div><span className="team-eyebrow">À partager</span><h2>Mon invitation</h2></div>
-            </div>
-            <div className="team-invite-row">
-              <div className="team-invite-text">
-                <p>Code d'invitation</p>
-                <strong data-testid="text-referral-code">{user.referralCode}</strong>
+            <div className="team-invite-heading">
+              <div>
+                <span className="team-eyebrow">Partagez en un clic</span>
+                <h2>Mon invitation</h2>
               </div>
-              <button type="button" className="team-copy" onClick={() => void copy(user.referralCode, "Code")} aria-label="Copier le code d'invitation" data-testid="button-copy-code">
-                <Copy aria-hidden="true" />
-                <span>Copier</span>
-              </button>
             </div>
-            <div className="team-invite-row">
-              <div className="team-invite-text">
-                <p>Lien d'invitation</p>
-                <strong className="team-invite-link" data-testid="text-referral-link">{referralLink}</strong>
+            <p className="team-invite-explainer">Partagez votre code ou votre lien pour inviter vos amis.</p>
+            <div className="team-invite-grid">
+              <div className="team-invite-row">
+                <div className="team-invite-text">
+                  <p>Code d'invitation</p>
+                  <strong data-testid="text-referral-code">{user.referralCode}</strong>
+                </div>
+                <button type="button" className="team-copy" onClick={() => void copy(user.referralCode, "Code")} aria-label="Copier le code d'invitation" data-testid="button-copy-code">
+                  <Copy aria-hidden="true" /><span>Copier</span>
+                </button>
               </div>
-              <button type="button" className="team-copy" onClick={() => void copy(referralLink, "Lien")} aria-label="Copier le lien d'invitation" data-testid="button-copy-link">
-                <Copy aria-hidden="true" />
-                <span>Copier</span>
-              </button>
+              <div className="team-invite-row">
+                <div className="team-invite-text">
+                  <p>Lien d'invitation</p>
+                  <strong className="team-invite-link" data-testid="text-referral-link">{referralLink}</strong>
+                </div>
+                <button type="button" className="team-copy" onClick={() => void copy(referralLink, "Lien")} aria-label="Copier le lien d'invitation" data-testid="button-copy-link">
+                  <Copy aria-hidden="true" /><span>Copier</span>
+                </button>
+              </div>
             </div>
           </section>
 
-          <section className="team-summary" aria-label="Statistiques de l'équipe">
-            <div className="team-summary-top">
-              <div>
-                <span className="team-eyebrow">02 / Vue d'ensemble</span>
-                <h2>Mon équipe<br />en chiffres</h2>
-              </div>
-              <div className="team-summary-total">
-                <strong>{formatNumber(totalMembers, isLoading)}</strong>
-                <span>Membres au total</span>
-              </div>
-            </div>
-            <div className="team-commission">
-              <span>Commissions générées</span>
-              <strong>{formatNumber(stats?.totalCommission, isLoading)}</strong>
-            </div>
-            <div className="team-network-stats">
+          <section className="team-summary" aria-label="Résumé de l'équipe">
+            <article className="team-summary-card">
+              <strong>{formatNumber(totalMembers, isLoading)}</strong>
+              <span>Total des membres</span>
+            </article>
+            <article className="team-summary-card team-summary-card-accent">
+              <strong>{formatNumber(stats?.totalCommission, isLoading)} <small>XOF</small></strong>
+              <span>Total des récompenses</span>
+            </article>
+          </section>
+
+          <details className="team-more-stats">
+            <summary>
+              <span>Autres statistiques du réseau</span>
+              <ChevronDown aria-hidden="true" />
+            </summary>
+            <div className="team-more-stats-grid">
               {networkStats.map((item) => (
-                <div className="team-network-stat" key={item.label}>
+                <div className="team-more-stat" key={item.label}>
                   <strong>{formatNumber(item.value, isLoading)}</strong>
                   <span>{item.label}</span>
                 </div>
               ))}
             </div>
-          </section>
+          </details>
 
           {!!stats?.demoMemberCount && (
             <p className="team-demo-note">
-              {stats.demoMemberCount} filleuls « Démo » sont inclus dans le nombre de membres. Les montants affichés ici restent les montants réels, sans les exemples fictifs.
+              {stats.demoMemberCount} membre{stats.demoMemberCount === 1 ? "" : "s"} de démonstration sont inclus dans le total des membres.
             </p>
           )}
 
@@ -208,69 +209,71 @@ export default function TeamPage() {
             </div>
           )}
 
-          <section className="team-levels" aria-label="Niveaux d'équipe">
-            <div className="team-section-heading team-level-heading">
-              <span className="team-index">03</span>
-              <div><span className="team-eyebrow">Votre réseau, en détail</span><h2>Les niveaux</h2></div>
-            </div>
-            <p className="team-explainer">Chaque niveau représente une génération de votre équipe. Consultez les membres et les commissions de chaque niveau.</p>
+          <section className="team-levels" aria-label="Niveaux de l'équipe">
+            <h2>Invitez votre réseau à rejoindre l'équipe</h2>
             {levels.map((level, index) => (
               <article className="team-level" key={level.label} data-testid={`vip-row-${index + 1}`}>
-                <div className="team-level-rail">
-                  <span>{level.label}</span>
-                  <i aria-hidden="true" />
-                </div>
-                <div className="team-level-main">
-                  <div className="team-level-topline">
-                    <h3>Niveau {index + 1}</h3>
+                <div className="team-level-rail">{level.label}</div>
+                <div className="team-level-content">
+                  <div className="team-level-metric">
+                    <strong>{formatRate(level.rate)}</strong>
+                    <span>Commission</span>
                   </div>
-                  <div className="team-level-data">
-                    <div><strong>{formatRate(level.rate)}</strong><span>Commission</span></div>
-                    <div><strong data-testid={`text-level${index + 1}-count`}>{formatNumber(level.count, isLoading)}</strong><span>Utilisateurs</span></div>
-                    <div><strong>{formatNumber(level.commission, isLoading)}</strong><span>Récompenses</span></div>
+                  <div className="team-level-metric">
+                    <strong data-testid={`text-level${index + 1}-count`}>{formatNumber(level.count, isLoading)}</strong>
+                    <span>Membres</span>
                   </div>
-                  <button type="button" className="team-level-open" onClick={() => navigate(`/team-details?level=${level.level}`)}>
-                    Voir les membres <ChevronRight aria-hidden="true" />
+                  <div className="team-level-metric">
+                    <strong>{formatNumber(level.commission, isLoading)} <small>XOF</small></strong>
+                    <span>Commissions</span>
+                  </div>
+                  <button type="button" className="team-level-open" onClick={() => navigate(`/team-details?level=${level.level}`)} aria-label={`Voir les membres du niveau ${level.level}`}>
+                    <span>Voir les membres</span><ChevronRight aria-hidden="true" />
                   </button>
                 </div>
               </article>
             ))}
           </section>
 
+          <p className="team-explainer">
+            Les taux affichés sont ceux en vigueur dans les paramètres de la plateforme. Ouvrez un niveau pour consulter la liste de ses membres.
+          </p>
+
           <section className="team-share" aria-label="Partager mon invitation">
-            <div className="team-section-heading">
-              <span className="team-index">04</span>
-              <div><span className="team-eyebrow">Faites passer le mot</span><h2>Partager</h2></div>
+            <div className="team-share-heading">
+              <div>
+                <span className="team-eyebrow">À vous de jouer</span>
+                <h2>Partager mon invitation</h2>
+              </div>
+              <button type="button" className="team-native-share" onClick={() => void shareNatively()} aria-label="Partager avec les options de votre appareil">
+                <Share2 aria-hidden="true" />
+              </button>
             </div>
-            <p className="team-share-intro">Une invitation suffit pour agrandir votre équipe.</p>
-            <button type="button" className="team-native-share" onClick={() => void shareNatively()}>
-              <Share2 aria-hidden="true" /><span>Partager mon invitation</span><ChevronRight aria-hidden="true" />
-            </button>
-            <div className="team-share-label">Ou choisir une application</div>
             <div className="team-share-links">
               {shareLinks.map((target) => (
                 <a key={target.name} href={target.url} target="_blank" rel="noopener noreferrer"
-                  aria-label={`Partager mon lien d'invitation sur ${target.name}`}
+                  aria-label={`Partager sur ${target.name}`}
                   data-testid={`share-${target.name.toLowerCase()}`}
-                  onClick={target.name === "Facebook" ? () => void copy(referralMessage, "Message de parrainage") : undefined}>
+                  onClick={target.name === "Facebook" ? () => void copy(referralMessage, "Message d'invitation") : undefined}>
                   {target.icon ? <img src={target.icon} alt="" /> : <X aria-hidden="true" />}
                   <span>{target.name}</span>
                 </a>
               ))}
               <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"
-                aria-label="Copier mon message d'invitation et ouvrir Instagram" data-testid="share-instagram"
+                aria-label="Copier mon invitation puis ouvrir Instagram" data-testid="share-instagram"
                 onClick={(event) => {
                   event.preventDefault();
-                  const copied = copy(referralMessage, "Message d'invitation");
-                  window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
-                  void copied;
+                  const instagramTab = window.open("about:blank", "_blank");
+                  if (instagramTab) instagramTab.opener = null;
+                  void copy(referralMessage, "Message d'invitation").then(() => {
+                    instagramTab?.location.replace("https://www.instagram.com/");
+                  });
                 }}>
                 <img src={instagramIcon} alt="" /><span>Instagram</span>
               </a>
             </div>
-            <p className="team-share-note">Instagram ne permet pas le partage direct depuis un site web : votre message est copié, collez-le dans l'application.</p>
+            <p className="team-share-note">Instagram ne prend pas en charge le partage web direct : copiez le message puis collez-le dans l'application.</p>
           </section>
-          <p className="team-footer-note">Votre réseau avance à son rythme. Retrouvez ici les données actualisées de votre équipe.</p>
         </div>
       </div>
     </main>
