@@ -96,7 +96,7 @@ body:has(.cp-home) { background: #fff !important; }
   display: block;
   max-width: 100%;
   overflow: hidden;
-  color: var(--cp-accent-deep);
+  color: #000;
   font: 600 clamp(17px, 4.6vw, 23px)/1.1 "Space Grotesk", sans-serif;
   letter-spacing: -.035em;
   text-overflow: ellipsis;
