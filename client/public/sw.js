@@ -1,4 +1,4 @@
-const CACHE_NAME = "equinor-v3";
+const CACHE_NAME = "equinor-v4";
 const STATIC_ASSETS = ["/", "/manifest.json", "/favicon.png?v=equinor", "/chargepoint-icon-512.png?v=equinor"];
 
 self.addEventListener("install", (event) => {
