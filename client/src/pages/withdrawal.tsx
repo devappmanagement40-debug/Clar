@@ -311,12 +311,12 @@ export default function WithdrawalPage() {
           padding: 0 10px;
           border: 1px solid #bd304c;
           border-radius: 999px;
-          background: #fff5f7;
-          color: #111827;
+          background: #bd304c;
+          color: #ffffff;
           font-size: 12px;
           font-weight: 700;
         }
-        .withdraw-reference .country-chip svg { color: #bd304c; }
+        .withdraw-reference .country-chip svg { color: #ffffff; }
         .withdraw-reference .amount-panel {
           box-sizing: border-box;
           min-height: 154px;
