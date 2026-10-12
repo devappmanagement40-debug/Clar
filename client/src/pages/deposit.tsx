@@ -5,7 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   ChevronLeft, Info, Copy, CheckCircle, Upload, Phone, Loader2,
-  ImageIcon, ArrowRight, Zap, RefreshCw, ExternalLink,
+  ImageIcon, ArrowRight, Zap, RefreshCw, ExternalLink, CreditCard, Check,
 } from "lucide-react";
 import { Link } from "wouter";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
@@ -278,6 +278,14 @@ export default function DepositPage() {
       (depositCountryPriority[first.code.toUpperCase()] ?? 2) -
       (depositCountryPriority[second.code.toUpperCase()] ?? 2),
     ) as Array<{ code: string; name: string; currency: string }>;
+  useEffect(() => {
+    if (depositCountry) return;
+    const preferredCountryCode = String(user?.country || "").toUpperCase();
+    const preferredCountry = activeDepositCountries.find(
+      item => item.code.toUpperCase() === preferredCountryCode,
+    );
+    if (preferredCountry) setDepositCountry(preferredCountry.code);
+  }, [depositCountry, loadedCountries, countriesError, user?.country]);
   const ashtechConfiguredCountryCodes = ashtechAvailable ? [country.toUpperCase()] : [];
 
   const { data: paymentNumbersList = [], isLoading: numbersLoading } = useQuery<PaymentNumber[]>({
@@ -999,7 +1007,7 @@ export default function DepositPage() {
         }
         .recharge-reference .amount-label {
           margin: 20px 0 9px;
-          color: #fff;
+          color: #111827;
           font-size: 16px;
           font-weight: 800;
         }
@@ -1032,23 +1040,65 @@ export default function DepositPage() {
         .recharge-reference .country-panel {
           margin: 14px 16px 0;
         }
-        .recharge-reference .country-panel label {
+        .recharge-reference .country-heading {
           display: block;
-          margin-bottom: 8px;
+          margin: 0 0 10px;
           color: #111827;
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 800;
         }
-        .recharge-reference .country-panel select {
+        .recharge-reference .country-options {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .recharge-reference .country-option {
+          display: flex;
           width: 100%;
-          min-height: 52px;
-          padding: 0 14px;
+          min-height: 54px;
+          align-items: center;
+          gap: 12px;
+          padding: 9px 14px;
           border: 2px solid #111827;
           border-radius: 12px;
-          outline: 0;
           background: #fff;
-          color: #4b5563;
-          font-size: 14px;
+          color: #111827;
+          text-align: left;
+          font-size: 15px;
+          font-weight: 750;
+          box-shadow: 0 3px 0 #111827;
+          transition: transform 120ms ease, background-color 120ms ease, color 120ms ease;
+        }
+        .recharge-reference .country-option:active {
+          transform: translateY(2px);
+          box-shadow: 0 1px 0 #111827;
+        }
+        .recharge-reference .country-option-icon {
+          display: grid;
+          width: 30px;
+          height: 30px;
+          flex: 0 0 30px;
+          place-items: center;
+          border: 1.5px solid #d1d5db;
+          border-radius: 8px;
+          color: ${TON_GREEN};
+        }
+        .recharge-reference .country-option-name {
+          flex: 1;
+          min-width: 0;
+        }
+        .recharge-reference .country-option.is-selected {
+          border-color: #111827;
+          background: ${TON_GRADIENT};
+          color: #fff;
+        }
+        .recharge-reference .country-option.is-selected .country-option-icon {
+          border-color: rgb(255 255 255 / 70%);
+          color: #fff;
+        }
+        .recharge-reference .country-option-check {
+          flex: 0 0 auto;
+          color: #fff;
         }
         .recharge-reference .continue {
           display: flex;
@@ -1060,7 +1110,7 @@ export default function DepositPage() {
           border: 2px solid #111827;
           border-radius: 12px;
           background: ${TON_GRADIENT};
-          color: #111827;
+          color: #fff;
           font-size: 16px;
           font-weight: 800;
           box-shadow: 0 4px 0 #111827;
@@ -1171,18 +1221,32 @@ export default function DepositPage() {
           </label>
         </section>
 
-        <section className="country-panel" aria-label="Pays du paiement">
-          <label htmlFor="deposit-country">Pays du paiement</label>
-          <select
-            id="deposit-country"
-            value={depositCountry}
-            onChange={(event) => setDepositCountry(event.target.value)}
-          >
-            <option value="">Sélectionnez un pays</option>
-            {activeDepositCountries.map((item) => (
-              <option key={item.code} value={item.code}>{item.name} ({item.currency})</option>
-            ))}
-          </select>
+        <section className="country-panel" aria-label="Pays et institutions de recharge">
+          <h2 className="country-heading">Méthode de recharge</h2>
+          <div className="country-options" role="group" aria-label="Choisir le pays de recharge">
+            {activeDepositCountries.map((item) => {
+              const isSelected = depositCountry === item.code;
+              return (
+                <button
+                  key={item.code}
+                  type="button"
+                  className={`country-option${isSelected ? " is-selected" : ""}`}
+                  aria-pressed={isSelected}
+                  onClick={() => setDepositCountry(item.code)}
+                  data-testid={`deposit-country-${item.code.toLowerCase()}`}
+                >
+                  <span className="country-option-icon" aria-hidden="true">
+                    <CreditCard className="h-5 w-5" />
+                  </span>
+                  <span className="country-option-name">{item.name}</span>
+                  {isSelected && <Check className="country-option-check h-5 w-5" aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+          {activeDepositCountries.length === 0 && !countriesError && (
+            <p className="text-sm text-gray-600">Aucun pays de dépôt n’est disponible pour le moment.</p>
+          )}
           {countriesError && <p className="mt-2 text-xs text-amber-700">Liste locale temporaire affichée.</p>}
           {depositCountry && !depositMethodsLoading &&
             (depositMethodsError || depositMethods.length === 0 || depositMethods.length > 1) && (
