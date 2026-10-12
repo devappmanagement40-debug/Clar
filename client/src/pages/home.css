@@ -10,7 +10,7 @@
   --cp-paper: #fff;
   --cp-line: #ece8e9;
   min-height: 100dvh;
-  padding: 0 0 calc(82px + env(safe-area-inset-bottom));
+  padding: 0 0 calc(60px + env(safe-area-inset-bottom));
   background: #fff !important;
   color: var(--cp-ink);
   font-family: "DM Sans", sans-serif;
@@ -21,7 +21,7 @@ body:has(.cp-home) { background: #fff !important; }
 .cp-shell {
   width: min(100%, 520px);
   margin: 0 auto;
-  padding: 0 0 24px;
+  padding: 0 0 8px;
   background: #fff;
 }
 
