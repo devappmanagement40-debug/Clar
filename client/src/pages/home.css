@@ -203,7 +203,7 @@ body:has(.cp-home) { background: #fff !important; }
 }
 .cp-notice-track { display: flex; width: max-content; animation: cp-notice-scroll 27s linear infinite; }
 .cp-notice-group { display: flex; flex: none; align-items: center; }
-.cp-notice-item { display: inline-flex; flex: none; align-items: center; gap: 14px; margin-right: 14px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.cp-notice-item { display: inline-flex; flex: none; align-items: center; gap: 14px; margin-right: 14px; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .cp-notice-separator { width: 4px; height: 4px; border-radius: 50%; background: var(--cp-accent); }
 @keyframes cp-notice-scroll { to { transform: translateX(-50%); } }
 
