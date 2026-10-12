@@ -3,10 +3,10 @@ name: Equinor product name
 description: Current product naming decision and remaining brand-identity constraints.
 ---
 
-The user confirmed this deposits-and-investments platform is not authorized to use Equinor. Use an independent brand instead; its name has not yet been provided. Do not use Equinor’s name, logo, official photos, or visual treatment in a way that implies affiliation.
+The user later asked to keep the existing Equinor name and leave login/registration unchanged, while still not confirming authorization to present this deposits-and-investments platform as Equinor. Until clarified, do not source official Equinor imagery or imply an affiliation. The user chose to wait and send images they are authorized to use.
 
-**Why:** The user explicitly selected an independent brand when asked whether the financial platform was authorized to present itself as Equinor.
+**Why:** The user selected waiting for authorized image files after clarifying the platform's current visual scope.
 
-**How to apply:** Ask for the independent brand name before changing app text or logos. Use user-supplied images only when they have rights to use them; otherwise create neutral energy imagery without Equinor marks. Preserve real payment-provider and operator icons.
+**How to apply:** Leave login and registration pages untouched. Do not download Equinor photos/logos or add claims of affiliation. Wait for the user's authorized images before replacing other decorative site imagery; preserve real payment-provider and operator icons.
 
 The previously supplied Equinor login and registration photos must not be treated as authorized brand assets for this financial platform.

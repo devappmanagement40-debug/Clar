@@ -1,4 +1,4 @@
-- [Brand transition](vestas-platform.md) — The financial platform must use an independent brand; its new name is pending, and Equinor assets are not authorized.
+- [Brand transition](vestas-platform.md) — Leave login/registration unchanged; wait for authorized user images and do not add official Equinor assets or affiliation claims.
 - [New application transition](new-application-transition.md) — Treat the rebuild as a fresh application; preserve Supabase-managed schemas and confirm before further destructive changes.
 - [Deposit checkout routing](deposit-checkout-routing.md) — Clients must not choose payment aggregators; route automatically by country and keep provider names internal/admin-only.
 - [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).
