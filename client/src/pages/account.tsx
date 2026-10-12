@@ -121,7 +121,7 @@ export default function AccountPage() {
 
   const serviceItems = [
     { label: "À propos", icon: Info, href: "/about" },
-    { label: "Réglementation", icon: ScrollText, href: "/rules" },
+    { label: "Bon à savoir", icon: ScrollText, href: "/rules" },
     { label: "Historique", icon: History, href: "/history" },
     { label: "Service client", icon: Headset, href: "/service" },
     { label: "Télécharger l’application", icon: Download, action: "download" as const },
