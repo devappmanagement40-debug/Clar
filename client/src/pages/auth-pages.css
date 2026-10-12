@@ -281,3 +281,91 @@
     );
   }
 }
+
+/* Equinor palette for the login and registration country picker. */
+.auth-reference .country-picker-overlay {
+  background: rgb(38 8 15 / 62%);
+}
+
+.auth-reference .country-picker {
+  border: 1px solid rgb(255 255 255 / 82%);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgb(0 0 0 / 32%);
+  font-family: Roboto, "Segoe UI", sans-serif;
+}
+
+.auth-reference .country-picker-header {
+  padding: 13px 15px;
+  background: var(--equinor-auth-red);
+}
+
+.auth-reference .country-picker-header h2 {
+  color: #fff;
+  font: 700 18px/1.3 Roboto, "Segoe UI", sans-serif;
+}
+
+.auth-reference .country-picker-close {
+  border-radius: 9px;
+  background: rgb(255 255 255 / 16%);
+  color: #fff;
+}
+
+.auth-reference .country-picker-close:hover {
+  background: rgb(255 255 255 / 27%);
+}
+
+.auth-reference .country-picker-search {
+  border-color: #ded0d3;
+  background: #fff;
+}
+
+.auth-reference .country-picker-search:focus-within {
+  border-color: var(--equinor-auth-red);
+  box-shadow: 0 0 0 2px rgb(212 0 48 / 16%);
+}
+
+.auth-reference .country-picker-search svg {
+  color: #777;
+}
+
+.auth-reference .country-picker-search input {
+  color: #272727;
+  font: 400 15px Roboto, "Segoe UI", sans-serif;
+}
+
+.auth-reference .country-picker-search input::placeholder {
+  color: #858585;
+}
+
+.auth-reference .country-picker-list {
+  scrollbar-color: var(--equinor-auth-red) transparent;
+}
+
+.auth-reference .country-picker-row {
+  color: #272727;
+  font: 500 15px/1.2 Roboto, "Segoe UI", sans-serif;
+}
+
+.auth-reference .country-picker-row:hover,
+.auth-reference .country-picker-row:focus-visible {
+  background: #fff3f5;
+}
+
+.auth-reference .country-picker-row.is-selected {
+  background: #fde8ed;
+  color: #ad0028;
+}
+
+.auth-reference .country-picker-prefix {
+  color: #777;
+}
+
+.auth-reference .country-picker-check {
+  color: var(--equinor-auth-red);
+}
+
+.auth-reference .country-picker-empty {
+  color: #777;
+  font: 400 14px Roboto, "Segoe UI", sans-serif;
+}
