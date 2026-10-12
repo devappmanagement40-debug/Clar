@@ -18,11 +18,6 @@ import homeCharging from "@assets/banner-filtered/home-charging.jpg";
 import publicCharger from "@assets/banner-filtered/public-charger.jpg";
 import chargerProduct from "@assets/banner-filtered/charger-product.jpg";
 
-interface Withdrawal {
-  amount: string;
-  status: string;
-}
-
 const quickActions = [
   { label: "Dépôt", href: "/deposit", icon: depositIcon },
   { label: "Retrait", href: "/withdrawal", icon: withdrawalIcon },
@@ -57,10 +52,6 @@ export default function HomePage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const { data: settings } = useQuery<Record<string, string>>({ queryKey: ["/api/settings"] });
-  const { data: withdrawals } = useQuery<Withdrawal[]>({
-    queryKey: ["/api/withdrawals/history"],
-    enabled: !!user,
-  });
   const [welcomePopupOpen, setWelcomePopupOpen] = useState(false);
   const [bannerIndex, setBannerIndex] = useState(0);
 
@@ -104,8 +95,6 @@ export default function HomePage() {
     `Bonus de pointage quotidien : de ${formatPopupMoney(20)} à ${formatPopupMoney(50)}, disponible une fois toutes les 24 heures.`,
     "Avant de confirmer une demande, vérifiez les coordonnées du portefeuille et le montant net affiché.",
   ];
-  const withdrawnTotal = withdrawals?.filter((item) => item.status === "approved")
-    .reduce((sum, item) => sum + (Number.parseFloat(item.amount) || 0), 0);
   const groupLink = settings?.groupLink || "";
   const popupButtonLabel = "Rejoindre le groupe d’entraide";
 
@@ -152,11 +141,6 @@ export default function HomePage() {
                 <strong data-testid="text-total-earnings">{formatMoney(totalEarnings)}</strong>
                 <span className="cp-stat-label">Revenus cumulés</span>
               </article>
-            </div>
-            <div className="cp-withdrawn-summary">
-              <span>Retraits approuvés</span>
-              <strong>{withdrawnTotal === undefined ? "—" : formatMoney(withdrawnTotal)}</strong>
-              {withdrawnTotal === undefined && <small>Historique indisponible</small>}
             </div>
           </section>
 

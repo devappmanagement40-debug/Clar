@@ -210,19 +210,6 @@
   white-space: nowrap;
 }
 
-.cp-withdrawn-summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  margin-top: 9px;
-  color: var(--cp-muted);
-  font-size: 10px;
-}
-.cp-withdrawn-summary strong { color: var(--cp-orange-deep); font-size: 11px; }
-.cp-withdrawn-summary small { flex-basis: 100%; text-align: center; }
-
 .cp-notice {
   display: flex;
   width: calc(100% - 24px);
