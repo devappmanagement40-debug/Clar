@@ -1091,7 +1091,7 @@ export default function DepositPage() {
           border: 1.5px solid #eab1be;
           border-radius: 10px;
           background: #fff0f3;
-          color: #bd304c;
+          color: ${TON_GREEN};
         }
         .recharge-reference .country-option-name {
           flex: 1;
@@ -1099,13 +1099,13 @@ export default function DepositPage() {
         }
         .recharge-reference .country-option.is-selected {
           border-color: #111827;
-          background: #bd304c;
+          background: ${TON_GRADIENT};
           color: #fff;
         }
         .recharge-reference .country-option.is-selected .country-option-icon {
-          border-color: rgba(255, 255, 255, .55);
-          background: rgba(255, 255, 255, .15);
-          color: #fff;
+          border-color: #fff;
+          background: #fff;
+          color: ${TON_GREEN_DARK};
         }
         .recharge-reference .country-option-check {
           flex: 0 0 auto;
@@ -1115,7 +1115,7 @@ export default function DepositPage() {
           padding: 3px;
           border-radius: 50%;
           background: #fff;
-          color: #bd304c;
+          color: ${TON_GREEN_DARK};
         }
         .recharge-reference .continue {
           display: flex;
