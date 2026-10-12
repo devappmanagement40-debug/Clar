@@ -596,7 +596,7 @@ export default function WithdrawalPage() {
           className="submit"
           data-testid="button-submit-withdrawal"
         >
-          {withdrawMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Retirer l'argent maintenant"}
+          {withdrawMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Valider mon retrait"}
         </button>
 
         <section className="instructions" aria-label="Instructions de retrait">
