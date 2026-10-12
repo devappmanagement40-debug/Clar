@@ -235,10 +235,6 @@ export default function TeamPage() {
             ))}
           </section>
 
-          <p className="team-explainer">
-            Les taux affichés sont ceux en vigueur dans les paramètres de la plateforme. Ouvrez un niveau pour consulter la liste de ses membres.
-          </p>
-
           <section className="team-share" aria-label="Partager mon invitation">
             <div className="team-share-heading">
               <div>
