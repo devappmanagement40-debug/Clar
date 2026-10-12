@@ -917,7 +917,7 @@ export default function DepositPage() {
         }
         .recharge-reference .account-summary {
           display: flex;
-          min-height: 116px;
+          min-height: 132px;
           align-items: center;
           justify-content: space-between;
           gap: 12px;
@@ -961,17 +961,25 @@ export default function DepositPage() {
           white-space: nowrap;
         }
         .recharge-reference .amount-panel {
-          padding: 22px 18px 18px;
+          padding: 32px 18px 18px;
           background: #fff;
         }
         .recharge-reference .preset-row {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
+          display: flex;
+          overflow-x: auto;
           gap: 8px;
-          margin-top: 14px;
+          margin-top: 10px;
+          overscroll-behavior-x: contain;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .recharge-reference .preset-row::-webkit-scrollbar {
+          display: none;
         }
         .recharge-reference .preset {
-          min-height: 44px;
+          min-width: 82px;
+          min-height: 42px;
+          flex: 0 0 82px;
           border: 1.5px solid #111827;
           border-radius: 999px;
           background: #f9fafb;
@@ -1002,7 +1010,7 @@ export default function DepositPage() {
         }
         .recharge-reference .amount-input {
           display: flex;
-          height: 56px;
+          height: 60px;
           align-items: center;
           overflow: hidden;
           border: 2px solid #111827;
@@ -1030,7 +1038,7 @@ export default function DepositPage() {
           font-weight: 800;
         }
         .recharge-reference .country-panel {
-          margin: 8px 18px 0;
+          margin: 15px 18px 0;
         }
         .recharge-reference .country-heading {
           display: block;
@@ -1047,7 +1055,7 @@ export default function DepositPage() {
         .recharge-reference .country-option {
           display: flex;
           width: 100%;
-          min-height: 54px;
+          min-height: 58px;
           align-items: center;
           gap: 12px;
           padding: 9px 14px;
@@ -1094,11 +1102,11 @@ export default function DepositPage() {
         }
         .recharge-reference .continue {
           display: flex;
-          width: calc(100% - 32px);
+          width: calc(100% - 36px);
           min-height: 57px;
           align-items: center;
           justify-content: center;
-          margin: 14px 16px 0;
+          margin: 24px 18px 0;
           border: 2px solid #111827;
           border-radius: 12px;
           background: ${TON_GRADIENT};
@@ -1115,7 +1123,7 @@ export default function DepositPage() {
           opacity: .55;
         }
         .recharge-reference .instructions {
-          margin: 18px 16px 24px;
+          margin: 18px 18px 24px;
           padding: 22px 16px 10px;
           border: 2px solid #111827;
           border-top: 5px solid ${TON_GREEN};
