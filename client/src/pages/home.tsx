@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { ChevronRight, Send, Info } from "lucide-react";
+import { ChevronRight, Send } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
 
@@ -127,10 +127,6 @@ export default function HomePage() {
           <section className="cp-overview" aria-labelledby="overview-title">
             <header className="cp-section-heading">
               <h2 id="overview-title">Mon compte</h2>
-              <button className="cp-info-button" type="button" onClick={() => setWelcomePopupOpen(true)}>
-                <Info size={16} aria-hidden="true" />
-                <span>Conditions</span>
-              </button>
             </header>
             <div className="cp-metrics">
               <button className="cp-balance" type="button" onClick={() => navigate("/wallet")} aria-label={`Voir le portefeuille, solde ${formatMoney(balance)}`}>

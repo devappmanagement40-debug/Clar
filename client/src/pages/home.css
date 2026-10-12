@@ -112,24 +112,6 @@
   letter-spacing: -.035em;
 }
 
-.cp-info-button {
-  position: absolute;
-  right: 0;
-  display: inline-flex;
-  min-height: 30px;
-  align-items: center;
-  gap: 4px;
-  border: 1px solid #f2d8c5;
-  border-radius: 9px;
-  padding: 0 7px;
-  background: #ffffff;
-  color: var(--cp-orange-deep);
-  font: 600 10px "DM Sans", sans-serif;
-  cursor: pointer;
-}
-
-.cp-info-button:hover { background: #ffefe2; }
-.cp-info-button:focus-visible,
 .cp-action:focus-visible,
 .cp-balance:focus-visible,
 .cp-hero-dots button:focus-visible {
