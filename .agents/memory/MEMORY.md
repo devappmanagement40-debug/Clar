@@ -11,7 +11,7 @@
 - [InPay IP whitelist](inpay-ip-whitelist.md) — InPay rejects API calls with errno 5 until the server's public egress IP is whitelisted.
 - [AshtechPay Burkina flow](ashtechpay-burkina.md) — BF uses exact operator names and requires the returned reference on OTP retries.
 - [Country availability](country-availability.md) — retire countries by deactivating them, not deleting historical records; confirm existing-account impact first.
-- [Fictitious financial examples](demo-referrals.md) — Keep home activity snippets display-only and separate from real balances; preserve the requested horizontal and vertical feeds.
+- [Fictitious financial examples](demo-referrals.md) — Keep home activity snippets display-only and separate from real balances; preserve the existing horizontal ticker.
 - [Dev workflow port conflict](workflow-port-conflict.md) — a failed restart can leave a prior server child listening on port 5000; inspect the listener before retrying.
 - [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits remain protected; only earnings, commissions, bonuses, and other non-deposit funds are withdrawable.
 - [VIP duration](vip-duration.md) — Product cycle length is admin-managed; startup code must never force a fixed duration.
