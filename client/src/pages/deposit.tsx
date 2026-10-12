@@ -4,14 +4,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ChevronLeft, Info, Copy, CheckCircle, Upload, Phone, Loader2,
-  ImageIcon, ArrowRight, Zap, RefreshCw, ExternalLink, CreditCard, Check,
+  ChevronLeft, Clock, Info, Copy, CheckCircle, Upload, Phone, Loader2,
+  ImageIcon, ArrowRight, Zap, RefreshCw, ExternalLink, CreditCard, Check, Wallet,
 } from "lucide-react";
 import { Link } from "wouter";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import type { PaymentNumber } from "@shared/schema";
-import { equinorLogo, equinorPlatform } from "@/assets/equinor-media";
 
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
 type DepositMethodChoice = { provider: DepositMethodId };
@@ -851,14 +850,16 @@ export default function DepositPage() {
   };
 
   if (!user) return null;
+  const parsedBalance = Number.parseFloat(user.balance || "0");
+  const accountBalance = Math.round(Number.isFinite(parsedBalance) ? parsedBalance : 0);
 
   // ── STEP 1: Amount ─────────────────────────────────────────────────────────
   if (step === "amount") return (
-    <main className="recharge-reference min-h-screen bg-[#faf6f7]">
+    <main className="recharge-reference min-h-screen bg-white">
       <style>{`
         .recharge-reference {
           min-height: 100dvh;
-          background: #fff7f8;
+          background: #fff;
           color: #111827;
           font-family: Inter, Arial, sans-serif;
         }
@@ -868,70 +869,40 @@ export default function DepositPage() {
           min-height: 100dvh;
           margin: 0 auto;
           overflow: hidden;
-          background: #fff7f8;
+          background: #fff;
         }
         .recharge-reference .recharge-hero {
           position: relative;
-          box-sizing: border-box;
-          height: 286px;
-          min-height: 0;
-          padding: 0 16px 20px;
-          background: #fff7f8;
-          border-bottom: 2px solid #111827;
-        }
-        .recharge-reference .recharge-hero-art {
-          position: relative;
-          width: 100%;
-          height: 166px;
-          overflow: hidden;
-          margin-top: 76px;
-          border: 2px solid #111827;
-          border-radius: 13px;
-          background: #fff;
-          box-shadow: 0 4px 0 #111827;
-        }
-        .recharge-reference .recharge-hero-art img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .recharge-reference .recharge-title {
-          position: absolute;
-          z-index: 2;
-          top: 20px;
-          right: 70px;
-          left: 70px;
           display: flex;
+          box-sizing: border-box;
+          height: 64px;
           align-items: center;
           justify-content: center;
-          gap: 9px;
+          padding: 0 58px;
+          background: #fff;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .recharge-reference .recharge-title {
           margin: 0;
           color: #111827;
           font-size: 20px;
           font-weight: 800;
           line-height: 1.2;
         }
-        .recharge-reference .recharge-title-logo {
-          width: 38px;
-          height: 38px;
-          border: 2px solid #111827;
-          border-radius: 50%;
-          object-fit: contain;
-        }
         .recharge-reference .history-button,
         .recharge-reference .recharge-back {
           position: absolute;
           z-index: 3;
-          top: 14px;
+          top: 10px;
           display: grid;
           width: 42px;
           height: 42px;
           place-items: center;
-          border: 2px solid #111827;
-          border-radius: 11px;
+          border: 0;
+          border-radius: 10px;
           padding: 0;
           background: #fff;
-          box-shadow: 0 3px 0 #111827;
+          color: ${TON_GREEN};
         }
         .recharge-reference .history-button {
           right: 16px;
@@ -941,62 +912,71 @@ export default function DepositPage() {
         }
         .recharge-reference .history-button:active,
         .recharge-reference .recharge-back:active {
-          transform: translateY(2px);
-          box-shadow: 0 1px 0 #111827;
+          color: ${TON_GREEN_DARK};
+          background: #fff7f8;
         }
-        .recharge-reference .history-icon {
-          position: relative;
-          width: 22px;
-          height: 25px;
-          border: 2px solid #111827;
-          border-radius: 4px;
-        }
-        .recharge-reference .history-icon::before {
-          position: absolute;
-          top: 5px;
-          left: 4px;
-          width: 11px;
-          height: 2px;
-          content: "";
-          background: ${TON_GREEN};
-          box-shadow: 0 6px 0 ${TON_GREEN};
-        }
-        .recharge-reference .history-icon::after {
-          position: absolute;
-          right: -7px;
-          bottom: -6px;
-          width: 10px;
-          height: 10px;
-          border: 2px solid #111827;
-          border-radius: 50%;
-          content: "";
+        .recharge-reference .account-summary {
+          display: flex;
+          min-height: 116px;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 20px 18px;
+          border-bottom: 1px solid #e5e7eb;
           background: #fff;
         }
-        .recharge-reference .recharge-back::before {
-          width: 13px;
-          height: 13px;
-          border-bottom: 3px solid #111827;
-          border-left: 3px solid #111827;
-          content: "";
-          transform: rotate(45deg) translate(2px, -2px);
+        .recharge-reference .balance-value {
+          margin: 0;
+          color: #111827;
+          font-size: 28px;
+          font-weight: 800;
+          line-height: 1.1;
+        }
+        .recharge-reference .balance-label {
+          margin: 8px 0 0;
+          color: #6b7280;
+          font-size: 14px;
+        }
+        .recharge-reference .country-chip {
+          display: flex;
+          max-width: 54%;
+          min-height: 42px;
+          align-items: center;
+          gap: 8px;
+          padding: 0 13px;
+          border: 1px solid #e5e7eb;
+          border-radius: 999px;
+          background: #fff7f8;
+          color: #111827;
+          font-size: 13px;
+          font-weight: 700;
+        }
+        .recharge-reference .country-chip-icon {
+          flex: 0 0 auto;
+          color: ${TON_GREEN};
+        }
+        .recharge-reference .country-chip-name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .recharge-reference .amount-panel {
-          min-height: 252px;
-          padding: 20px 16px 18px;
+          padding: 22px 18px 18px;
           background: #fff;
         }
         .recharge-reference .preset-row {
           display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 10px;
+          grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
+          gap: 8px;
+          margin-top: 14px;
         }
         .recharge-reference .preset {
-          height: 48px;
-          border: 2px solid #d1d5db;
-          border-radius: 11px;
-          background: #fff;
+          min-height: 44px;
+          border: 1.5px solid #111827;
+          border-radius: 999px;
+          background: #f9fafb;
           color: #24252a;
-          font-size: 15px;
+          font-size: 14px;
           font-weight: 800;
         }
         .recharge-reference .preset.active {
@@ -1006,10 +986,19 @@ export default function DepositPage() {
           box-shadow: 0 3px 0 #111827;
         }
         .recharge-reference .amount-label {
-          margin: 20px 0 9px;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: baseline;
+          gap: 4px 8px;
+          margin: 0 0 10px;
           color: #111827;
           font-size: 16px;
           font-weight: 800;
+        }
+        .recharge-reference .amount-minimum {
+          color: #6b7280;
+          font-size: 12px;
+          font-weight: 500;
         }
         .recharge-reference .amount-input {
           display: flex;
@@ -1022,6 +1011,7 @@ export default function DepositPage() {
         }
         .recharge-reference .amount-input input {
           width: 100%;
+          flex: 1;
           height: 100%;
           min-width: 0;
           padding: 0 14px;
@@ -1032,13 +1022,15 @@ export default function DepositPage() {
           font-size: 19px;
         }
         .recharge-reference .currency {
-          padding: 0 13px 0 0;
+          flex: 0 0 auto;
+          padding: 0 13px;
+          border-right: 1px solid #e5e7eb;
           color: #111827;
           font-size: 18px;
           font-weight: 800;
         }
         .recharge-reference .country-panel {
-          margin: 14px 16px 0;
+          margin: 8px 18px 0;
         }
         .recharge-reference .country-heading {
           display: block;
@@ -1163,62 +1155,73 @@ export default function DepositPage() {
         }
         .recharge-reference .instruction strong { color: #111827; font-weight: 800; }
         @media (max-width: 360px) {
-          .recharge-reference .recharge-hero { height: 270px; min-height: 0; padding-right: 12px; padding-left: 12px; }
-          .recharge-reference .recharge-hero-art { height: 150px; }
           .recharge-reference .history-button { right: 12px; }
           .recharge-reference .recharge-back { left: 12px; }
+          .recharge-reference .account-summary { padding-right: 12px; padding-left: 12px; }
+          .recharge-reference .balance-value { font-size: 24px; }
+          .recharge-reference .country-chip { padding: 0 9px; font-size: 12px; }
           .recharge-reference .amount-panel { padding-right: 12px; padding-left: 12px; }
           .recharge-reference .country-panel { margin-right: 12px; margin-left: 12px; }
           .recharge-reference .continue { width: calc(100% - 24px); margin-right: 12px; margin-left: 12px; }
-          .recharge-reference .preset-row { gap: 8px; }
-          .recharge-reference .preset { height: 44px; font-size: 11px; }
+          .recharge-reference .preset { font-size: 12px; }
           .recharge-reference .instruction { font-size: 15px; }
         }
       `}</style>
 
       <div className="recharge-screen">
-        <section className="recharge-hero" aria-label="Dépôt">
-          <div className="recharge-hero-art">
-            <img src={equinorPlatform} alt="" />
-          </div>
-          <h1 className="recharge-title">
-            <img className="recharge-title-logo" src={equinorLogo} alt="Equinor" />
-            <span>Dépôt</span>
-          </h1>
-          <Link href="/history">
-            <button className="history-button" aria-label="Historique des transactions">
-              <span className="history-icon" aria-hidden="true" />
+        <header className="recharge-hero" aria-label="Dépôt">
+          <h1 className="recharge-title">Recharge</h1>
+          <Link href="/account">
+            <button className="recharge-back" aria-label="Retour">
+              <ChevronLeft className="h-6 w-6" aria-hidden="true" />
             </button>
           </Link>
-          <Link href="/account">
-            <button className="recharge-back" aria-label="Retour" />
+          <Link href="/history">
+            <button className="history-button" aria-label="Historique des transactions">
+              <Clock className="h-5 w-5" aria-hidden="true" />
+            </button>
           </Link>
+        </header>
+
+        <section className="account-summary" aria-label="Solde et pays du compte">
+          <div>
+            <p className="balance-value">{currency} {accountBalance.toLocaleString("fr-FR")}</p>
+            <p className="balance-label">Solde du compte</p>
+          </div>
+          <div className="country-chip" aria-live="polite">
+            <Wallet className="country-chip-icon h-5 w-5" aria-hidden="true" />
+            <span className="country-chip-name">{countryInfo?.name || "Sélectionnez un pays"}</span>
+          </div>
         </section>
 
         <section className="amount-panel" aria-label="Montant de recharge">
-          <div className="preset-row">
-            {depositPresets.map((preset) => (
-              <button
-                key={preset}
-                className={`preset ${amount === preset ? "active" : ""}`}
-                onClick={() => setAmount(preset)}
-              >
-                {preset}
-              </button>
-            ))}
-          </div>
-
-          <p className="amount-label">Veuillez saisir le montant de recharge</p>
+          <p className="amount-label">
+            Montant de la recharge
+            <span className="amount-minimum">(Minimum {currency} {MIN_DEPOSIT.toLocaleString("fr-FR")})</span>
+          </p>
           <label className="amount-input">
+            <span className="currency">{currency}</span>
             <input
               type="number"
               inputMode="numeric"
               value={amount}
               onChange={(event) => setAmount(event.target.value ? Number(event.target.value) : "")}
+              placeholder="Veuillez saisir le montant"
               aria-label="Montant de recharge"
             />
-            <span className="currency">{currency}</span>
           </label>
+          <div className="preset-row">
+            {depositPresets.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                className={`preset ${amount === preset ? "active" : ""}`}
+                onClick={() => setAmount(preset)}
+              >
+                {preset.toLocaleString("fr-FR")}
+              </button>
+            ))}
+          </div>
         </section>
 
         <section className="country-panel" aria-label="Pays et institutions de recharge">
