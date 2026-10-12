@@ -10,6 +10,7 @@ import "./home.css";
 import offshorePlatform from "@assets/image_1791813575847.jpg";
 import johanSverdrupPlatform from "@assets/1277577_1791813575929.jpg";
 import equinorScreen from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791814341065.jpg";
+import equinorLogo from "@assets/Equinor_1791812599322.png";
 
 const bannerSlides = [
   { image: offshorePlatform, alt: "Installation énergétique offshore en mer" },
@@ -37,6 +38,14 @@ const announcementLibrary = [
   "05****47 a retiré 27 800 F",
   "01****29 a obtenu 25 000 F de bonus d'équipe",
   "07****18 a retiré 11 250 F",
+] as const;
+
+const userActivityLibrary = [
+  "059****899 a gagné 2 000 F de bonus",
+  "056****862 a acheté le VIP 5",
+  "052**85 a obtenu 20 000 F de bonus d'équipe",
+  "07****26 a retiré 32 400 F",
+  "07****42 a obtenu 12 500 F de bonus d'équipe",
 ] as const;
 
 export default function HomePage() {
@@ -174,6 +183,20 @@ export default function HomePage() {
               src={equinorScreen}
               alt="Marque Equinor affichée sur un écran"
             />
+          </section>
+
+          <section className="cp-user-activity" aria-label="Activités affichées">
+            <div className="cp-user-activity-window" aria-hidden="true">
+              <div className="cp-user-activity-track">
+                {[...userActivityLibrary, ...userActivityLibrary].map((activity, index) => (
+                  <div className="cp-user-activity-row" key={`${index}-${activity}`}>
+                    <img className="cp-user-activity-avatar" src={equinorLogo} alt="" />
+                    <span>{activity}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <span className="sr-only">{userActivityLibrary.join(". ")}</span>
           </section>
         </div>
       </main>
