@@ -13,7 +13,22 @@ import { eq, and, desc, sql, gte, lte, or, isNull, inArray } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { getDemoReferralPreview } from "./demo-referrals";
 import { notifyTelegramPaymentEvent } from "./telegram-events";
-import { calculateProductPurchaseFunding } from "@shared/product-purchase-funding";
+import {
+  allocateEarningsWithdrawal,
+  allocatePurchase,
+  deriveWalletBalances,
+  type WalletAllocation,
+  type WalletBalanceSummary,
+} from "@shared/wallet-balances";
+
+type WalletCreditKind = "deposit" | "earnings";
+type WalletSpendKind = "deposit-first" | "earnings-only";
+type WalletTransactionData = Pick<Transaction, "type" | "description"> & Partial<Pick<Transaction, "amount">>;
+type WithdrawalCreationData = Pick<Withdrawal, "userId" | "amount" | "netAmount" | "fees" | "accountName" | "accountNumber" | "country" | "paymentMethod" | "status">;
+type WalletUserPatch = Omit<Partial<User>, "balance" | "depositBalance" | "earningsBalance" | "walletActivatedAt" | "todayEarnings" | "totalEarnings"> & {
+  todayEarningsDelta?: number;
+  totalEarningsDelta?: number;
+};
 
 type TeamStats = {
   level1Count: number;
@@ -38,7 +53,12 @@ type TeamStats = {
 export interface IStorage {
   // Users
   getUser(id: number): Promise<User | undefined>;
+  getWalletBalances(userId: number): Promise<WalletBalanceSummary>;
   getWithdrawableBalance(userId: number): Promise<string>;
+  creditWallet(userId: number, kind: WalletCreditKind, amount: number, transaction: WalletTransactionData, patch?: WalletUserPatch): Promise<User>;
+  spendWallet<T = undefined>(userId: number, amount: number, kind: WalletSpendKind, transaction: WalletTransactionData, patch?: WalletUserPatch, withinTransaction?: (tx: any) => Promise<T>): Promise<{ user: User; allocation: WalletAllocation; result: T | undefined }>;
+  createWithdrawalFromEarnings(userId: number, amount: number, data: WithdrawalCreationData): Promise<Withdrawal>;
+  setWalletTotal(userId: number, total: number, description: string): Promise<void>;
   getUserByPhone(phone: string, country: string): Promise<User | undefined>;
   getUserByPhoneAnyCountry(phone: string): Promise<User | undefined>;
   getUserByReferralCode(code: string): Promise<User | undefined>;
@@ -199,27 +219,212 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async getWithdrawableBalance(userId: number): Promise<string> {
+  private parseWalletImpact(value: string | null): {
+    depositDelta: number;
+    earningsDelta: number;
+    legacyDepositDelta: number;
+    legacyEarningsDelta: number;
+  } | null {
+    if (!value) return null;
+    try {
+      const parsed = JSON.parse(value);
+      const fields = ["depositDelta", "earningsDelta", "legacyDepositDelta", "legacyEarningsDelta"] as const;
+      if (fields.some((field) => !Number.isFinite(Number(parsed?.[field])))) return null;
+      return {
+        depositDelta: Number(parsed.depositDelta),
+        earningsDelta: Number(parsed.earningsDelta),
+        legacyDepositDelta: Number(parsed.legacyDepositDelta),
+        legacyEarningsDelta: Number(parsed.legacyEarningsDelta),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private async calculateWalletBalances(executor: any, user: User): Promise<WalletBalanceSummary> {
+    const activationDate = user.walletActivatedAt ? new Date(user.walletActivatedAt) : new Date();
+    const [approvedDeposits, userTransactions] = await Promise.all([
+      executor.select({
+        amount: deposits.amount,
+        withdrawalFeePaymentId: deposits.withdrawalFeePaymentId,
+        status: deposits.status,
+      }).from(deposits).where(eq(deposits.userId, user.id)),
+      executor.select().from(transactions).where(eq(transactions.userId, user.id)),
+    ]);
+
+    const transactionsWithDates: Array<{
+      transaction: Transaction;
+      impact: ReturnType<DatabaseStorage["parseWalletImpact"]>;
+      isHistorical: boolean;
+    }> = (userTransactions as Transaction[]).map((transaction) => ({
+      transaction,
+      impact: this.parseWalletImpact(transaction.walletImpact),
+      isHistorical: new Date(transaction.createdAt) < activationDate,
+    }));
+    let newDepositCredits = 0;
+    let historicalProductSpending = 0;
+    let postActivationLegacyDepositDelta = 0;
+    for (const entry of transactionsWithDates) {
+      if (!entry.isHistorical && entry.transaction.type === "deposit" && entry.impact) {
+        newDepositCredits += Math.max(0, entry.impact.depositDelta);
+      }
+      if (entry.isHistorical && (entry.transaction.type === "purchase" || entry.transaction.type === "staking")) {
+        historicalProductSpending += Math.max(0, -Number.parseFloat(entry.transaction.amount));
+      }
+      if (!entry.isHistorical && entry.impact) {
+        postActivationLegacyDepositDelta += entry.impact.legacyDepositDelta;
+      }
+    }
+    const approvedDepositPrincipal = approvedDeposits
+      .filter((deposit: Deposit) => deposit.status === "approved" && !deposit.withdrawalFeePaymentId)
+      .reduce((sum: number, deposit: Deposit) => sum + deposit.amount, 0);
+
+    return deriveWalletBalances({
+      totalBalance: user.balance,
+      persistentDepositBalance: user.depositBalance || "0",
+      persistentEarningsBalance: user.earningsBalance || "0",
+      approvedLegacyDepositPrincipal: Math.max(0, approvedDepositPrincipal - newDepositCredits),
+      historicalProductSpending,
+      postActivationLegacyDepositDelta,
+    });
+  }
+
+  async getWalletBalances(userId: number): Promise<WalletBalanceSummary> {
     const user = await this.getUser(userId);
-    if (!user) return "0.00";
+    if (!user) {
+      return {
+        totalBalance: 0,
+        depositBalance: 0,
+        earningsBalance: 0,
+        legacyDepositBalance: 0,
+        legacyEarningsBalance: 0,
+        persistentDepositBalance: 0,
+        persistentEarningsBalance: 0,
+      };
+    }
+    return this.calculateWalletBalances(db, user);
+  }
 
-    const approvedDeposits = await db.select({ amount: deposits.amount })
-      .from(deposits)
-      .where(and(
-        eq(deposits.userId, userId),
-        eq(deposits.status, "approved"),
-        isNull(deposits.withdrawalFeePaymentId),
-      ));
+  async getWithdrawableBalance(userId: number): Promise<string> {
+    return (await this.getWalletBalances(userId)).earningsBalance.toFixed(2);
+  }
 
-    const transactionsForUser = await this.getUserTransactions(userId);
-    const depositPrincipal = approvedDeposits.reduce((sum, deposit) => sum + deposit.amount, 0);
-    const balanceSpentOnProducts = transactionsForUser
-      .filter((transaction) => transaction.type === "purchase" || transaction.type === "staking")
-      .reduce((sum, transaction) => sum + Math.max(0, -parseFloat(transaction.amount)), 0);
-    const protectedDepositBalance = Math.max(0, depositPrincipal - balanceSpentOnProducts);
-    const withdrawableBalance = Math.max(0, parseFloat(user.balance) - protectedDepositBalance);
+  async creditWallet(
+    userId: number,
+    kind: WalletCreditKind,
+    amount: number,
+    transaction: WalletTransactionData,
+    patch: WalletUserPatch = {},
+  ): Promise<User> {
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error("Le crédit doit être positif.");
+    const amountValue = amount.toFixed(2);
+    const depositCredit = kind === "deposit" ? amountValue : "0.00";
+    const earningsCredit = kind === "earnings" ? amountValue : "0.00";
+    const { todayEarningsDelta, totalEarningsDelta, ...userPatch } = patch;
 
-    return withdrawableBalance.toFixed(2);
+    return db.transaction(async (tx) => {
+      const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
+      if (!user) throw new Error("Utilisateur non trouvé.");
+      const userUpdates: any = {
+        ...userPatch,
+        balance: sql`${users.balance} + ${amountValue}::numeric`,
+        depositBalance: sql`${users.depositBalance} + ${depositCredit}::numeric`,
+        earningsBalance: sql`${users.earningsBalance} + ${earningsCredit}::numeric`,
+      };
+      if (todayEarningsDelta) {
+        userUpdates.todayEarnings = sql`${users.todayEarnings} + ${todayEarningsDelta.toFixed(2)}::numeric`;
+      }
+      if (totalEarningsDelta) {
+        userUpdates.totalEarnings = sql`${users.totalEarnings} + ${totalEarningsDelta.toFixed(2)}::numeric`;
+      }
+      const [updated] = await tx.update(users).set(userUpdates).where(eq(users.id, userId)).returning();
+      const [createdTransaction] = await tx.insert(transactions).values({
+        userId,
+        type: transaction.type,
+        amount: amountValue,
+        description: transaction.description,
+        walletImpact: JSON.stringify({
+          depositDelta: Number(depositCredit),
+          earningsDelta: Number(earningsCredit),
+          legacyDepositDelta: 0,
+          legacyEarningsDelta: 0,
+        }),
+      }).returning();
+      if (!user.walletActivatedAt) {
+        await tx.update(users)
+          .set({ walletActivatedAt: createdTransaction.createdAt })
+          .where(and(eq(users.id, userId), isNull(users.walletActivatedAt)));
+      }
+      return updated;
+    });
+  }
+
+  async spendWallet(
+    userId: number,
+    amount: number,
+    kind: WalletSpendKind,
+    transaction: WalletTransactionData,
+    patch: WalletUserPatch = {},
+    withinTransaction?: (tx: any) => Promise<any>,
+  ): Promise<{ user: User; allocation: WalletAllocation; result: any }> {
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error("Le débit doit être positif.");
+    const amountValue = amount.toFixed(2);
+
+    return db.transaction(async (tx) => {
+      const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
+      if (!user) throw new Error("Utilisateur non trouvé.");
+      const wallets = await this.calculateWalletBalances(tx, user);
+      const allocation = kind === "deposit-first"
+        ? allocatePurchase(wallets, amountValue)
+        : allocateEarningsWithdrawal(wallets, amountValue);
+      if (!allocation.canSpend) {
+        throw new Error(kind === "deposit-first"
+          ? "Solde insuffisant : les dépôts et les revenus cumulés disponibles ne couvrent pas cet achat."
+          : "Le solde des revenus cumulés est insuffisant pour ce retrait.");
+      }
+      const [updated] = await tx.update(users).set({
+        ...patch,
+        balance: sql`${users.balance} - ${amountValue}::numeric`,
+        depositBalance: sql`${users.depositBalance} + ${allocation.persistentDepositDelta.toFixed(2)}::numeric`,
+        earningsBalance: sql`${users.earningsBalance} + ${allocation.persistentEarningsDelta.toFixed(2)}::numeric`,
+      }).where(eq(users.id, userId)).returning();
+      const [createdTransaction] = await tx.insert(transactions).values({
+        userId,
+        type: transaction.type,
+        amount: (-amount).toFixed(2),
+        description: transaction.description,
+        walletImpact: JSON.stringify({
+          depositDelta: allocation.depositDelta,
+          earningsDelta: allocation.earningsDelta,
+          legacyDepositDelta: allocation.legacyDepositDelta,
+          legacyEarningsDelta: allocation.legacyEarningsDelta,
+        }),
+      }).returning();
+      const result = withinTransaction ? await withinTransaction(tx) : undefined;
+      if (!user.walletActivatedAt) {
+        await tx.update(users)
+          .set({ walletActivatedAt: createdTransaction.createdAt })
+          .where(and(eq(users.id, userId), isNull(users.walletActivatedAt)));
+      }
+      return { user: updated, allocation, result };
+    });
+  }
+
+  async setWalletTotal(userId: number, total: number, description: string): Promise<void> {
+    if (!Number.isFinite(total) || total < 0) throw new Error("Le solde demandé est invalide.");
+    const current = await this.getWalletBalances(userId);
+    const difference = Math.round((total - current.totalBalance) * 100) / 100;
+    if (difference > 0) {
+      await this.creditWallet(userId, "earnings", difference, {
+        type: "admin_adjustment",
+        description,
+      });
+    } else if (difference < 0) {
+      await this.spendWallet(userId, -difference, "deposit-first", {
+        type: "admin_adjustment",
+        description,
+      });
+    }
   }
 
   async getUserByPhone(phone: string, country: string): Promise<User | undefined> {
@@ -255,6 +460,9 @@ export class DatabaseStorage implements IStorage {
       password: hashedPassword,
       referralCode,
       balance: signupBonus,
+      depositBalance: "0",
+      earningsBalance: signupBonus,
+      walletActivatedAt: new Date(),
     } as any).returning();
     
     await this.createTransaction({
@@ -262,6 +470,12 @@ export class DatabaseStorage implements IStorage {
       type: "bonus",
       amount: signupBonus,
       description: "Bonus d'inscription",
+      walletImpact: JSON.stringify({
+        depositDelta: 0,
+        earningsDelta: Number(signupBonus),
+        legacyDepositDelta: 0,
+        legacyEarningsDelta: 0,
+      }),
     });
     
     return user;
@@ -369,14 +583,8 @@ export class DatabaseStorage implements IStorage {
     const user = await this.getUser(userId);
     if (!user) throw new Error("Utilisateur non trouvé");
 
+    let userProduct: UserProduct | undefined;
     if (!product.isFree && !assignedByAdmin) {
-      const balance = parseFloat(user.balance);
-      const withdrawableBalance = parseFloat(await this.getWithdrawableBalance(userId));
-      const funding = calculateProductPurchaseFunding(balance, withdrawableBalance, product.price);
-      if (!funding.canPurchase) {
-        throw new Error("Solde insuffisant : les dépôts et les revenus cumulés disponibles ne couvrent pas cet achat.");
-      }
-      
       // Check if this is user's first paid investment
       const existingPaidProducts = await db.select()
         .from(userProducts)
@@ -389,17 +597,20 @@ export class DatabaseStorage implements IStorage {
       
       const isFirstInvestment = existingPaidProducts.length === 0;
       
-      await this.updateUser(userId, { 
-        balance: (balance - product.price).toFixed(2),
-        hasActiveProduct: true,
-      });
-
-      await this.createTransaction({
-        userId,
+      const result = await this.spendWallet(userId, product.price, "deposit-first", {
         type: "purchase",
-        amount: (-product.price).toString(),
         description: `Achat ${product.name}`,
+      }, { hasActiveProduct: true }, async (tx) => {
+        const [created] = await tx.insert(userProducts).values({
+          userId,
+          productId,
+          daysRemaining: product.cycleDays,
+          assignedByAdmin,
+          lastEarningDate: new Date(),
+        }).returning();
+        return created;
       });
+      userProduct = result.result;
 
       // Process referral commissions ONLY on first investment
       if (isFirstInvestment) {
@@ -407,17 +618,17 @@ export class DatabaseStorage implements IStorage {
       }
     } else {
       await this.updateUser(userId, { hasActiveProduct: true });
+      // Set lastEarningDate to now - first earnings will be credited 24h after purchase.
+      [userProduct] = await db.insert(userProducts).values({
+        userId,
+        productId,
+        daysRemaining: product.cycleDays,
+        assignedByAdmin,
+        lastEarningDate: new Date(),
+      }).returning();
     }
 
-    // Set lastEarningDate to now - first earnings will be credited 24h after purchase
-    const [userProduct] = await db.insert(userProducts).values({
-      userId,
-      productId,
-      daysRemaining: product.cycleDays,
-      assignedByAdmin,
-      lastEarningDate: new Date(),
-    }).returning();
-
+    if (!userProduct) throw new Error("Impossible de créer l'offre de l'utilisateur.");
     return userProduct;
   }
 
@@ -448,8 +659,10 @@ export class DatabaseStorage implements IStorage {
     const level1User = await this.getUserByReferralCode(user.referredBy);
     if (level1User) {
       const commission = amount * level1Rate;
-      await this.updateUser(level1User.id, {
-        balance: (parseFloat(level1User.balance) + commission).toFixed(2),
+      await this.creditWallet(level1User.id, "earnings", commission, {
+        type: "commission",
+        amount: commission.toFixed(2),
+        description: `Commission niveau 1 de ${user.fullName}`,
       });
       await this.createReferralCommission({
         userId: level1User.id,
@@ -458,20 +671,15 @@ export class DatabaseStorage implements IStorage {
         amount: commission.toFixed(2),
         productId,
       });
-      await this.createTransaction({
-        userId: level1User.id,
-        type: "commission",
-        amount: commission.toFixed(2),
-        description: `Commission niveau 1 de ${user.fullName}`,
-      });
-
       // Level 2
       if (level1User.referredBy) {
         const level2User = await this.getUserByReferralCode(level1User.referredBy);
         if (level2User) {
           const commission2 = amount * level2Rate;
-          await this.updateUser(level2User.id, {
-            balance: (parseFloat(level2User.balance) + commission2).toFixed(2),
+          await this.creditWallet(level2User.id, "earnings", commission2, {
+            type: "commission",
+            amount: commission2.toFixed(2),
+            description: `Commission niveau 2`,
           });
           await this.createReferralCommission({
             userId: level2User.id,
@@ -480,20 +688,15 @@ export class DatabaseStorage implements IStorage {
             amount: commission2.toFixed(2),
             productId,
           });
-          await this.createTransaction({
-            userId: level2User.id,
-            type: "commission",
-            amount: commission2.toFixed(2),
-            description: `Commission niveau 2`,
-          });
-
           // Level 3
           if (level2User.referredBy) {
             const level3User = await this.getUserByReferralCode(level2User.referredBy);
             if (level3User) {
               const commission3 = amount * level3Rate;
-              await this.updateUser(level3User.id, {
-                balance: (parseFloat(level3User.balance) + commission3).toFixed(2),
+              await this.creditWallet(level3User.id, "earnings", commission3, {
+                type: "commission",
+                amount: commission3.toFixed(2),
+                description: `Commission niveau 3`,
               });
               await this.createReferralCommission({
                 userId: level3User.id,
@@ -501,12 +704,6 @@ export class DatabaseStorage implements IStorage {
                 level: 3,
                 amount: commission3.toFixed(2),
                 productId,
-              });
-              await this.createTransaction({
-                userId: level3User.id,
-                type: "commission",
-                amount: commission3.toFixed(2),
-                description: `Commission niveau 3`,
               });
             }
           }
@@ -565,32 +762,22 @@ export class DatabaseStorage implements IStorage {
 
           await db.update(userProducts).set(updateData).where(eq(userProducts.id, userProduct.id));
 
-          for (let i = 0; i < cyclesToCredit; i++) {
-            await this.createTransaction({
-              userId: user.id,
-              type: "earning",
-              amount: earningsPerCycle.toString(),
-              description: `Gains ${product.name}`,
-            });
-          }
         }
       } catch (productError) {
         console.error(`processEarnings error for product ${userProduct.id}:`, productError);
       }
     }
 
-    for (const [userId, totalEarnings] of userEarnings.entries()) {
+    for (const [userId, totalEarnings] of Array.from(userEarnings.entries())) {
       try {
         const freshUser = await this.getUser(userId);
         if (freshUser) {
-          const newBalance = parseFloat(freshUser.balance || "0") + totalEarnings;
-          const newTodayEarnings = parseFloat(freshUser.todayEarnings || "0") + totalEarnings;
-          const newTotalEarnings = parseFloat(freshUser.totalEarnings || "0") + totalEarnings;
-          
-          await this.updateUser(userId, {
-            balance: newBalance.toFixed(2),
-            todayEarnings: newTodayEarnings.toFixed(2),
-            totalEarnings: newTotalEarnings.toFixed(2),
+          await this.creditWallet(userId, "earnings", totalEarnings, {
+            type: "earning",
+            description: "Gains quotidiens des produits",
+          }, {
+            todayEarningsDelta: totalEarnings,
+            totalEarningsDelta: totalEarnings,
           });
         }
       } catch (userError) {
@@ -773,11 +960,7 @@ export class DatabaseStorage implements IStorage {
     if (level1User) {
       const commission = Math.round(amount * level1Rate);
       if (commission > 0) {
-        await this.updateUser(level1User.id, {
-          balance: (parseFloat(level1User.balance) + commission).toFixed(2),
-        });
-        await this.createTransaction({
-          userId: level1User.id,
+        await this.creditWallet(level1User.id, "earnings", commission, {
           type: "deposit_commission",
           amount: commission.toString(),
           description: `Commission depot niveau 1`,
@@ -789,11 +972,7 @@ export class DatabaseStorage implements IStorage {
         if (level2User) {
           const comm2 = Math.round(amount * level2Rate);
           if (comm2 > 0) {
-            await this.updateUser(level2User.id, {
-              balance: (parseFloat(level2User.balance) + comm2).toFixed(2),
-            });
-            await this.createTransaction({
-              userId: level2User.id,
+            await this.creditWallet(level2User.id, "earnings", comm2, {
               type: "deposit_commission",
               amount: comm2.toString(),
               description: `Commission depot niveau 2`,
@@ -805,11 +984,7 @@ export class DatabaseStorage implements IStorage {
             if (level3User) {
               const comm3 = Math.round(amount * level3Rate);
               if (comm3 > 0) {
-                await this.updateUser(level3User.id, {
-                  balance: (parseFloat(level3User.balance) + comm3).toFixed(2),
-                });
-                await this.createTransaction({
-                  userId: level3User.id,
+              await this.creditWallet(level3User.id, "earnings", comm3, {
                   type: "deposit_commission",
                   amount: comm3.toString(),
                   description: `Commission depot niveau 3`,
@@ -879,8 +1054,7 @@ export class DatabaseStorage implements IStorage {
     return payment;
   }
 
-  async createWithdrawal(data: Partial<Withdrawal>): Promise<Withdrawal> {
-    const [withdrawal] = await db.insert(withdrawals).values(data as any).returning();
+  private notifyWithdrawalCreated(withdrawal: Withdrawal): void {
     notifyTelegramPaymentEvent({
       kind: "withdrawal",
       phase: "created",
@@ -893,7 +1067,33 @@ export class DatabaseStorage implements IStorage {
       paymentMethod: withdrawal.paymentMethod,
       reference: withdrawal.inpayOutTradeNo,
     });
+  }
+
+  async createWithdrawal(data: Partial<Withdrawal>): Promise<Withdrawal> {
+    const [withdrawal] = await db.insert(withdrawals).values(data as any).returning();
+    this.notifyWithdrawalCreated(withdrawal);
     return withdrawal;
+  }
+
+  async createWithdrawalFromEarnings(
+    userId: number,
+    amount: number,
+    data: WithdrawalCreationData,
+  ): Promise<Withdrawal> {
+    const { result } = await this.spendWallet(
+      userId,
+      amount,
+      "earnings-only",
+      { type: "withdrawal", description: "Retrait demandé" },
+      {},
+      async (tx) => {
+        const [withdrawal] = await tx.insert(withdrawals).values(data as any).returning();
+        return withdrawal as Withdrawal;
+      },
+    );
+    if (!result) throw new Error("La demande de retrait n'a pas pu être créée.");
+    this.notifyWithdrawalCreated(result);
+    return result;
   }
 
   async getWithdrawals(status?: string): Promise<(Withdrawal & { user: User })[]> {
@@ -1501,11 +1701,7 @@ export class DatabaseStorage implements IStorage {
 
     await db.insert(userTasks).values({ userId, taskId });
     
-    const newBalance = parseFloat(user.balance) + taskStatus.reward;
-    await this.updateUser(userId, { balance: newBalance.toFixed(2) });
-    
-    await this.createTransaction({
-      userId,
+    await this.creditWallet(userId, "earnings", taskStatus.reward, {
       type: "task_reward",
       amount: taskStatus.reward.toString(),
       description: `Récompense: ${taskStatus.name}`,
@@ -1679,19 +1875,33 @@ export class DatabaseStorage implements IStorage {
 
   async claimGiftCode(userId: number, giftCodeId: number, amount: number): Promise<void> {
     await db.transaction(async (tx) => {
+      const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
+      if (!user) throw new Error("Utilisateur introuvable.");
       await tx.insert(giftCodeClaims).values({ userId, giftCodeId });
       await tx.update(giftCodes).set({
         currentUses: sql`${giftCodes.currentUses} + 1`
       }).where(eq(giftCodes.id, giftCodeId));
       await tx.update(users).set({
-        balance: sql`${users.balance} + ${amount}`
+        balance: sql`${users.balance} + ${amount}`,
+        earningsBalance: sql`${users.earningsBalance} + ${amount}`,
       }).where(eq(users.id, userId));
-      await tx.insert(transactions).values({
+      const [createdTransaction] = await tx.insert(transactions).values({
         userId,
         type: "gift_code",
         amount: amount.toString(),
-        description: `Bonus code cadeau`
-      });
+        description: `Bonus code cadeau`,
+        walletImpact: JSON.stringify({
+          depositDelta: 0,
+          earningsDelta: amount,
+          legacyDepositDelta: 0,
+          legacyEarningsDelta: 0,
+        }),
+      }).returning();
+      if (!user.walletActivatedAt) {
+        await tx.update(users)
+          .set({ walletActivatedAt: createdTransaction.createdAt })
+          .where(and(eq(users.id, userId), isNull(users.walletActivatedAt)));
+      }
     });
   }
 
@@ -1795,9 +2005,6 @@ export class DatabaseStorage implements IStorage {
 
     const user = await this.getUser(userId);
     if (!user) throw new Error("Utilisateur introuvable");
-    if (parseFloat(user.balance) < sp.price) {
-      throw new Error(`Solde insuffisant. Il vous manque ${(sp.price - parseFloat(user.balance)).toLocaleString()} ${user.country === "TD" ? "XAF" : "XOF"}`);
-    }
 
     // Check user has at least one active regular product
     const activeProds = await db.select().from(userProducts)
@@ -1808,27 +2015,23 @@ export class DatabaseStorage implements IStorage {
 
     const releaseDate = new Date(now.getTime() + sp.lockDays * 24 * 60 * 60 * 1000);
 
-    const [staking] = await db.insert(userStakings).values({
-      userId,
-      stakingProductId,
-      amountPaid: sp.price,
-      returnAmount: sp.returnAmount,
-      purchasedAt: now,
-      releaseDate,
-      status: "active",
-    }).returning();
-
-    // Deduct balance
-    const newBalance = (parseFloat(user.balance) - sp.price).toFixed(2);
-    await this.updateUser(userId, { balance: newBalance });
-
-    await this.createTransaction({
-      userId,
+    const { result: staking } = await this.spendWallet(userId, sp.price, "deposit-first", {
       type: "staking",
-      amount: (-sp.price).toString(),
       description: `Staking: ${sp.name}`,
+    }, {}, async (tx) => {
+      const [created] = await tx.insert(userStakings).values({
+        userId,
+        stakingProductId,
+        amountPaid: sp.price,
+        returnAmount: sp.returnAmount,
+        purchasedAt: now,
+        releaseDate,
+        status: "active",
+      }).returning();
+      return created as UserStaking;
     });
 
+    if (!staking) throw new Error("Impossible de créer le staking.");
     return staking;
   }
 
@@ -1859,17 +2062,14 @@ export class DatabaseStorage implements IStorage {
       try {
         const user = await this.getUser(staking.userId);
         if (!user) continue;
-        const newBalance = (parseFloat(user.balance) + staking.returnAmount).toFixed(2);
-        await this.updateUser(staking.userId, { balance: newBalance });
-        await db.update(userStakings)
-          .set({ status: "released", releasedAt: now })
-          .where(eq(userStakings.id, staking.id));
-        await this.createTransaction({
-          userId: staking.userId,
+        await this.creditWallet(staking.userId, "earnings", staking.returnAmount, {
           type: "staking_release",
           amount: staking.returnAmount.toString(),
           description: `Déblocage staking #${staking.id}`,
         });
+        await db.update(userStakings)
+          .set({ status: "released", releasedAt: now })
+          .where(eq(userStakings.id, staking.id));
       } catch (e) {
         console.error("Error releasing staking:", staking.id, e);
       }

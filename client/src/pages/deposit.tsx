@@ -850,7 +850,7 @@ export default function DepositPage() {
   };
 
   if (!user) return null;
-  const parsedBalance = Number.parseFloat(user.balance || "0");
+  const parsedBalance = Number.parseFloat(user.depositBalance || "0");
   const accountBalance = Math.round(Number.isFinite(parsedBalance) ? parsedBalance : 0);
 
   // ── STEP 1: Amount ─────────────────────────────────────────────────────────

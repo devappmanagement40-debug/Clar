@@ -23,7 +23,13 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   referralCode: text("referral_code").notNull().unique(),
   referredBy: text("referred_by"),
+  // `balance` remains the combined compatibility total. These columns store
+  // wallet movements made after the separation rollout; historical funds are
+  // still calculated from the existing deposit and transaction records.
   balance: decimal("balance", { precision: 15, scale: 2 }).notNull().default("200"),
+  depositBalance: decimal("deposit_balance", { precision: 15, scale: 2 }).notNull().default("0"),
+  earningsBalance: decimal("earnings_balance", { precision: 15, scale: 2 }).notNull().default("0"),
+  walletActivatedAt: timestamp("wallet_activated_at"),
   todayEarnings: decimal("today_earnings", { precision: 15, scale: 2 }).notNull().default("0"),
   totalEarnings: decimal("total_earnings", { precision: 15, scale: 2 }).notNull().default("0"),
   isAdmin: boolean("is_admin").notNull().default(false),
@@ -274,6 +280,9 @@ export const transactions = pgTable("transactions", {
   type: text("type").notNull(),
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   description: text("description").notNull(),
+  // JSON string describing total wallet deltas and any legacy-pool portion.
+  // Older transactions remain NULL and are interpreted from the historical ledger.
+  walletImpact: text("wallet_impact"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -359,6 +368,9 @@ export const referralCommissionsRelations = relations(referralCommissions, ({ on
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   balance: true,
+  depositBalance: true,
+  earningsBalance: true,
+  walletActivatedAt: true,
   todayEarnings: true,
   totalEarnings: true,
   isAdmin: true,

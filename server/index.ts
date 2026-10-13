@@ -172,20 +172,12 @@ app.use((req, res, next) => {
           if (status === "approved") {
             const claimed = await storage.claimDepositApproval(deposit.id);
             if (claimed) {
-              const user = await storage.getUser(deposit.userId);
-              if (user) {
-                await storage.updateUser(user.id, {
-                  balance: (parseFloat(user.balance) + deposit.amount).toFixed(2),
-                  hasDeposited: true,
-                });
-                await storage.createTransaction({
-                  userId: user.id,
-                  type: "deposit",
-                  amount: deposit.amount.toString(),
-                  description: `Dépôt AshtechPay #${deposit.id}`,
-                });
-                await storage.processDepositReferralCommissions(user.id, deposit.amount);
-              }
+              await storage.creditWallet(deposit.userId, "deposit", deposit.amount, {
+                type: "deposit",
+                amount: deposit.amount.toString(),
+                description: `Dépôt AshtechPay #${deposit.id}`,
+              }, { hasDeposited: true });
+              await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
             }
           } else if (status === "rejected" || expired) {
             await storage.updateDeposit(deposit.id, {

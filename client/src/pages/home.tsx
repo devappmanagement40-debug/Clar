@@ -74,8 +74,8 @@ export default function HomePage() {
     message.replace(/\bF\b/g, currency).replaceAll("XOF", currency);
   const announcementMessages = announcementLibrary.map(localizeActivityCurrency);
   const userActivityMessages = userActivityLibrary.map(localizeActivityCurrency);
-  const balance = Number.parseFloat(user.balance || "0");
-  const totalEarnings = Number.parseFloat(user.totalEarnings || "0");
+  const balance = Number.parseFloat(user.depositBalance || "0");
+  const totalEarnings = Number.parseFloat(user.earningsBalance || "0");
   const formatMoney = (amount: number) =>
     Number.isFinite(amount) ? `${Math.round(amount).toLocaleString("fr-FR")} ${currency}` : "—";
   const popupCurrency = currency === "FCFA" ? "XOF" : currency;

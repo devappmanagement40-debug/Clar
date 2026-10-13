@@ -19,7 +19,7 @@ export default function MyProductsPage() {
   const allUserProducts = userProducts || [];
   const activeUserProducts = allUserProducts.filter(up => up.status === "active");
   const activeProductCount = activeUserProducts.length;
-  const totalUserEarnings = Math.round(Number(user.totalEarnings || 0));
+  const totalUserEarnings = Math.round(Number(user.earningsBalance || 0));
   const formatStatAmount = (amount: number) => `${amount.toLocaleString("fr-FR")} ${currency}`;
 
   // Format date as "20 Jul 2026, 15:00"

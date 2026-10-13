@@ -91,8 +91,8 @@ export default function AccountPage() {
 
   const country = getCountryByCode(user.country, apiCountries);
   const currency = country?.currency || "XOF";
-  const balance = Number.parseFloat(user.balance || "0");
-  const earnings = Number.parseFloat(user.totalEarnings || "0");
+  const balance = Number.parseFloat(user.depositBalance || "0");
+  const earnings = Number.parseFloat(user.earningsBalance || "0");
   const phonePrefix = country?.phonePrefix || "";
   const formatAmount = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;
   const vipLevel = Math.max(

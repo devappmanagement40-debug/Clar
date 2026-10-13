@@ -260,31 +260,41 @@ function updateBlockedIpsCache(values: string[]) {
 
 const WITHDRAWAL_PREPAYMENT_RATE = 25;
 
+async function serializeAuthenticatedUser(user: NonNullable<Awaited<ReturnType<typeof storage.getUser>>>) {
+  const wallet = await storage.getWalletBalances(user.id);
+  return {
+    ...user,
+    depositBalance: wallet.depositBalance.toFixed(2),
+    earningsBalance: wallet.earningsBalance.toFixed(2),
+    password: undefined,
+  };
+}
+
 async function creditApprovedDeposit(deposit: {
   id: number;
   userId: number;
   amount: number;
   withdrawalFeePaymentId?: number | null;
 }) {
-  const user = await storage.getUser(deposit.userId);
-  if (!user) return;
-
   if (deposit.withdrawalFeePaymentId) {
     await storage.markWithdrawalFeePaymentPaid(deposit.withdrawalFeePaymentId, deposit.id);
     return;
   }
 
-  await storage.updateUser(user.id, {
-    balance: (parseFloat(user.balance) + deposit.amount).toFixed(2),
-    hasDeposited: true,
-  });
-  await storage.createTransaction({
-    userId: user.id,
+  await storage.creditWallet(deposit.userId, "deposit", deposit.amount, {
     type: "deposit",
     amount: deposit.amount.toString(),
     description: `Dépôt RobotPay #${deposit.id}`,
+  }, { hasDeposited: true });
+  await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
+}
+
+async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number; amount: number }) {
+  await storage.creditWallet(withdrawal.userId, "earnings", withdrawal.amount, {
+    type: "withdrawal_refund",
+    amount: withdrawal.amount.toString(),
+    description: `Remboursement retrait #${withdrawal.id}`,
   });
-  await storage.processDepositReferralCommissions(user.id, deposit.amount);
 }
 
 async function validateWithdrawalFeePayment(
@@ -650,7 +660,7 @@ export async function registerRoutes(
       });
 
       req.session.userId = user.id;
-      res.json({ user: { ...user, password: undefined } });
+      res.json({ user: await serializeAuthenticatedUser(user) });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: error.errors[0].message });
@@ -702,7 +712,7 @@ export async function registerRoutes(
           ].join("\n"),
         ).catch((error) => console.error("[telegram] admin login notification failed:", error.message));
       }
-      res.json({ user: { ...user, password: undefined } });
+      res.json({ user: await serializeAuthenticatedUser(user) });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: error.errors[0].message });
@@ -719,7 +729,7 @@ export async function registerRoutes(
     if (!user) {
       return res.status(401).json({ message: "Non authentifié" });
     }
-    res.json({ user: { ...user, password: undefined } });
+    res.json({ user: await serializeAuthenticatedUser(user) });
   });
 
   app.post("/api/auth/logout", (req, res) => {
@@ -841,18 +851,11 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Déjà réclamé aujourd'hui" });
       }
 
-      const newBalance = parseFloat(user.balance) + product.dailyEarnings;
-      await storage.updateUser(user.id, { 
-        balance: newBalance.toFixed(2),
-        lastFreeProductClaim: new Date(),
-      });
-
-      await storage.createTransaction({
-        userId: user.id,
+      await storage.creditWallet(user.id, "earnings", product.dailyEarnings, {
         type: "free_claim",
         amount: product.dailyEarnings.toString(),
         description: "Bonus produit gratuit",
-      });
+      }, { lastFreeProductClaim: new Date() });
 
       res.json({ success: true });
     } catch (error: any) {
@@ -933,14 +936,6 @@ export async function registerRoutes(
 
             await storage.updateUserProduct(userProduct.id, updateData);
 
-            for (let i = 0; i < cyclesToCredit; i++) {
-              await storage.createTransaction({
-                userId,
-                type: "earning",
-                amount: earningsPerCycle.toString(),
-                description: `Gains ${product.name}`,
-              });
-            }
           }
         } catch (productError) {
           console.error(`Error processing product ${userProduct.id}:`, productError);
@@ -950,14 +945,12 @@ export async function registerRoutes(
       if (totalCollected > 0) {
         const freshUser = await storage.getUser(userId);
         if (freshUser) {
-          const newBalance = parseFloat(freshUser.balance || "0") + totalCollected;
-          const newTodayEarnings = parseFloat(freshUser.todayEarnings || "0") + totalCollected;
-          const newTotalEarnings = parseFloat(freshUser.totalEarnings || "0") + totalCollected;
-
-          await storage.updateUser(userId, {
-            balance: newBalance.toFixed(2),
-            todayEarnings: newTodayEarnings.toFixed(2),
-            totalEarnings: newTotalEarnings.toFixed(2),
+          await storage.creditWallet(userId, "earnings", totalCollected, {
+            type: "earning",
+            description: "Gains quotidiens des produits",
+          }, {
+            todayEarningsDelta: totalCollected,
+            totalEarningsDelta: totalCollected,
           });
         }
       }
@@ -1609,37 +1602,13 @@ export async function registerRoutes(
             });
 
             if (newStatus === "approved") {
-              const user = await storage.getUser(deposit.userId);
-              if (user) {
-                const newBalance = parseFloat(user.balance) + deposit.amount;
-                await storage.updateUser(deposit.userId, {
-                  balance: newBalance.toFixed(2),
-                  hasDeposited: true,
-                });
+              await storage.creditWallet(deposit.userId, "deposit", deposit.amount, {
+                type: "deposit",
+                amount: deposit.amount.toString(),
+                description: `Dépôt Soleaspay #${deposit.id}`,
+              }, { hasDeposited: true });
+              await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
 
-                await storage.createTransaction({
-                  userId: deposit.userId,
-                  type: "deposit",
-                  amount: deposit.amount.toString(),
-                  description: `Depot Soleaspay #${deposit.id}`,
-                });
-
-                await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
-              }
-
-async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number; amount: number }) {
-  const user = await storage.getUser(withdrawal.userId);
-  if (!user) return;
-  await storage.updateUser(user.id, {
-    balance: (parseFloat(user.balance) + withdrawal.amount).toFixed(2),
-  });
-  await storage.createTransaction({
-    userId: user.id,
-    type: "withdrawal_refund",
-    amount: withdrawal.amount.toString(),
-    description: `Remboursement retrait InPay #${withdrawal.id}`,
-  });
-}
             }
           }
 
@@ -1928,20 +1897,12 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
           // that claims the pending deposit is allowed to credit the wallet.
           const claimedDeposit = await storage.claimDepositApproval(deposit.id);
           if (claimedDeposit) {
-            const user = await storage.getUser(deposit.userId);
-            if (user) {
-              await storage.updateUser(user.id, {
-                balance: (parseFloat(user.balance) + deposit.amount).toFixed(2),
-                hasDeposited: true,
-              });
-              await storage.createTransaction({
-                userId: user.id,
-                type: "deposit",
-                amount: deposit.amount.toString(),
-                description: `Dépôt AshtechPay #${deposit.id}`,
-              });
-              await storage.processDepositReferralCommissions(user.id, deposit.amount);
-            }
+            await storage.creditWallet(deposit.userId, "deposit", deposit.amount, {
+              type: "deposit",
+              amount: deposit.amount.toString(),
+              description: `Dépôt AshtechPay #${deposit.id}`,
+            }, { hasDeposited: true });
+            await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
           }
         } else {
           await storage.updateDeposit(deposit.id, { status: newStatus, processedAt: new Date() });
@@ -2535,8 +2496,6 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
        if (numericAmount > withdrawableBalance) {
          return res.status(400).json({ message: "Le montant des dépôts n'est pas retirable" });
       }
-       const balance = parseFloat(user.balance);
-
       const requestedWalletId = req.body.walletId;
       let wallet: Awaited<ReturnType<typeof storage.getDefaultWallet>>;
       if (requestedWalletId !== undefined && requestedWalletId !== null) {
@@ -2614,12 +2573,7 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
       const feeAmount = Math.round(numericAmount * fees / 100);
       const netAmount = numericAmount - feeAmount;
 
-      // Deduct from balance
-      await storage.updateUser(user.id, {
-        balance: (balance - numericAmount).toFixed(2),
-      });
-
-      const withdrawal = await storage.createWithdrawal({
+      const withdrawal = await storage.createWithdrawalFromEarnings(user.id, numericAmount, {
         userId: user.id,
         amount: numericAmount,
         netAmount,
@@ -2839,19 +2793,11 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
 
       // Award a random whole amount between 20 and 50 FCFA, inclusive.
       const bonusAmount = Math.floor(Math.random() * 31) + 20;
-      const newBalance = parseFloat(user.balance) + bonusAmount;
-      await storage.updateUser(user.id, { 
-        balance: newBalance.toString(),
-        lastDailyBonusClaim: now
-      });
-
-      // Create transaction record
-      await storage.createTransaction({
-        userId: user.id,
+      await storage.creditWallet(user.id, "earnings", bonusAmount, {
         type: "bonus",
         amount: String(bonusAmount),
-        description: "Bonus quotidien"
-      });
+        description: "Bonus quotidien",
+      }, { lastDailyBonusClaim: now });
 
       res.json({
         success: true,
@@ -3024,18 +2970,11 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
         if (deposit.withdrawalFeePaymentId) {
           await storage.markWithdrawalFeePaymentPaid(deposit.withdrawalFeePaymentId, deposit.id);
         } else {
-          const newBalance = parseFloat(user.balance) + deposit.amount;
-          await storage.updateUser(user.id, {
-            balance: newBalance.toFixed(2),
-            hasDeposited: true,
-          });
-
-          await storage.createTransaction({
-            userId: user.id,
+          await storage.creditWallet(user.id, "deposit", deposit.amount, {
             type: "deposit",
             amount: deposit.amount.toString(),
             description: "Dépôt validé",
-          });
+          }, { hasDeposited: true });
           await storage.processDepositReferralCommissions(deposit.userId, deposit.amount);
         }
       }
@@ -3404,8 +3343,7 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
       // Refund the user
       const user = await storage.getUser(withdrawal.userId);
       if (user) {
-        const newBalance = parseFloat(user.balance) + withdrawal.amount;
-        await storage.updateUser(user.id, { balance: newBalance.toFixed(2) });
+        await refundRejectedWithdrawal(withdrawal);
       }
 
       await storage.logAdminAction(req.session.userId!, "reject_withdrawal", withdrawal.userId, `Retrait ${withdrawal.id} rejeté et remboursé`);
@@ -3508,7 +3446,7 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
 
       switch (action) {
         case "balance":
-          await storage.updateUser(userId, { balance: value.toFixed(2) });
+          await storage.setWalletTotal(userId, Number(value), `Ajustement administrateur: ${value}F`);
           await storage.logAdminAction(req.session.userId!, "update_balance", userId, `Solde modifié: ${value}F`);
           break;
         case "password":
@@ -4549,9 +4487,11 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
       });
       const user = await storage.getUser(deposit.userId);
       if (user) {
-        const newBalance = parseFloat(user.balance) + deposit.amount;
-        await storage.updateUser(user.id, { balance: newBalance.toFixed(2), hasDeposited: true });
-        await storage.createTransaction({ userId: user.id, type: "deposit", amount: deposit.amount.toString(), description: "Dépôt validé par bankier" });
+        await storage.creditWallet(user.id, "deposit", deposit.amount, {
+          type: "deposit",
+          amount: deposit.amount.toString(),
+          description: "Dépôt validé par bankier",
+        }, { hasDeposited: true });
       }
       await storage.logAdminAction(req.session.userId!, "approve_deposit", deposit.userId, `Dépôt ${deposit.id} approuvé par bankier: ${deposit.amount}F`);
       res.json(deposit);
@@ -4601,8 +4541,7 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
       });
       const user = await storage.getUser(withdrawal.userId);
       if (user) {
-        const newBalance = parseFloat(user.balance) + withdrawal.amount;
-        await storage.updateUser(user.id, { balance: newBalance.toFixed(2) });
+        await refundRejectedWithdrawal(withdrawal);
       }
       await storage.logAdminAction(req.session.userId!, "reject_withdrawal", withdrawal.userId, `Retrait ${withdrawal.id} rejeté par bankier et remboursé`);
       res.json(withdrawal);
