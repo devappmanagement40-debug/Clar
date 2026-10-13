@@ -4,7 +4,7 @@ import { Send } from "lucide-react";
 import equinorLogo from "@/assets/equinor-logo.png";
 
 const POSITION_STORAGE_KEY = "floating-support-position-v1";
-const BUTTON_SIZE = 58;
+const BUTTON_SIZE = 64;
 const NAVIGATION_CLEARANCE = 88;
 const DEFAULT_SUPPORT_URL = "https://t.me/intelappgroup";
 
@@ -176,7 +176,7 @@ export default function FloatingSupport() {
       aria-label="Contacter le service client sur Telegram. Faire glisser pour déplacer le bouton."
       title="Service client Telegram — faire glisser pour déplacer"
       data-testid="floating-telegram-support"
-      className="fixed z-[40] grid h-[58px] w-[58px] touch-none select-none place-items-center rounded-full border-[3px] border-white bg-white p-0 text-white shadow-[0_5px_18px_rgba(17,24,39,0.3)] transition-[box-shadow,transform] hover:scale-[1.04] hover:shadow-[0_7px_22px_rgba(17,24,39,0.36)] active:scale-95"
+      className="fixed z-[40] grid h-16 w-16 touch-none select-none place-items-center rounded-full border-2 border-[#17191c] bg-[#bd304c] p-[3px] text-white shadow-[0_5px_18px_rgba(17,24,39,0.3)] transition-[box-shadow,transform] hover:scale-[1.04] hover:shadow-[0_7px_22px_rgba(17,24,39,0.36)] active:scale-95"
       style={{ left: position.x, top: position.y, cursor: dragRef.current ? "grabbing" : "grab" }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -188,13 +188,15 @@ export default function FloatingSupport() {
         suppressClickRef.current = false;
       }}
     >
-      <img
-        src={equinorLogo}
-        alt=""
-        aria-hidden="true"
-        draggable={false}
-        className="absolute inset-0 h-full w-full rounded-full object-cover"
-      />
+      <span className="absolute inset-[3px] z-[1] grid place-items-center overflow-hidden rounded-full border-2 border-white bg-white shadow-inner">
+        <img
+          src={equinorLogo}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="h-full w-full rounded-full bg-white p-1.5 object-contain"
+        />
+      </span>
       <span className="absolute -bottom-0.5 -right-0.5 z-10 grid h-[23px] w-[23px] place-items-center rounded-full border-2 border-white bg-white text-[#229ed9]">
         <Send className="h-3.5 w-3.5" fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
       </span>
