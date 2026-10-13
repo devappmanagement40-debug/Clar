@@ -1,8 +1,11 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
+import { and, eq, gte, sql } from "drizzle-orm";
 import session from "express-session";
 import { storage } from "./storage";
+import { db } from "./db";
+import { FORTUNE_WHEEL_CONFIG_KEY, getUtcDayStart, parseFortuneWheelConfig, selectWeightedPrize } from "./fortune-wheel";
 import bcrypt from "bcrypt";
 import {
   registerSchema,
@@ -12,6 +15,10 @@ import {
   phoneNumberSchema,
   insertTaskSchema,
   updateTaskSchema,
+  fortuneWheelConfigSchema,
+  platformSettings,
+  transactions,
+  users,
   type ClapayPayout,
 } from "@shared/schema";
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
@@ -2726,6 +2733,146 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
     } catch (error) {
       console.error("[team] Unable to load team details:", error);
       res.status(500).json({ message: "Impossible de charger les membres de l'équipe" });
+    }
+  });
+
+  // Fortune wheel
+  app.get("/api/fortune-wheel", requireAuth, async (req, res) => {
+    try {
+      const config = parseFortuneWheelConfig(await storage.getSetting(FORTUNE_WHEEL_CONFIG_KEY));
+      const dayStart = getUtcDayStart();
+      const [countRow] = await db.select({ count: sql<number>`count(*)::int` })
+        .from(transactions)
+        .where(and(
+          eq(transactions.userId, req.session.userId!),
+          eq(transactions.type, "fortune_wheel"),
+          gte(transactions.createdAt, dayStart),
+        ));
+      const spinsUsed = Number(countRow?.count ?? 0);
+      const activePrizes = config.isEnabled ? config.prizes.filter((prize) => prize.isActive) : [];
+
+      res.json({
+        isEnabled: config.isEnabled,
+        spinsPerDay: config.spinsPerDay,
+        spinsUsed,
+        spinsRemaining: config.isEnabled ? Math.max(0, config.spinsPerDay - spinsUsed) : 0,
+        prizes: activePrizes,
+      });
+    } catch (error) {
+      console.error("[fortune-wheel] Unable to load wheel:", error);
+      res.status(500).json({ message: "Impossible de charger la roue de la fortune." });
+    }
+  });
+
+  app.get("/api/admin/fortune-wheel", requireAdmin, async (_req, res) => {
+    try {
+      res.json(parseFortuneWheelConfig(await storage.getSetting(FORTUNE_WHEEL_CONFIG_KEY)));
+    } catch (error) {
+      console.error("[fortune-wheel] Unable to load admin configuration:", error);
+      res.status(500).json({ message: "Impossible de charger la configuration de la roue." });
+    }
+  });
+
+  app.put("/api/admin/fortune-wheel", requireAdmin, async (req, res) => {
+    const parsed = fortuneWheelConfigSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: parsed.error.issues[0]?.message || "La configuration de la roue est invalide.",
+      });
+    }
+
+    try {
+      const config = parsed.data;
+      await storage.setSetting(FORTUNE_WHEEL_CONFIG_KEY, JSON.stringify(config), req.session.userId!);
+      await storage.logAdminAction(
+        req.session.userId!,
+        "update_fortune_wheel",
+        null,
+        `Roue ${config.isEnabled ? "activée" : "désactivée"}; ${config.prizes.length} lot(s), limite de ${config.spinsPerDay} tirage(s) par jour`,
+      );
+      res.json(config);
+    } catch (error: any) {
+      console.error("[fortune-wheel] Unable to save admin configuration:", error);
+      res.status(500).json({ message: "Impossible d’enregistrer la configuration de la roue." });
+    }
+  });
+
+  app.post("/api/fortune-wheel/spin", requireAuth, async (req, res) => {
+    const userId = req.session.userId!;
+
+    try {
+      const result = await db.transaction(async (tx) => {
+        const [lockedUser] = await tx.select({ id: users.id })
+          .from(users)
+          .where(eq(users.id, userId))
+          .for("update");
+        if (!lockedUser) {
+          throw Object.assign(new Error("Compte introuvable."), { statusCode: 404 });
+        }
+
+        const [setting] = await tx.select({ value: platformSettings.value })
+          .from(platformSettings)
+          .where(eq(platformSettings.key, FORTUNE_WHEEL_CONFIG_KEY))
+          .limit(1);
+        const config = parseFortuneWheelConfig(setting?.value);
+        if (!config.isEnabled) {
+          throw Object.assign(new Error("La roue de la fortune n’est pas encore activée."), { statusCode: 409 });
+        }
+
+        const activePrizes = config.prizes.filter((prize) => prize.isActive);
+        const totalWeight = activePrizes.reduce((sum, prize) => sum + prize.weight, 0);
+        if (!activePrizes.length || totalWeight <= 0) {
+          throw Object.assign(new Error("Aucun lot actif n’est disponible pour le moment."), { statusCode: 409 });
+        }
+
+        const dayStart = getUtcDayStart();
+        const [countRow] = await tx.select({ count: sql<number>`count(*)::int` })
+          .from(transactions)
+          .where(and(
+            eq(transactions.userId, userId),
+            eq(transactions.type, "fortune_wheel"),
+            gte(transactions.createdAt, dayStart),
+          ));
+        const spinsUsed = Number(countRow?.count ?? 0);
+        if (spinsUsed >= config.spinsPerDay) {
+          throw Object.assign(new Error("Vous avez atteint votre limite de tirages pour aujourd’hui."), { statusCode: 429 });
+        }
+
+        const prize = selectWeightedPrize(activePrizes, randomInt(totalWeight));
+        if (prize.amount > 0) {
+          await tx.update(users)
+            .set({ balance: sql`${users.balance} + ${prize.amount}` })
+            .where(eq(users.id, userId));
+        }
+
+        await tx.insert(transactions).values({
+          userId,
+          type: "fortune_wheel",
+          amount: prize.amount.toFixed(2),
+          description: `Roue de la fortune — ${prize.label}`,
+        });
+
+        const [updatedUser] = await tx.select({ balance: users.balance })
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+
+        return {
+          prize: { id: prize.id, label: prize.label, amount: prize.amount },
+          balance: updatedUser?.balance ?? "0.00",
+          spinsRemaining: Math.max(0, config.spinsPerDay - spinsUsed - 1),
+        };
+      });
+
+      res.json(result);
+    } catch (error: any) {
+      const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
+      if (statusCode === 500) {
+        console.error("[fortune-wheel] Spin failed:", error);
+      }
+      res.status(statusCode).json({
+        message: error?.message || "Le tirage n’a pas pu être effectué.",
+      });
     }
   });
 

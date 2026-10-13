@@ -16,6 +16,7 @@ import AdminSettings from "@/components/admin/settings";
 import AdminGiftCodes from "@/components/admin/gift-codes";
 import AdminCountries from "@/components/admin/countries";
 import AdminBlockedIps from "@/components/admin/blocked-ips";
+import FortuneWheelAdminEditor from "@/components/fortune-wheel/admin-editor";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -47,6 +48,7 @@ export default function AdminPage() {
               <TabsTrigger value="payment-numbers" data-testid="tab-payment-numbers">Numéros</TabsTrigger>
               <TabsTrigger value="countries" data-testid="tab-countries">Pays</TabsTrigger>
               <TabsTrigger value="giftcodes" data-testid="tab-giftcodes">Codes Cadeaux</TabsTrigger>
+              <TabsTrigger value="fortune-wheel" data-testid="tab-fortune-wheel">Roue</TabsTrigger>
               <TabsTrigger value="settings" data-testid="tab-settings">Parametres</TabsTrigger>
               <TabsTrigger value="security" data-testid="tab-security">Sécurité</TabsTrigger>
             </TabsList>
@@ -90,6 +92,10 @@ export default function AdminPage() {
 
           <TabsContent value="giftcodes" className="mt-4">
             <AdminGiftCodes />
+          </TabsContent>
+
+          <TabsContent value="fortune-wheel" className="mt-4">
+            <FortuneWheelAdminEditor />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-4">

@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import BottomNav from "@/components/bottom-nav";
 import FloatingSupport from "@/components/floating-support";
+import FloatingWheelButton from "@/components/fortune-wheel/floating-wheel-button";
 import { ADMIN_PATH } from "@/lib/admin-path";
 import { Loader2 } from "lucide-react";
 
@@ -38,6 +39,7 @@ const MyProductsPage = lazy(() => import("@/pages/my-products"));
 const ProductsPage = lazy(() => import("@/pages/products"));
 const CheckinPage = lazy(() => import("@/pages/checkin"));
 const RewardsPage = lazy(() => import("@/pages/rewards"));
+const FortuneWheelPage = lazy(() => import("@/components/fortune-wheel/fortune-wheel"));
 const WithdrawalHistoryPage = lazy(() => import("@/pages/withdrawal-history"));
 const DepositOrdersPage = lazy(() => import("@/pages/deposit-orders"));
 const SalaryBonusPage = lazy(() => import("@/pages/salary-bonus"));
@@ -196,6 +198,13 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <TasksPage />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/fortune-wheel">
+        <ProtectedRoute>
+          <AppLayout>
+            <FortuneWheelPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>
@@ -372,6 +381,7 @@ function App() {
               <Router />
             </Suspense>
             <FloatingSupport />
+            <FloatingWheelButton />
             <Toaster />
           </BrandThemeScope>
         </AuthProvider>
