@@ -7,7 +7,9 @@ import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
+import { CI_WAVE_DEFAULT_PAYMENT_LINK, CI_WAVE_DEFAULT_QR_IMAGE } from "@/lib/payment-checkout-defaults";
 import type { PaymentNumber } from "@shared/schema";
+import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
 
 type Provider = "ashtech" | "sendavapay" | "soleaspay" | "clapay";
 type Operator = { id?: string; name?: string; operator?: string; slug?: string; code?: string; requiresOtp?: boolean; status?: string; provider?: Provider; manualNumber?: PaymentNumber };
@@ -48,6 +50,13 @@ function Stepper({
       ))}
     </div>
   );
+}
+
+function getHostedManualPaymentMethod(country: string, operatorName: string): "wave" | "card" | null {
+  const normalizedName = operatorName.toLowerCase();
+  if (country === "CI" && normalizedName.includes("wave")) return "wave";
+  if (/\b(carte|card|visa|mastercard)\b/.test(normalizedName)) return "card";
+  return null;
 }
 
 export default function RobotPayPage() {
@@ -94,6 +103,7 @@ export default function RobotPayPage() {
   const [status, setStatus] = useState(clapayReturnDepositId ? "processing" : "pending");
   const [manualTransactionReference, setManualTransactionReference] = useState("");
   const [manualSubmitted, setManualSubmitted] = useState(false);
+  const [manualStatusRefreshing, setManualStatusRefreshing] = useState(false);
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [manualVerificationDeadline, setManualVerificationDeadline] = useState<number | null>(null);
   const checkoutDeadline = useRef(Date.now() + 15 * 60 * 1000);
@@ -122,6 +132,9 @@ export default function RobotPayPage() {
     ? "soleaspay"
     : forcedProvider || providerInfo?.provider || "sendavapay";
   const activeProvider = operator?.provider || provider;
+  const hostedManualMethod = isManualFlow && operator?.manualNumber
+    ? getHostedManualPaymentMethod(country, operator.name || operator.manualNumber.operatorName)
+    : null;
   const availableProviders = isSoleaspayFlow
     ? [{ provider: "soleaspay" as const, name: "SoleaPay" }]
     : providerInfo?.providers || (providerInfo ? [{ provider: providerInfo.provider, name: providerInfo.name }] : []);
@@ -522,6 +535,35 @@ export default function RobotPayPage() {
     }
   };
 
+  const refreshManualPaymentStatus = async () => {
+    if (!depositId || manualStatusRefreshing) return;
+    setManualStatusRefreshing(true);
+    try {
+      const response = await fetch("/api/deposits/history", { credentials: "include" });
+      if (!response.ok) throw new Error("Le statut n’a pas pu être actualisé.");
+      const deposits = await response.json() as Array<{ id?: number | string; status?: string }>;
+      const currentDeposit = Array.isArray(deposits)
+        ? deposits.find((deposit) => Number(deposit.id) === depositId)
+        : undefined;
+      if (!currentDeposit) throw new Error("Cette demande est introuvable dans l’historique.");
+      if (currentDeposit.status === "approved" || currentDeposit.status === "rejected") {
+        setStatus(currentDeposit.status);
+        if (currentDeposit.status === "approved") void refreshUser();
+        queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
+      } else {
+        toast({ title: "Toujours en attente", description: "Le paiement n’a pas encore été validé." });
+      }
+    } catch (error) {
+      toast({
+        title: "Actualisation impossible",
+        description: error instanceof Error ? error.message : "Réessayez dans quelques instants.",
+        variant: "destructive",
+      });
+    } finally {
+      setManualStatusRefreshing(false);
+    }
+  };
+
   const chooseOperator = (nextOperator: Operator) => {
     setOperator(nextOperator);
     setManualTransactionReference("");
@@ -530,6 +572,55 @@ export default function RobotPayPage() {
   };
 
   if (!amount || !country) return <main className="flex min-h-screen items-center justify-center bg-white p-6 text-center text-[#111827]"><p className="rounded-xl border-2 border-[#111827] bg-white p-5 font-semibold shadow-[0_4px_0_#111827]">Données de dépôt invalides.</p></main>;
+  if (
+    isManualFlow &&
+    hostedManualMethod &&
+    operator?.manualNumber &&
+    (step === 1 || (step === 3 && manualSubmitted))
+  ) {
+    return (
+      <HostedPaymentCheckout
+        method={hostedManualMethod}
+        amount={amount}
+        currency={currency}
+        countryName={countryInfo?.name || country}
+        operatorName={operator.name || operator.manualNumber.operatorName}
+        logoUrl={operator.manualNumber.logoUrl}
+        paymentLink={
+          operator.manualNumber.paymentLink ||
+          (hostedManualMethod === "wave" && country === "CI" ? CI_WAVE_DEFAULT_PAYMENT_LINK : null)
+        }
+        qrImageUrl={
+          hostedManualMethod === "wave" &&
+          (!operator.manualNumber.paymentLink || operator.manualNumber.paymentLink === CI_WAVE_DEFAULT_PAYMENT_LINK)
+            ? CI_WAVE_DEFAULT_QR_IMAGE
+            : null
+        }
+        paymentPhone={operator.manualNumber.phone}
+        ownerName={operator.manualNumber.ownerName}
+        phonePrefix={phonePrefix}
+        payerPhone={phone}
+        onPayerPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, 12))}
+        transactionReference={manualTransactionReference}
+        onTransactionReferenceChange={setManualTransactionReference}
+        onSubmitPayment={() => manualMutation.mutate()}
+        isSubmitting={manualMutation.isPending}
+        submitted={step === 3 && manualSubmitted}
+        status={status}
+        depositId={depositId}
+        secondsRemaining={manualVerificationSecondsLeft}
+        onRefreshStatus={refreshManualPaymentStatus}
+        isRefreshing={manualStatusRefreshing}
+        onCopyPaymentTarget={copyPaymentNumber}
+        onBack={() => {
+          setOperator(null);
+          setStep(0);
+        }}
+        onViewHistory={() => navigate("/deposits-history")}
+        onHome={() => navigate("/")}
+      />
+    );
+  }
   return (
     <main className={`min-h-screen p-3 text-[#111827] sm:p-6 ${isManualFlow ? "bg-[#FFF0F3]" : "bg-white"}`}>
       {!isManualFlow && (
