@@ -30,6 +30,10 @@ interface Withdrawal {
   status: string;
   createdAt: string;
   sendavapayReference?: string;
+  inpayOrderNumber?: string;
+  inpayOutTradeNo?: string;
+  omnipayId?: string;
+  omnipayReference?: string;
 }
 
 type ActiveTab = "deposits" | "withdrawals";
@@ -62,8 +66,13 @@ const getDepositRef = (deposit: Deposit) => {
 };
 
 const getWithdrawalRef = (withdrawal: Withdrawal) => {
-  const reference = withdrawal.sendavapayReference;
-  if (reference) return reference.startsWith("sdk") ? reference : `sdk${reference}`;
+  const reference =
+    withdrawal.inpayOutTradeNo ||
+    withdrawal.inpayOrderNumber ||
+    withdrawal.omnipayReference ||
+    withdrawal.omnipayId ||
+    withdrawal.sendavapayReference;
+  if (reference) return reference;
   return makeRef("W", withdrawal.id, withdrawal.createdAt);
 };
 
@@ -81,6 +90,22 @@ const formatDateTime = (dateString: string) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}:${ss}`;
 };
 
+const formatReceiptDateTime = (dateString: string) => {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+  const formattedDate = new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+  const formattedTime = new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
+  return `${formattedDate}, ${formattedTime}`;
+};
+
 const getStatusInfo = (status: string) => {
   switch (status) {
     case "completed":
@@ -93,6 +118,14 @@ const getStatusInfo = (status: string) => {
     default:
       return { label: "En attente...", color: "#bd304c" };
   }
+};
+
+const getWithdrawalStatusInfo = (status: string) => {
+  const info = getStatusInfo(status);
+  if (status === "completed" || status === "approved") {
+    return { label: "Succès", color: "#bd304c" };
+  }
+  return info;
 };
 
 const Row = ({ label, value }: { label: string; value: string }) => (
@@ -287,6 +320,76 @@ export default function HistoryPage() {
           background: #ffffff;
           box-shadow: 0 4px 0 #111827, 0 8px 16px rgba(17, 24, 39, .12);
         }
+        .withdrawal-receipt-card {
+          min-height: 0;
+          padding: 0 16px 16px;
+          border-color: #17191c;
+          border-radius: 15px;
+          box-shadow: 0 4px 0 #17191c, 0 9px 18px rgba(17, 24, 39, .14);
+        }
+        .withdrawal-receipt-header {
+          display: flex;
+          min-height: 64px;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin: 0 -16px;
+          border-bottom: 1.5px solid #e8cbd1;
+          padding: 12px 16px;
+          background: #ffffff;
+        }
+        .withdrawal-receipt-reference {
+          min-width: 0;
+          margin: 0;
+          color: #252327;
+          font-size: 15px;
+          font-weight: 800;
+          line-height: 1.25;
+          overflow-wrap: anywhere;
+        }
+        .withdrawal-receipt-status {
+          display: inline-flex;
+          min-height: 31px;
+          align-items: center;
+          flex: 0 0 auto;
+          border: 1.5px solid #17191c;
+          border-radius: 999px;
+          padding: 0 10px;
+          color: #ffffff;
+          font-size: 12px;
+          font-weight: 800;
+          line-height: 1;
+          white-space: nowrap;
+        }
+        .withdrawal-receipt-rows {
+          display: grid;
+          gap: 10px;
+          padding-top: 13px;
+        }
+        .withdrawal-receipt-card .history-row {
+          min-height: 22px;
+          justify-content: flex-start;
+          gap: 9px;
+          font-size: 14px;
+          line-height: 1.35;
+        }
+        .withdrawal-receipt-card .history-row > span:first-child {
+          flex: 0 0 86px;
+          color: #6d6970;
+          font-weight: 600;
+        }
+        .withdrawal-receipt-card .history-row > span:last-child {
+          min-width: 0;
+          color: #92263d;
+          font-weight: 800;
+          text-align: left;
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+        .withdrawal-receipt-card .history-row:last-child > span:last-child {
+          color: #252327;
+          font-weight: 600;
+        }
         .history-card-top {
           display: flex;
           min-height: 76px;
@@ -389,7 +492,11 @@ export default function HistoryPage() {
           .history-tabs { min-height: 58px; padding-bottom: 11px; }
           .history-tab { font-size: 14px; }
           .history-content { min-height: calc(100dvh - 120px); padding-right: 16px; padding-left: 16px; }
-          .history-card { padding-right: 18px; padding-left: 18px; }
+           .history-card { padding-right: 18px; padding-left: 18px; }
+          .withdrawal-receipt-card { padding-right: 14px; padding-left: 14px; }
+          .withdrawal-receipt-header { margin-right: -14px; margin-left: -14px; padding-right: 14px; padding-left: 14px; }
+          .withdrawal-receipt-reference { font-size: 13px; }
+          .withdrawal-receipt-card .history-row > span:first-child { flex-basis: 78px; }
           .history-card-label { font-size: 15px; }
           .history-status { font-size: 12px; padding-right: 8px; padding-left: 8px; }
           .history-row { font-size: 13px; }
@@ -473,21 +580,25 @@ export default function HistoryPage() {
           ) : withdrawals.length > 0 ? (
             <div className="history-list">
               {withdrawals.map((withdrawal) => {
-                const { label, color } = getStatusInfo(withdrawal.status);
+                const { label, color } = getWithdrawalStatusInfo(withdrawal.status);
                 const gross = Number.parseFloat(withdrawal.amount);
                 const net = Number.parseFloat(withdrawal.netAmount || withdrawal.amount);
+                const reference = getWithdrawalRef(withdrawal);
                 return (
-                  <article className="history-card" key={withdrawal.id} data-testid={`withdrawal-item-${withdrawal.id}`}>
-                    <div className="history-card-top">
-                      <div>
-                        <p className="history-amount">{currency} {gross.toLocaleString("fr-FR")}</p>
-                        <p className="history-card-label">Montant du retrait</p>
-                      </div>
-                      <Status label={label} color={color} />
+                  <article className="history-card withdrawal-receipt-card" key={withdrawal.id} data-testid={`withdrawal-item-${withdrawal.id}`}>
+                    <div className="withdrawal-receipt-header">
+                      <p className="withdrawal-receipt-reference">
+                        {isAdmin ? reference : maskRef(reference)}
+                      </p>
+                      <span className="withdrawal-receipt-status" style={{ backgroundColor: color }}>
+                        {label}
+                      </span>
                     </div>
-                    <div className="history-divider" />
-                    <Row label="Montant reçu :" value={`${currency} ${net.toLocaleString("fr-FR")}`} />
-                    <Row label="Heure du retrait :" value={formatDateTime(withdrawal.createdAt)} />
+                    <div className="withdrawal-receipt-rows">
+                      <Row label="Montant :" value={`${gross.toLocaleString("fr-FR")} ${currency}`} />
+                      <Row label="Reçu :" value={`${net.toLocaleString("fr-FR")} ${currency}`} />
+                      <Row label="Date :" value={formatReceiptDateTime(withdrawal.createdAt)} />
+                    </div>
                   </article>
                 );
               })}
