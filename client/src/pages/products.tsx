@@ -151,13 +151,13 @@ export default function ProductsPage() {
         }
         .cp-product-info { min-width: 0; }
         .cp-product-name {
-          margin: 0 0 6px; color: #17191c; font-size: 17px; font-weight: 800;
+          margin: 0 0 6px; color: #17191c; font-size: 18px; font-weight: 800;
           line-height: 1.15; overflow-wrap: anywhere;
         }
         .cp-product-line {
           display: grid; grid-template-columns: minmax(0, 1fr) auto;
           align-items: baseline; gap: 5px; margin-top: 5px;
-          color: #625e63; font-size: clamp(10px, 2.8vw, 12px); line-height: 1.22;
+          color: #625e63; font-size: clamp(11px, 3.1vw, 13px); line-height: 1.22;
         }
         .cp-product-line span { min-width: 0; }
         .cp-product-line strong { max-width: 100%; color: #17191c; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
@@ -167,7 +167,7 @@ export default function ProductsPage() {
           align-items: center; justify-content: center; justify-self: stretch;
           padding: 8px 7px; border: 2px solid #17191c; border-radius: 999px;
           background: linear-gradient(120deg, #bd304c 0%, #9e263c 100%);
-          color: #ffffff; font-size: 12px; font-weight: 800; white-space: nowrap;
+          color: #ffffff; font-size: 13px; font-weight: 800; white-space: nowrap;
           box-shadow: 0 2px 0 #17191c, 0 5px 10px rgba(17,24,39,.12);
           transition: transform .16s ease, filter .16s ease;
         }
@@ -217,9 +217,9 @@ export default function ProductsPage() {
           .cp-products-stat-icon { width: 36px; height: 36px; flex-basis: 36px; }
           .cp-products-list { padding-right: 14px; padding-left: 14px; }
           .cp-product-card { grid-template-columns: 68px minmax(0, 1fr) 72px; gap: 7px; padding: 9px; }
-          .cp-product-name { font-size: 15px; }
-          .cp-product-line { gap: 4px; font-size: 10px; }
-          .cp-product-buy { min-height: 34px; padding: 6px 4px; font-size: 10px; }
+          .cp-product-name { font-size: 16px; }
+          .cp-product-line { gap: 4px; font-size: 11px; }
+          .cp-product-buy { min-height: 36px; padding: 6px 4px; font-size: 11px; }
         }
       `}</style>
 
