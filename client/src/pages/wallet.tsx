@@ -512,7 +512,10 @@ const walletStyles = `
   }
   .wallet-form-content {
     min-height: calc(100vh - 73px);
-    padding-top: 24px;
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 18px 16px calc(112px + env(safe-area-inset-bottom));
     background: transparent;
   }
   .wallet-form-page .wallet-shell,
@@ -529,29 +532,51 @@ const walletStyles = `
   .wallet-scene-page .wallet-shell {
     background-position: center 190px;
   }
-  .wallet-reference-card {
-    overflow: hidden;
-    border: 2px solid #111827;
-    border-radius: 12px;
-    background: #ffffff;
-    box-shadow: 0 5px 0 #111827, 0 10px 18px rgba(17, 24, 39, .14);
+  .wallet-form-heading {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 0 2px 2px;
   }
-  .wallet-reference-card h2 {
-    margin: 0;
-    border-bottom: 2px solid #111827;
-    padding: 18px 20px 16px;
-    color: #111827;
-    font-size: 20px;
+  .wallet-form-step {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: none;
+    place-items: center;
+    border: 2px solid #17191c;
+    border-radius: 12px;
+    background: #bd304c;
+    box-shadow: 0 2px 0 #17191c;
+    color: #ffffff;
+    font-size: 13px;
     font-weight: 800;
   }
+  .wallet-form-heading h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+  .wallet-reference-row,
+  .wallet-reference-address {
+    overflow: hidden;
+    border: 2px solid #17191c;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 3px 0 #17191c, 0 7px 14px rgba(17, 24, 39, .14);
+  }
   .wallet-reference-row {
-    display: flex;
+    display: grid;
     width: 100%;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     align-items: center;
-    gap: 14px;
-    min-height: 68px;
-    padding: 15px 20px;
-    border: 0;
+    column-gap: 12px;
+    row-gap: 5px;
+    min-height: 78px;
+    padding: 13px 15px;
     background: #ffffff;
     color: #111827;
     text-align: left;
@@ -559,23 +584,26 @@ const walletStyles = `
   }
   .wallet-reference-row:hover,
   .wallet-reference-row:focus-visible {
-    background: #fff0f3;
-    outline: none;
+    border-color: #17191c;
+    background: #fffafb;
+    outline: 3px solid rgba(189, 48, 76, .2);
+    outline-offset: 2px;
   }
   .wallet-reference-label {
-    width: 84px;
-    flex: none;
-    color: #111827;
-    font-size: 16px;
-    font-weight: 700;
+    grid-column: 1;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
   }
   .wallet-reference-value {
+    grid-column: 1;
     min-width: 0;
-    flex: 1;
     overflow: hidden;
     color: #111827;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -584,39 +612,74 @@ const walletStyles = `
     font-weight: 500;
   }
   .wallet-reference-row svg {
+    grid-column: 2;
+    grid-row: 1 / span 2;
     flex: none;
-    color: #111827;
-  }
-  .wallet-reference-divider {
-    height: 2px;
-    margin: 0 20px;
-    background: #111827;
+    color: #bd304c;
   }
   .wallet-reference-address {
-    min-height: 104px;
-    padding: 18px 20px 22px;
-    border-top: 0;
-    background: #ffffff;
+    min-height: 0;
+    padding: 13px 15px 15px;
+  }
+  .wallet-form-address-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 10px;
+  }
+  .wallet-form-address-step {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    flex: none;
+    place-items: center;
+    border: 1.5px solid #17191c;
+    border-radius: 8px;
+    background: #fff0f3;
+    color: #bd304c;
+    font-size: 11px;
+    font-weight: 800;
   }
   .wallet-reference-address label {
     display: block;
-    margin-bottom: 8px;
-    color: #111827;
-    font-size: 16px;
-    font-weight: 700;
+    margin: 0;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
   }
   .wallet-reference-address .wallet-input {
-    border-bottom: 2px solid #111827;
-    padding: 4px 0 9px;
-    font-size: 16px;
+    min-height: 48px;
+    border: 1.5px solid #17191c;
+    border-radius: 10px;
+    padding: 0 12px;
+    background: #ffffff;
+    font-size: 15px;
     text-align: left;
   }
+  .wallet-reference-address .wallet-input:focus {
+    border-color: #bd304c;
+    box-shadow: 0 0 0 3px rgba(189, 48, 76, .16);
+  }
   .wallet-form-note {
-    margin: 14px 2px 0;
+    margin: 0;
+    border: 1.5px solid #17191c;
+    border-radius: 12px;
+    padding: 11px 13px;
+    background: #ffffff;
+    box-shadow: 0 2px 0 #17191c, 0 5px 10px rgba(17, 24, 39, .1);
     color: #4b5563;
     font-size: 12px;
     line-height: 1.45;
-    text-align: center;
+    text-align: left;
+  }
+  @media (min-width: 700px) {
+    .wallet-form-content {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-top: 24px;
+    }
   }
   .wallet-form-page .wallet-footer {
     border-top: 0;
@@ -821,54 +884,56 @@ export default function WalletPage() {
           </header>
 
           <main className="wallet-content wallet-form-content">
-            <section className="wallet-reference-card">
-              <h2>Informations du compte</h2>
-
-              <button
-                type="button"
-                onClick={() => setShowCountrySheet(true)}
-                className="wallet-reference-row"
-                data-testid="button-select-country"
-              >
-                <span className="wallet-reference-label">Type</span>
-                <span className={`wallet-reference-value${selectedCountry ? "" : " is-empty"}`}>
-                  {selectedCountryLabel}
-                </span>
-                <ChevronDown size={19} />
-              </button>
-
-              <div className="wallet-reference-divider" />
-
-              <button
-                type="button"
-                onClick={() => setShowBankSheet(true)}
-                className="wallet-reference-row"
-                data-testid="button-select-network"
-              >
-                <span className="wallet-reference-label">Network</span>
-                <span className={`wallet-reference-value${selectedMethod ? "" : " is-empty"}`}>
-                  {selectedMethod || "Sélectionner un opérateur"}
-                </span>
-                <ChevronDown size={19} />
-              </button>
-
-              <div className="wallet-reference-divider" />
-
-              <div className="wallet-reference-address">
-                <label htmlFor="wallet-account-number">Adresse</label>
-                <input
-                  id="wallet-account-number"
-                  {...form.register("accountNumber")}
-                  type="tel"
-                  placeholder="Saisissez le numéro"
-                  className="wallet-input"
-                  data-testid="input-wallet-number"
-                />
-                {form.formState.errors.accountNumber && (
-                  <p className="wallet-error">{form.formState.errors.accountNumber.message}</p>
-                )}
+            <div className="wallet-form-heading">
+              <span className="wallet-form-step" aria-hidden="true">01</span>
+              <div>
+                <h2>Informations du compte</h2>
               </div>
-            </section>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowCountrySheet(true)}
+              className="wallet-reference-row"
+              data-testid="button-select-country"
+            >
+              <span className="wallet-reference-label">Type</span>
+              <span className={`wallet-reference-value${selectedCountry ? "" : " is-empty"}`}>
+                {selectedCountryLabel}
+              </span>
+              <ChevronDown size={19} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowBankSheet(true)}
+              className="wallet-reference-row"
+              data-testid="button-select-network"
+            >
+              <span className="wallet-reference-label">Network</span>
+              <span className={`wallet-reference-value${selectedMethod ? "" : " is-empty"}`}>
+                {selectedMethod || "Sélectionner un opérateur"}
+              </span>
+              <ChevronDown size={19} />
+            </button>
+
+            <div className="wallet-reference-address">
+              <div className="wallet-form-address-heading">
+                <span className="wallet-form-address-step" aria-hidden="true">02</span>
+                <label htmlFor="wallet-account-number">Adresse</label>
+              </div>
+              <input
+                id="wallet-account-number"
+                {...form.register("accountNumber")}
+                type="tel"
+                placeholder="Saisissez le numéro"
+                className="wallet-input"
+                data-testid="input-wallet-number"
+              />
+              {form.formState.errors.accountNumber && (
+                <p className="wallet-error">{form.formState.errors.accountNumber.message}</p>
+              )}
+            </div>
 
             <p className="wallet-form-note">
               Le numéro sera utilisé pour recevoir vos retraits.
