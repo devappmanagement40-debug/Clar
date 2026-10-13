@@ -56,7 +56,7 @@ const userActivityLibrary = [
 export default function HomePage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const { data: settings } = useQuery<Record<string, string>>({ queryKey: ["/api/settings"] });
+  const { data: settings, isLoading: settingsLoading } = useQuery<Record<string, string>>({ queryKey: ["/api/settings"] });
   const [welcomePopupOpen, setWelcomePopupOpen] = useState(false);
   const [bannerIndex, setBannerIndex] = useState(0);
 
@@ -67,6 +67,28 @@ export default function HomePage() {
     }, 5000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!user || settingsLoading) return;
+
+    const sessionKey = `cp-home-welcome:${user.id}`;
+    try {
+      if (window.sessionStorage.getItem(sessionKey) === "shown") return;
+    } catch {
+      // Still show the information if this browser blocks session storage.
+    }
+
+    const timer = window.setTimeout(() => {
+      setWelcomePopupOpen(true);
+      try {
+        window.sessionStorage.setItem(sessionKey, "shown");
+      } catch {
+        // Popup remains usable even when session storage is unavailable.
+      }
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [user?.id, settingsLoading]);
 
   if (!user) return null;
   const currency = getCountryByCode(user.country)?.currency || "XOF";
