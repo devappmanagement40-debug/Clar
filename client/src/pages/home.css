@@ -407,10 +407,23 @@ body:has(.cp-home) { background: #fff !important; }
   cursor: pointer;
   transition: transform .15s ease, background-color .15s ease;
 }
-.cp-dialog-telegram { background: var(--cp-accent); color: #fff; text-decoration: none; }
-.cp-dialog-telegram span { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-wrap: balance; }
+.cp-dialog-telegram {
+  min-height: 54px;
+  gap: 11px;
+  border-color: var(--cp-accent-deep);
+  border-radius: 10px;
+  padding: 7px 12px;
+  background: var(--cp-accent);
+  box-shadow: 0 3px 0 var(--cp-accent-deep);
+  color: #fff;
+  text-decoration: none;
+  transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.cp-telegram-logo { display: grid; width: 32px; height: 32px; flex: none; place-items: center; overflow: hidden; border-radius: 50%; }
+.cp-telegram-logo svg { display: block; width: 100%; height: 100%; }
+.cp-dialog-telegram > span:not(.cp-telegram-logo) { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-wrap: balance; }
 .cp-dialog-close { min-height: 48px; border-color: #17191c; background: #17191c; color: #fff; }
-.cp-dialog-telegram:hover { background: var(--cp-accent-deep); }
+.cp-dialog-telegram:hover { background: var(--cp-accent-deep); box-shadow: 0 1px 0 var(--cp-accent-deep); transform: translateY(2px); }
 .cp-dialog-close:hover { border-color: var(--cp-accent-deep); background: var(--cp-accent-deep); }
 
 @keyframes cp-rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
