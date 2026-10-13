@@ -1302,8 +1302,8 @@ export default function DepositPage() {
           Recharger maintenant
         </button>
 
-        <section className="instructions" aria-label="Instructions de recharge">
-          <h2 className="instructions-title">Instructions de Recharge :</h2>
+        <section className="instructions" aria-label="Bon à savoir">
+          <h2 className="instructions-title">Bon à savoir</h2>
           <p className="instruction"><strong>Montant minimum de recharge :</strong> {MIN_DEPOSIT.toLocaleString("fr-FR")} {currency}</p>
           <p className="instruction"><strong>Vérifiez attentivement vos informations de compte</strong> lors du virement pour que votre paiement soit traité correctement</p>
           <p className="instruction"><strong>Chaque commande possède ses propres informations de paiement</strong> ; ne réutilisez pas les informations précédentes pour un second paiement</p>

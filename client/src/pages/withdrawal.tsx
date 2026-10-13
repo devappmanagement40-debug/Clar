@@ -461,25 +461,44 @@ export default function WithdrawalPage() {
           font-size: 24px;
           line-height: 0;
         }
-        .withdraw-reference .instruction {
-          position: relative;
-          margin: 0 0 16px 20px;
+        .withdraw-reference .instruction-list {
+          display: grid;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+        .withdraw-reference .instruction-row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: start;
+          gap: 12px;
+          padding: 11px 0;
+          border-bottom: 1px solid #e5e7eb;
           color: #4b5563;
-          font-size: 15px;
-          font-weight: 500;
-          line-height: 1.65;
+          font-size: 14px;
+          line-height: 1.45;
         }
-        .withdraw-reference .instruction::before {
-          position: absolute;
-          top: 7px;
-          left: -15px;
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          content: "";
-          background: #bd304c;
+        .withdraw-reference .instruction-row:last-child { border-bottom: 0; }
+        .withdraw-reference .instruction-row strong {
+          color: #111827;
+          font-weight: 800;
+          text-align: right;
         }
-        .withdraw-reference .instruction strong { color: #111827; font-weight: 800; }
+        .withdraw-reference .instruction-row--detail {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 4px;
+        }
+        .withdraw-reference .withdrawal-safety-note {
+          margin: 10px 0 0;
+          padding: 10px 11px;
+          border: 1px solid #f3c1cc;
+          border-radius: 10px;
+          background: #fff5f7;
+          color: #7f2639;
+          font-size: 13px;
+          line-height: 1.45;
+        }
+        .withdraw-reference .withdrawal-safety-note strong { color: #111827; }
         .withdraw-reference .submit {
           display: flex;
           width: calc(100% - 32px);
@@ -601,11 +620,27 @@ export default function WithdrawalPage() {
 
         <section className="instructions" aria-label="Instructions de retrait">
           <h2 className="instructions-title">Instructions de retrait</h2>
-          <p className="instruction"><strong>Montant minimum de retrait :</strong> {minWithdrawal.toLocaleString("fr-FR")} {currency}</p>
-          <p className="instruction"><strong>Heures de retrait :</strong> de {withdrawalStartHour}h à {withdrawalEndHour}h</p>
-          <p className="instruction"><strong>Frais de retrait :</strong> {withdrawalFee} % par transaction</p>
-          <p className="instruction"><strong>Délai de traitement :</strong> généralement dans les 2 heures, et exceptionnellement sous 24 heures.</p>
-          <p className="instruction">Vérifiez vos informations de portefeuille avant de soumettre votre demande.</p>
+          <ul className="instruction-list">
+            <li className="instruction-row">
+              <span>Montant minimum de retrait</span>
+              <strong>{minWithdrawal.toLocaleString("fr-FR")} {currency}</strong>
+            </li>
+            <li className="instruction-row">
+              <span>Heures de retrait</span>
+              <strong>De {withdrawalStartHour}h à {withdrawalEndHour}h</strong>
+            </li>
+            <li className="instruction-row">
+              <span>Frais de retrait</span>
+              <strong>{withdrawalFee} % par transaction</strong>
+            </li>
+            <li className="instruction-row instruction-row--detail">
+              <strong>Délai de traitement</strong>
+              <span>Généralement dans les 2 heures, et exceptionnellement sous 24 heures.</span>
+            </li>
+          </ul>
+          <p className="withdrawal-safety-note">
+            <strong>Avant de valider :</strong> vérifiez vos informations de portefeuille avant de soumettre votre demande.
+          </p>
         </section>
       </div>
     </main>
