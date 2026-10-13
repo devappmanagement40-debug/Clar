@@ -4,8 +4,22 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, ArrowLeft, Check, CircleHelp, Clock3, RotateCw, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  BadgeInfo,
+  Check,
+  ChevronRight,
+  CircleHelp,
+  Clock3,
+  Gift,
+  RotateCw,
+  ShieldCheck,
+  Sparkles,
+  Wallet,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { WheelPageData, WheelSpinResult } from "./types";
 
 const palette = ["#BD304C", "#232323", "#E9D9D4", "#6F2434", "#D8D0C8", "#9E263C", "#F2E9E6", "#3B3332"];
@@ -15,10 +29,16 @@ function WheelGraphic({
   prizes,
   rotation,
   onRotationEnd,
+  onSpin,
+  canSpin,
+  isSpinning,
 }: {
   prizes: WheelPageData["prizes"];
   rotation: number;
   onRotationEnd: () => void;
+  onSpin: () => void;
+  canSpin: boolean;
+  isSpinning: boolean;
 }) {
   const wedges = useMemo(() => {
     if (!prizes.length) return [];
@@ -92,6 +112,17 @@ function WheelGraphic({
           </div>
         )}
       </div>
+      {prizes.length > 0 ? (
+        <button
+          type="button"
+          className="fw-wheel-go"
+          onClick={onSpin}
+          disabled={!canSpin}
+          aria-label={isSpinning ? "Tirage en cours" : "Lancer la roue"}
+        >
+          {isSpinning ? <RotateCw className="fw-spin-icon" size={22} /> : <span>GO</span>}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -112,7 +143,8 @@ function LoadingPage() {
 }
 
 export default function FortuneWheelPage() {
-  const { refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const [rulesOpen, setRulesOpen] = useState(false);
   const [result, setResult] = useState<WheelSpinResult | null>(null);
   const [pendingResult, setPendingResult] = useState<WheelSpinResult | null>(null);
   const [rotation, setRotation] = useState(0);
@@ -158,7 +190,19 @@ export default function FortuneWheelPage() {
 
   const page = statusQuery.data;
   const prizes = page?.prizes?.filter((prize) => prize.isActive) ?? [];
-  const canSpin = Boolean(page?.isEnabled && page.spinsRemaining > 0 && prizes.length > 0 && !spinMutation.isPending && !pendingResult);
+  const canSpin = Boolean(
+    page?.isEnabled
+    && page.spinsRemaining > 0
+    && prizes.some((prize) => prize.weight > 0)
+    && !spinMutation.isPending
+    && !pendingResult,
+  );
+  const isSpinning = spinMutation.isPending || Boolean(pendingResult);
+  const balance = Number(user?.balance ?? 0);
+  const totalRewards = page?.totalRewards ?? 0;
+  const spinsUsedPercent = page?.spinsPerDay
+    ? Math.min(100, Math.max(0, (page.spinsUsed / page.spinsPerDay) * 100))
+    : 0;
   const completeWheelAnimation = () => {
     if (!pendingResult) return;
     setResult(pendingResult);
@@ -169,105 +213,176 @@ export default function FortuneWheelPage() {
     ? "La roue est momentanément indisponible."
     : !prizes.length
       ? "Aucune récompense n’est disponible pour le moment."
+      : !prizes.some((prize) => prize.weight > 0)
+        ? "Aucun lot avec une probabilité active n’est disponible pour le moment."
       : page.spinsRemaining <= 0
         ? "Vous avez utilisé tous vos tirages du jour."
         : "";
 
   return (
-    <main className="fw-page">
+    <main className="fw-page fw-redesign">
       <div className="fw-shell">
-        <header className="fw-topbar">
-          <Link href="/" className="fw-back"><ArrowLeft size={18} /><span>Mon espace</span></Link>
-          <div className="fw-brandmark" aria-label="Equinor"><span className="fw-brand-dot" />EQUINOR</div>
+        <header className="fwr-header">
+          <Link href="/" className="fwr-icon-link" aria-label="Retour à l’accueil"><ArrowLeft size={20} /></Link>
+          <h1>Tirage au sort</h1>
+          <Link href="/fortune-wheel/history" className="fwr-icon-link" aria-label="Historique des gains"><Clock3 size={20} /></Link>
         </header>
 
-        <section className="fw-intro">
-          <div className="fw-kicker"><span /> ESPACE RÉCOMPENSES</div>
-          <h1>Un tour.<br /><em>Une surprise.</em></h1>
-          <p>Chaque jour, tentez votre chance et découvrez la récompense qui vous est réservée.</p>
-        </section>
+        <div className={`fwr-status ${page?.isEnabled && canSpin ? "is-active" : ""}`} role="status">
+          <span className="fwr-status-dot" />
+          <strong>{page?.isEnabled && canSpin ? "Roue disponible" : "Roue indisponible"}</strong>
+          <span className="fwr-status-separator" />
+          <span>{page?.isEnabled ? `${page.spinsRemaining} tirage${page.spinsRemaining === 1 ? "" : "s"} disponible${page.spinsRemaining === 1 ? "" : "s"}` : "Tirages suspendus"}</span>
+        </div>
 
-        <section className="fw-content" aria-label="Roue de la fortune">
-          <div className="fw-wheel-column">
-            <div className="fw-wheel-meta"><span className="fw-live-mark" />TIRAGE DU JOUR <span className="fw-meta-rule" /> <span>EN XOF</span></div>
-            <WheelGraphic prizes={prizes} rotation={rotation} onRotationEnd={completeWheelAnimation} />
-            <div className="fw-wheel-caption"><ShieldCheck size={15} /> Résultat attribué par la plateforme</div>
-          </div>
-
-          <div className="fw-action-panel">
-            <div className="fw-panel-head">
-              <span className="fw-index">01 / RÉCOMPENSES</span>
-              <Sparkles size={18} strokeWidth={1.7} />
-            </div>
-            <h2>Votre prochain<br />tirage vous attend.</h2>
-            <p className="fw-panel-copy">Lancez votre roue. Votre récompense sera ajoutée automatiquement à votre solde.</p>
-
-            <div className="fw-spins-meter">
-              <div className="fw-meter-copy"><span>Tirages disponibles</span><strong>{page?.spinsRemaining ?? "—"}<small> / {page?.spinsPerDay ?? "—"}</small></strong></div>
-              <div className="fw-meter-track" aria-label={`${page?.spinsRemaining ?? 0} tirages restants sur ${page?.spinsPerDay ?? 0}`}>
-                <span style={{ width: `${page && page.spinsPerDay > 0 ? Math.max(0, Math.min(100, (page.spinsRemaining / page.spinsPerDay) * 100)) : 0}%` }} />
+        <div className="fwr-content">
+          <section className="fwr-summary" aria-label="Résumé du compte">
+            <div className="fwr-summary-top">
+              <div className="fwr-member">
+                <span className="fwr-member-icon"><Gift size={20} /></span>
+                <div>
+                  <span className="fwr-overline">VOTRE COMPTE</span>
+                  <strong>{user?.phone ? maskPhone(user.phone) : "Mes récompenses"}</strong>
+                </div>
               </div>
-              <div className="fw-meter-foot"><Clock3 size={13} /> Renouvellement chaque jour</div>
+              <Link href="/withdrawal" className="fwr-withdraw">
+                <Wallet size={15} /> Retirer
+              </Link>
+            </div>
+
+            <div className="fwr-balance-row">
+              <div>
+                <span className="fwr-muted-label">Solde de revenus</span>
+                <strong>{money(balance)} <small>XOF</small></strong>
+              </div>
+              <div className="fwr-summary-total">
+                <span className="fwr-muted-label">Gains confirmés à la roue</span>
+                <strong>{money(totalRewards)} <small>XOF</small></strong>
+              </div>
+            </div>
+
+            <div className="fwr-progress-head">
+              <span>Tirages utilisés aujourd’hui</span>
+              <strong>{page ? `${page.spinsUsed} / ${page.spinsPerDay}` : "—"}</strong>
+            </div>
+            <div className="fwr-progress" aria-label={`${page?.spinsUsed ?? 0} tirages utilisés sur ${page?.spinsPerDay ?? 0}`}>
+              <span style={{ width: `${spinsUsedPercent}%` }} />
+            </div>
+            <p className="fwr-progress-note">Cette progression indique les tirages effectués. Elle ne conditionne pas les retraits.</p>
+          </section>
+
+          <section className="fwr-wheel-card" aria-label="Roue des récompenses">
+            <div className="fwr-wheel-eyebrow"><span>ROUE DES RÉCOMPENSES</span><span className="fwr-rule" /><span>XOF</span></div>
+            <WheelGraphic
+              prizes={prizes}
+              rotation={rotation}
+              onRotationEnd={completeWheelAnimation}
+              onSpin={() => { setResult(null); spinMutation.mutate(); }}
+              canSpin={canSpin}
+              isSpinning={isSpinning}
+            />
+            <div className="fwr-wheel-caption"><ShieldCheck size={15} /> Lots et résultats gérés par la plateforme</div>
+          </section>
+
+          <section className="fwr-draw-actions">
+            <div className="fwr-draw-copy">
+              <span className="fwr-overline">VOTRE PROCHAINE ÉTAPE</span>
+              <h2>{canSpin ? "Lancez votre roue." : "Votre roue vous attend."}</h2>
+              <p>{canSpin ? "Appuyez sur GO pour lancer le tirage." : "Les tirages seront accessibles dès que la roue et ses lots seront activés."}</p>
             </div>
 
             {statusQuery.isError ? (
-              <div className="fw-alert fw-alert-error" role="alert">
+              <div className="fwr-alert fwr-alert-error" role="alert">
                 <AlertTriangle size={18} />
-                <div><strong>Chargement impossible</strong><span>Vérifiez votre connexion puis réessayez.</span></div>
+                <span>Impossible de charger la roue. Vérifiez votre connexion puis réessayez.</span>
                 <Button variant="outline" size="sm" onClick={() => statusQuery.refetch()}>Réessayer</Button>
               </div>
             ) : null}
-
             {unavailableReason && !statusQuery.isError ? (
-              <div className="fw-alert" role="status"><CircleHelp size={18} /><span>{unavailableReason}</span></div>
+              <div className="fwr-alert" role="status"><CircleHelp size={18} /><span>{unavailableReason}</span></div>
             ) : null}
-
             {spinMutation.isError ? (
-              <div className="fw-alert fw-alert-error" role="alert"><AlertTriangle size={18} /><span>{spinMutation.error.message || "Une erreur est survenue. Réessayez."}</span></div>
+              <div className="fwr-alert fwr-alert-error" role="alert"><AlertTriangle size={18} /><span>{spinMutation.error.message || "Une erreur est survenue. Réessayez."}</span></div>
             ) : null}
-
-            <Button
-              className="fw-spin-button"
-              disabled={!canSpin}
-              onClick={() => { setResult(null); spinMutation.mutate(); }}
-              aria-label={spinMutation.isPending ? "Tirage en cours" : "Lancer la roue"}
-            >
-              {spinMutation.isPending || pendingResult ? <RotateCw className={spinMutation.isPending || pendingResult ? "fw-spin-icon" : ""} size={18} /> : <Sparkles size={18} />}
-              {spinMutation.isPending ? "Tirage en cours…" : pendingResult ? "Révélation…" : "Lancer la roue"}
-            </Button>
-
             {result ? (
-              <div className="fw-result" role="status" aria-live="polite">
-                <div className="fw-result-icon"><Check size={19} /></div>
-                <div className="fw-result-body">
-                  <span>RÉCOMPENSE CONFIRMÉE</span>
+              <div className="fwr-result" role="status" aria-live="polite">
+                <span className="fwr-result-icon"><Check size={18} /></span>
+                <div>
+                  <span className="fwr-overline">RÉCOMPENSE CONFIRMÉE</span>
                   <strong>{result.prize.label}</strong>
-                  <div className="fw-result-line"><b>{money(result.prize.amount)} XOF</b><span>Solde : {result.balance} XOF</span></div>
+                  <p>
+                    {result.prize.amount > 0
+                      ? `${money(result.prize.amount)} XOF ajoutés au solde de revenus.`
+                      : "Ce résultat n’ajoute pas de montant au solde."}
+                  </p>
                 </div>
               </div>
             ) : null}
-            <div className="fw-trust-note"><ShieldCheck size={15} /><span>Résultat attribué par la plateforme à l’issue du tirage.</span></div>
-          </div>
-        </section>
 
-        <section className="fw-prize-strip" aria-label="Lots disponibles">
-          <div className="fw-prize-heading"><div><span className="fw-index">LES RÉCOMPENSES</span><h2>Ce que la roue réserve</h2></div><span className="fw-prize-count">{prizes.length.toString().padStart(2, "0")} LOTS</span></div>
-          {prizes.length ? (
-            <div className="fw-prize-list">
-              {prizes.map((prize, index) => (
-                <div className="fw-prize-item" key={prize.id}>
-                  <span className="fw-prize-no">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="fw-prize-name">{prize.label}</span>
-                  <strong>{money(prize.amount)} <small>XOF</small></strong>
-                </div>
-              ))}
+            <div className="fwr-links">
+              <button type="button" onClick={() => setRulesOpen(true)}>
+                <span className="fwr-link-icon"><BadgeInfo size={18} /></span>
+                <span><strong>Règles de la roue</strong><small>Fonctionnement et conditions</small></span>
+                <ChevronRight size={18} />
+              </button>
+              <Link href="/fortune-wheel/history">
+                <span className="fwr-link-icon"><Clock3 size={18} /></span>
+                <span><strong>Historique des gains</strong><small>Vos récompenses confirmées</small></span>
+                <ChevronRight size={18} />
+              </Link>
             </div>
-          ) : (
-            <div className="fw-prize-empty">Les récompenses seront affichées ici dès leur activation.</div>
-          )}
-        </section>
-        <footer className="fw-footer"><span>Votre espace de confiance</span><span>Les conditions du tirage s’appliquent.</span></footer>
+          </section>
+
+          <section className="fwr-balance-note">
+            <ShieldCheck size={18} />
+            <p>Les gains en espèces confirmés sont crédités au solde de revenus retirable. Les dépôts restent séparés.</p>
+          </section>
+
+          <section className="fw-prize-strip" aria-label="Lots disponibles">
+            <div className="fw-prize-heading">
+              <div><span className="fw-index">RÉCOMPENSES</span><h2>Lots disponibles</h2></div>
+              <span className="fw-prize-count">{prizes.length.toString().padStart(2, "0")} LOTS</span>
+            </div>
+            {prizes.length ? (
+              <div className="fw-prize-list">
+                {prizes.map((prize, index) => (
+                  <div className="fw-prize-item" key={prize.id}>
+                    <span className="fw-prize-no">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="fw-prize-name">{prize.label}</span>
+                    <strong>{money(prize.amount)} <small>XOF</small></strong>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="fw-prize-empty">Les récompenses seront affichées ici dès leur activation.</div>
+            )}
+          </section>
+        </div>
       </div>
+
+      <Dialog open={rulesOpen} onOpenChange={setRulesOpen}>
+        <DialogContent className="fwr-dialog">
+          <DialogHeader className="fwr-dialog-header">
+            <span className="fwr-link-icon"><BadgeInfo size={20} /></span>
+            <div><span className="fwr-overline">INFORMATIONS</span><DialogTitle>Règles de la roue</DialogTitle></div>
+          </DialogHeader>
+          <DialogDescription className="fwr-dialog-description">
+            {page?.isEnabled
+              ? `La limite configurée est de ${page.spinsPerDay} tirage${page.spinsPerDay === 1 ? "" : "s"} par jour. Les tirages restants sont indiqués sur cette page.`
+              : "La roue restera indisponible tant que l’administrateur ne l’aura pas activée et configuré ses lots."}
+          </DialogDescription>
+          <div className="fwr-rule-list">
+            <div><span>01</span><p>Le résultat est sélectionné et confirmé par le serveur au moment du tirage.</p></div>
+            <div><span>02</span><p>Les gains en espèces confirmés sont ajoutés au solde de revenus retirable. Le solde des dépôts reste séparé.</p></div>
+            <div><span>03</span><p>La barre de progression indique uniquement les tirages utilisés. Elle n’est pas une condition de retrait.</p></div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
+}
+
+function maskPhone(phone: string) {
+  if (phone.length <= 5) return phone;
+  return `${phone.slice(0, 2)}${"*".repeat(Math.min(4, phone.length - 4))}${phone.slice(-2)}`;
 }

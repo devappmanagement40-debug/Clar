@@ -17,6 +17,7 @@ export interface WheelPageData {
   spinsPerDay: number;
   spinsUsed: number;
   spinsRemaining: number;
+  totalRewards: number;
   prizes: WheelPrize[];
 }
 
@@ -24,4 +25,16 @@ export interface WheelSpinResult {
   prize: { id: string; label: string; amount: number };
   balance: string;
   spinsRemaining: number;
+}
+
+export interface WheelHistoryEntry {
+  id: number;
+  amount: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface WheelHistoryData {
+  totalRewards: number;
+  entries: WheelHistoryEntry[];
 }

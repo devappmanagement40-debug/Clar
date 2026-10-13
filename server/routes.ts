@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { randomInt, randomUUID } from "node:crypto";
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gt, gte, sql } from "drizzle-orm";
 import session from "express-session";
 import { storage } from "./storage";
 import { db } from "./db";
@@ -2748,6 +2748,15 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
           eq(transactions.type, "fortune_wheel"),
           gte(transactions.createdAt, dayStart),
         ));
+      const [rewardTotal] = await db.select({
+        total: sql<string>`coalesce(sum(${transactions.amount}), 0)::text`,
+      })
+        .from(transactions)
+        .where(and(
+          eq(transactions.userId, req.session.userId!),
+          eq(transactions.type, "fortune_wheel"),
+          gt(transactions.amount, "0"),
+        ));
       const spinsUsed = Number(countRow?.count ?? 0);
       const activePrizes = config.isEnabled ? config.prizes.filter((prize) => prize.isActive) : [];
 
@@ -2756,11 +2765,46 @@ async function refundRejectedWithdrawal(withdrawal: { id: number; userId: number
         spinsPerDay: config.spinsPerDay,
         spinsUsed,
         spinsRemaining: config.isEnabled ? Math.max(0, config.spinsPerDay - spinsUsed) : 0,
+        totalRewards: Number(rewardTotal?.total ?? 0),
         prizes: activePrizes,
       });
     } catch (error) {
       console.error("[fortune-wheel] Unable to load wheel:", error);
       res.status(500).json({ message: "Impossible de charger la roue de la fortune." });
+    }
+  });
+
+  app.get("/api/fortune-wheel/history", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const positiveWheelReward = and(
+        eq(transactions.userId, userId),
+        eq(transactions.type, "fortune_wheel"),
+        gt(transactions.amount, "0"),
+      );
+      const [totalRow] = await db.select({
+        total: sql<string>`coalesce(sum(${transactions.amount}), 0)::text`,
+      })
+        .from(transactions)
+        .where(positiveWheelReward);
+      const entries = await db.select({
+        id: transactions.id,
+        amount: transactions.amount,
+        description: transactions.description,
+        createdAt: transactions.createdAt,
+      })
+        .from(transactions)
+        .where(positiveWheelReward)
+        .orderBy(desc(transactions.createdAt))
+        .limit(100);
+
+      res.json({
+        totalRewards: Number(totalRow?.total ?? 0),
+        entries,
+      });
+    } catch (error) {
+      console.error("[fortune-wheel] Unable to load rewards history:", error);
+      res.status(500).json({ message: "Impossible de charger l’historique des gains." });
     }
   });
 

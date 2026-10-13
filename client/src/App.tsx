@@ -40,6 +40,7 @@ const ProductsPage = lazy(() => import("@/pages/products"));
 const CheckinPage = lazy(() => import("@/pages/checkin"));
 const RewardsPage = lazy(() => import("@/pages/rewards"));
 const FortuneWheelPage = lazy(() => import("@/components/fortune-wheel/fortune-wheel"));
+const FortuneWheelHistoryPage = lazy(() => import("@/components/fortune-wheel/fortune-wheel-history"));
 const WithdrawalHistoryPage = lazy(() => import("@/pages/withdrawal-history"));
 const DepositOrdersPage = lazy(() => import("@/pages/deposit-orders"));
 const SalaryBonusPage = lazy(() => import("@/pages/salary-bonus"));
@@ -198,6 +199,13 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <TasksPage />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/fortune-wheel/history">
+        <ProtectedRoute>
+          <AppLayout>
+            <FortuneWheelHistoryPage />
           </AppLayout>
         </ProtectedRoute>
       </Route>

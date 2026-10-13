@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 
 export default function FloatingWheelButton() {
   const [location] = useLocation();
-  if (location === "/fortune-wheel") return null;
+  if (location.startsWith("/fortune-wheel")) return null;
 
   return (
     <Link
