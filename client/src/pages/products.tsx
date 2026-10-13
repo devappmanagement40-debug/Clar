@@ -127,8 +127,9 @@ export default function ProductsPage() {
         .cp-products-stat-chevron { flex: 0 0 auto; color: #bd304c; }
         .cp-products-list { display: grid; gap: 14px; padding: 0 18px; }
         .cp-product-card {
-          display: grid; grid-template-columns: 116px minmax(0, 1fr);
-          gap: 12px; padding: 14px; border: 2px solid #17191c;
+          display: grid;
+          grid-template-columns: clamp(72px, 22vw, 100px) minmax(0, 1fr) minmax(80px, 94px);
+          align-items: center; gap: 10px; padding: 12px; border: 2px solid #17191c;
           border-radius: 16px; background: #ffffff;
           box-shadow: 0 3px 0 #17191c, 0 8px 18px rgba(17,24,39,.14);
           transition: box-shadow .16s ease, transform .16s ease;
@@ -137,7 +138,7 @@ export default function ProductsPage() {
         .cp-product-card.is-unavailable { border-color: #9ca3af; box-shadow: 0 3px 0 #9ca3af, 0 7px 14px rgba(17,24,39,.08); }
         .cp-product-card.is-unavailable .cp-product-image { border-color: #9ca3af; }
         .cp-product-image {
-          position: relative; width: 116px; height: 116px; overflow: hidden;
+          position: relative; width: 100%; aspect-ratio: 1; min-width: 0; overflow: hidden;
           border: 2px solid #17191c; border-radius: 12px; background: #fff4f6;
         }
         .cp-product-image-placeholder {
@@ -150,29 +151,31 @@ export default function ProductsPage() {
         }
         .cp-product-info { min-width: 0; }
         .cp-product-name {
-          margin: 1px 0 10px; color: #17191c; font-size: 18px; font-weight: 800;
+          margin: 0 0 6px; color: #17191c; font-size: 17px; font-weight: 800;
           line-height: 1.15; overflow-wrap: anywhere;
         }
         .cp-product-line {
-          display: flex; align-items: flex-start; justify-content: space-between; gap: 7px;
-          margin-top: 7px; color: #625e63; font-size: 12px; line-height: 1.25;
+          display: grid; grid-template-columns: minmax(0, 1fr) auto;
+          align-items: baseline; gap: 5px; margin-top: 5px;
+          color: #625e63; font-size: clamp(10px, 2.8vw, 12px); line-height: 1.22;
         }
-        .cp-product-line span { flex: 1; min-width: 0; }
-        .cp-product-line strong { max-width: 60%; color: #17191c; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+        .cp-product-line span { min-width: 0; }
+        .cp-product-line strong { max-width: 100%; color: #17191c; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
         .cp-product-line.revenue strong { color: #9e263c; }
         .cp-product-buy {
-          display: inline-flex; grid-column: 2; min-height: 42px; align-items: center;
-          justify-content: center; justify-self: end; gap: 6px; min-width: 126px; margin-top: 2px;
-          padding: 9px 16px; border: 2px solid #17191c; border-radius: 11px;
-          background: #bd304c; color: #ffffff; font-size: 14px; font-weight: 800;
-          box-shadow: 0 3px 0 #17191c, 0 6px 12px rgba(17,24,39,.14);
-          transition: transform .16s ease, background-color .16s ease;
+          display: inline-flex; grid-column: 3; grid-row: 1; min-width: 0; min-height: 38px;
+          align-items: center; justify-content: center; justify-self: stretch;
+          padding: 8px 7px; border: 2px solid #17191c; border-radius: 999px;
+          background: linear-gradient(120deg, #bd304c 0%, #9e263c 100%);
+          color: #ffffff; font-size: 12px; font-weight: 800; white-space: nowrap;
+          box-shadow: 0 2px 0 #17191c, 0 5px 10px rgba(17,24,39,.12);
+          transition: transform .16s ease, filter .16s ease;
         }
-        .cp-product-buy:hover:not(:disabled) { transform: translateY(-1px); background: #a92642; }
+        .cp-product-buy:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(.96); }
         .cp-product-buy:active:not(:disabled) { transform: translateY(1px); }
         .cp-product-buy.is-unavailable {
           border-color: #9ca3af; background: #e5e7eb; color: #6b7280;
-          box-shadow: 0 3px 0 #9ca3af; cursor: not-allowed;
+          box-shadow: 0 3px 0 #9ca3af; cursor: not-allowed; white-space: normal; line-height: 1.1;
         }
         .cp-products-empty {
           display: flex; min-height: 260px; flex-direction: column; align-items: center;
@@ -213,18 +216,10 @@ export default function ProductsPage() {
           .cp-products-stat { gap: 8px; padding: 9px; }
           .cp-products-stat-icon { width: 36px; height: 36px; flex-basis: 36px; }
           .cp-products-list { padding-right: 14px; padding-left: 14px; }
-          .cp-product-card { grid-template-columns: 84px minmax(0, 1fr); gap: 8px; padding: 10px; }
-          .cp-product-image { width: 84px; height: 84px; }
-          .cp-product-name { font-size: 16px; }
-          .cp-product-line { gap: 5px; font-size: 11px; }
-          .cp-product-buy { min-width: 108px; padding: 9px 12px; font-size: 12px; }
-        }
-        @media (max-width: 340px) {
-          .cp-product-card { grid-template-columns: 72px minmax(0, 1fr); gap: 7px; padding: 9px; }
-          .cp-product-image { width: 72px; height: 72px; }
+          .cp-product-card { grid-template-columns: 68px minmax(0, 1fr) 72px; gap: 7px; padding: 9px; }
           .cp-product-name { font-size: 15px; }
-          .cp-product-line { font-size: 10.5px; }
-          .cp-product-buy { min-width: 100px; }
+          .cp-product-line { gap: 4px; font-size: 10px; }
+          .cp-product-buy { min-height: 34px; padding: 6px 4px; font-size: 10px; }
         }
       `}</style>
 
@@ -309,7 +304,7 @@ export default function ProductsPage() {
                     aria-label={product.isActive ? `Acheter ${product.name}` : `${product.name} indisponible`}
                     data-testid={`button-purchase-${product.id}`}
                   >
-                    {product.isActive ? <>Acheter <ChevronRight aria-hidden="true" size={16} /></> : "Indisponible"}
+                    {product.isActive ? "Acheter" : "Indisponible"}
                   </button>
                 </article>
               );
