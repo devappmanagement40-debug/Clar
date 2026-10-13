@@ -13,6 +13,7 @@ import { eq, and, desc, sql, gte, lte, or, isNull, inArray } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { getDemoReferralPreview } from "./demo-referrals";
 import { notifyTelegramPaymentEvent } from "./telegram-events";
+import { calculateProductPurchaseFunding } from "@shared/product-purchase-funding";
 
 type TeamStats = {
   level1Count: number;
@@ -370,7 +371,11 @@ export class DatabaseStorage implements IStorage {
 
     if (!product.isFree && !assignedByAdmin) {
       const balance = parseFloat(user.balance);
-      if (balance < product.price) throw new Error("Solde insuffisant");
+      const withdrawableBalance = parseFloat(await this.getWithdrawableBalance(userId));
+      const funding = calculateProductPurchaseFunding(balance, withdrawableBalance, product.price);
+      if (!funding.canPurchase) {
+        throw new Error("Solde insuffisant : les dépôts et les revenus cumulés disponibles ne couvrent pas cet achat.");
+      }
       
       // Check if this is user's first paid investment
       const existingPaidProducts = await db.select()

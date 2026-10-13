@@ -6,6 +6,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
 import { AlertTriangle, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
 import { useLocation } from "wouter";
+import { calculateProductPurchaseFunding } from "@shared/product-purchase-funding";
 import type { Product } from "@shared/schema";
 import equipmentIcon from "@assets/IMG_20260829_070948_545_1791818775118.jpg";
 import revenueIcon from "@assets/IMG_20260829_070922_702_1791818835262.jpg";
@@ -35,6 +36,14 @@ export default function ProductsPage() {
     queryKey: ["/api/user/products"],
   });
 
+  const {
+    data: withdrawalFunds,
+    isLoading: withdrawalFundsLoading,
+    isError: withdrawalFundsError,
+  } = useQuery<{ availableBalance: string }>({
+    queryKey: ["/api/withdrawals/available"],
+  });
+
   const purchaseMutation = useMutation({
     mutationFn: async (productId: number) => {
       const response = await apiRequest("POST", `/api/products/${productId}/purchase`, {});
@@ -47,6 +56,7 @@ export default function ProductsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/available"] });
       refreshUser();
       setSelectedProduct(null);
       toast({ title: "Produit acheté !", description: "Vous commencerez à recevoir des gains demain." });
@@ -74,6 +84,27 @@ export default function ProductsPage() {
         const amount = Number(item.product?.dailyEarnings);
         return sum !== null && Number.isFinite(amount) ? sum + amount : null;
       }, 0);
+  const totalBalance = Number(user.balance || 0);
+  const availableWithdrawableBalance = withdrawalFunds
+    ? Number(withdrawalFunds.availableBalance)
+    : null;
+  let purchaseFunding = null;
+  if (
+    selectedProduct &&
+    Number.isFinite(totalBalance) &&
+    availableWithdrawableBalance !== null &&
+    Number.isFinite(availableWithdrawableBalance)
+  ) {
+    try {
+      purchaseFunding = calculateProductPurchaseFunding(
+        totalBalance,
+        availableWithdrawableBalance,
+        Number(selectedProduct.price),
+      );
+    } catch {
+      // Keep the purchase available for server validation, but don't show an invalid split.
+    }
+  }
 
   return (
     <main className="cp-products-page">
@@ -200,6 +231,19 @@ export default function ProductsPage() {
         }
         .cp-products-modal h2 { margin: 0; color: #17191c; font-size: 21px; font-weight: 800; }
         .cp-products-modal p { margin: 8px 0 0; color: #625e63; font-size: 13px; line-height: 1.45; }
+        .cp-products-modal-wallets {
+          display: grid; gap: 8px; margin-top: 14px; padding: 12px;
+          border: 1px solid #e4d5d8; border-radius: 12px; background: #fffafb;
+        }
+        .cp-products-modal-wallet-row {
+          display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+          color: #4b4547; font-size: 12px; line-height: 1.35;
+        }
+        .cp-products-modal-wallet-row strong { flex: 0 0 auto; color: #17191c; font-size: 12px; }
+        .cp-products-modal-wallet-note {
+          margin: 2px 0 0 !important; padding-top: 8px; border-top: 1px dashed #dfc7cd;
+          color: #7f2639 !important; font-size: 11px !important;
+        }
         .cp-products-modal-warning {
           display: flex; align-items: flex-start; gap: 8px; margin-top: 15px; padding: 10px;
           border: 1px solid #fda4af; border-radius: 10px; background: #fff1f2; color: #9f1239;
@@ -325,12 +369,43 @@ export default function ProductsPage() {
             <p>Après l’achat, vos revenus seront crédités quotidiennement pendant {selectedProduct.cycleDays} jours.</p>
             <div className="cp-product-line"><span>Prix :</span><strong>{formatAmount(Number(selectedProduct.price))}</strong></div>
             <div className="cp-product-line revenue"><span>Revenu quotidien :</span><strong>{formatAmount(Number(selectedProduct.dailyEarnings))}</strong></div>
-            {Number(user.balance || 0) < Number(selectedProduct.price) && (
-              <div className="cp-products-modal-warning"><AlertTriangle size={16} />Solde insuffisant pour acheter ce produit.</div>
+            <div className="cp-products-modal-wallets" aria-label="Soldes utilisés pour l'achat">
+              {purchaseFunding ? (
+                <>
+                  <div className="cp-products-modal-wallet-row">
+                    <span>Solde du compte (dépôts)</span>
+                    <strong>{formatAmount(purchaseFunding.depositBalance)}</strong>
+                  </div>
+                  <div className="cp-products-modal-wallet-row">
+                    <span>Revenus cumulés (retirables)</span>
+                    <strong>{formatAmount(purchaseFunding.earningsBalance)}</strong>
+                  </div>
+                  {purchaseFunding.canPurchase && (
+                    <p className="cp-products-modal-wallet-note">
+                      Pour cet achat : {formatAmount(purchaseFunding.depositUsed)} prélevés sur les dépôts
+                      {purchaseFunding.earningsUsed > 0 && `, puis ${formatAmount(purchaseFunding.earningsUsed)} sur les revenus retirables`}.
+                    </p>
+                  )}
+                </>
+              ) : withdrawalFundsLoading ? (
+                <p role="status">Vérification de la répartition des soldes…</p>
+              ) : withdrawalFundsError || !withdrawalFunds ? (
+                <p role="status">Répartition temporairement indisponible. Le serveur vérifiera les soldes avant l’achat.</p>
+              ) : (
+                <p role="status">Répartition des soldes indisponible. Le serveur vérifiera les soldes avant l’achat.</p>
+              )}
+            </div>
+            {totalBalance < Number(selectedProduct.price) && (
+              <div className="cp-products-modal-warning">
+                <AlertTriangle size={16} />Le solde combiné des dépôts et des revenus retirables est insuffisant.
+              </div>
             )}
             <div className="cp-products-modal-actions">
               <button onClick={() => setSelectedProduct(null)}>Annuler</button>
-              <button onClick={() => purchaseMutation.mutate(selectedProduct.id)} disabled={purchaseMutation.isPending}>
+              <button
+                onClick={() => purchaseMutation.mutate(selectedProduct.id)}
+                disabled={purchaseMutation.isPending || totalBalance < Number(selectedProduct.price)}
+              >
                 {purchaseMutation.isPending ? <Loader2 className="mx-auto animate-spin" size={17} /> : "Confirmer"}
               </button>
             </div>
