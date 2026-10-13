@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Loader2, RefreshCw, Send } from "lucide-react";
 import type { ClapayPayout } from "@shared/schema";
@@ -8,6 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { parseClapayPayoutCountries } from "@shared/clapay-payout-countries";
+
+type AdminCountry = { code: string; name: string; isActive: boolean };
+
+const EMPTY_COUNTRIES: AdminCountry[] = [];
 
 type PayoutOptions = {
   operators: Array<{ id: string; name: string; phonePrefixes?: string[] }>;
@@ -71,7 +76,7 @@ async function responseJson<T>(response: Response): Promise<T> {
 
 export default function AdminClapayPayouts() {
   const { toast } = useToast();
-  const [country, setCountry] = useState<"NE" | "BF">("NE");
+  const [country, setCountry] = useState("");
   const [operatorCode, setOperatorCode] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [phone, setPhone] = useState("");
@@ -80,13 +85,42 @@ export default function AdminClapayPayouts() {
   const [confirmed, setConfirmed] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
 
+  const { data: adminSettings, isLoading: settingsLoading } = useQuery<Record<string, string>>({
+    queryKey: ["/api/admin/settings"],
+  });
+  const { data: countries = EMPTY_COUNTRIES, isLoading: countriesLoading } = useQuery<AdminCountry[]>({
+    queryKey: ["/api/admin/countries"],
+  });
+  const configuredCountryCodes = useMemo(() => {
+    if (!adminSettings) return [];
+    try {
+      return parseClapayPayoutCountries(adminSettings.clapayPayoutCountries);
+    } catch {
+      return [];
+    }
+  }, [adminSettings]);
+  const availableCountries = useMemo(() => {
+    const byCode = new Map(countries.map((entry) => [entry.code.toUpperCase(), entry]));
+    return configuredCountryCodes
+      .map((code) => byCode.get(code))
+      .filter((entry): entry is AdminCountry => Boolean(entry?.isActive));
+  }, [countries, configuredCountryCodes]);
+
+  useEffect(() => {
+    if (!availableCountries.some((entry) => entry.code.toUpperCase() === country)) {
+      setCountry(availableCountries[0]?.code.toUpperCase() || "");
+      setOperatorCode("");
+      setConfirmed(false);
+    }
+  }, [availableCountries, country]);
+
   const optionsQuery = useQuery<PayoutOptions>({
     queryKey: ["/api/admin/clapay/payout-options", country],
     queryFn: async () => responseJson(await fetch(
       `/api/admin/clapay/payout-options/${country}`,
       { credentials: "include" },
     )),
-    enabled: Boolean(country),
+    enabled: availableCountries.some((entry) => entry.code.toUpperCase() === country),
   });
   const payoutsQuery = useQuery<PayoutRow[]>({
     queryKey: ["/api/admin/clapay/payouts"],
@@ -158,7 +192,7 @@ export default function AdminClapayPayouts() {
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedOperator || !amountIsValid || !confirmed) return;
+    if (!country || !selectedOperator || !amountIsValid || !confirmed) return;
     createMutation.mutate();
   };
 
@@ -185,15 +219,25 @@ export default function AdminClapayPayouts() {
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={country}
                 onChange={(event) => {
-                  setCountry(event.target.value as "NE" | "BF");
+                  setCountry(event.target.value);
                   setOperatorCode("");
                   setConfirmed(false);
                 }}
+                disabled={!availableCountries.length}
+                required
               >
-                <option value="NE">Niger</option>
-                <option value="BF">Burkina Faso</option>
+                {!availableCountries.length && <option value="">Aucun pays Clapay autorisé</option>}
+                {availableCountries.map((entry) => (
+                  <option key={entry.code} value={entry.code.toUpperCase()}>{entry.name}</option>
+                ))}
               </select>
             </label>
+
+            {!availableCountries.length && !settingsLoading && !countriesLoading && (
+              <p className="text-sm text-amber-700 md:col-span-2">
+                Aucun pays actif n’est autorisé pour les retraits Clapay. Configurez la liste dans Paramètres → Clapay.
+              </p>
+            )}
 
             <label className="space-y-1.5 text-sm font-medium" htmlFor="clapay-payout-operator">
               Opérateur mobile
@@ -289,7 +333,8 @@ export default function AdminClapayPayouts() {
               <Button
                 type="submit"
                 disabled={
-                  createMutation.isPending
+                  !country
+                  || createMutation.isPending
                   || optionsQuery.isLoading
                   || !selectedOperator
                   || !amountIsValid
@@ -344,7 +389,8 @@ export default function AdminClapayPayouts() {
                   </div>
                   <p className="text-sm">{payout.recipientName} · {payout.recipientPhone}</p>
                   <p className="text-xs text-muted-foreground">
-                    {payout.country === "NE" ? "Niger" : "Burkina Faso"} · {payout.operatorName}
+                    {countries.find((entry) => entry.code.toUpperCase() === payout.country.toUpperCase())?.name
+                      || payout.country} · {payout.operatorName}
                     {" · "}{new Date(payout.createdAt).toLocaleString("fr-FR")}
                   </p>
                   <p className="break-all text-xs text-muted-foreground" title={payout.transactionId}>

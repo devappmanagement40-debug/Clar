@@ -13,6 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Save, Link, Clock, Users, Zap } from "lucide-react";
+import {
+  DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
+  parseClapayPayoutCountries,
+} from "@shared/clapay-payout-countries";
 
 type AdminCountry = { code: string; name: string; isActive: boolean };
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
@@ -150,6 +154,9 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
     queryKey: ["/api/admin/payment-numbers"],
   });
   const [depositMethodsByCountry, setDepositMethodsByCountry] = useState<Record<string, DepositMethodId[]>>({});
+  const [clapayPayoutCountries, setClapayPayoutCountries] = useState<string[]>([
+    ...DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
+  ]);
 
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
@@ -244,6 +251,11 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       if (!countriesLoading && !paymentNumbersLoading) {
         setDepositMethodsByCountry(getInitialDepositRouting(settings, countries, paymentNumbers));
       }
+      try {
+        setClapayPayoutCountries(parseClapayPayoutCountries(settings.clapayPayoutCountries));
+      } catch {
+        setClapayPayoutCountries([...DEFAULT_CLAPAY_PAYOUT_COUNTRIES]);
+      }
     }
   }, [settings, form, countries, paymentNumbers, countriesLoading, paymentNumbersLoading]);
 
@@ -252,6 +264,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       const serialized = {
         ...data,
         depositMethodsByCountry: JSON.stringify(depositMethodsByCountry),
+        clapayPayoutCountries: JSON.stringify(clapayPayoutCountries),
         supportEnabled: String(data.supportEnabled),
         support2Enabled: String(data.support2Enabled),
         channelEnabled: String(data.channelEnabled),
@@ -955,6 +968,44 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
                 <FormMessage />
               </FormItem>
             )} />
+            <div className="space-y-2 rounded-xl border p-3">
+              <div>
+                <p className="text-sm font-semibold">Pays autorisés pour les retraits Clapay</p>
+                <p className="text-xs text-muted-foreground">
+                  Cette liste contrôle les virements Clapay envoyés depuis l’administration. Elle n’active pas les dépôts.
+                  Vérifiez la prise en charge du pays par Clapay avant de l’autoriser.
+                </p>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {[...countries]
+                  .sort((a, b) => Number(b.isActive) - Number(a.isActive) || a.name.localeCompare(b.name))
+                  .map((country) => {
+                    const code = country.code.trim().toUpperCase();
+                    const checked = clapayPayoutCountries.includes(code);
+                    return (
+                      <label
+                        key={code}
+                        className="flex cursor-pointer items-center gap-2 rounded-lg border p-2 text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(event) => {
+                            setClapayPayoutCountries((current) => event.target.checked
+                              ? [...current, code]
+                              : current.filter((value) => value !== code));
+                          }}
+                        />
+                        <span>{country.name}</span>
+                        <span className="text-xs text-muted-foreground">({code})</span>
+                        {!country.isActive && (
+                          <span className="ml-auto text-xs text-amber-700">Pays désactivé</span>
+                        )}
+                      </label>
+                    );
+                  })}
+              </div>
+            </div>
             <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3 text-xs text-indigo-900 space-y-1">
               <p className="font-semibold">Configuration Clapay dans les variables d’environnement Plesk</p>
               <p>Base officielle : <code>https://nw-api.clapay.app/nowallet/api/v3</code> (ou <code>/nowallet/api</code>). Définissez <code>CLAPAY_API_KEY</code>; <code>CLAPAY_API_BASE_URL</code> est facultative et utilise la base V3 par défaut.</p>

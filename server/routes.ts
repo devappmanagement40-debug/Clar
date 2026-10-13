@@ -20,6 +20,7 @@ import {
 } from "@shared/schema";
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
 import { getActiveCountryMethodNames, hasConfiguredCountryMethods } from "@shared/country-methods";
+import { parseClapayPayoutCountries } from "@shared/clapay-payout-countries";
 import { DAILY_BONUS_OUTCOME_COUNT, dailyBonusFromIndex } from "@shared/daily-bonus";
 import { z } from "zod";
 import ConnectPgSimple from "connect-pg-simple";
@@ -388,6 +389,7 @@ const PUBLIC_SETTING_KEYS = new Set([
 ]);
 const ADMIN_SETTING_KEYS = new Set([
   ...Array.from(PUBLIC_SETTING_KEYS),
+  "clapayPayoutCountries",
 ]);
 const MASKED_SETTING_VALUE = "********";
 
@@ -3057,8 +3059,9 @@ export async function registerRoutes(
   app.get("/api/admin/clapay/payout-options/:country", requireAdmin, async (req, res) => {
     try {
       const countryCode = String(req.params.country || "").trim().toUpperCase();
-      if (countryCode !== "NE" && countryCode !== "BF") {
-        return res.status(400).json({ message: "Les payouts Clapay sont limités au Niger et au Burkina Faso" });
+      const settings = await storage.getSettings();
+      if (!parseClapayPayoutCountries(settings.clapayPayoutCountries).includes(countryCode)) {
+        return res.status(403).json({ message: "Les retraits Clapay ne sont pas autorisés pour ce pays dans l’administration" });
       }
       const country = (await storage.getActiveCountries())
         .find((entry) => entry.code.toUpperCase() === countryCode);
@@ -3069,6 +3072,9 @@ export async function registerRoutes(
       const options = await getClapayPayoutOptions(countryCode);
       res.json(options);
     } catch (error: any) {
+      if (error?.message?.includes("configuration des pays de retrait Clapay")) {
+        return res.status(503).json({ message: error.message });
+      }
       res.status(502).json({ message: error.message || "Impossible de charger les options payout Clapay" });
     }
   });
@@ -3085,7 +3091,7 @@ export async function registerRoutes(
   app.post("/api/admin/clapay/payouts", requireAdmin, async (req, res) => {
     const inputSchema = z.object({
       idempotencyKey: z.string().uuid(),
-      country: z.enum(["NE", "BF"]),
+      country: z.string().trim().regex(/^[A-Za-z]{2}$/).transform((value) => value.toUpperCase()),
       amount: z.number().int().min(10),
       recipientName: z.string().trim().min(2).max(120),
       phone: z.string().trim().min(6).max(32),
@@ -3102,6 +3108,19 @@ export async function registerRoutes(
     }
 
     const input = parsed.data;
+    let allowedPayoutCountries: string[];
+    try {
+      const settings = await storage.getSettings();
+      allowedPayoutCountries = parseClapayPayoutCountries(settings.clapayPayoutCountries);
+    } catch (error: any) {
+      return res.status(503).json({
+        message: error.message || "La configuration des pays de retrait Clapay est invalide",
+      });
+    }
+    if (!allowedPayoutCountries.includes(input.country)) {
+      return res.status(403).json({ message: "Les retraits Clapay ne sont pas autorisés pour ce pays dans l’administration" });
+    }
+
     const country = (await storage.getActiveCountries())
       .find((entry) => entry.code.toUpperCase() === input.country);
     if (!country) return res.status(400).json({ message: "Pays indisponible" });
@@ -3784,6 +3803,7 @@ export async function registerRoutes(
     try {
       const settings = await storage.getSettings();
       const countries = await storage.getCountries();
+      const clapayPayoutCountries = parseClapayPayoutCountries(settings.clapayPayoutCountries);
       const explicitRouting = parseDepositMethodsByCountry(settings.depositMethodsByCountry);
       const routing = explicitRouting || {};
       if (!explicitRouting) {
@@ -3813,6 +3833,7 @@ export async function registerRoutes(
       res.json({
         ...adminSettings(settings),
         depositMethodsByCountry: JSON.stringify(routing),
+        clapayPayoutCountries: JSON.stringify(clapayPayoutCountries),
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -3916,11 +3937,30 @@ export async function registerRoutes(
           });
         }
       }
+      const clapayPayoutCountriesEntry = entries.find(([key]) => key === "clapayPayoutCountries");
+      let normalizedClapayPayoutCountries: string[] | undefined;
+      if (clapayPayoutCountriesEntry) {
+        if (typeof clapayPayoutCountriesEntry[1] !== "string") {
+          return res.status(400).json({ message: "La configuration des pays Clapay doit être une liste JSON texte" });
+        }
+        normalizedClapayPayoutCountries = parseClapayPayoutCountries(clapayPayoutCountriesEntry[1] as string);
+        const countryCodes = new Set(
+          (await storage.getCountries()).map((country) => country.code.trim().toUpperCase()),
+        );
+        const unknownCountries = normalizedClapayPayoutCountries.filter((code) => !countryCodes.has(code));
+        if (unknownCountries.length > 0) {
+          return res.status(400).json({
+            message: `Pays de retrait Clapay inconnus : ${unknownCountries.join(", ")}`,
+          });
+        }
+      }
       for (const [key, value] of entries) {
         if (SENSITIVE_SETTING_KEYS.has(key) && (value === "" || value === MASKED_SETTING_VALUE)) continue;
         const serializedValue = key === "depositMethodsByCountry" && normalizedRouting
           ? JSON.stringify(normalizedRouting)
-          : value as string;
+          : key === "clapayPayoutCountries" && normalizedClapayPayoutCountries
+            ? JSON.stringify(normalizedClapayPayoutCountries)
+            : value as string;
         await storage.setSetting(key, serializedValue, req.session.userId);
       }
       await storage.logAdminAction(req.session.userId!, "update_settings", null, `Paramètres modifiés`);

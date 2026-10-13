@@ -399,6 +399,7 @@ export async function seed() {
     { key: "inpayEnabled", value: "false" },
     { key: "inpayChannelName", value: "InPay" },
     { key: "inpayCountries", value: "" },
+    { key: "clapayPayoutCountries", value: '["NE","BF"]' },
   ];
 
   for (const settingData of requiredSettings) {

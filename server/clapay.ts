@@ -472,9 +472,6 @@ function getClapayPayoutPhonePrefixes(
 
 export async function getClapayPayoutOptions(country: string): Promise<ClapayPayoutOptions> {
   const normalizedCountry = country.trim().toUpperCase();
-  if (normalizedCountry !== "NE" && normalizedCountry !== "BF") {
-    throw new Error("Les payouts Clapay sont limités au Niger et au Burkina Faso");
-  }
   const operators = await getClapayOperators(normalizedCountry);
   return {
     operators: operators.map((operator) => {
@@ -588,9 +585,6 @@ export async function initiateClapayPayout(values: {
 }): Promise<{ signature: string }> {
   const config = loadConfig();
   const country = values.country.trim().toUpperCase();
-  if (country !== "NE" && country !== "BF") {
-    throw new Error("Les payouts Clapay sont limités au Niger et au Burkina Faso");
-  }
   if (!Number.isSafeInteger(values.amount) || values.amount < 10) {
     throw new Error("Le montant du payout Clapay doit être un entier d'au moins 10");
   }
