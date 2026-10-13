@@ -747,6 +747,172 @@ const walletStyles = `
     min-height: 62px;
     border-radius: 11px;
   }
+  .wallet-scene-page:not(.is-select-mode) {
+    background: #f0f0f0;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-shell {
+    background-color: #f0f0f0;
+    background-image: none;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-topbar {
+    position: relative;
+    min-height: 70px;
+    border-bottom: 1px solid #dedbdd;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-eyebrow,
+  .wallet-scene-page:not(.is-select-mode) .wallet-top-action {
+    display: none;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-heading {
+    position: absolute;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100% - 112px);
+    transform: translateX(-50%);
+    text-align: center;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-title {
+    font-size: 18px;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-back {
+    border: 0;
+    box-shadow: none;
+    color: #bd304c;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-content {
+    padding: 12px 14px 16px;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-list-section {
+    margin: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-section-header {
+    display: none;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-list {
+    gap: 13px;
+    padding: 0;
+  }
+  .wallet-card.is-compact {
+    min-height: 0;
+    aspect-ratio: auto;
+    align-items: center;
+    overflow: hidden;
+    border: 1.5px solid #17191c;
+    border-radius: 15px;
+    padding: 11px 12px;
+    background: #fff;
+    box-shadow: 0 3px 0 #17191c, 0 6px 14px rgba(17, 24, 39, .1);
+    color: #17191c;
+  }
+  .wallet-card.is-compact::before,
+  .wallet-card.is-compact::after {
+    display: none;
+  }
+  .wallet-account-row {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+  }
+  .wallet-account-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    place-items: center;
+    border: 1px solid #f0c5cf;
+    border-radius: 12px;
+    background: #fff0f3;
+    color: #bd304c;
+  }
+  .wallet-account-copy {
+    min-width: 0;
+    flex: 1;
+  }
+  .wallet-account-method,
+  .wallet-account-name,
+  .wallet-account-number {
+    display: block;
+    overflow: hidden;
+    margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .wallet-account-method {
+    color: #17191c;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+  .wallet-account-name,
+  .wallet-account-number {
+    margin-top: 4px;
+    color: #5f5b5d;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .wallet-account-number {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .025em;
+  }
+  .wallet-card.is-compact .wallet-card-actions {
+    flex: none;
+    gap: 5px;
+  }
+  .wallet-card.is-compact .wallet-icon-action {
+    display: grid;
+    width: 35px;
+    min-width: 35px;
+    min-height: 35px;
+    place-items: center;
+    border: 1px solid #dedbdd;
+    border-radius: 10px;
+    padding: 0;
+    background: #fff;
+    box-shadow: none;
+    color: #6d6870;
+  }
+  .wallet-card.is-compact .wallet-icon-action:hover,
+  .wallet-card.is-compact .wallet-icon-action:focus-visible {
+    border-color: #bd304c;
+    background: #fff0f3;
+    color: #bd304c;
+  }
+  .wallet-card.is-compact .wallet-default-indicator {
+    display: grid;
+    width: 35px;
+    height: 35px;
+    flex: none;
+    place-items: center;
+    border: 1px solid #f0c5cf;
+    border-radius: 10px;
+    background: #fff0f3;
+    color: #bd304c;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-scene-add {
+    display: flex;
+    justify-content: center;
+    padding: 2px 16px calc(94px + env(safe-area-inset-bottom));
+    background: #f0f0f0;
+  }
+  .wallet-scene-page:not(.is-select-mode) .wallet-scene-add .wallet-primary {
+    width: min(100%, 260px);
+    min-height: 52px;
+    border-color: #bd304c;
+    border-radius: 12px;
+    background: #bd304c;
+    box-shadow: 0 3px 0 #17191c, 0 6px 12px rgba(17, 24, 39, .12);
+    font-size: 16px;
+  }
   @media (min-width: 700px) {
     .wallet-footer {
       position: static;
@@ -1115,7 +1281,7 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="wallet-page wallet-scene-page">
+    <div className={`wallet-page wallet-scene-page${selectMode ? " is-select-mode" : ""}`}>
       <style>{walletStyles}</style>
       <div className="wallet-shell">
         <header className="wallet-topbar">
@@ -1125,9 +1291,9 @@ export default function WalletPage() {
             </button>
           </Link>
           <div className="wallet-heading">
-            <span className="wallet-eyebrow">{selectMode ? "Retrait" : "Sécurité du compte"}</span>
+              <span className="wallet-eyebrow">{selectMode ? "Retrait" : "Sécurité du compte"}</span>
             <h1 className="wallet-title">
-              {selectMode ? "Sélectionner un compte" : "Mes cartes bancaires"}
+                {selectMode ? "Sélectionner un compte" : "Liste des comptes bancaires"}
             </h1>
           </div>
           {!selectMode ? (
@@ -1143,17 +1309,6 @@ export default function WalletPage() {
             <div className="w-10" aria-hidden="true" />
           )}
         </header>
-
-        <div className="wallet-scene-add">
-          <button
-            onClick={() => setShowForm(true)}
-            className="wallet-primary"
-            data-testid="button-add-wallet"
-          >
-            <Plus size={18} />
-            Ajouter un compte
-          </button>
-        </div>
 
         <main className="wallet-content">
           {showWalletOverview && (
@@ -1179,63 +1334,82 @@ export default function WalletPage() {
                       <div key={wallet.id} className="wallet-card-wrap">
                         <article
                           onClick={() => selectMode && handleSelectWallet(wallet)}
-                          className={`wallet-card${selectMode ? " is-selectable" : ""}${wallet.isDefault ? " is-default" : ""}`}
+                          className={`wallet-card${selectMode ? " is-selectable" : " is-compact"}${wallet.isDefault ? " is-default" : ""}`}
                           data-testid={`wallet-card-${wallet.id}`}
                         >
-                          <div className="wallet-card-copy">
-                            <div className="wallet-card-brand">
-                              <div className="wallet-card-brand-start">
-                                <img
-                                  className="wallet-card-icon"
-                                  src={getWalletOperatorIcon(wallet.paymentMethod)}
-                                  alt=""
-                                  aria-hidden="true"
-                                />
-                                <p className="wallet-card-method">{wallet.paymentMethod}</p>
+                          {selectMode ? (
+                            <div className="wallet-card-copy">
+                              <div className="wallet-card-brand">
+                                <div className="wallet-card-brand-start">
+                                  <img
+                                    className="wallet-card-icon"
+                                    src={getWalletOperatorIcon(wallet.paymentMethod)}
+                                    alt=""
+                                    aria-hidden="true"
+                                  />
+                                  <p className="wallet-card-method">{wallet.paymentMethod}</p>
+                                </div>
+                                <span className="wallet-card-type">RETRAIT</span>
                               </div>
-                              <span className="wallet-card-type">RETRAIT</span>
-                            </div>
-                            <p className="wallet-card-number">{maskWalletNumber(wallet.accountNumber)}</p>
-                            <div className="wallet-card-bottomline">
-                              <span className="wallet-card-network">
-                                <Wifi size={17} aria-hidden="true" />
-                                <span>
-                                  {apiCountries.find((country) => country.code === wallet.country)?.name || wallet.country || "Compte de retrait"}
+                              <p className="wallet-card-number">{maskWalletNumber(wallet.accountNumber)}</p>
+                              <div className="wallet-card-bottomline">
+                                <span className="wallet-card-network">
+                                  <Wifi size={17} aria-hidden="true" />
+                                  <span>
+                                    {apiCountries.find((country) => country.code === wallet.country)?.name || wallet.country || "Compte de retrait"}
+                                  </span>
                                 </span>
-                              </span>
-                              <span className="wallet-card-chip" aria-hidden="true" />
+                                <span className="wallet-card-chip" aria-hidden="true" />
+                              </div>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="wallet-account-row">
+                              <span className="wallet-account-icon" aria-hidden="true">
+                                <CreditCard size={23} strokeWidth={2} />
+                              </span>
+                              <div className="wallet-account-copy">
+                                <p className="wallet-account-method">{wallet.paymentMethod}</p>
+                                <p className="wallet-account-name">{wallet.accountName}</p>
+                                <p className="wallet-account-number">{wallet.accountNumber}</p>
+                              </div>
+                              <div className="wallet-card-actions">
+                                {wallet.isDefault ? (
+                                  <span
+                                    className="wallet-default-indicator"
+                                    role="img"
+                                    aria-label="Compte par défaut"
+                                    title="Compte par défaut"
+                                  >
+                                    <Check size={17} aria-hidden="true" />
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() => setDefaultMutation.mutate(wallet.id)}
+                                    disabled={setDefaultMutation.isPending}
+                                    className="wallet-icon-action"
+                                    data-testid={`button-set-default-${wallet.id}`}
+                                    aria-label="Définir comme compte par défaut"
+                                    title="Définir comme compte par défaut"
+                                  >
+                                    <Check size={17} aria-hidden="true" />
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => deleteMutation.mutate(wallet.id)}
+                                  disabled={deleteMutation.isPending}
+                                  className="wallet-icon-action"
+                                  data-testid={`button-delete-wallet-${wallet.id}`}
+                                  aria-label="Supprimer ce compte"
+                                  title="Supprimer ce compte"
+                                >
+                                  <Trash2 size={17} aria-hidden="true" />
+                                </button>
+                              </div>
+                            </div>
+                          )}
 
                           {selectMode && <ChevronRight size={18} className="text-white flex-shrink-0" />}
                         </article>
-
-                        {!selectMode && (
-                          <div className="wallet-card-actions">
-                            {!wallet.isDefault && (
-                              <button
-                                onClick={() => setDefaultMutation.mutate(wallet.id)}
-                                disabled={setDefaultMutation.isPending}
-                                className="wallet-icon-action"
-                                data-testid={`button-set-default-${wallet.id}`}
-                                aria-label="Définir comme compte par défaut"
-                              >
-                                <Check size={16} />
-                                Définir par défaut
-                              </button>
-                            )}
-                            <button
-                              onClick={() => deleteMutation.mutate(wallet.id)}
-                              disabled={deleteMutation.isPending}
-                              className="wallet-icon-action"
-                              data-testid={`button-delete-wallet-${wallet.id}`}
-                              aria-label="Supprimer ce compte"
-                            >
-                              <Trash2 size={16} />
-                              Supprimer
-                            </button>
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -1250,6 +1424,19 @@ export default function WalletPage() {
             </>
           )}
         </main>
+
+        {!selectMode && (
+          <div className="wallet-scene-add">
+            <button
+              onClick={() => setShowForm(true)}
+              className="wallet-primary"
+              data-testid="button-add-wallet"
+            >
+              <Plus size={18} />
+              Ajouter
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

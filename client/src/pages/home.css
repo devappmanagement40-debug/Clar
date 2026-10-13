@@ -354,24 +354,6 @@ body:has(.cp-home) { background: #fff !important; }
   background: linear-gradient(135deg, var(--cp-accent) 0%, var(--cp-accent-deep) 100%);
   color: #fff;
 }
-.cp-dialog-brand-close {
-  position: absolute;
-  z-index: 4;
-  top: 10px;
-  right: 10px;
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, .42);
-  border-radius: 10px;
-  padding: 5px;
-  background: rgba(255, 255, 255, .12);
-  color: #fff;
-  cursor: pointer;
-}
-.cp-dialog-brand-close svg { display: block; }
-.cp-dialog-brand-close:focus-visible,
 .cp-dialog-telegram:focus-visible,
 .cp-dialog-close:focus-visible { outline: 3px solid rgba(189, 48, 76, .4); outline-offset: 3px; }
 .cp-dialog-mark {
@@ -390,7 +372,7 @@ body:has(.cp-home) { background: #fff !important; }
   color: var(--cp-accent);
   box-shadow: 0 3px 12px rgba(23, 25, 28, .16);
 }
-.cp-dialog-mark svg { display: block; width: 30px; height: 30px; }
+.cp-dialog-bell-image { display: block; width: 35px; height: 35px; object-fit: contain; }
 .cp-dialog-copy {
   display: flex;
   min-height: 0;
@@ -456,7 +438,6 @@ body:has(.cp-home) { background: #fff !important; }
 @media (max-width: 370px) {
   .cp-dialog { width: calc(100% - 28px); }
   .cp-dialog-banner { min-height: 96px; padding-right: 46px; padding-left: 46px; }
-  .cp-dialog-brand-close { top: 7px; right: 7px; width: 33px; height: 33px; }
   .cp-dialog-mark { top: 67px; width: 58px; height: 58px; }
   .cp-dialog-copy { padding: 39px 14px 12px; }
   .cp-dialog-title { font-size: 19px; }

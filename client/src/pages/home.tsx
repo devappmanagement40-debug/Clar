@@ -3,10 +3,11 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle, Send, X } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle, Send } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
 
+import notificationBell from "@assets/generated_images/home-notification-bell.png";
 import offshorePlatform from "@assets/image_1791813575847.jpg";
 import johanSverdrupPlatform from "@assets/1277577_1791813575929.jpg";
 import equinorScreen from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791814341065.jpg";
@@ -71,20 +72,8 @@ export default function HomePage() {
   useEffect(() => {
     if (!user || settingsLoading) return;
 
-    const sessionKey = `cp-home-welcome:${user.id}`;
-    try {
-      if (window.sessionStorage.getItem(sessionKey) === "shown") return;
-    } catch {
-      // Still show the information if this browser blocks session storage.
-    }
-
     const timer = window.setTimeout(() => {
       setWelcomePopupOpen(true);
-      try {
-        window.sessionStorage.setItem(sessionKey, "shown");
-      } catch {
-        // Popup remains usable even when session storage is unavailable.
-      }
     }, 250);
 
     return () => window.clearTimeout(timer);
@@ -238,12 +227,9 @@ export default function HomePage() {
         <DialogContent className="cp-dialog z-[60]" overlayClassName="cp-dialog-overlay">
           <div className="cp-dialog-banner">
             <DialogTitle className="cp-dialog-title">Informations utiles</DialogTitle>
-            <DialogClose className="cp-dialog-brand-close" aria-label="Fermer les informations">
-              <X size={20} strokeWidth={2.2} aria-hidden="true" />
-            </DialogClose>
           </div>
           <div className="cp-dialog-mark" aria-hidden="true">
-            <Bell size={29} strokeWidth={2.1} />
+            <img className="cp-dialog-bell-image" src={notificationBell} alt="" />
           </div>
           <div className="cp-dialog-copy">
             <DialogDescription className="cp-dialog-message">
