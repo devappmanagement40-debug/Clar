@@ -289,29 +289,41 @@ const walletStyles = `
   }
   .wallet-card {
     position: relative;
-    min-height: 196px;
+    display: flex;
+    min-height: 218px;
+    aspect-ratio: 1.62 / 1;
+    align-items: stretch;
+    gap: 10px;
     overflow: hidden;
-    border: 0;
-    border: 2px solid #111827;
-    border-radius: 16px;
-    padding: 20px;
-    background: linear-gradient(125deg, #9e263c 0%, #bd304c 48%, #d94d69 100%);
-    box-shadow: 0 4px 0 #111827, 0 9px 16px rgba(17, 24, 39, .18);
+    border: 2px solid #17191c;
+    border-radius: 19px;
+    padding: 18px;
+    background:
+      radial-gradient(ellipse at 100% 0%, rgba(255, 255, 255, .18), transparent 43%),
+      linear-gradient(128deg, #842239 0%, #a62943 42%, #bd304c 72%, #d94d69 100%);
+    box-shadow: 0 4px 0 #17191c, 0 10px 20px rgba(17, 24, 39, .18);
     color: #ffffff;
-    transition: box-shadow .15s ease, transform .15s ease;
+    transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
   }
   .wallet-card::before {
     position: absolute;
-    inset: -45% -20%;
-    background: repeating-linear-gradient(
-      68deg,
-      rgba(255, 255, 255, .16) 0,
-      rgba(255, 255, 255, .16) 24px,
-      transparent 24px,
-      transparent 72px
-    );
+    inset: 0;
+    background:
+      linear-gradient(67deg, transparent 0 13%, rgba(255, 255, 255, .08) 13% 23%, transparent 23% 42%, rgba(255, 255, 255, .06) 42% 55%, transparent 55%),
+      linear-gradient(130deg, rgba(255, 255, 255, .05), transparent 45%);
     content: "";
-    transform: rotate(-4deg);
+    pointer-events: none;
+  }
+  .wallet-card::after {
+    position: absolute;
+    right: -70px;
+    bottom: -135px;
+    width: 250px;
+    aspect-ratio: 1;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 50%;
+    box-shadow: 0 0 0 18px rgba(255, 255, 255, .035), 0 0 0 38px rgba(255, 255, 255, .025);
+    content: "";
     pointer-events: none;
   }
   .wallet-card > * {
@@ -325,7 +337,7 @@ const walletStyles = `
     transform: scale(.99);
   }
   .wallet-card.is-default {
-    box-shadow: 0 0 0 3px #ffffff, 0 4px 0 #111827, 0 9px 16px rgba(17, 24, 39, .18);
+    box-shadow: 0 0 0 3px #ffffff, 0 4px 0 #17191c, 0 10px 20px rgba(17, 24, 39, .18);
   }
   .wallet-card-brand {
     display: flex;
@@ -348,7 +360,7 @@ const walletStyles = `
   .wallet-card-copy {
     display: flex;
     min-width: 0;
-    height: 100%;
+    flex: 1;
     flex-direction: column;
   }
   .wallet-card-method {
@@ -360,14 +372,14 @@ const walletStyles = `
     text-transform: uppercase;
   }
   .wallet-card-number {
-    margin: auto 0 18px;
+    margin: auto 0 20px;
     overflow: hidden;
     color: #ffffff;
-    font-size: 18px;
+    font-size: clamp(16px, 4.4vw, 20px);
     font-weight: 800;
-    letter-spacing: .04em;
+    letter-spacing: .055em;
     text-overflow: ellipsis;
-    white-space: normal;
+    white-space: nowrap;
   }
   .wallet-card-bottomline {
     display: flex;
@@ -381,7 +393,7 @@ const walletStyles = `
     align-items: center;
     gap: 7px;
     color: rgba(255, 255, 255, .86);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
   }
   .wallet-card-network-icon {
@@ -397,6 +409,21 @@ const walletStyles = `
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .wallet-card-chip {
+    position: relative;
+    display: block;
+    width: 48px;
+    height: 35px;
+    flex: none;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 8px;
+    background:
+      linear-gradient(90deg, transparent 48%, rgba(116, 72, 48, .24) 49% 51%, transparent 52%),
+      linear-gradient(0deg, transparent 47%, rgba(116, 72, 48, .22) 48% 51%, transparent 52%),
+      linear-gradient(135deg, #fff4df, #d9b984 58%, #f9e8c8);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), 0 2px 5px rgba(0, 0, 0, .16);
   }
   .wallet-card-actions {
     display: flex;
@@ -1163,6 +1190,7 @@ export default function WalletPage() {
                                 />
                                 <span>{wallet.country || "Compte de retrait"} · {wallet.paymentMethod}</span>
                               </span>
+                              <span className="wallet-card-chip" aria-hidden="true" />
                             </div>
                           </div>
 
