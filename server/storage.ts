@@ -56,6 +56,7 @@ export interface IStorage {
   getWalletBalances(userId: number): Promise<WalletBalanceSummary>;
   getWithdrawableBalance(userId: number): Promise<string>;
   creditWallet(userId: number, kind: WalletCreditKind, amount: number, transaction: WalletTransactionData, patch?: WalletUserPatch): Promise<User>;
+  creditWalletBalancesWithAudit(userId: number, adminId: number, depositAmount: number, earningsAmount: number): Promise<WalletBalanceSummary>;
   spendWallet<T = undefined>(userId: number, amount: number, kind: WalletSpendKind, transaction: WalletTransactionData, patch?: WalletUserPatch, withinTransaction?: (tx: any) => Promise<T>): Promise<{ user: User; allocation: WalletAllocation; result: T | undefined }>;
   createWithdrawalFromEarnings(userId: number, amount: number, data: WithdrawalCreationData): Promise<Withdrawal>;
   setWalletTotal(userId: number, total: number, description: string): Promise<void>;
@@ -356,6 +357,98 @@ export class DatabaseStorage implements IStorage {
           .where(and(eq(users.id, userId), isNull(users.walletActivatedAt)));
       }
       return updated;
+    });
+  }
+
+  async creditWalletBalancesWithAudit(
+    userId: number,
+    adminId: number,
+    depositAmount: number,
+    earningsAmount: number,
+  ): Promise<WalletBalanceSummary> {
+    const amounts = [depositAmount, earningsAmount];
+    if (
+      amounts.some((amount) => !Number.isSafeInteger(amount) || amount < 0 || amount > 100_000_000) ||
+      depositAmount + earningsAmount <= 0
+    ) {
+      throw new Error("Saisissez des crédits entiers positifs, dans la limite autorisée.");
+    }
+
+    const depositValue = depositAmount.toFixed(2);
+    const earningsValue = earningsAmount.toFixed(2);
+    const totalValue = (depositAmount + earningsAmount).toFixed(2);
+
+    return db.transaction(async (tx) => {
+      const [admin] = await tx.select({ id: users.id, isSuperAdmin: users.isSuperAdmin })
+        .from(users)
+        .where(eq(users.id, adminId))
+        .for("update");
+      if (!admin?.isSuperAdmin) throw new Error("Action réservée au super administrateur.");
+
+      const [targetUser] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
+      if (!targetUser) throw new Error("Utilisateur non trouvé.");
+
+      const [updatedUser] = await tx.update(users).set({
+        balance: sql`${users.balance} + ${totalValue}::numeric`,
+        depositBalance: sql`${users.depositBalance} + ${depositValue}::numeric`,
+        earningsBalance: sql`${users.earningsBalance} + ${earningsValue}::numeric`,
+      }).where(eq(users.id, userId)).returning();
+
+      const walletCredits = [
+        depositAmount > 0
+          ? {
+              amount: depositValue,
+              description: "Crédit administrateur du solde des dépôts",
+              walletImpact: {
+                depositDelta: depositAmount,
+                earningsDelta: 0,
+                legacyDepositDelta: 0,
+                legacyEarningsDelta: 0,
+              },
+            }
+          : null,
+        earningsAmount > 0
+          ? {
+              amount: earningsValue,
+              description: "Crédit administrateur des revenus cumulés retirables",
+              walletImpact: {
+                depositDelta: 0,
+                earningsDelta: earningsAmount,
+                legacyDepositDelta: 0,
+                legacyEarningsDelta: 0,
+              },
+            }
+          : null,
+      ].filter((credit): credit is NonNullable<typeof credit> => credit !== null);
+
+      let activationAt = targetUser.walletActivatedAt;
+      for (const credit of walletCredits) {
+        const [createdTransaction] = await tx.insert(transactions).values({
+          userId,
+          type: "admin_adjustment",
+          amount: credit.amount,
+          description: credit.description,
+          walletImpact: JSON.stringify(credit.walletImpact),
+        }).returning();
+        if (!activationAt) activationAt = createdTransaction.createdAt;
+      }
+
+      let finalUser = updatedUser;
+      if (!targetUser.walletActivatedAt && activationAt) {
+        [finalUser] = await tx.update(users)
+          .set({ walletActivatedAt: activationAt })
+          .where(eq(users.id, userId))
+          .returning();
+      }
+
+      await tx.insert(adminAuditLog).values({
+        adminId,
+        action: "credit_wallet_balances",
+        targetUserId: userId,
+        details: `Crédit administrateur : dépôts +${depositValue}, revenus cumulés +${earningsValue}`,
+      });
+
+      return this.calculateWalletBalances(tx, finalUser);
     });
   }
 

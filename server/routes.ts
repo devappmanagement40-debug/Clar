@@ -3437,6 +3437,48 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/admin/users/:id/credit-wallets", requireAdmin, async (req, res) => {
+    const userId = Number.parseInt(String(req.params.id), 10);
+    if (!Number.isSafeInteger(userId) || userId <= 0) {
+      return res.status(400).json({ message: "Utilisateur invalide." });
+    }
+
+    const adminId = req.session.userId;
+    if (!adminId) return res.status(401).json({ message: "Session administrateur requise." });
+
+    const creditSchema = z.object({
+      depositAmount: z.number().int().min(0).max(100_000_000),
+      earningsAmount: z.number().int().min(0).max(100_000_000),
+    }).refine((value) => value.depositAmount > 0 || value.earningsAmount > 0, {
+      message: "Au moins un montant de crédit positif est requis.",
+    });
+    const parsed = creditSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: "Montants invalides. Saisissez des montants entiers positifs." });
+    }
+
+    try {
+      const balances = await storage.creditWalletBalancesWithAudit(
+        userId,
+        adminId,
+        parsed.data.depositAmount,
+        parsed.data.earningsAmount,
+      );
+      res.json({ success: true, balances });
+    } catch (error: any) {
+      const message = error?.message || "Le crédit des soldes a échoué.";
+      const status = message.includes("super administrateur")
+        ? 403
+        : message.includes("non trouvé")
+          ? 404
+          : message.includes("Saisissez")
+            ? 400
+            : 500;
+      if (status === 500) console.error("[admin-wallet-credit] Transaction failed:", error);
+      res.status(status).json({ message });
+    }
+  });
+
   app.post("/api/admin/users/:id/:action", requireAdmin, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);

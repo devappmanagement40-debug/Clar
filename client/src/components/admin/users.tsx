@@ -119,6 +119,8 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   const [statusFilter, setStatusFilter] = useState<"all" | "banned" | "blocked" | "promoter">("all");
   const [selectedUser, setSelectedUser] = useState<UserWithTeam | null>(null);
   const [editBalance, setEditBalance] = useState("");
+  const [depositCreditAmount, setDepositCreditAmount] = useState("");
+  const [earningsCreditAmount, setEarningsCreditAmount] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [showTeamModal, setShowTeamModal] = useState(false);
@@ -214,6 +216,71 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
        toast({ title: "Mise à jour de l'utilisateur impossible", description: error.message, variant: "destructive" });
     },
   });
+
+  const walletCreditMutation = useMutation({
+    mutationFn: async ({
+      userId,
+      depositAmount,
+      earningsAmount,
+    }: {
+      userId: number;
+      depositAmount: number;
+      earningsAmount: number;
+    }) => {
+      const response = await apiRequest("POST", `/api/admin/users/${userId}/credit-wallets`, {
+        depositAmount,
+        earningsAmount,
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Le crédit des soldes a échoué");
+      }
+      return response.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      toast({
+        title: "Crédits enregistrés",
+        description: selectedUser && data?.balances
+          ? `Dépôts : ${formatCurrency(data.balances.depositBalance, selectedUser.country)} · Revenus cumulés : ${formatCurrency(data.balances.earningsBalance, selectedUser.country)}`
+          : "Les deux soldes et le journal financier ont été mis à jour.",
+      });
+      setDepositCreditAmount("");
+      setEarningsCreditAmount("");
+    },
+    onError: (error: any) => {
+      toast({ title: "Crédit impossible", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const depositCreditValue = depositCreditAmount === "" ? 0 : Number(depositCreditAmount);
+  const earningsCreditValue = earningsCreditAmount === "" ? 0 : Number(earningsCreditAmount);
+  const walletCreditAmountsValid = [depositCreditValue, earningsCreditValue].every(
+    (amount) => Number.isSafeInteger(amount) && amount >= 0 && amount <= 100_000_000,
+  ) && depositCreditValue + earningsCreditValue > 0;
+
+  const submitWalletCredits = () => {
+    if (!selectedUser) return;
+    if (!walletCreditAmountsValid) return;
+    const depositAmount = depositCreditValue;
+    const earningsAmount = earningsCreditValue;
+
+    const creditDetails = [
+      depositAmount > 0 ? `Dépôts : ${formatCurrency(depositAmount, selectedUser.country)}` : null,
+      earningsAmount > 0 ? `Revenus cumulés : ${formatCurrency(earningsAmount, selectedUser.country)}` : null,
+    ].filter(Boolean).join("\n");
+    const confirmed = window.confirm(
+      `Confirmer ces crédits pour ${selectedUser.fullName} ?\n\n${creditDetails}\n\nLes deux opérations seront enregistrées ensemble au journal financier.`,
+    );
+    if (!confirmed) return;
+
+    walletCreditMutation.mutate({
+      userId: selectedUser.id,
+      depositAmount,
+      earningsAmount,
+    });
+  };
 
   // Client-side status filter only (search is now server-side)
   const filteredUsers = users.filter(u => {
@@ -477,6 +544,58 @@ export default function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
               </div>
 
               <div className="space-y-3">
+                {isSuperAdmin && (
+                  <div className="rounded-lg border border-border bg-secondary/40 p-3 space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold">Créditer séparément les deux soldes</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        L’opération est atomique et inscrite au journal financier. Les dépôts restent non retirables.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Solde des dépôts</label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100000000"
+                          step="1"
+                          inputMode="numeric"
+                          value={depositCreditAmount}
+                          onChange={(event) => setDepositCreditAmount(event.target.value)}
+                          placeholder="0"
+                          aria-label="Créditer le solde des dépôts"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">Revenus cumulés (retirables)</label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100000000"
+                          step="1"
+                          inputMode="numeric"
+                          value={earningsCreditAmount}
+                          onChange={(event) => setEarningsCreditAmount(event.target.value)}
+                          placeholder="0"
+                          aria-label="Créditer les revenus cumulés retirables"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      className="w-full"
+                      onClick={submitWalletCredits}
+                      disabled={walletCreditMutation.isPending || !walletCreditAmountsValid}
+                    >
+                      {walletCreditMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        "Confirmer les crédits"
+                      )}
+                    </Button>
+                  </div>
+                )}
+
                 <div>
                   <label className="text-sm font-medium">Modifier le solde</label>
                   <div className="flex gap-2 mt-1">
