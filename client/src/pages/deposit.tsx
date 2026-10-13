@@ -1299,7 +1299,7 @@ export default function DepositPage() {
             wpInitiateMutation.isPending
           }
         >
-          Recharger maintenant
+          {selectedDepositMethod === "manual" ? "Valider le dépôt" : "Recharger maintenant"}
         </button>
 
         <section className="instructions" aria-label="Bon à savoir">

@@ -26,18 +26,24 @@ function formatTimeRemaining(totalSeconds: number) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-function Stepper({ step }: { step: number }) {
+function Stepper({
+  step,
+  labels = ["Numéro de téléphone", "Informations de confirmation", "Paiement terminé"],
+}: {
+  step: number;
+  labels?: [string, string, string];
+}) {
   return (
     <div className="flex items-center justify-between mb-7">
-      {["Numéro de téléphone", "Informations de confirmation", "Paiement terminé"].map((label, i) => (
+      {labels.map((label, i) => (
         <div key={label} className="flex items-center flex-1 last:flex-none">
           <div className={`flex flex-col items-center text-center ${i <= step ? "text-[#111827]" : "text-gray-400"}`}>
-            <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold ${i <= step ? "border-[#111827] bg-[#FF7A14] text-[#111827] shadow-[0_2px_0_#111827]" : "border-gray-300 bg-white"}`}>
+            <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold ${i <= step ? "border-[#D40030] bg-[#D40030] text-white shadow-[0_2px_0_#111827]" : "border-gray-300 bg-white"}`}>
               {i < step ? <Check className="w-5 h-5" /> : i + 1}
             </div>
             <span className="text-[11px] leading-tight mt-1 w-24">{label}</span>
           </div>
-          {i < 2 && <div className={`h-px flex-1 mx-1 mt-[-18px] ${i < step ? "bg-[#FF7A14]" : "bg-gray-300"}`} />}
+          {i < 2 && <div className={`h-px flex-1 mx-1 mt-[-18px] ${i < step ? "bg-[#D40030]" : "bg-gray-300"}`} />}
         </div>
       ))}
     </div>
@@ -95,6 +101,9 @@ export default function RobotPayPage() {
   const manualVerificationSecondsLeft = manualVerificationDeadline
     ? Math.max(0, Math.ceil((manualVerificationDeadline - clockNow) / 1000))
     : 0;
+  const manualStepperStep = manualSubmitted
+    ? status === "approved" ? 3 : 2
+    : Math.min(step, 2);
 
   const { data: loadedCountries, isError: countriesError } = useQuery<ApiCountry[]>({ queryKey: ["/api/countries"] });
   const countries = getCountriesForDisplay(loadedCountries, countriesError);
@@ -125,7 +134,7 @@ export default function RobotPayPage() {
       ? `+${phonePrefix}${phone.replace(/\D/g, "")}`
       : phone.trim();
 
-  const { data: manualNumbers = [], isLoading: manualNumbersLoading } = useQuery<PaymentNumber[]>({
+  const { data: manualNumbers = [], isLoading: manualNumbersLoading, isError: manualNumbersError } = useQuery<PaymentNumber[]>({
     queryKey: ["/api/payment-numbers", country],
     queryFn: async () => {
       const res = await fetch(`/api/payment-numbers?country=${encodeURIComponent(country)}`, { credentials: "include" });
@@ -413,11 +422,18 @@ export default function RobotPayPage() {
   }, [step, depositId, status, activeProvider, refreshUser]);
 
   useEffect(() => {
-    if (!phonePrefilled.current && user?.phone) {
-      setPhone(user.phone);
-      phonePrefilled.current = true;
+    if (phonePrefilled.current || !user?.phone || !phonePrefix) return;
+    const trimmedPhone = user.phone.trim();
+    const prefixDigits = phonePrefix.replace(/\D/g, "");
+    let localPhone = trimmedPhone.replace(/\D/g, "");
+    if (trimmedPhone.startsWith("+") && localPhone.startsWith(prefixDigits)) {
+      localPhone = localPhone.slice(prefixDigits.length);
+    } else if (trimmedPhone.startsWith("00") && localPhone.startsWith(`00${prefixDigits}`)) {
+      localPhone = localPhone.slice(2 + prefixDigits.length);
     }
-  }, [user?.phone]);
+    setPhone(localPhone);
+    phonePrefilled.current = true;
+  }, [user?.phone, phonePrefix]);
 
   const submitPhone = () => {
     if (!phone.trim()) { toast({ title: "Numéro requis", description: "Saisissez le numéro Mobile Money utilisé.", variant: "destructive" }); return; }
@@ -513,35 +529,45 @@ export default function RobotPayPage() {
     setStep(1);
   };
 
-   if (!amount || !country) return <main className="flex min-h-screen items-center justify-center bg-white p-6 text-center text-[#111827]"><p className="rounded-xl border-2 border-[#111827] bg-white p-5 font-semibold shadow-[0_4px_0_#111827]">Données de dépôt invalides.</p></main>;
+  if (!amount || !country) return <main className="flex min-h-screen items-center justify-center bg-white p-6 text-center text-[#111827]"><p className="rounded-xl border-2 border-[#111827] bg-white p-5 font-semibold shadow-[0_4px_0_#111827]">Données de dépôt invalides.</p></main>;
   return (
-      <main className="min-h-screen bg-white p-3 text-[#111827] sm:p-6">
-       <aside
-         role="timer"
-         aria-label={`Compte à rebours de la recharge : ${formatTimeRemaining(checkoutSecondsLeft)}`}
-         title="Compte à rebours de la session de recharge"
-         className="fixed right-3 top-3 z-50 flex items-center gap-1.5 rounded-full border-2 border-[#111827] bg-white px-2.5 py-1.5 text-sm font-bold text-[#111827] shadow-[0_3px_0_#111827]"
-       >
-         <Clock3 aria-hidden="true" className="h-4 w-4 text-[#b84d00]" />
-         <span className="font-mono tabular-nums">{formatTimeRemaining(checkoutSecondsLeft)}</span>
-       </aside>
+    <main className={`min-h-screen p-3 text-[#111827] sm:p-6 ${isManualFlow ? "bg-[#FFF0F3]" : "bg-white"}`}>
+      {!isManualFlow && (
+        <aside
+          role="timer"
+          aria-label={`Compte à rebours de la recharge : ${formatTimeRemaining(checkoutSecondsLeft)}`}
+          title="Compte à rebours de la session de recharge"
+          className="fixed right-3 top-3 z-50 flex items-center gap-1.5 rounded-full border-2 border-[#111827] bg-white px-2.5 py-1.5 text-sm font-bold text-[#111827] shadow-[0_3px_0_#111827]"
+        >
+          <Clock3 aria-hidden="true" className="h-4 w-4 text-[#A60026]" />
+          <span className="font-mono tabular-nums">{formatTimeRemaining(checkoutSecondsLeft)}</span>
+        </aside>
+      )}
       <div className="max-w-xl mx-auto">
-         <div className={`${isManualFlow ? "px-3 pb-3 pt-2 sm:px-4 sm:pt-3 sm:pb-4" : "px-4 pb-5 pt-3 sm:px-5 sm:pt-4 sm:pb-6"} text-[#111827]`}>
-           <p className={`${isManualFlow ? "text-xs" : "text-sm"} font-bold uppercase tracking-[0.12em] text-[#5b2500]`}>{isManualFlow ? "Montant" : "Montant du dépôt"}</p>
-           <p className={`mt-1 ${isManualFlow ? "text-3xl" : "text-4xl"} font-extrabold tracking-tight`}>{amount.toLocaleString()} <span className="text-2xl font-bold">{currency}</span></p>
+        <div className={`${isManualFlow ? "rounded-t-2xl bg-[#D40030] px-4 pb-4 pt-4 text-white sm:px-5" : "px-4 pb-5 pt-3 text-[#111827] sm:px-5 sm:pt-4 sm:pb-6"}`}>
+          <p className={`${isManualFlow ? "text-sm text-white/90" : "text-sm text-[#5b2500]"} font-bold uppercase tracking-[0.12em]`}>{isManualFlow ? "Montant" : "Montant du dépôt"}</p>
+          <p className={`mt-1 ${isManualFlow ? "text-3xl" : "text-4xl"} font-extrabold tracking-tight`}>{amount.toLocaleString()} <span className="text-2xl font-bold">{currency}</span></p>
         </div>
-          <section className={`rounded-2xl border-2 border-[#111827] bg-white shadow-[0_5px_0_#111827,0_10px_18px_rgba(17,24,39,0.18)] ${isManualFlow ? "p-3 sm:p-4" : "p-4 sm:p-6"}`}>
-           {step > 0 && !isManualFlow && <Stepper step={Math.max(0, Math.min(2, step - 1))} />}
+        <section className={`rounded-2xl border-2 border-[#111827] bg-white shadow-[0_5px_0_#111827,0_10px_18px_rgba(17,24,39,0.18)] ${isManualFlow ? "rounded-t-none p-4 sm:p-5" : "p-4 sm:p-6"}`}>
+            {isManualFlow ? (
+              <Stepper
+                step={manualStepperStep}
+                labels={["Opérateur", "Compte de paiement", "Vérification"]}
+              />
+            ) : step > 0 ? (
+              <Stepper step={Math.max(0, Math.min(2, step - 1))} />
+            ) : null}
           {step === 0 && (
             <div className="space-y-5">
-               <p className="px-1 text-lg font-bold text-[#111827]">
+                <p className="px-1 text-lg font-bold text-[#111827]">
                 {isManualFlow
-                  ? "Sélectionnez le numéro de paiement :"
+                   ? "Sélectionnez un opérateur Mobile Money"
                   : isSoleaspayFlow
                     ? "Sélectionnez votre opérateur Mobile Money :"
                     : "Sélectionnez le mode de paiement :"}
               </p>
-               {loadingOperators ? <Loader2 className="w-7 h-7 animate-spin mx-auto text-[#FF7A14]" /> : operators.length === 0 ? <p className="text-center text-gray-500">{providerError instanceof Error ? sanitizeDepositDisplayText(providerError.message, "Aucun opérateur disponible pour ce pays.") : "Aucun opérateur disponible pour ce pays."}</p> : (
+               {isManualFlow && <p className="px-1 text-sm leading-6 text-gray-600">Choisissez l’opérateur du compte auquel vous allez envoyer {amount.toLocaleString()} {currency}.</p>}
+                {loadingOperators ? <Loader2 className="w-7 h-7 animate-spin mx-auto text-[#D40030]" /> : operators.length === 0 ? <p className="text-center text-gray-500">{manualNumbersError && isManualFlow ? "Impossible de charger les moyens de paiement. Réessayez." : providerError instanceof Error ? sanitizeDepositDisplayText(providerError.message, "Aucun opérateur disponible pour ce pays.") : "Aucun opérateur disponible pour ce pays."}</p> : (
                   <div className="space-y-3">
                     {operators.map((op, i) => (
                       <button
@@ -549,21 +575,31 @@ export default function RobotPayPage() {
                         type="button"
                         onClick={() => chooseOperator(op)}
                         aria-label={`Sélectionner ${op.name || op.code || "cet opérateur"}`}
-                        className={`group flex min-h-[68px] w-full items-center justify-between gap-4 rounded-xl border-2 border-[#111827] px-4 py-3.5 text-left transition duration-200 ease-out active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FF7A14]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-5 ${
+                        className={`group flex min-h-[68px] w-full items-center justify-between gap-4 rounded-xl border-2 border-[#111827] px-4 py-3.5 text-left transition duration-200 ease-out active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D40030]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-5 ${
                           operator === op
-                            ? "bg-[#fff1e6] ring-2 ring-[#FF7A14]/35 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)]"
-                            : "bg-white shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)] hover:-translate-y-0.5 hover:bg-[#fffaf6] hover:shadow-[0_5px_0_#111827,0_9px_16px_rgba(17,24,39,0.16)]"
+                            ? "bg-[#FFF0F3] ring-2 ring-[#D40030]/25 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)]"
+                            : "bg-white shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)] hover:-translate-y-0.5 hover:bg-[#FFF8FA] hover:shadow-[0_5px_0_#111827,0_9px_16px_rgba(17,24,39,0.16)]"
                         }`}
                       >
-                        <span className="min-w-0 flex-1 text-lg font-bold leading-snug text-[#111827]">
-                          {op.name}
+                        <span className="flex min-w-0 flex-1 items-center gap-3">
+                          {op.manualNumber?.logoUrl ? (
+                            <img src={op.manualNumber.logoUrl} alt="" aria-hidden="true" className="h-10 w-10 shrink-0 rounded-lg border border-gray-200 bg-white object-contain p-1" />
+                          ) : (
+                            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-[#E7A2B2] bg-[#FFF0F3] text-[#D40030]">
+                              <Phone className="h-5 w-5" aria-hidden="true" />
+                            </span>
+                          )}
+                          <span className="min-w-0">
+                            <span className="block text-lg font-bold leading-snug text-[#111827]">{op.name}</span>
+                            {op.manualNumber?.ownerName && <span className="mt-0.5 block truncate text-xs font-medium text-gray-500">{op.manualNumber.ownerName}</span>}
+                          </span>
                         </span>
                         <ChevronRight
                           aria-hidden="true"
                           className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
                             operator === op
-                              ? "translate-x-0.5 text-[#b84d00]"
-                              : "text-gray-500 group-hover:translate-x-0.5 group-hover:text-[#b84d00]"
+                              ? "translate-x-0.5 text-[#A60026]"
+                              : "text-gray-500 group-hover:translate-x-0.5 group-hover:text-[#A60026]"
                           }`}
                         />
                       </button>
@@ -572,7 +608,75 @@ export default function RobotPayPage() {
               )}
             </div>
           )}
-          {step === 1 && (
+          {step === 1 && isManualFlow && operator?.manualNumber && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-[#E7A2B2] bg-[#FFF0F3] px-4 py-3 text-sm font-semibold leading-6 text-[#5A1728]">
+                Envoyez <strong>{amount.toLocaleString()} {currency}</strong> sur le compte de paiement ci-dessous. Vérifiez le nom du bénéficiaire avant le transfert.
+              </div>
+
+              <section aria-label="Compte de paiement" className="space-y-3 rounded-xl border-2 border-[#111827] bg-white p-4 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.1)]">
+                <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-500">Méthode de transfert</p>
+                    <p className="mt-1 text-lg font-bold text-[#111827]">{operator.name || operator.manualNumber.operatorName}</p>
+                  </div>
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-[#D40030]">
+                    <Phone aria-hidden="true" className="h-5 w-5" />
+                  </span>
+                </div>
+                {operator.manualNumber.ownerName && (
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-500">Nom du bénéficiaire</p>
+                    <p className="mt-1 font-semibold text-[#111827]">{operator.manualNumber.ownerName}</p>
+                  </div>
+                )}
+                {operator.manualNumber.paymentLink ? (
+                  <a
+                    href={operator.manualNumber.paymentLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#D40030] bg-white px-3 text-sm font-bold text-[#A60026] underline-offset-2 hover:bg-[#FFF8FA]"
+                  >
+                    <ExternalLink aria-hidden="true" className="h-4 w-4" /> Ouvrir le lien de paiement
+                  </a>
+                ) : (
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-500">Numéro du compte</p>
+                    <p className="mt-1 break-all font-mono text-xl font-bold tracking-wide text-[#111827]">{operator.manualNumber.phone}</p>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={copyPaymentNumber}
+                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-[11px] border-2 border-[#111827] bg-[#D40030] px-4 py-2 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.14)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
+                >
+                  <Copy aria-hidden="true" className="h-4 w-4" /> Copier les coordonnées
+                </button>
+              </section>
+
+              <div className="rounded-xl border-2 border-[#111827] bg-white px-4 py-3 text-sm text-gray-700 shadow-[0_2px_0_#111827]">
+                Montant à transférer : <strong className="text-[#111827]">{amount.toLocaleString()} {currency}</strong>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setStep(0)}
+                  className="flex-1 rounded-[11px] border-2 border-[#111827] bg-white py-3 font-semibold text-[#111827] shadow-[0_3px_0_#111827] transition active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
+                >
+                  Précédent
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="flex-1 rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.14)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
+                >
+                  Suivant <ChevronRight aria-hidden="true" className="ml-1 inline h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          {step === 1 && !isManualFlow && (
             <div className={operator?.manualNumber ? "space-y-3" : "space-y-5"}>
               {operator?.manualNumber && (
                 <section
@@ -590,7 +694,7 @@ export default function RobotPayPage() {
                         href={operator.manualNumber.paymentLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex min-w-0 items-center justify-center gap-1.5 text-center text-sm font-semibold text-[#111827] underline decoration-[#FF7A14] underline-offset-2"
+                        className="inline-flex min-w-0 items-center justify-center gap-1.5 text-center text-sm font-semibold text-[#111827] underline decoration-[#D40030] underline-offset-2"
                       >
                         <ExternalLink aria-hidden="true" className="h-4 w-4 shrink-0" /> Ouvrir le lien
                       </a>
@@ -608,14 +712,14 @@ export default function RobotPayPage() {
                     aria-label={operator.manualNumber.paymentLink
                       ? "Copier le lien de paiement"
                       : `Copier le numéro ${operator.manualNumber.phone}`}
-                    className="mx-auto mt-2 flex h-9 min-w-24 items-center justify-center gap-1.5 rounded-[11px] border-2 border-[#111827] bg-[#FF7A14] px-3 text-xs font-bold text-[#111827] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition duration-150 hover:brightness-95 active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A14] focus-visible:ring-offset-2"
+                    className="mx-auto mt-2 flex h-9 min-w-24 items-center justify-center gap-1.5 rounded-[11px] border-2 border-[#111827] bg-[#D40030] px-3 text-xs font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition duration-150 hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
                   >
                     <Copy aria-hidden="true" className="h-4 w-4" /> Copier
                   </button>
                 </section>
               )}
               <label htmlFor="robotpay-payer-phone" className="block text-sm font-semibold text-[#111827]">Téléphone payeur</label>
-              <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#FF7A14] focus-within:ring-2 focus-within:ring-[#FF7A14]/20">
+              <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
                 <Phone className="h-4 w-4 text-[#111827]" />
                 <span className="shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
                 <input id="robotpay-payer-phone" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 12))} type="tel" inputMode="numeric" className="w-full px-3 py-2.5 text-[#111827] outline-none" />
@@ -631,7 +735,7 @@ export default function RobotPayPage() {
                     onChange={event => setClapayOperatorOtp(event.target.value.trim().slice(0, 64))}
                     autoComplete="one-time-code"
                     inputMode="numeric"
-                    className="w-full rounded-[11px] border-2 border-[#111827] px-3 py-2.5 text-center font-mono text-lg text-[#111827] outline-none transition focus:border-[#FF7A14] focus:ring-2 focus:ring-[#FF7A14]/20"
+                    className="w-full rounded-[11px] border-2 border-[#111827] px-3 py-2.5 text-center font-mono text-lg text-[#111827] outline-none transition focus:border-[#D40030] focus:ring-2 focus:ring-[#D40030]/15"
                   />
                   <p className="mt-1 text-xs text-gray-600">Saisissez le code demandé par votre opérateur Mobile Money.</p>
                 </div>
@@ -641,7 +745,7 @@ export default function RobotPayPage() {
                   <label htmlFor="robotpay-transaction-reference" className="mb-1.5 block text-sm font-semibold text-[#111827]">
                     ID de transaction <span className="text-red-500">*</span>
                   </label>
-                  <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#FF7A14] focus-within:ring-2 focus-within:ring-[#FF7A14]/20">
+                  <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
                     <input
                       id="robotpay-transaction-reference"
                       type="text"
@@ -659,12 +763,90 @@ export default function RobotPayPage() {
                 </div>
               )}
               <div className="flex items-center justify-center gap-3 pt-1">
-                <button onClick={() => { setOperator(null); setStep(0); }} className="flex-1 rounded-[11px] border-2 border-[#111827] bg-white py-2.5 font-semibold text-[#111827] shadow-[0_3px_0_#111827] transition active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A14] focus-visible:ring-offset-2">Retour</button>
-               <button onClick={submitPhone} disabled={busy || !phone.trim() || (activeProvider === "clapay" && !!operator?.requiresOtp && !clapayOperatorOtp.trim()) || (!!operator?.manualNumber && !manualTransactionReference.trim())} className="flex-1 rounded-[11px] border-2 border-[#111827] bg-[#FF7A14] py-2.5 font-bold text-[#111827] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition duration-150 hover:brightness-95 active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A14] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">{busy ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : operator?.manualNumber ? "Vérifier" : "Continuer"}</button>
+                <button onClick={() => { setOperator(null); setStep(0); }} className="flex-1 rounded-[11px] border-2 border-[#111827] bg-white py-2.5 font-semibold text-[#111827] shadow-[0_3px_0_#111827] transition active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2">Retour</button>
+               <button onClick={submitPhone} disabled={busy || !phone.trim() || (activeProvider === "clapay" && !!operator?.requiresOtp && !clapayOperatorOtp.trim()) || (!!operator?.manualNumber && !manualTransactionReference.trim())} className="flex-1 rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-2.5 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition duration-150 hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">{busy ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : operator?.manualNumber ? "Vérifier" : "Continuer"}</button>
               </div>
             </div>
           )}
-          {step === 2 && (
+          {step === 2 && isManualFlow && (
+            <div className="space-y-4">
+              <div className="rounded-xl border-2 border-[#E7A2B2] bg-[#FFF8FA] p-4 text-sm leading-6 text-gray-700">
+                <h2 className="mb-2 text-base font-bold text-[#111827]">Une information importante</h2>
+                <p>
+                  Après le transfert, indiquez le numéro utilisé pour payer et l’ID de transaction reçu par SMS ou sur le reçu.
+                  Votre dépôt sera créé <strong>en attente de vérification</strong> ; le solde ne sera crédité qu’après validation.
+                </p>
+                {operator?.manualNumber && (
+                  <div className="mt-3 rounded-lg bg-white px-3 py-2 text-sm">
+                    <p><strong>Méthode :</strong> {operator.name}</p>
+                    {operator.manualNumber.ownerName && <p><strong>Bénéficiaire :</strong> {operator.manualNumber.ownerName}</p>}
+                    <p><strong>Montant à envoyer :</strong> {amount.toLocaleString()} {currency}</p>
+                    <p className="break-all"><strong>Compte :</strong> {operator.manualNumber.paymentLink || operator.manualNumber.phone}</p>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="robotpay-payer-phone" className="mb-1.5 block text-sm font-semibold text-[#111827]">
+                  Téléphone utilisé pour le paiement <span className="text-[#D40030]">*</span>
+                </label>
+                <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
+                  <Phone className="h-4 w-4 text-[#D40030]" aria-hidden="true" />
+                  <span className="ml-2 shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
+                  <input
+                    id="robotpay-payer-phone"
+                    value={phone}
+                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, 12))}
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    aria-required="true"
+                    className="w-full min-w-0 px-3 py-3 text-[#111827] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="robotpay-transaction-reference" className="mb-1.5 block text-sm font-semibold text-[#111827]">
+                  ID de transaction <span className="text-[#D40030]">*</span>
+                </label>
+                <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
+                  <input
+                    id="robotpay-transaction-reference"
+                    type="text"
+                    value={manualTransactionReference}
+                    onChange={event => setManualTransactionReference(event.target.value)}
+                    maxLength={120}
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    placeholder="ID indiqué dans le SMS ou sur le reçu"
+                    aria-required="true"
+                    className="w-full min-w-0 px-3 py-3 font-mono tracking-wide text-[#111827] placeholder:font-sans placeholder:text-sm placeholder:tracking-normal placeholder:text-gray-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="flex-1 rounded-[11px] border-2 border-[#111827] bg-white py-3 font-semibold text-[#111827] shadow-[0_3px_0_#111827] transition active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
+                >
+                  Précédent
+                </button>
+                <button
+                  type="button"
+                  onClick={() => manualMutation.mutate()}
+                  disabled={busy || !phone.trim() || !manualTransactionReference.trim()}
+                  className="flex-1 rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.14)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {manualMutation.isPending ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "J’ai effectué le paiement"}
+                </button>
+              </div>
+            </div>
+          )}
+          {step === 2 && !isManualFlow && (
             <div className="space-y-5 text-center">
               {redirectUrl ? (
                 <>
@@ -673,26 +855,26 @@ export default function RobotPayPage() {
                     href={redirectUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-[11px] border-2 border-[#111827] bg-[#FF7A14] py-3 font-bold text-[#111827] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:brightness-95 active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
+                    className="block rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
                   >
                     Ouvrir la page de paiement
                   </a>
                 </>
               ) : (otpToken || ashtechOtpRequired) ? (
                 <>
-                  {ussd && <p className="rounded-lg border border-orange-200 bg-orange-50 px-3 py-3 text-center font-mono text-xl font-bold tracking-widest text-[#00a526]">{ussd}</p>}
+                  {ussd && <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-center font-mono text-xl font-bold tracking-widest text-[#A60026]">{ussd}</p>}
                   <p className="text-sm text-gray-600">{ussd ? "Composez ce code sur votre téléphone pour obtenir le code OTP, puis saisissez-le ci-dessous." : "Un code OTP vous a été envoyé. Saisissez-le ci-dessous."}</p>
                   <input
                     value={activeProvider === "ashtech" ? ashtechOtp : otp}
                     onChange={e => activeProvider === "ashtech" ? setAshtechOtp(e.target.value.replace(/\D/g, "")) : setOtp(e.target.value)}
                     inputMode="numeric"
                     placeholder="Saisissez le code OTP"
-                    className="w-full rounded-[11px] border-2 border-[#111827] p-3 text-center text-xl text-[#111827] outline-none transition focus:border-[#FF7A14] focus:ring-2 focus:ring-[#FF7A14]/20"
+                    className="w-full rounded-[11px] border-2 border-[#111827] p-3 text-center text-xl text-[#111827] outline-none transition focus:border-[#D40030] focus:ring-2 focus:ring-[#D40030]/15"
                   />
                   <button
                     onClick={submitOtp}
                     disabled={busy}
-                    className="w-full rounded-[11px] border-2 border-[#111827] bg-[#FF7A14] py-3 font-bold text-[#111827] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:brightness-95 active:translate-y-[2px] active:shadow-[0_1px_0_#111827] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Confirmer
                   </button>
@@ -704,7 +886,7 @@ export default function RobotPayPage() {
                   <p className="text-sm text-gray-500">Le paiement n’a pas été confirmé. Vous pouvez réessayer.</p>
                   <button
                     onClick={() => { setDepositId(null); setStatus("pending"); setStep(1); }}
-                    className="w-full rounded-[11px] border-2 border-[#111827] bg-[#FF7A14] py-3 font-bold text-[#111827] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:brightness-95 active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
+                    className="w-full rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
                   >
                     Réessayer
                   </button>
@@ -720,41 +902,76 @@ export default function RobotPayPage() {
           )}
           {step === 3 && (
             manualSubmitted ? (
-              <div className="space-y-3 py-3 text-center">
-                <Check className="mx-auto h-16 w-16 rounded-full bg-green-500 p-3 text-white" />
-                <h2 className="text-xl font-bold text-gray-900">Demande envoyée</h2>
-                <div className="rounded-xl border-2 border-[#111827] bg-[#fffaf6] p-3 text-left text-sm leading-6 text-gray-800">
-                  <b>Opérateur :</b> {operator?.name}<br />
-                  <b>Montant :</b> {amount.toLocaleString()} {currency}<br />
-                  <b>ID :</b> <span className="break-all font-mono">{manualTransactionReference.trim()}</span>
+              <div className="space-y-5 py-2 text-center">
+                <div className="border-b border-gray-200 pb-3 text-left">
+                  <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-500">Paiement manuel · {countryInfo?.name || country}</p>
+                  <p className="mt-1 text-2xl font-extrabold text-[#111827]">{amount.toLocaleString()} {currency}</p>
                 </div>
                 {status === "approved" ? (
-                  <p role="status" className="text-sm font-semibold text-green-700">Dépôt approuvé</p>
-                ) : status === "rejected" ? (
-                  <p role="status" className="text-sm font-semibold text-red-600">Demande refusée</p>
-                ) : manualVerificationDeadline && manualVerificationSecondsLeft > 0 ? (
-                  <div role="status" aria-live="polite" className="space-y-1">
-                    <p className="flex items-center justify-center gap-2 text-sm font-semibold text-[#b84d00]">
-                      <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
-                      Vérification en cours · {formatTimeRemaining(manualVerificationSecondsLeft)}
-                    </p>
-                    <p className="text-xs text-amber-700">En attente de validation</p>
+                  <div role="status" className="rounded-xl border-2 border-green-200 bg-green-50 p-4 text-left">
+                    <p className="flex items-center gap-2 font-bold text-green-800"><Check aria-hidden="true" className="h-5 w-5" /> Paiement confirmé</p>
+                    <p className="mt-1 text-sm leading-6 text-green-800">Votre dépôt a été approuvé et votre solde a été mis à jour.</p>
                   </div>
-                ) : manualVerificationDeadline ? (
-                  <div className="space-y-2">
-                    <p role="status" className="text-sm font-semibold text-amber-700">Demande toujours en attente</p>
-                    <button
-                      type="button"
-                      onClick={() => setManualVerificationDeadline(Date.now() + 5 * 60 * 1000)}
-                      className="mx-auto inline-flex items-center justify-center gap-2 rounded-[11px] border-2 border-[#111827] bg-[#FF7A14] px-4 py-2 text-sm font-bold text-[#111827] shadow-[0_3px_0_#111827] transition hover:brightness-95 active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A14] focus-visible:ring-offset-2"
-                    >
-                      <RefreshCw aria-hidden="true" className="h-4 w-4" /> Vérifier à nouveau
-                    </button>
+                ) : status === "rejected" ? (
+                  <div role="status" className="rounded-xl border-2 border-red-200 bg-red-50 p-4 text-left">
+                    <p className="font-bold text-red-700">Demande refusée</p>
+                    <p className="mt-1 text-sm leading-6 text-red-700">Le dépôt n’a pas été approuvé. Consultez l’historique ou contactez le service client si nécessaire.</p>
                   </div>
                 ) : (
-                  <p className="text-sm font-semibold text-amber-700">En attente de validation</p>
+                  <div role="status" aria-live="polite" className="rounded-xl border-2 border-[#E7A2B2] bg-[#FFF0F3] p-4">
+                    <p className="flex items-center justify-center gap-2 font-bold text-[#A60026]">
+                      <Clock3 aria-hidden="true" className="h-5 w-5" />
+                      En attente de confirmation du paiement
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-gray-700">Votre demande est enregistrée et sera examinée. Le compteur ci-dessous est une fenêtre de suivi, pas une confirmation de paiement.</p>
+                  </div>
                 )}
-                <button onClick={() => navigate("/")} className="text-base font-semibold text-[#111827] underline decoration-[#FF7A14] underline-offset-4 hover:text-[#b84d00]">Retour au site</button>
+
+                {status !== "approved" && status !== "rejected" && (
+                  <div className="rounded-xl border-2 border-[#111827] bg-white px-4 py-5 shadow-[0_3px_0_#111827]">
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Temps restant dans la fenêtre de suivi</p>
+                    <p className="mt-2 font-mono text-6xl font-light leading-none tracking-tight text-[#D40030] tabular-nums">
+                      {manualVerificationDeadline ? formatTimeRemaining(manualVerificationSecondsLeft) : "—:—"}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-gray-600">
+                      {manualVerificationDeadline && manualVerificationSecondsLeft > 0
+                        ? "La vérification peut se poursuivre au-delà de ce délai."
+                        : "Le délai indicatif est écoulé : votre demande reste en attente et n’a pas été annulée."}
+                    </p>
+                    {manualVerificationDeadline && manualVerificationSecondsLeft === 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setManualVerificationDeadline(Date.now() + 5 * 60 * 1000)}
+                        className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-[11px] border-2 border-[#111827] bg-[#D40030] px-4 py-2 text-sm font-bold text-white shadow-[0_3px_0_#111827] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
+                      >
+                        <RefreshCw aria-hidden="true" className="h-4 w-4" /> Continuer le suivi
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div className="rounded-xl border-2 border-[#111827] bg-white p-4 text-left text-sm leading-6 text-gray-800 shadow-[0_3px_0_#111827]">
+                  <div className="flex justify-between gap-4"><b>Opérateur</b><span className="text-right">{operator?.name}</span></div>
+                  <div className="mt-2 flex justify-between gap-4"><b>Montant</b><span className="text-right">{amount.toLocaleString()} {currency}</span></div>
+                  <div className="mt-2"><b>ID de transaction</b><p className="mt-1 break-all font-mono">{manualTransactionReference.trim()}</p></div>
+                  {depositId && <div className="mt-2"><b>Référence de la demande</b><p className="mt-1 font-mono">#{depositId}</p></div>}
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/deposits-history")}
+                    className="flex-1 rounded-[11px] border-2 border-[#111827] bg-white py-3 font-semibold text-[#111827] shadow-[0_3px_0_#111827] transition hover:bg-gray-50 active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
+                  >
+                    Voir mes dépôts
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/")}
+                    className="flex-1 rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
+                  >
+                    Retour au site
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-5 py-5 text-center">
@@ -762,13 +979,13 @@ export default function RobotPayPage() {
                 <p className="text-left text-2xl font-bold text-gray-900">{amount.toLocaleString()} {currency}</p>
                 <Check className="mx-auto h-24 w-24 rounded-full bg-green-500 p-4 text-white" />
                 <h2 className="text-xl font-bold text-gray-900">Votre paiement a été approuvé</h2>
-                <div className="rounded-xl border-2 border-[#111827] bg-[#fffaf6] p-3 text-left text-sm leading-7 text-gray-800">
+                <div className="rounded-xl border-2 border-[#111827] bg-[#FFF8FA] p-3 text-left text-sm leading-7 text-gray-800">
                   <b>Payeur :</b> {phone}<br />
                   <b>ID Transaction :</b> {transactionReference}<br />
                   <b>Date Paiement :</b> {new Date().toLocaleString("fr-FR")}
                 </div>
                 <p className="pt-6 text-gray-600">🔒 Paiement vérifié</p>
-                <button onClick={() => navigate("/")} className="text-lg font-semibold text-[#111827] underline decoration-[#FF7A14] underline-offset-4 hover:text-[#b84d00]">Retourner sur le site</button>
+                <button onClick={() => navigate("/")} className="text-lg font-semibold text-[#111827] underline decoration-[#D40030] underline-offset-4 hover:text-[#A60026]">Retourner sur le site</button>
               </div>
             )
           )}
