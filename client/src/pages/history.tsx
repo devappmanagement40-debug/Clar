@@ -32,16 +32,7 @@ interface Withdrawal {
   sendavapayReference?: string;
 }
 
-interface Transaction {
-  id: number;
-  userId: number;
-  type: string;
-  amount: string;
-  description: string;
-  createdAt: string;
-}
-
-type ActiveTab = "balance" | "deposits" | "withdrawals";
+type ActiveTab = "deposits" | "withdrawals";
 
 const CARD_ORANGE = "#bd304c";
 const CARD_DARK = "#111827";
@@ -104,25 +95,6 @@ const getStatusInfo = (status: string) => {
   }
 };
 
-const getBalanceTypeLabel = (transaction: Transaction) => {
-  switch (transaction.type) {
-    case "bonus":
-      return transaction.description === "Bonus quotidien"
-        ? "Bonus quotidien"
-        : transaction.description;
-    case "signup_bonus":
-      return "Bonus d'inscription";
-    case "task_reward":
-      return "Récompense";
-    case "commission":
-      return "Commission";
-    case "deposit":
-      return "Dépôt";
-    default:
-      return transaction.description;
-  }
-};
-
 const Row = ({ label, value }: { label: string; value: string }) => (
   <div className="history-row">
     <span>{label}</span>
@@ -155,10 +127,6 @@ export default function HistoryPage() {
 
   const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<Withdrawal[]>({
     queryKey: ["/api/withdrawals/history"],
-  });
-
-  const { data: transactions = [], isLoading: transactionsLoading } = useQuery<Transaction[]>({
-    queryKey: ["/api/transactions"],
   });
 
   const isPendingDeposit = (deposit: Deposit) =>
@@ -195,24 +163,7 @@ export default function HistoryPage() {
 
   if (!user) return null;
 
-  const balanceEntries: Transaction[] = [
-    ...transactions,
-    {
-      id: -1,
-      userId: user.id,
-      type: "registration",
-      amount: "0",
-      description: "Inscription",
-      createdAt: user.createdAt,
-    },
-  ].sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
-
-  const isLoading =
-    activeTab === "balance"
-      ? transactionsLoading
-      : activeTab === "deposits"
-        ? depositsLoading
-        : withdrawalsLoading;
+  const isLoading = activeTab === "deposits" ? depositsLoading : withdrawalsLoading;
 
   return (
     <main className="history-page">
@@ -276,7 +227,7 @@ export default function HistoryPage() {
         }
         .history-tabs {
           display: grid;
-          grid-template-columns: 1fr 1fr 1.12fr;
+          grid-template-columns: 1fr 1fr;
           gap: 8px;
           align-items: center;
           min-height: 78px;
@@ -457,14 +408,6 @@ export default function HistoryPage() {
 
         <nav className="history-tabs" aria-label="Type d'enregistrement">
           <button
-            className={`history-tab ${activeTab === "balance" ? "active" : ""}`}
-            onClick={() => setActiveTab("balance")}
-            data-testid="tab-balance"
-          >
-            <span>Solde</span>
-            <ChevronRight className={`history-tab-arrow ${activeTab === "balance" ? "right" : "left"}`} aria-hidden="true" />
-          </button>
-          <button
             className={`history-tab ${activeTab === "deposits" ? "active" : ""}`}
             onClick={() => setActiveTab("deposits")}
             data-testid="tab-deposits"
@@ -487,36 +430,6 @@ export default function HistoryPage() {
             <div className="history-empty">
               <Loader2 className="animate-spin" />
             </div>
-          ) : activeTab === "balance" ? (
-            balanceEntries.length > 0 ? (
-              <div className="history-list">
-                {balanceEntries.map((transaction) => {
-                  const amount = Number.parseFloat(transaction.amount || "0");
-                  const isRegistration = transaction.type === "registration";
-                  return (
-                    <article className="history-card" key={`${transaction.type}-${transaction.id}`} data-testid={`balance-item-${transaction.id}`}>
-                      <div className="history-card-top">
-                        <div>
-                          <p className="history-amount">
-                            {isRegistration ? "—" : `+${amount.toLocaleString("fr-FR")} ${currency}`}
-                          </p>
-                           <p className="history-card-label">{transaction.type === "deposit" ? "Dépôt" : transaction.description}</p>
-                        </div>
-                           <Status label="Réussi" color={CARD_SUCCESS} />
-                      </div>
-                      <div className="history-divider" />
-                      <Row label="Type :" value={isRegistration ? "Inscription" : getBalanceTypeLabel(transaction)} />
-                      <Row label="Heure :" value={formatDateTime(transaction.createdAt)} />
-                    </article>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="history-empty">
-                <img src={nodataImg} alt="Aucune donnée" />
-                <span>Plus de données</span>
-              </div>
-            )
           ) : activeTab === "deposits" ? (
             deposits.length > 0 ? (
               <div className="history-list">
