@@ -103,7 +103,7 @@ export default function HomePage() {
     `Horaires de retrait : de ${withdrawalStartHour} h à ${withdrawalEndHour} h.`,
     "Délai de traitement : généralement sous 2 heures et, exceptionnellement, jusqu’à 24 heures.",
     ...(withdrawalPrepaymentEnabled ? ["Prépaiement : 25 % du montant demandé, avant traitement."] : []),
-    `Bonus de pointage quotidien : de ${formatPopupMoney(20)} à ${formatPopupMoney(50)}, disponible une fois toutes les 24 heures.`,
+    `Bonus de pointage quotidien : de ${formatPopupMoney(25)} à ${formatPopupMoney(100)}, disponible une fois toutes les 24 heures. Le montant de ${formatPopupMoney(100)} reste rare.`,
     "Avant de confirmer une demande, vérifiez les coordonnées du portefeuille et le montant net affiché.",
   ];
   const groupLink = settings?.groupLink || "";

@@ -19,6 +19,7 @@ import {
   type ClapayPayout,
 } from "@shared/schema";
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
+import { DAILY_BONUS_OUTCOME_COUNT, dailyBonusFromIndex } from "@shared/daily-bonus";
 import { z } from "zod";
 import ConnectPgSimple from "connect-pg-simple";
 import { 
@@ -2768,7 +2769,7 @@ export async function registerRoutes(
     }
   });
 
-  // Daily bonus claim (random 20–50 FCFA every 24h)
+  // Daily pointage bonus: uniformly draw 25–100 FCFA every 24h.
   app.post("/api/claim-daily-bonus", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
@@ -2791,8 +2792,8 @@ export async function registerRoutes(
         }
       }
 
-      // Award a random whole amount between 20 and 50 FCFA, inclusive.
-      const bonusAmount = Math.floor(Math.random() * 31) + 20;
+      // A cryptographic uniform draw gives 100 FCFA one chance out of 76.
+      const bonusAmount = dailyBonusFromIndex(randomInt(0, DAILY_BONUS_OUTCOME_COUNT));
       await storage.creditWallet(user.id, "earnings", bonusAmount, {
         type: "bonus",
         amount: String(bonusAmount),

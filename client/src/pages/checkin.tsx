@@ -37,7 +37,8 @@ export default function CheckinPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/daily-bonus-status"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       const amount = Number(data?.amount || 0);
-      toast({ title: "Bonus reçu !", description: `${amount} FCFA ajoutés à votre solde` });
+      const rewardCurrency = getCountryByCode(user?.country || "")?.currency || "XOF";
+      toast({ title: "Bonus reçu !", description: `${amount} ${rewardCurrency} ajoutés à vos revenus cumulés` });
     },
     onError: (error: Error) => {
       toast({ title: "Récompense indisponible", description: error.message, variant: "destructive" });
@@ -394,7 +395,7 @@ export default function CheckinPage() {
           <div className="reward-row">
             <div className="reward-copy">
               <p>Montant attribué après validation</p>
-              <strong>20 à 50 {currency}</strong>
+              <strong>25 à 100 {currency}</strong>
             </div>
           </div>
         </section>
@@ -445,7 +446,7 @@ export default function CheckinPage() {
         <section className="instructions" aria-label="Instructions du pointage">
           <h2>À retenir</h2>
           <p className="instruction"><b>1.</b><span>Vous pouvez valider un pointage toutes les 24 heures.</span></p>
-          <p className="instruction"><b>2.</b><span>Chaque validation rapporte un bonus aléatoire de 20 à 50 {currency}.</span></p>
+          <p className="instruction"><b>2.</b><span>Chaque validation rapporte un bonus aléatoire de 25 à 100 {currency} ; le montant de 100 {currency} est rare.</span></p>
           <p className="instruction"><b>3.</b><span>Le bonus est ajouté à votre solde après validation.</span></p>
         </section>
       </div>
