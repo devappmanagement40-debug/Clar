@@ -223,36 +223,37 @@ export default function ProductsPage() {
         }
         .cp-products-modal-backdrop {
           position: fixed; z-index: 60; inset: 0; display: grid; place-items: center;
-          padding: 18px; background: rgba(17,24,39,.42);
+          overflow-y: auto; padding: 14px; background: rgba(17,24,39,.42);
         }
         .cp-products-modal {
-          width: 100%; max-width: 390px; padding: 20px; border: 2px solid #17191c;
-          border-radius: 16px; background: #ffffff; box-shadow: 0 4px 0 #17191c, 0 20px 60px rgba(0,0,0,.25);
+          width: 100%; max-width: 350px; max-height: calc(100dvh - 28px); overflow-y: auto;
+          padding: 16px; border: 2px solid #17191c; border-radius: 14px; background: #ffffff;
+          box-shadow: 0 3px 0 #17191c, 0 14px 36px rgba(0,0,0,.22);
         }
-        .cp-products-modal h2 { margin: 0; color: #17191c; font-size: 21px; font-weight: 800; }
-        .cp-products-modal p { margin: 8px 0 0; color: #625e63; font-size: 13px; line-height: 1.45; }
+        .cp-products-modal h2 { margin: 0; color: #17191c; font-size: 19px; font-weight: 800; }
+        .cp-products-modal p { margin: 7px 0 0; color: #625e63; font-size: 12px; line-height: 1.4; }
         .cp-products-modal-wallets {
-          display: grid; gap: 8px; margin-top: 14px; padding: 12px;
-          border: 1px solid #e4d5d8; border-radius: 12px; background: #fffafb;
+          display: grid; gap: 7px; margin-top: 12px; padding: 10px;
+          border: 1px solid #e4d5d8; border-radius: 10px; background: #fffafb;
         }
         .cp-products-modal-wallet-row {
           display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
-          color: #4b4547; font-size: 12px; line-height: 1.35;
+          color: #4b4547; font-size: 11px; line-height: 1.35;
         }
-        .cp-products-modal-wallet-row strong { flex: 0 0 auto; color: #17191c; font-size: 12px; }
+        .cp-products-modal-wallet-row strong { flex: 0 0 auto; color: #17191c; font-size: 11px; }
         .cp-products-modal-wallet-note {
-          margin: 2px 0 0 !important; padding-top: 8px; border-top: 1px dashed #dfc7cd;
-          color: #7f2639 !important; font-size: 11px !important;
+          margin: 2px 0 0 !important; padding-top: 7px; border-top: 1px dashed #dfc7cd;
+          color: #7f2639 !important; font-size: 10px !important;
         }
         .cp-products-modal-warning {
-          display: flex; align-items: flex-start; gap: 8px; margin-top: 15px; padding: 10px;
+          display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 9px;
           border: 1px solid #fda4af; border-radius: 10px; background: #fff1f2; color: #9f1239;
-          font-size: 12px; line-height: 1.35;
+          font-size: 11px; line-height: 1.35;
         }
-        .cp-products-modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .cp-products-modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
         .cp-products-modal-actions button {
-          min-height: 44px; padding: 10px; border: 2px solid #17191c; border-radius: 10px;
-          background: #ffffff; color: #17191c; font-weight: 800;
+          min-height: 40px; padding: 8px; border: 2px solid #17191c; border-radius: 10px;
+          background: #ffffff; color: #17191c; font-size: 13px; font-weight: 800;
         }
         .cp-products-modal-actions button:last-child { border-color: #17191c; background: #bd304c; color: #ffffff; }
         @media (max-width: 370px) {
