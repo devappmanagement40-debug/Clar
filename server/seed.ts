@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { users, tasks, paymentChannels, platformSettings, countries, products } from "@shared/schema";
+import { getActiveCountryMethodNames } from "@shared/country-methods";
 import { equinorInitialOffers } from "@shared/equinor-initial-offers";
 import bcrypt from "bcrypt";
 import { eq, sql } from "drizzle-orm";
@@ -55,8 +56,12 @@ export async function seed() {
       "currency" text NOT NULL,
       "phone_prefix" text NOT NULL,
       "operators" text NOT NULL DEFAULT '[]',
+      "withdrawal_methods" text,
       "is_active" boolean NOT NULL DEFAULT true
     )
+  `);
+  await db.execute(sql`
+    ALTER TABLE "countries" ADD COLUMN IF NOT EXISTS "withdrawal_methods" text
   `);
 
   // Check if admin already exists. Keep a development fallback for existing
@@ -111,6 +116,7 @@ export async function seed() {
         currency: "XOF",
         phonePrefix: "228",
         operators: JSON.stringify(["Togocel", "Moov Africa Togo"]),
+        withdrawalMethods: JSON.stringify(["Togocel", "Moov Africa Togo"]),
         isActive: true,
       },
       {
@@ -119,6 +125,7 @@ export async function seed() {
         currency: "XOF",
         phonePrefix: "225",
         operators: JSON.stringify([]),
+        withdrawalMethods: JSON.stringify(["Wave"]),
         isActive: true,
       },
       {
@@ -127,6 +134,7 @@ export async function seed() {
         currency: "XOF",
         phonePrefix: "226",
         operators: JSON.stringify(["Orange Burkina", "Moov Africa Burkina"]),
+        withdrawalMethods: JSON.stringify(["Orange Burkina", "Moov Africa Burkina"]),
         isActive: true,
       },
       {
@@ -135,6 +143,16 @@ export async function seed() {
         currency: "XOF",
         phonePrefix: "227",
         operators: JSON.stringify(["NITA TRANSFERT", "AMANA TRANSFERT"]),
+        withdrawalMethods: JSON.stringify(["Airtel Money", "Wave"]),
+        isActive: true,
+      },
+      {
+        code: "TD",
+        name: "Tchad",
+        currency: "XAF",
+        phonePrefix: "235",
+        operators: JSON.stringify(["Airtel Money", "Moov"]),
+        withdrawalMethods: JSON.stringify(["Airtel Money", "Moov"]),
         isActive: true,
       },
     ];
@@ -144,6 +162,54 @@ export async function seed() {
     }
   } else {
     console.log(`Countries skipped — ${existingCountries.length} existing countries preserved`);
+  }
+
+  const currentCountries = await db.select().from(countries);
+  if (!currentCountries.some((country) => country.code.toUpperCase() === "TD")) {
+    await db.insert(countries).values({
+      code: "TD",
+      name: "Tchad",
+      currency: "XAF",
+      phonePrefix: "235",
+      operators: JSON.stringify(["Airtel Money", "Moov"]),
+      withdrawalMethods: JSON.stringify(["Airtel Money", "Moov"]),
+      isActive: true,
+    });
+    console.log("Country added: Tchad");
+  }
+
+  const legacyWithdrawalDefaults: Record<string, string[]> = {
+    CI: ["Wave"],
+    NE: ["Airtel Money", "Wave"],
+  };
+  const legacyTchadNames = ["Airtel Tchad", "Moov Africa Tchad"];
+  const currentTchadNames = ["Airtel Money", "Moov"];
+  const normalizedNames = (names: string[]) => names.map((name) => name.toLocaleLowerCase()).sort();
+  for (const country of currentCountries) {
+    if (
+      country.code.toUpperCase() === "TD" &&
+      JSON.stringify(normalizedNames(getActiveCountryMethodNames(country.operators))) ===
+        JSON.stringify(normalizedNames(legacyTchadNames))
+    ) {
+      const updateData: { operators: string; withdrawalMethods?: string } = {
+        operators: JSON.stringify(currentTchadNames),
+      };
+      const existingWithdrawalNames = getActiveCountryMethodNames(country.withdrawalMethods);
+      if (
+        country.withdrawalMethods === null ||
+        JSON.stringify(normalizedNames(existingWithdrawalNames)) === JSON.stringify(normalizedNames(legacyTchadNames))
+      ) {
+        updateData.withdrawalMethods = JSON.stringify(currentTchadNames);
+      }
+      await db.update(countries).set(updateData).where(eq(countries.id, country.id));
+      continue;
+    }
+    if (country.withdrawalMethods !== null) continue;
+    const code = country.code.toUpperCase();
+    const methods = legacyWithdrawalDefaults[code] ?? getActiveCountryMethodNames(country.operators);
+    await db.update(countries)
+      .set({ withdrawalMethods: JSON.stringify(methods) })
+      .where(eq(countries.id, country.id));
   }
 
   // Insert the approved initial offers once. The marker and rows share a transaction,

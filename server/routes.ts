@@ -19,6 +19,7 @@ import {
   type ClapayPayout,
 } from "@shared/schema";
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
+import { getActiveCountryMethodNames, hasConfiguredCountryMethods } from "@shared/country-methods";
 import { DAILY_BONUS_OUTCOME_COUNT, dailyBonusFromIndex } from "@shared/daily-bonus";
 import { z } from "zod";
 import ConnectPgSimple from "connect-pg-simple";
@@ -1159,8 +1160,15 @@ export async function registerRoutes(
       if (country) {
         const settings = await storage.getSettings();
         if (!isDepositMethodConfigured(country, "manual", settings)) return res.json([]);
+        const countryConfig = (await storage.getActiveCountries())
+          .find((entry) => entry.code.toUpperCase() === country);
+        if (!countryConfig) return res.json([]);
         const nums = await storage.getPaymentNumbersByCountry(country);
-        return res.json(nums);
+        if (!hasConfiguredCountryMethods(countryConfig.operators)) return res.json(nums);
+        const allowedOperators = new Set(
+          getActiveCountryMethodNames(countryConfig.operators).map((name) => name.toLocaleLowerCase()),
+        );
+        return res.json(nums.filter((number) => allowedOperators.has(number.operatorName.trim().toLocaleLowerCase())));
       }
       const nums = await storage.getPaymentNumbers();
       res.json(nums.filter(n => n.isActive));
@@ -1318,6 +1326,16 @@ export async function registerRoutes(
          ) {
            return res.status(400).json({ message: "Ce numéro de paiement n'est plus disponible pour ce pays" });
          }
+        const depositCountryConfig = (await storage.getActiveCountries())
+          .find((entry) => entry.code.toUpperCase() === normalizedDeposit.country.toUpperCase());
+        if (
+          !depositCountryConfig ||
+          (hasConfiguredCountryMethods(depositCountryConfig.operators) &&
+            !getActiveCountryMethodNames(depositCountryConfig.operators)
+              .some((method) => method.toLocaleLowerCase() === selectedPaymentNumber!.operatorName.trim().toLocaleLowerCase()))
+        ) {
+          return res.status(400).json({ message: "Ce moyen de dépôt n'est plus autorisé pour ce pays" });
+        }
           if (!isDepositMethodConfigured(normalizedDeposit.country, "manual", settings)) {
             return res.status(400).json({ message: "Le paiement manuel n'est pas configuré pour ce pays" });
           }
@@ -2523,15 +2541,9 @@ export async function registerRoutes(
       if (!walletCountry) {
         return res.status(400).json({ message: "Le pays de ce portefeuille n'est plus disponible pour les retraits." });
       }
-      let configuredMethods: string[] = [];
-      try {
-        const parsedMethods: unknown = JSON.parse(walletCountry.operators);
-        if (Array.isArray(parsedMethods)) {
-          configuredMethods = parsedMethods.filter((method): method is string => typeof method === "string");
-        }
-      } catch {
-        configuredMethods = [];
-      }
+       const configuredMethods = getActiveCountryMethodNames(
+         walletCountry.withdrawalMethods ?? walletCountry.operators,
+       );
       const withdrawalMethods = getWithdrawalMethods(walletCountry.code, configuredMethods);
       if (!isAllowedWithdrawalMethod(walletCountry.code, wallet.paymentMethod, configuredMethods)) {
         return res.status(400).json({
@@ -2624,15 +2636,9 @@ export async function registerRoutes(
       if (!walletCountry) {
         return res.status(400).json({ message: "Pays indisponible pour les retraits." });
       }
-      let configuredMethods: string[] = [];
-      try {
-        const parsedMethods: unknown = JSON.parse(walletCountry.operators);
-        if (Array.isArray(parsedMethods)) {
-          configuredMethods = parsedMethods.filter((method): method is string => typeof method === "string");
-        }
-      } catch {
-        configuredMethods = [];
-      }
+       const configuredMethods = getActiveCountryMethodNames(
+         walletCountry.withdrawalMethods ?? walletCountry.operators,
+       );
       const withdrawalMethods = getWithdrawalMethods(walletCountry.code, configuredMethods);
       if (!isAllowedWithdrawalMethod(walletCountry.code, parsedWallet.data.paymentMethod, configuredMethods)) {
         return res.status(400).json({
@@ -3787,7 +3793,12 @@ export async function registerRoutes(
           routing[code] = DEPOSIT_METHOD_IDS.filter((method) => {
             if (method === "manual") {
               return paymentNumbers.some((number) =>
-                number.isActive && number.country.toUpperCase() === code
+                number.isActive &&
+                number.country.toUpperCase() === code &&
+                (!hasConfiguredCountryMethods(country.operators) ||
+                  getActiveCountryMethodNames(country.operators).some(
+                    (operator) => operator.toLocaleLowerCase() === number.operatorName.trim().toLocaleLowerCase(),
+                  ))
               );
             }
             return isLegacyDepositMethodAssigned(method, code, settings);
@@ -4397,7 +4408,14 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Pays indisponible" });
       }
       const settings = await storage.getSettings();
-      const manualNumbers = await storage.getPaymentNumbersByCountry(country);
+      const countryConfig = activeCountries.find((entry) => entry.code.toUpperCase() === country)!;
+      const allManualNumbers = await storage.getPaymentNumbersByCountry(country);
+      const manualNumbers = hasConfiguredCountryMethods(countryConfig.operators)
+        ? allManualNumbers.filter((number) =>
+            getActiveCountryMethodNames(countryConfig.operators)
+              .some((operator) => operator.toLocaleLowerCase() === number.operatorName.trim().toLocaleLowerCase()),
+          )
+        : allManualNumbers;
       const configuredMethods = getAssignedDepositMethods(country, settings)
         .filter((method) => isDepositProviderGloballyEnabled(method, settings));
       const methods: Array<{ provider: DepositMethodId; name: string }> = configuredMethods
@@ -4455,7 +4473,7 @@ export async function registerRoutes(
 
   app.post("/api/admin/countries", requireAdmin, async (req, res) => {
     try {
-      const { code, name, currency, phonePrefix, operators, isActive } = req.body;
+      const { code, name, currency, phonePrefix, operators, withdrawalMethods, isActive } = req.body;
       if (!code || !name || !currency || !phonePrefix) {
         return res.status(400).json({ message: "Code, nom, devise et indicatif sont requis" });
       }
@@ -4465,6 +4483,7 @@ export async function registerRoutes(
         currency,
         phonePrefix,
         operators: operators || "[]",
+        withdrawalMethods: withdrawalMethods ?? null,
         isActive: isActive !== undefined ? isActive : true,
       });
       res.json(country);
@@ -4475,13 +4494,17 @@ export async function registerRoutes(
 
   app.put("/api/admin/countries/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      const { code, name, currency, phonePrefix, operators, isActive } = req.body;
+      const id = Number(req.params.id);
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(400).json({ message: "Identifiant de pays invalide" });
+      }
+      const { code, name, currency, phonePrefix, operators, withdrawalMethods, isActive } = req.body;
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
       if (currency !== undefined) updateData.currency = currency;
       if (phonePrefix !== undefined) updateData.phonePrefix = phonePrefix;
       if (operators !== undefined) updateData.operators = operators;
+      if (withdrawalMethods !== undefined) updateData.withdrawalMethods = withdrawalMethods;
       if (isActive !== undefined) updateData.isActive = isActive;
       const country = await storage.updateCountry(id, updateData);
       res.json(country);
@@ -4492,9 +4515,14 @@ export async function registerRoutes(
 
   app.delete("/api/admin/countries/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      await storage.deleteCountry(id);
-      res.json({ success: true });
+      const id = Number(req.params.id);
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(400).json({ message: "Identifiant de pays invalide" });
+      }
+      const country = await storage.updateCountry(id, { isActive: false });
+      if (!country) return res.status(404).json({ message: "Pays introuvable" });
+      await storage.logAdminAction(req.session.userId!, "deactivate_country", null, `Pays ${country.code} désactivé`);
+      res.json({ success: true, country });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

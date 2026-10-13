@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Plus, Pencil, Trash2, Globe } from "lucide-react";
+import { Plus, Pencil, Check, X, Globe } from "lucide-react";
+import { parseCountryMethodEntries, type CountryMethodEntry } from "@shared/country-methods";
 import type { Country } from "@shared/schema";
 
 interface CountryForm {
@@ -17,7 +18,8 @@ interface CountryForm {
   name: string;
   currency: string;
   phonePrefix: string;
-  operators: string;
+  operators: CountryMethodEntry[];
+  withdrawalMethods: CountryMethodEntry[];
   isActive: boolean;
 }
 
@@ -26,16 +28,141 @@ const emptyForm: CountryForm = {
   name: "",
   currency: "XOF",
   phonePrefix: "",
-  operators: "",
+  operators: [],
+  withdrawalMethods: [],
   isActive: true,
 };
+
+function CountryMethodEditor({
+  title,
+  description,
+  value,
+  onChange,
+  testId,
+}: {
+  title: string;
+  description: string;
+  value: CountryMethodEntry[];
+  onChange: (methods: CountryMethodEntry[]) => void;
+  testId: string;
+}) {
+  const [newName, setNewName] = useState("");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState("");
+
+  const addMethod = () => {
+    const name = newName.trim();
+    if (!name) return;
+    const existingIndex = value.findIndex((method) => method.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+    if (existingIndex >= 0) {
+      onChange(value.map((method, index) => index === existingIndex ? { ...method, isActive: true } : method));
+    } else {
+      onChange([...value, { name, isActive: true }]);
+    }
+    setNewName("");
+  };
+
+  const saveEdit = (index: number) => {
+    const name = editingName.trim();
+    if (!name) return;
+    const duplicate = value.some((entry, entryIndex) =>
+      entryIndex !== index && entry.name.toLocaleLowerCase() === name.toLocaleLowerCase(),
+    );
+    if (duplicate) return;
+    onChange(value.map((entry, entryIndex) => entryIndex === index ? { ...entry, name } : entry));
+    setEditingIndex(null);
+    setEditingName("");
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>{title}</Label>
+      <p className="text-xs text-muted-foreground">{description}</p>
+      <div className="flex gap-2">
+        <Input
+          value={newName}
+          onChange={(event) => setNewName(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              addMethod();
+            }
+          }}
+          placeholder="Nom du moyen"
+          maxLength={48}
+          data-testid={`${testId}-input`}
+        />
+        <Button type="button" variant="outline" size="icon" onClick={addMethod} aria-label={`Ajouter : ${title}`} disabled={!newName.trim()}>
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {value.map((method, index) => (
+          <div key={`${method.name.toLocaleLowerCase()}-${index}`} className="flex items-center gap-2 rounded-lg border p-2">
+            {editingIndex === index ? (
+              <>
+                <Input
+                  value={editingName}
+                  onChange={(event) => setEditingName(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      saveEdit(index);
+                    } else if (event.key === "Escape") {
+                      setEditingIndex(null);
+                      setEditingName("");
+                    }
+                  }}
+                  maxLength={48}
+                  autoFocus
+                  aria-label={`Modifier ${method.name}`}
+                  data-testid={`${testId}-edit-input-${index}`}
+                />
+                <Button type="button" size="icon" variant="outline" onClick={() => saveEdit(index)} aria-label="Enregistrer le nom">
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button type="button" size="icon" variant="ghost" onClick={() => { setEditingIndex(null); setEditingName(""); }} aria-label="Annuler la modification">
+                  <X className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className={`min-w-0 flex-1 break-words text-sm ${method.isActive ? "" : "text-muted-foreground line-through"}`}>
+                  {method.name}
+                </span>
+                <span className="text-xs text-muted-foreground">{method.isActive ? "Actif" : "Désactivé"}</span>
+                <Switch
+                  checked={method.isActive}
+                  onCheckedChange={(isActive) => onChange(value.map((entry, entryIndex) => entryIndex === index ? { ...entry, isActive } : entry))}
+                  aria-label={`${method.isActive ? "Désactiver" : "Activer"} ${method.name}`}
+                  data-testid={`${testId}-toggle-${index}`}
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-muted-foreground"
+                  onClick={() => { setEditingIndex(index); setEditingName(method.name); }}
+                  aria-label={`Modifier ${method.name}`}
+                  data-testid={`${testId}-edit-${index}`}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        ))}
+        {value.length === 0 && <p className="text-xs text-muted-foreground">Aucun moyen configuré.</p>}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminCountries() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<CountryForm>(emptyForm);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data: countriesList, isLoading } = useQuery<Country[]>({
     queryKey: ["/api/admin/countries"],
@@ -45,9 +172,8 @@ export default function AdminCountries() {
     mutationFn: async (data: CountryForm) => {
       const payload = {
         ...data,
-        operators: JSON.stringify(
-          data.operators.split(",").map(o => o.trim()).filter(Boolean)
-        ),
+        operators: JSON.stringify(data.operators),
+        withdrawalMethods: JSON.stringify(data.withdrawalMethods),
       };
       if (editingId) {
         const res = await apiRequest("PUT", `/api/admin/countries/${editingId}`, payload);
@@ -62,6 +188,8 @@ export default function AdminCountries() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/countries"] });
       queryClient.invalidateQueries({ queryKey: ["/api/countries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/payment-numbers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/deposit/methods"] });
       toast({ title: editingId ? "Pays mis à jour!" : "Pays ajouté!" });
       setDialogOpen(false);
       setForm(emptyForm);
@@ -69,23 +197,6 @@ export default function AdminCountries() {
     },
     onError: (e: any) => {
       toast({ title: editingId ? "Modification du pays impossible" : "Ajout du pays impossible", description: e.message, variant: "destructive" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await apiRequest("DELETE", `/api/admin/countries/${id}`);
-      if (!res.ok) throw new Error((await res.json()).message);
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/countries"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/countries"] });
-      toast({ title: "Pays supprimé!" });
-      setDeleteId(null);
-    },
-    onError: (e: any) => {
-      toast({ title: "Suppression du pays impossible", description: e.message, variant: "destructive" });
     },
   });
 
@@ -98,18 +209,19 @@ export default function AdminCountries() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/countries"] });
       queryClient.invalidateQueries({ queryKey: ["/api/countries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/payment-numbers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/deposit/methods"] });
     },
   });
 
   const openEdit = (c: Country) => {
-    let operatorsStr = "";
-    try { operatorsStr = JSON.parse(c.operators).join(", "); } catch {}
     setForm({
       code: c.code,
       name: c.name,
       currency: c.currency,
       phonePrefix: c.phonePrefix,
-      operators: operatorsStr,
+      operators: parseCountryMethodEntries(c.operators),
+      withdrawalMethods: parseCountryMethodEntries(c.withdrawalMethods),
       isActive: c.isActive,
     });
     setEditingId(c.id);
@@ -144,8 +256,8 @@ export default function AdminCountries() {
 
       <div className="grid gap-3">
         {countriesList?.map((c) => {
-          let ops: string[] = [];
-          try { ops = JSON.parse(c.operators); } catch {}
+          const ops = parseCountryMethodEntries(c.operators);
+          const withdrawals = parseCountryMethodEntries(c.withdrawalMethods);
           return (
             <Card key={c.id} data-testid={`card-country-${c.id}`}>
               <CardContent className="p-4">
@@ -159,13 +271,20 @@ export default function AdminCountries() {
                     <p className="text-xs text-muted-foreground mb-1">
                       Indicatif: +{c.phonePrefix}
                     </p>
-                    {ops.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">Dépôt</p>
                       <div className="flex flex-wrap gap-1">
-                        {ops.map((op) => (
-                          <Badge key={op} variant="outline" className="text-xs font-normal">{op}</Badge>
-                        ))}
+                        {ops.length > 0 ? ops.map((method) => (
+                          <Badge key={`deposit-${method.name}`} variant={method.isActive ? "outline" : "secondary"} className={`text-xs font-normal ${method.isActive ? "" : "line-through"}`}>{method.name}</Badge>
+                        )) : <span className="text-xs text-muted-foreground">Non configuré</span>}
                       </div>
-                    )}
+                      <p className="text-xs font-medium text-muted-foreground">Retrait</p>
+                      <div className="flex flex-wrap gap-1">
+                        {withdrawals.length > 0 ? withdrawals.map((method) => (
+                          <Badge key={`withdrawal-${method.name}`} variant={method.isActive ? "outline" : "secondary"} className={`text-xs font-normal ${method.isActive ? "" : "line-through"}`}>{method.name}</Badge>
+                        )) : <span className="text-xs text-muted-foreground">Non configuré</span>}
+                      </div>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
@@ -175,9 +294,6 @@ export default function AdminCountries() {
                     />
                     <Button size="icon" variant="ghost" onClick={() => openEdit(c)} data-testid={`button-edit-country-${c.id}`}>
                       <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setDeleteId(c.id)} data-testid={`button-delete-country-${c.id}`}>
-                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -242,16 +358,20 @@ export default function AdminCountries() {
                 data-testid="input-country-prefix"
               />
             </div>
-            <div>
-              <Label>Opérateurs (séparés par virgule)</Label>
-              <Input
-                value={form.operators}
-                onChange={e => setForm({ ...form, operators: e.target.value })}
-                placeholder="Airtel Money, Moov Money"
-                data-testid="input-country-operators"
-              />
-              <p className="text-xs text-muted-foreground mt-1">Exemple: Airtel Money, Moov Money</p>
-            </div>
+            <CountryMethodEditor
+              title="Moyens de dépôt"
+              description="Configure les opérateurs proposés pour ce pays. Pour recevoir les dépôts, ajoute aussi le numéro ou lien destinataire dans les numéros de paiement."
+              value={form.operators}
+              onChange={(operators) => setForm({ ...form, operators })}
+              testId="country-deposit-method"
+            />
+            <CountryMethodEditor
+              title="Moyens de retrait"
+              description="Cette liste pilote les moyens disponibles lors de l’enregistrement du portefeuille et du retrait. Désactive un moyen sans effacer sa configuration."
+              value={form.withdrawalMethods}
+              onChange={(withdrawalMethods) => setForm({ ...form, withdrawalMethods })}
+              testId="country-withdrawal-method"
+            />
             <div className="flex items-center gap-2">
               <Switch
                 checked={form.isActive}
@@ -269,22 +389,6 @@ export default function AdminCountries() {
               </Button>
             </DialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation */}
-      <Dialog open={deleteId !== null} onOpenChange={(v) => !v && setDeleteId(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Supprimer ce pays ?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">Cette action est irréversible.</p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteId(null)}>Annuler</Button>
-            <Button variant="destructive" onClick={() => deleteId && deleteMutation.mutate(deleteId)} disabled={deleteMutation.isPending}>
-              Supprimer
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

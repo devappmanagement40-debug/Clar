@@ -1,15 +1,12 @@
-const WITHDRAWAL_METHOD_OVERRIDES: Readonly<Record<string, readonly string[]>> = {
-  CI: ["Wave"],
-  NE: ["Airtel Money", "Wave"],
-};
-
 export function getWithdrawalMethods(
-  countryCode: string,
+  _countryCode: string,
   configuredMethods: readonly string[] = [],
 ): string[] {
-  const country = countryCode.trim().toUpperCase();
-  const overrides = WITHDRAWAL_METHOD_OVERRIDES[country];
-  return [...(overrides ?? configuredMethods)];
+  return Array.from(new Set(
+    configuredMethods
+      .map((method) => method.trim())
+      .filter(Boolean),
+  ));
 }
 
 export function isAllowedWithdrawalMethod(
@@ -19,5 +16,5 @@ export function isAllowedWithdrawalMethod(
 ): boolean {
   const method = paymentMethod.trim().toLocaleLowerCase();
   return getWithdrawalMethods(countryCode, configuredMethods)
-    .some((allowedMethod) => allowedMethod.trim().toLocaleLowerCase() === method);
+    .some((allowedMethod) => allowedMethod.toLocaleLowerCase() === method);
 }

@@ -1,6 +1,6 @@
 ---
 name: Country availability
-description: Durable policy for removing countries from account registration and selection
+description: Country availability and admin-managed deposit and withdrawal methods
 ---
 
 When a country should disappear from signup or the public country selector, deactivate its catalog entry rather than deleting it outright.
@@ -14,3 +14,9 @@ Public pickers may use the seeded country list only when `/api/countries` fails;
 **Why:** A Plesk API 500 hid every country option even though the client bundle and seeded country data were valid.
 
 **How to apply:** Use the fallback only for failed requests, label it as temporary, and keep inactive-country enforcement on the server.
+
+Keep each country's deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore country-specific runtime overrides. The Tchad catalog starts with Airtel Money and Moov for both lists.
+
+**Why:** the user asked for country-wide admin control over adding, editing, and disabling payment methods.
+
+**How to apply:** Treat the country catalog as the runtime source of truth for every country, including Tchad.

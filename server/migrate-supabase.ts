@@ -33,9 +33,11 @@ async function run() {
         "currency" text NOT NULL,
         "phone_prefix" text NOT NULL,
         "operators" text NOT NULL DEFAULT '[]',
+        "withdrawal_methods" text,
         "is_active" boolean NOT NULL DEFAULT true
       )
     `);
+    await client.query(`ALTER TABLE "countries" ADD COLUMN IF NOT EXISTS "withdrawal_methods" text`);
     console.log("✅ Table countries créée");
 
     // Users
@@ -297,7 +299,7 @@ async function run() {
 
     // ── Seed countries ──
     const countriesData = [
-      { code: "TD", name: "Tchad", currency: "XAF", phone_prefix: "235", operators: '["Airtel Tchad","Moov Africa Tchad"]' },
+      { code: "TD", name: "Tchad", currency: "XAF", phone_prefix: "235", operators: '["Airtel Money","Moov"]' },
       { code: "NE", name: "Niger", currency: "XOF", phone_prefix: "227", operators: '["NITA TRANSFERT","AMANA TRANSFERT"]' },
       { code: "CF", name: "Centrafrique", currency: "XAF", phone_prefix: "236", operators: '["Telecel Centrafrique","Orange Centrafrique"]' },
     ];

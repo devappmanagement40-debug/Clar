@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Plus, Edit, Trash2, Phone, Loader2, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { getActiveCountryMethodNames } from "@shared/country-methods";
 import type { PaymentNumber } from "@shared/schema";
 
 interface Country {
@@ -140,13 +141,7 @@ export default function AdminPaymentNumbers() {
 
   const getOperatorsForCountry = (countryCode: string) => {
     const country = countries.find(c => c.code === countryCode);
-    if (!country?.operators) return [];
-    try {
-      const parsed = JSON.parse(country.operators);
-      return Array.isArray(parsed) ? parsed.filter((operator): operator is string => typeof operator === "string" && operator.trim().length > 0) : [];
-    } catch {
-      return [];
-    }
+    return country?.operators ? getActiveCountryMethodNames(country.operators) : [];
   };
 
   const operatorOptions = getOperatorsForCountry(form.country);

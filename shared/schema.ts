@@ -11,6 +11,7 @@ export const countries = pgTable("countries", {
   currency: text("currency").notNull(),
   phonePrefix: text("phone_prefix").notNull(),
   operators: text("operators").notNull().default("[]"), // JSON array string
+  withdrawalMethods: text("withdrawal_methods"),
   isActive: boolean("is_active").notNull().default(true),
 });
 
