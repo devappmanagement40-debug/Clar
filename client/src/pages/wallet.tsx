@@ -7,10 +7,9 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getCountriesForDisplay, getWithdrawalMethodsForCountry, type ApiCountry } from "@/lib/countries";
-import { Loader2, Plus, Trash2, CreditCard, ChevronLeft, ChevronRight, ChevronDown, Shield, Check, Search, X } from "lucide-react";
+import { Loader2, Plus, Trash2, CreditCard, ChevronLeft, ChevronRight, ChevronDown, Shield, Check, Search, X, Wifi } from "lucide-react";
 import emptyIllustration from "@assets/illustration-8_1784762965573.png";
 import { equinorOffshore } from "@/assets/equinor-media";
-import walletCardIcon from "@/assets/account-wallet.png";
 import { Link, useLocation, useSearch } from "wouter";
 import type { WithdrawalWallet } from "@shared/schema";
 
@@ -290,8 +289,8 @@ const walletStyles = `
   .wallet-card {
     position: relative;
     display: flex;
-    min-height: 218px;
-    aspect-ratio: 1.62 / 1;
+    min-height: 210px;
+    aspect-ratio: 1.586 / 1;
     align-items: stretch;
     gap: 10px;
     overflow: hidden;
@@ -342,20 +341,37 @@ const walletStyles = `
   .wallet-card-brand {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .wallet-card-brand-start {
+    display: flex;
+    min-width: 0;
+    align-items: center;
     gap: 10px;
   }
   .wallet-card-icon {
     display: grid;
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     flex: none;
     place-items: center;
-    border: 2px solid #111827;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, .13);
-    padding: 5px;
+    border: 2px solid rgba(255, 255, 255, .85);
+    border-radius: 11px;
+    background: #ffffff;
+    padding: 4px;
     object-fit: contain;
-    filter: brightness(0) invert(1);
+  }
+  .wallet-card-type {
+    flex: none;
+    border: 1px solid rgba(255, 255, 255, .58);
+    border-radius: 999px;
+    padding: 5px 9px;
+    background: rgba(255, 255, 255, .12);
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .12em;
   }
   .wallet-card-copy {
     display: flex;
@@ -375,7 +391,8 @@ const walletStyles = `
     margin: auto 0 20px;
     overflow: hidden;
     color: #ffffff;
-    font-size: clamp(16px, 4.4vw, 20px);
+    font-family: "Space Grotesk", "Arial", sans-serif;
+    font-size: clamp(16px, 4.4vw, 21px);
     font-weight: 800;
     letter-spacing: .055em;
     text-overflow: ellipsis;
@@ -396,15 +413,6 @@ const walletStyles = `
     font-size: 11px;
     font-weight: 600;
   }
-  .wallet-card-network-icon {
-    width: 20px;
-    height: 20px;
-    flex: none;
-    border: 2px solid #111827;
-    border-radius: 5px;
-    background: #ffffff;
-    object-fit: cover;
-  }
   .wallet-card-network span {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -420,8 +428,8 @@ const walletStyles = `
     border: 1px solid rgba(255, 255, 255, .65);
     border-radius: 8px;
     background:
-      linear-gradient(90deg, transparent 48%, rgba(116, 72, 48, .24) 49% 51%, transparent 52%),
-      linear-gradient(0deg, transparent 47%, rgba(116, 72, 48, .22) 48% 51%, transparent 52%),
+      linear-gradient(90deg, transparent 31%, rgba(116, 72, 48, .3) 32% 34%, transparent 35% 65%, rgba(116, 72, 48, .3) 66% 68%, transparent 69%),
+      linear-gradient(0deg, transparent 30%, rgba(116, 72, 48, .25) 31% 34%, transparent 35% 65%, rgba(116, 72, 48, .25) 66% 69%, transparent 70%),
       linear-gradient(135deg, #fff4df, #d9b984 58%, #f9e8c8);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), 0 2px 5px rgba(0, 0, 0, .16);
   }
@@ -1176,19 +1184,24 @@ export default function WalletPage() {
                         >
                           <div className="wallet-card-copy">
                             <div className="wallet-card-brand">
-                              <img className="wallet-card-icon" src={walletCardIcon} alt="" aria-hidden="true" />
-                              <p className="wallet-card-method">{wallet.paymentMethod}</p>
-                            </div>
-                            <p className="wallet-card-number">{maskWalletNumber(wallet.accountNumber)}</p>
-                            <div className="wallet-card-bottomline">
-                              <span className="wallet-card-network">
+                              <div className="wallet-card-brand-start">
                                 <img
-                                  className="wallet-card-network-icon"
+                                  className="wallet-card-icon"
                                   src={getWalletOperatorIcon(wallet.paymentMethod)}
                                   alt=""
                                   aria-hidden="true"
                                 />
-                                <span>{wallet.country || "Compte de retrait"} · {wallet.paymentMethod}</span>
+                                <p className="wallet-card-method">{wallet.paymentMethod}</p>
+                              </div>
+                              <span className="wallet-card-type">RETRAIT</span>
+                            </div>
+                            <p className="wallet-card-number">{maskWalletNumber(wallet.accountNumber)}</p>
+                            <div className="wallet-card-bottomline">
+                              <span className="wallet-card-network">
+                                <Wifi size={17} aria-hidden="true" />
+                                <span>
+                                  {apiCountries.find((country) => country.code === wallet.country)?.name || wallet.country || "Compte de retrait"}
+                                </span>
                               </span>
                               <span className="wallet-card-chip" aria-hidden="true" />
                             </div>
