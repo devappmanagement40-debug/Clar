@@ -81,14 +81,14 @@ export default function HostedPaymentCheckout({
 }: HostedPaymentCheckoutProps) {
   const checkoutUrl = safeHttpUrl(paymentLink);
   const isWave = method === "wave";
-  const accent = isWave ? "#4eb747" : "#bd304c";
-  const pale = isWave ? "#eff9ed" : "#fff1f4";
+  const accent = "#bd304c";
+  const pale = "#fff0f3";
   const paymentConfigured = Boolean(checkoutUrl || (isWave && paymentPhone?.trim()));
   const displayAmount = amount.toLocaleString("fr-FR");
 
   return (
-    <main className="min-h-[100dvh] bg-[#f3f4f3] text-[#25292d]">
-      <div className="mx-auto min-h-[100dvh] w-full max-w-[520px] bg-[#f3f4f3] shadow-[0_0_30px_rgba(20,30,20,0.08)]">
+    <main className="min-h-[100dvh] bg-[#f6f4f5] text-[#25292d]">
+      <div className="mx-auto min-h-[100dvh] w-full max-w-[520px] bg-[#f6f4f5] shadow-[0_0_30px_rgba(20,30,20,0.08)]">
         <header className="flex h-14 items-center gap-3 border-b border-black/5 bg-white px-4">
           {!submitted && (
             <button
@@ -108,8 +108,8 @@ export default function HostedPaymentCheckout({
         </header>
 
         <section className="px-4 pb-5 pt-4 text-white" style={{ backgroundColor: accent }}>
-          <div className="mx-auto flex min-h-[100px] max-w-[310px] items-center justify-center gap-3 rounded-xl px-4 py-3"
-            style={{ backgroundColor: isWave ? "#38c4e9" : "#fff", color: isWave ? "#fff" : accent }}>
+          <div className="mx-auto flex min-h-[100px] max-w-[310px] items-center justify-center gap-3 rounded-xl border-2 border-white/70 bg-white px-4 py-3"
+            style={{ color: accent }}>
             {isWave ? (
               <>
                 <img src={logoUrl || "/operators/wave.png"} alt="Logo Wave" className="h-16 w-16 rounded-lg object-contain" />
@@ -138,7 +138,7 @@ export default function HostedPaymentCheckout({
         <div className="space-y-4 px-3 py-4 sm:px-4">
           {!submitted ? (
             <>
-              <section className="rounded-2xl bg-white p-4 text-center shadow-[0_2px_12px_rgba(0,0,0,0.07)] sm:p-5">
+              <section className="rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#bd304c] bg-white p-4 text-center shadow-[0_3px_0_#17191c] sm:p-5">
                 <h2 className="text-lg font-bold leading-7 text-[#424a50]">
                   {checkoutUrl
                     ? isWave
@@ -196,7 +196,7 @@ export default function HostedPaymentCheckout({
                         : "Scannez ce code avec un autre appareil pour ouvrir le lien de paiement."
                       : "Le QR code apparaîtra lorsque le lien de paiement sera configuré."}
                   </p>
-                  <div className="mx-auto mt-3 grid min-h-[232px] w-full max-w-[280px] place-items-center rounded-xl border border-gray-200 bg-white p-3">
+                  <div className="mx-auto mt-3 grid min-h-[232px] w-full max-w-[280px] place-items-center overflow-hidden rounded-xl border-2 border-[#17191c] bg-white p-3">
                     {checkoutUrl ? (
                       qrImageUrl ? (
                         <img
@@ -233,7 +233,7 @@ export default function HostedPaymentCheckout({
                   event.preventDefault();
                   onSubmitPayment();
                 }}
-                className="space-y-4 rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.07)] sm:p-5"
+                className="space-y-4 rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#bd304c] bg-white p-4 shadow-[0_3px_0_#17191c] sm:p-5"
               >
                 <div className="text-left">
                   <h2 className="text-lg font-bold leading-7 text-[#424a50]">Soumettre la preuve de paiement</h2>
@@ -298,7 +298,7 @@ export default function HostedPaymentCheckout({
             </>
           ) : (
             <>
-              <section className="rounded-2xl bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.07)]">
+              <section className="rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#bd304c] bg-white p-5 shadow-[0_3px_0_#17191c]">
                 <div className="text-center">
                   {status === "approved" ? (
                     <CheckCircle2 className="mx-auto h-14 w-14" style={{ color: accent }} />
