@@ -286,41 +286,6 @@ export const platformSettings = pgTable("platform_settings", {
   modifiedAt: timestamp("modified_at"),
 });
 
-export const fortuneWheelPrizeSchema = z.object({
-  id: z.string().uuid(),
-  label: z.string().trim().min(2).max(48),
-  amount: z.number().int().min(0).max(100_000_000),
-  weight: z.number().int().min(1).max(100_000),
-  isActive: z.boolean(),
-}).strict();
-
-export const fortuneWheelConfigSchema = z.object({
-  isEnabled: z.boolean(),
-  spinsPerDay: z.number().int().min(1).max(100),
-  prizes: z.array(fortuneWheelPrizeSchema).max(20),
-}).strict().superRefine((config, context) => {
-  const ids = new Set<string>();
-  for (const prize of config.prizes) {
-    if (ids.has(prize.id)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Chaque lot doit avoir un identifiant unique.",
-        path: ["prizes"],
-      });
-      break;
-    }
-    ids.add(prize.id);
-  }
-
-  if (config.isEnabled && !config.prizes.some((prize) => prize.isActive)) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Activez au moins un lot avant d’activer la roue.",
-      path: ["prizes"],
-    });
-  }
-});
-
 // Admin audit log
 export const adminAuditLog = pgTable("admin_audit_log", {
   id: serial("id").primaryKey(),
@@ -490,8 +455,6 @@ export type Task = typeof tasks.$inferSelect;
 export type InsertTask = z.infer<typeof insertTaskSchema>;
 export type UserTask = typeof userTasks.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
-export type FortuneWheelPrize = z.infer<typeof fortuneWheelPrizeSchema>;
-export type FortuneWheelConfig = z.infer<typeof fortuneWheelConfigSchema>;
 export type PlatformSetting = typeof platformSettings.$inferSelect;
 export type AdminAuditLog = typeof adminAuditLog.$inferSelect;
 export type GiftCode = typeof giftCodes.$inferSelect;

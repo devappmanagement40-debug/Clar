@@ -1201,8 +1201,8 @@ export default function DepositPage() {
               <ChevronLeft className="h-6 w-6" strokeWidth={2.6} aria-hidden="true" />
             </button>
           </Link>
-          <Link href="/history">
-            <button className="history-button" aria-label="Historique des transactions">
+          <Link href="/deposits-history">
+            <button className="history-button" aria-label="Historique des recharges">
               <Clock className="h-6 w-6" strokeWidth={2.4} aria-hidden="true" />
             </button>
           </Link>
