@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/countries";
 import { ArrowDownToLine, ArrowUpFromLine, TrendingUp, Clock, Check, X } from "lucide-react";
 import type { Deposit, Withdrawal, Transaction } from "@shared/schema";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 interface TransactionHistoryModalProps {
   open: boolean;
@@ -91,6 +92,9 @@ export default function TransactionHistoryModal({ open, onClose }: TransactionHi
                               +{formatCurrency(deposit.amount, user.country)}
                             </p>
                             <p className="text-xs text-muted-foreground">{deposit.paymentMethod}</p>
+                            <p className="text-xs font-mono text-muted-foreground">
+                              ID : {formatPublicTransactionId("D", deposit.id)}
+                            </p>
                             <p className="text-xs text-muted-foreground">{formatDate(deposit.createdAt as unknown as string)}</p>
                           </div>
                         </div>
@@ -126,6 +130,9 @@ export default function TransactionHistoryModal({ open, onClose }: TransactionHi
                             <p className="text-xs text-muted-foreground">
                               Net: {formatCurrency(withdrawal.netAmount, user.country)}
                             </p>
+                            <p className="text-xs font-mono text-muted-foreground">
+                              ID : {formatPublicTransactionId("R", withdrawal.id)}
+                            </p>
                             <p className="text-xs text-muted-foreground">{formatDate(withdrawal.createdAt as unknown as string)}</p>
                           </div>
                         </div>
@@ -159,6 +166,9 @@ export default function TransactionHistoryModal({ open, onClose }: TransactionHi
                               +{formatCurrency(parseFloat(transaction.amount), user.country)}
                             </p>
                             <p className="text-xs text-muted-foreground">{transaction.description}</p>
+                            <p className="text-xs font-mono text-muted-foreground">
+                              ID : {formatPublicTransactionId("T", transaction.id)}
+                            </p>
                             <p className="text-xs text-muted-foreground">{formatDate(transaction.createdAt as unknown as string)}</p>
                           </div>
                         </div>

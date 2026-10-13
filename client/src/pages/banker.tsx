@@ -11,6 +11,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth";
 import { Search, Check, X, LogOut, Loader2, ArrowDownCircle, ArrowUpCircle, History, RefreshCw } from "lucide-react";
 import type { Deposit, Withdrawal } from "@shared/schema";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 interface DepositWithUser extends Deposit {
   user: { id: number; fullName: string; phone: string; country: string; isPromoter: boolean };
@@ -141,6 +142,7 @@ export default function BankerPage() {
         item.user.fullName.toLowerCase().includes(q) ||
         item.user.phone.includes(q) ||
         item.accountNumber.includes(q) ||
+        formatPublicTransactionId(c.type === "deposit" ? "D" : "R", item.id).toLowerCase().includes(q) ||
         String(item.id).includes(q) ||
         (item.reference && item.reference.toLowerCase().includes(q)) ||
         (item.accountName && item.accountName.toLowerCase().includes(q))
@@ -460,6 +462,9 @@ export default function BankerPage() {
                           <div>
                             <p className="font-medium text-sm">{item.user.fullName}</p>
                             <p className="text-xs text-muted-foreground">{item.user.phone} · {item.user.country}</p>
+                            <p className="text-xs font-mono font-semibold tracking-wide text-foreground">
+                              ID : {formatPublicTransactionId(type === "deposit" ? "D" : "R", item.id)}
+                            </p>
                             <p className="text-xs text-muted-foreground mt-0.5">
                               {type === "deposit" ? `Ref: ${item.reference || item.accountNumber}` : `${item.accountName} · ${item.accountNumber}`}
                             </p>

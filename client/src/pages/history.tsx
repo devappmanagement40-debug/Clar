@@ -5,6 +5,7 @@ import { getCountryByCode } from "@/lib/countries";
 import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 import nodataImg from "@assets/nodata-da225bbb_(1)_1783249133513.png";
 
@@ -17,9 +18,15 @@ interface Deposit {
   createdAt: string;
   soleaspayReference?: string;
   soleaspayOrderId?: string;
+  reference?: string;
+  inpayOrderNumber?: string;
+  inpayOutTradeNo?: string;
   omnipayId?: string;
   omnipayReference?: string;
   sendavapayReference?: string;
+  westpayReference?: string;
+  ashtechReference?: string;
+  ashtechTransactionId?: string;
 }
 
 interface Withdrawal {
@@ -43,38 +50,27 @@ const CARD_DARK = "#111827";
 const CARD_SUCCESS = "#16a34a";
 const CARD_BACKGROUND = "#fff0f3";
 
-const makeRef = (prefix: "D" | "W", id: number, date: string) => {
-  const d = new Date(date);
-  const yy = String(d.getFullYear()).slice(2);
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  const seq = String(id).padStart(4, "0");
-  return `sdk${yy}${mm}${dd}${hh}${min}${prefix}${seq}`;
-};
+const getDepositProviderRef = (deposit: Deposit) =>
+  deposit.inpayOutTradeNo ||
+  deposit.inpayOrderNumber ||
+  deposit.sendavapayReference ||
+  deposit.omnipayReference ||
+  deposit.omnipayId ||
+  deposit.soleaspayReference ||
+  deposit.soleaspayOrderId ||
+  deposit.westpayReference ||
+  deposit.ashtechReference ||
+  deposit.ashtechTransactionId ||
+  deposit.reference ||
+  "";
 
-const getDepositRef = (deposit: Deposit) => {
-  const reference =
-    deposit.sendavapayReference ||
-    deposit.omnipayReference ||
-    deposit.omnipayId ||
-    deposit.soleaspayReference ||
-    deposit.soleaspayOrderId;
-  if (reference) return reference.startsWith("sdk") ? reference : `sdk${reference}`;
-  return makeRef("D", deposit.id, deposit.createdAt);
-};
-
-const getWithdrawalRef = (withdrawal: Withdrawal) => {
-  const reference =
-    withdrawal.inpayOutTradeNo ||
-    withdrawal.inpayOrderNumber ||
-    withdrawal.omnipayReference ||
-    withdrawal.omnipayId ||
-    withdrawal.sendavapayReference;
-  if (reference) return reference;
-  return makeRef("W", withdrawal.id, withdrawal.createdAt);
-};
+const getWithdrawalProviderRef = (withdrawal: Withdrawal) =>
+  withdrawal.inpayOutTradeNo ||
+  withdrawal.inpayOrderNumber ||
+  withdrawal.omnipayReference ||
+  withdrawal.omnipayId ||
+  withdrawal.sendavapayReference ||
+  "";
 
 const maskRef = (reference: string) =>
   reference.length <= 6 ? reference : `${reference.slice(0, 2)}****${reference.slice(-4)}`;
@@ -543,7 +539,7 @@ export default function HistoryPage() {
                 {deposits.map((deposit) => {
                   const { label, color } = getStatusInfo(deposit.status);
                   const amount = Number.parseFloat(deposit.amount);
-                  const reference = isAdmin ? getDepositRef(deposit) : maskRef(getDepositRef(deposit));
+                  const providerReference = getDepositProviderRef(deposit);
                   return (
                     <article className="history-card" key={deposit.id} data-testid={`deposit-item-${deposit.id}`}>
                       <div className="history-card-top">
@@ -554,7 +550,13 @@ export default function HistoryPage() {
                         <Status label={label} color={color} />
                       </div>
                       <div className="history-divider" />
-                      <Row label="Numéro :" value={reference} />
+                      <Row label="ID transaction :" value={formatPublicTransactionId("D", deposit.id)} />
+                      {providerReference ? (
+                        <Row
+                          label="Référence paiement :"
+                          value={isAdmin ? providerReference : maskRef(providerReference)}
+                        />
+                      ) : null}
                       <Row label="Heure du dépôt :" value={formatDateTime(deposit.createdAt)} />
                       {isPendingDeposit(deposit) && !deposit.sendavapayReference ? (
                         <button
@@ -583,12 +585,12 @@ export default function HistoryPage() {
                 const { label, color } = getWithdrawalStatusInfo(withdrawal.status);
                 const gross = Number.parseFloat(withdrawal.amount);
                 const net = Number.parseFloat(withdrawal.netAmount || withdrawal.amount);
-                const reference = getWithdrawalRef(withdrawal);
+                const providerReference = getWithdrawalProviderRef(withdrawal);
                 return (
                   <article className="history-card withdrawal-receipt-card" key={withdrawal.id} data-testid={`withdrawal-item-${withdrawal.id}`}>
                     <div className="withdrawal-receipt-header">
                       <p className="withdrawal-receipt-reference">
-                        {isAdmin ? reference : maskRef(reference)}
+                        {formatPublicTransactionId("R", withdrawal.id)}
                       </p>
                       <span className="withdrawal-receipt-status" style={{ backgroundColor: color }}>
                         {label}
@@ -598,6 +600,12 @@ export default function HistoryPage() {
                       <Row label="Montant :" value={`${gross.toLocaleString("fr-FR")} ${currency}`} />
                       <Row label="Reçu :" value={`${net.toLocaleString("fr-FR")} ${currency}`} />
                       <Row label="Date :" value={formatReceiptDateTime(withdrawal.createdAt)} />
+                      {providerReference ? (
+                        <Row
+                          label="Référence paiement :"
+                          value={isAdmin ? providerReference : maskRef(providerReference)}
+                        />
+                      ) : null}
                     </div>
                   </article>
                 );

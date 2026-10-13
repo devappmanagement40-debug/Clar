@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 interface Withdrawal {
   id: number;
@@ -69,6 +70,13 @@ export default function WithdrawalHistoryPage() {
                 <div className="h-3 rounded-t-2xl" style={{ backgroundColor: "#3174d1" }} />
 
                 <div className="px-5 py-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500 text-sm">ID transaction</span>
+                    <span className="font-mono text-xs font-bold tracking-wide text-gray-900">
+                      {formatPublicTransactionId("R", w.id)}
+                    </span>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <span className="text-gray-500 text-sm">Montant</span>
                     <span className="text-[#3174d1] font-bold text-base">

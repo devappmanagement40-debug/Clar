@@ -4,6 +4,7 @@ import { ChevronLeft, Receipt, RotateCw } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 interface Deposit {
   id: number;
@@ -11,6 +12,7 @@ interface Deposit {
   status: string;
   createdAt: string;
   reference?: string | null;
+  inpayOutTradeNo?: string | null;
   inpayOrderNumber?: string | null;
   soleaspayOrderId?: string | null;
   omnipayReference?: string | null;
@@ -20,9 +22,9 @@ interface Deposit {
   ashtechTransactionId?: string | null;
 }
 
-function getDepositReference(deposit: Deposit) {
+function getDepositProviderReference(deposit: Deposit) {
   return (
-    deposit.reference ||
+    deposit.inpayOutTradeNo ||
     deposit.inpayOrderNumber ||
     deposit.soleaspayOrderId ||
     deposit.omnipayReference ||
@@ -30,7 +32,8 @@ function getDepositReference(deposit: Deposit) {
     deposit.westpayReference ||
     deposit.ashtechReference ||
     deposit.ashtechTransactionId ||
-    `Recharge #${deposit.id}`
+    deposit.reference ||
+    ""
   );
 }
 
@@ -152,7 +155,8 @@ export default function DepositHistoryRealPage() {
           </div>
         ) : (
           deposits.map((deposit) => {
-            const reference = getDepositReference(deposit);
+            const providerReference = getDepositProviderReference(deposit);
+            const publicId = formatPublicTransactionId("D", deposit.id);
             const status = getDepositStatus(deposit.status);
             const amount = Number(deposit.amount);
             const formattedAmount = Number.isFinite(amount)
@@ -166,8 +170,8 @@ export default function DepositHistoryRealPage() {
                 data-testid={`deposit-item-${deposit.id}`}
               >
                 <div className="flex min-w-0 items-start justify-between gap-3">
-                  <p className="min-w-0 truncate text-sm font-bold tracking-wide text-neutral-900" title={reference}>
-                    {reference}
+                  <p className="min-w-0 truncate text-sm font-bold tracking-wide text-neutral-900" title={publicId}>
+                    {publicId}
                   </p>
                   <p className="shrink-0 text-sm font-extrabold tabular-nums text-neutral-900">
                     {currency} {formattedAmount}
@@ -177,6 +181,11 @@ export default function DepositHistoryRealPage() {
                 <p className="mt-2 text-sm font-medium text-neutral-600">
                   Recharge Mobile Money
                 </p>
+                {providerReference ? (
+                  <p className="mt-1 truncate text-xs text-neutral-500" title={providerReference}>
+                    Référence paiement : {providerReference}
+                  </p>
+                ) : null}
 
                 <div className="mt-3 flex items-center justify-between gap-3 border-t border-dashed border-neutral-300 pt-3">
                   <time

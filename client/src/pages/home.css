@@ -317,25 +317,43 @@ body:has(.cp-home) { background: #fff !important; }
 .cp-bottom-nav button[aria-current="page"] span:last-child { color: var(--cp-accent-deep) !important; font-weight: 700; }
 .cp-bottom-nav button:hover span:last-child { color: var(--cp-accent-deep); }
 
-.cp-dialog-overlay { background-color: rgba(34, 27, 30, .6); }
+.cp-dialog-overlay { background-color: rgba(20, 18, 20, .72); backdrop-filter: blur(2px); }
 .cp-dialog {
+  --cp-accent: #bd304c;
+  --cp-accent-deep: #92263d;
+  --cp-accent-soft: #fff3f5;
+  --cp-ink: #252327;
+  --cp-card-border: #17191c;
+  --cp-line: #ece8e9;
   display: flex;
   width: calc(100% - 32px);
-  max-width: 440px;
-  height: min(610px, calc(100dvh - 40px));
-  min-height: min(460px, calc(100dvh - 40px));
-  max-height: calc(100dvh - 40px);
+  max-width: 410px;
+  height: min(620px, calc(100dvh - 36px));
+  min-height: min(460px, calc(100dvh - 36px));
+  max-height: calc(100dvh - 36px);
   flex-direction: column;
   gap: 0;
   overflow: visible;
-  border: 2px solid #17191c;
-  border-radius: 17px;
+  border: 2px solid var(--cp-card-border);
+  border-radius: 22px;
   padding: 0;
   background: #fff;
   color: var(--cp-ink);
-  box-shadow: 0 3px 0 #17191c, 0 20px 60px rgba(38, 28, 31, .24);
+  box-shadow: 0 4px 0 #17191c, 0 24px 72px rgba(18, 12, 14, .34);
 }
 .cp-dialog > button:last-child { display: none; }
+.cp-dialog-banner {
+  position: relative;
+  display: flex;
+  min-height: 104px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 19px 19px 0 0;
+  padding: 18px 56px;
+  background: linear-gradient(135deg, var(--cp-accent) 0%, var(--cp-accent-deep) 100%);
+  color: #fff;
+}
 .cp-dialog-brand-close {
   position: absolute;
   z-index: 4;
@@ -345,11 +363,11 @@ body:has(.cp-home) { background: #fff !important; }
   width: 36px;
   height: 36px;
   place-items: center;
-  border: 1px solid #e8dadd;
+  border: 1px solid rgba(255, 255, 255, .42);
   border-radius: 10px;
   padding: 5px;
-  background: #fff;
-  color: var(--cp-accent);
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
   cursor: pointer;
 }
 .cp-dialog-brand-close svg { display: block; }
@@ -359,17 +377,18 @@ body:has(.cp-home) { background: #fff !important; }
 .cp-dialog-mark {
   position: absolute;
   z-index: 2;
-  top: -26px;
+  top: 74px;
   left: 50%;
   display: grid;
-  width: 56px;
-  height: 56px;
+  width: 62px;
+  height: 62px;
   place-items: center;
   transform: translateX(-50%);
-  border: 1px solid #e8cbd1;
-  border-radius: 15px;
+  border: 4px solid #fff;
+  border-radius: 50%;
   background: var(--cp-accent-soft);
   color: var(--cp-accent);
+  box-shadow: 0 3px 12px rgba(23, 25, 28, .16);
 }
 .cp-dialog-mark svg { display: block; width: 30px; height: 30px; }
 .cp-dialog-copy {
@@ -380,36 +399,36 @@ body:has(.cp-home) { background: #fff !important; }
   margin: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 40px 18px 14px;
+  padding: 42px 22px 16px;
   color: var(--cp-ink);
   scrollbar-color: #d7c9cc transparent;
   scrollbar-width: thin;
 }
-.cp-dialog-title { margin: 0; color: var(--cp-ink); font: 600 22px/1.18 "Space Grotesk", sans-serif; text-align: center; }
-.cp-dialog-message { flex: none; margin: 10px 0 0; color: #625b60; font: 500 13px/1.48 "DM Sans", sans-serif; text-align: center; }
-.cp-dialog-list { display: grid; gap: 8px; margin: 15px 0 0; padding-left: 23px; color: #514a4e; font: 500 12px/1.43 "DM Sans", sans-serif; }
+.cp-dialog-title { margin: 0; color: #fff; font: 700 22px/1.18 "Space Grotesk", sans-serif; letter-spacing: .045em; text-align: center; text-transform: uppercase; }
+.cp-dialog-message { flex: none; margin: 0; color: #514a4e; font: 600 13px/1.5 "DM Sans", sans-serif; text-align: left; }
+.cp-dialog-list { display: grid; gap: 9px; margin: 13px 0 0; padding-left: 23px; color: #393438; font: 500 13px/1.46 "DM Sans", sans-serif; }
 .cp-dialog-list li { padding-left: 3px; }
 .cp-dialog-list li::marker { color: var(--cp-accent-deep); font-weight: 800; }
-.cp-dialog-actions { display: flex; width: 100%; flex: none; flex-direction: column; gap: 9px; border-top: 1px solid var(--cp-line); border-radius: 0 0 16px 16px; padding: 12px 16px 15px; background: #fff; }
+.cp-dialog-actions { display: flex; width: 100%; flex: none; flex-direction: column; gap: 9px; border-top: 1px solid var(--cp-line); border-radius: 0 0 20px 20px; padding: 13px 20px 18px; background: #fff; }
 .cp-dialog-telegram,
 .cp-dialog-close {
   display: flex;
   width: 100%;
-  min-height: 48px;
+  min-height: 50px;
   align-items: center;
   justify-content: center;
   gap: 9px;
-  border: 1px solid #d6a2ac;
-  border-radius: 10px;
+  border: 1px solid transparent;
+  border-radius: 14px;
   padding: 0 12px;
-  font: 700 12px/1.2 "DM Sans", sans-serif;
+  font: 700 13px/1.25 "DM Sans", sans-serif;
   cursor: pointer;
   transition: transform .15s ease, background-color .15s ease;
 }
-.cp-dialog-telegram { background: var(--cp-accent-soft); color: var(--cp-accent-deep); text-decoration: none; }
-.cp-dialog-telegram span { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-.cp-dialog-close { min-height: 50px; border-color: var(--cp-accent); background: var(--cp-accent); color: #fff; }
-.cp-dialog-telegram:hover { background: #ffe8ed; }
+.cp-dialog-telegram { background: var(--cp-accent); color: #fff; text-decoration: none; }
+.cp-dialog-telegram span { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-wrap: balance; }
+.cp-dialog-close { min-height: 48px; border-color: #17191c; background: #17191c; color: #fff; }
+.cp-dialog-telegram:hover { background: var(--cp-accent-deep); }
 .cp-dialog-close:hover { border-color: var(--cp-accent-deep); background: var(--cp-accent-deep); }
 
 @keyframes cp-rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
@@ -436,19 +455,22 @@ body:has(.cp-home) { background: #fff !important; }
 
 @media (max-width: 370px) {
   .cp-dialog { width: calc(100% - 28px); }
+  .cp-dialog-banner { min-height: 96px; padding-right: 46px; padding-left: 46px; }
   .cp-dialog-brand-close { top: 7px; right: 7px; width: 33px; height: 33px; }
-  .cp-dialog-copy { padding: 36px 12px 12px; }
-  .cp-dialog-title { font-size: 20px; }
+  .cp-dialog-mark { top: 67px; width: 58px; height: 58px; }
+  .cp-dialog-copy { padding: 39px 14px 12px; }
+  .cp-dialog-title { font-size: 19px; }
   .cp-dialog-message { font-size: 12px; }
-  .cp-dialog-list { gap: 7px; margin-top: 12px; padding-left: 21px; font-size: 11.5px; }
-  .cp-dialog-actions { padding: 10px 12px 13px; }
+  .cp-dialog-list { gap: 7px; margin-top: 11px; padding-left: 21px; font-size: 12px; }
+  .cp-dialog-actions { padding: 10px 14px 13px; }
 }
 
 @media (max-height: 620px) {
-  .cp-dialog { height: calc(100dvh - 72px); min-height: calc(100dvh - 72px); max-height: calc(100dvh - 72px); }
-  .cp-dialog-mark { top: -25px; width: 54px; height: 54px; }
+  .cp-dialog { height: calc(100dvh - 28px); min-height: calc(100dvh - 28px); max-height: calc(100dvh - 28px); }
+  .cp-dialog-banner { min-height: 88px; }
+  .cp-dialog-mark { top: 61px; width: 54px; height: 54px; }
   .cp-dialog-copy { padding-top: 34px; }
-  .cp-dialog-list { gap: 6px; margin-top: 10px; }
+  .cp-dialog-list { gap: 6px; margin-top: 9px; font-size: 12px; }
   .cp-dialog-actions { gap: 7px; padding-top: 8px; padding-bottom: 10px; }
 }
 

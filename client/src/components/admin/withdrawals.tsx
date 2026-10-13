@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Check, X, Search, Loader2, Send } from "lucide-react";
 import type { Withdrawal } from "@shared/schema";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 interface WithdrawalWithUser extends Withdrawal {
   user: {
@@ -90,6 +91,7 @@ export default function AdminWithdrawals() {
     w.accountNumber.includes(filter) ||
     w.user.phone.includes(filter) ||
     w.user.fullName.toLowerCase().includes(filter.toLowerCase()) ||
+    formatPublicTransactionId("R", w.id).includes(filter.toUpperCase()) ||
     ((w as any).inpayOutTradeNo && (w as any).inpayOutTradeNo.toLowerCase().includes(filter.toLowerCase())) ||
     ((w as any).inpayOrderNumber && (w as any).inpayOrderNumber.toLowerCase().includes(filter.toLowerCase()))
   ) || [];
@@ -192,6 +194,12 @@ export default function AdminWithdrawals() {
                         hour: "2-digit",
                         minute: "2-digit"
                       })}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground">ID de transaction</p>
+                    <p className="font-mono font-bold tracking-wider text-foreground">
+                      {formatPublicTransactionId("R", withdrawal.id)}
                     </p>
                   </div>
                   {(withdrawal as any).inpayOutTradeNo && (

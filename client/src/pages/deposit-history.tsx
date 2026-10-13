@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 interface Withdrawal {
   id: number;
@@ -83,6 +84,9 @@ export default function DepositHistoryPage() {
               >
                 <div className="flex items-center justify-between">
                   <div>
+                    <p className="mb-1 font-mono text-xs font-bold tracking-wide text-gray-600">
+                      ID : {formatPublicTransactionId("R", withdrawal.id)}
+                    </p>
                     <p className="font-semibold text-gray-900">
                       {parseFloat(withdrawal.amount).toLocaleString()} {currency}
                     </p>

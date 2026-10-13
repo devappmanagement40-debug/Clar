@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Check, X, Ban, Search, Loader2, ImageIcon, MessageSquare } from "lucide-react";
 import type { Deposit } from "@shared/schema";
+import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 interface DepositWithUser extends Deposit {
   user: {
@@ -19,26 +20,6 @@ interface DepositWithUser extends Deposit {
     country: string;
     isPromoter: boolean;
   };
-}
-
-// Build a unified reference string for a deposit (mirrors history.tsx logic)
-function getDepositRef(d: DepositWithUser): string {
-  const sv = (d as any).sendavapayReference;
-  const omRef = (d as any).omnipayReference;
-  const omId  = (d as any).omnipayId;
-  const soRef = (d as any).soleaspayReference;
-  const soOrd = (d as any).soleaspayOrderId;
-  const plain = (d as any).reference;
-  if (sv)    return sv.startsWith("sdk")    ? sv    : `sdk${sv}`;
-  if (omRef) return omRef.startsWith("sdk") ? omRef : `sdk${omRef}`;
-  if (omId)  return `sdk${omId}`;
-  if (soRef) return soRef.startsWith("sdk") ? soRef : `sdk${soRef}`;
-  if (soOrd) return `sdk${soOrd}`;
-  if (plain) return plain;
-  // fallback: generated from id + date
-  const dt = new Date(d.createdAt);
-  const pad = (n: number, l = 2) => String(n).padStart(l, "0");
-  return `sdk${String(dt.getFullYear()).slice(2)}${pad(dt.getMonth()+1)}${pad(dt.getDate())}${pad(dt.getHours())}${pad(dt.getMinutes())}D${pad(d.id, 4)}`;
 }
 
 export default function AdminDeposits() {
@@ -97,6 +78,7 @@ export default function AdminDeposits() {
     ((d as any).inpayOutTradeNo && (d as any).inpayOutTradeNo.toLowerCase().includes(filter.toLowerCase())) ||
     ((d as any).inpayOrderNumber && (d as any).inpayOrderNumber.toLowerCase().includes(filter.toLowerCase())) ||
     ((d as any).channelName && (d as any).channelName.toLowerCase().includes(filter.toLowerCase())) ||
+    formatPublicTransactionId("D", d.id).includes(filter.toUpperCase()) ||
     String(d.id).includes(filter)
   ) || [];
 
@@ -195,6 +177,11 @@ export default function AdminDeposits() {
                     </div>
 
                     {/* Payment number (channel) used */}
+                    <div className="col-span-2">
+                      <p className="text-muted-foreground text-xs">ID de transaction</p>
+                      <p className="font-mono font-bold tracking-wider">{formatPublicTransactionId("D", deposit.id)}</p>
+                    </div>
+
                     {(deposit as any).channelName && (
                       <div className="col-span-2">
                         <p className="text-muted-foreground text-xs">Numéro destinataire utilisé</p>
@@ -205,9 +192,7 @@ export default function AdminDeposits() {
                     {/* Reference */}
                     {(deposit as any).reference && (
                       <div className="col-span-2">
-                        <p className="text-muted-foreground text-xs">
-                          {(deposit as any).paymentNumberId ? "ID de transaction" : "Référence"}
-                        </p>
+                        <p className="text-muted-foreground text-xs">Référence de paiement</p>
                         <p className="font-mono font-medium">{(deposit as any).reference}</p>
                       </div>
                     )}

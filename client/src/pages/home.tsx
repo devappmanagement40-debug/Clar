@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
-import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle, Send } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle, Send, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
 
@@ -214,14 +214,16 @@ export default function HomePage() {
 
       <Dialog open={welcomePopupOpen} onOpenChange={setWelcomePopupOpen}>
         <DialogContent className="cp-dialog z-[60]" overlayClassName="cp-dialog-overlay">
-          <DialogClose className="cp-dialog-brand-close" aria-label="Fermer les conditions">
-            <Bell size={20} strokeWidth={2.1} aria-hidden="true" />
-          </DialogClose>
+          <div className="cp-dialog-banner">
+            <DialogTitle className="cp-dialog-title">Informations utiles</DialogTitle>
+            <DialogClose className="cp-dialog-brand-close" aria-label="Fermer les informations">
+              <X size={20} strokeWidth={2.2} aria-hidden="true" />
+            </DialogClose>
+          </div>
           <div className="cp-dialog-mark" aria-hidden="true">
             <Bell size={29} strokeWidth={2.1} />
           </div>
           <div className="cp-dialog-copy">
-            <DialogTitle className="cp-dialog-title">Informations utiles</DialogTitle>
             <DialogDescription className="cp-dialog-message">
               Consultez les principales conditions applicables aux dépôts, aux retraits et au pointage.
             </DialogDescription>
