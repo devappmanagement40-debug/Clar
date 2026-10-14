@@ -7,9 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import BottomNav from "@/components/bottom-nav";
 import FloatingSupport from "@/components/floating-support";
-import GlobalProcessingOverlay from "@/components/global-processing-overlay";
+import GlobalProcessingOverlay, { ProcessingOverlay } from "@/components/global-processing-overlay";
 import { ADMIN_PATH } from "@/lib/admin-path";
-import { Loader2 } from "lucide-react";
 
 const LoginPage = lazy(() => import("@/pages/login"));
 const RegisterPage = lazy(() => import("@/pages/register"));
@@ -45,24 +44,14 @@ const SalaryBonusPage = lazy(() => import("@/pages/salary-bonus"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function PageLoading() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
-    </div>
-  );
+  return <ProcessingOverlay message="Chargement en cours..." />;
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const [location] = useLocation();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoading />;
 
   if (!user) {
     return <Redirect to="/login" />;
@@ -89,13 +78,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function BankerRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoading />;
 
   if (!user) return <Redirect to="/login" />;
   if (!(user as any).isBanker && !user.isAdmin) return <Redirect to="/" />;
@@ -106,13 +89,7 @@ function BankerRoute({ children }: { children: React.ReactNode }) {
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoading />;
 
   if (!user || !user.isAdmin) {
     return <Redirect to="/" />;
@@ -124,13 +101,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoading />;
 
   if (user) {
     return <Redirect to="/" />;

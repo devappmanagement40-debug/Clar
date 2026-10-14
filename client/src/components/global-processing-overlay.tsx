@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { Loader2 } from "lucide-react";
 import { PROCESSING_END_EVENT, PROCESSING_START_EVENT } from "@/lib/queryClient";
 
-function ProcessingOverlay({ message }: { message: string }) {
+export function ProcessingOverlay({ message }: { message: string }) {
   useEffect(() => {
     if (typeof document === "undefined") return;
     document.body.classList.add("site-processing-active");
