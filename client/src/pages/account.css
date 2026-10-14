@@ -143,10 +143,10 @@ body:has(.cp-account) { background: #fff !important; }
   overflow: hidden;
   color: var(--account-ink);
   font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(17px, 5vw, 22px);
-  font-weight: 700;
+  font-size: clamp(19px, 5.2vw, 24px);
+  font-weight: 800;
   letter-spacing: -.045em;
-  line-height: 1.2;
+  line-height: 1.1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
