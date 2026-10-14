@@ -1,5 +1,8 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+export const PROCESSING_START_EVENT = "site:processing-start";
+export const PROCESSING_END_EVENT = "site:processing-end";
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = await res.text();
@@ -23,15 +26,26 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+  const tracksProcessing = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
+  if (tracksProcessing && typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PROCESSING_START_EVENT));
+  }
 
-  await throwIfResNotOk(res);
-  return res;
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
+
+    await throwIfResNotOk(res);
+    return res;
+  } finally {
+    if (tracksProcessing && typeof window !== "undefined") {
+      window.dispatchEvent(new Event(PROCESSING_END_EVENT));
+    }
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

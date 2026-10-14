@@ -1,8 +1,16 @@
+import { useEffect, useState } from "react";
 import { useIsMutating } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { Loader2 } from "lucide-react";
+import { PROCESSING_END_EVENT, PROCESSING_START_EVENT } from "@/lib/queryClient";
 
 function ProcessingOverlay({ message }: { message: string }) {
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.classList.add("site-processing-active");
+    return () => document.body.classList.remove("site-processing-active");
+  }, []);
+
   if (typeof document === "undefined") return null;
 
   return createPortal(
@@ -43,6 +51,9 @@ function ProcessingOverlay({ message }: { message: string }) {
           color: #fff;
           animation: site-processing-spin .9s linear infinite;
         }
+        body.site-processing-active .animate-spin:not(.site-processing-spinner) {
+          visibility: hidden !important;
+        }
         .site-processing-message {
           font-size: 15px;
           font-weight: 500;
@@ -71,7 +82,21 @@ function ProcessingOverlay({ message }: { message: string }) {
 
 export default function GlobalProcessingOverlay() {
   const pendingMutations = useIsMutating();
-  if (pendingMutations === 0) return null;
+  const [pendingApiRequests, setPendingApiRequests] = useState(0);
+
+  useEffect(() => {
+    const handleStart = () => setPendingApiRequests((count) => count + 1);
+    const handleEnd = () => setPendingApiRequests((count) => Math.max(0, count - 1));
+
+    window.addEventListener(PROCESSING_START_EVENT, handleStart);
+    window.addEventListener(PROCESSING_END_EVENT, handleEnd);
+    return () => {
+      window.removeEventListener(PROCESSING_START_EVENT, handleStart);
+      window.removeEventListener(PROCESSING_END_EVENT, handleEnd);
+    };
+  }, []);
+
+  if (pendingMutations === 0 && pendingApiRequests === 0) return null;
 
   return <ProcessingOverlay message="Traitement en cours..." />;
 }
