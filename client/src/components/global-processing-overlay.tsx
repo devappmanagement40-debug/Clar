@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useIsMutating } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
-import { Loader2 } from "lucide-react";
 import { PROCESSING_END_EVENT, PROCESSING_START_EVENT } from "@/lib/queryClient";
 
 export function ProcessingOverlay({ message }: { message: string }) {
@@ -27,12 +26,12 @@ export function ProcessingOverlay({ message }: { message: string }) {
           align-items: center;
           justify-content: center;
           padding: 24px;
-          background: rgba(0, 0, 0, .68);
+          background: rgba(0, 0, 0, .8);
         }
         .site-processing-card {
           display: flex;
-          width: min(100%, 148px);
-          min-height: 122px;
+          width: min(100%, 144px);
+          min-height: 128px;
           flex-direction: column;
           align-items: center;
           justify-content: center;
@@ -46,16 +45,26 @@ export function ProcessingOverlay({ message }: { message: string }) {
           text-align: center;
         }
         .site-processing-spinner {
-          width: 30px;
-          height: 30px;
-          color: #fff;
+          position: relative;
+          width: 34px;
+          height: 34px;
           animation: site-processing-spin .9s linear infinite;
+        }
+        .site-processing-spinner > span {
+          position: absolute;
+          top: 1px;
+          left: calc(50% - 1.5px);
+          width: 3px;
+          height: 7px;
+          border-radius: 2px;
+          background: #fff;
+          transform-origin: 1.5px 16px;
         }
         body.site-processing-active .animate-spin:not(.site-processing-spinner) {
           visibility: hidden !important;
         }
         .site-processing-message {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 500;
           line-height: 1.35;
         }
@@ -71,7 +80,17 @@ export function ProcessingOverlay({ message }: { message: string }) {
         aria-busy="true"
       >
         <div className="site-processing-card">
-          <Loader2 className="site-processing-spinner" aria-hidden="true" />
+          <div className="site-processing-spinner" aria-hidden="true">
+            {Array.from({ length: 12 }, (_, index) => (
+              <span
+                key={index}
+                style={{
+                  transform: `rotate(${index * 30}deg)`,
+                  opacity: 1 - index / 16,
+                }}
+              />
+            ))}
+          </div>
           <span className="site-processing-message">{message}</span>
         </div>
       </div>
