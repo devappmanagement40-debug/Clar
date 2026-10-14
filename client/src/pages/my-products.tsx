@@ -17,9 +17,18 @@ export default function MyProductsPage() {
   const country = getCountryByCode(user.country);
   const currency = country?.currency === "FCFA" ? "XOF" : country?.currency || "XOF";
   const allUserProducts = userProducts || [];
-  const activeUserProducts = allUserProducts.filter(up => up.status === "active");
-  const activeProductCount = activeUserProducts.length;
-  const totalUserEarnings = Math.round(Number(user.earningsBalance || 0));
+  const toAmount = (value: unknown) => {
+    const amount = Number(value ?? 0);
+    return Number.isFinite(amount) ? Math.max(0, amount) : 0;
+  };
+  const totalReceived = allUserProducts.reduce(
+    (sum, up) => sum + toAmount(up.totalEarned),
+    0,
+  );
+  const totalExpected = allUserProducts.reduce((sum, up) => {
+    if (up.status !== "active") return sum;
+    return sum + toAmount(up.daysRemaining) * toAmount(up.product?.dailyEarnings);
+  }, 0);
   const formatStatAmount = (amount: number) => `${amount.toLocaleString("fr-FR")} ${currency}`;
 
   // Format date as "20 Jul 2026, 15:00"
@@ -115,21 +124,27 @@ export default function MyProductsPage() {
          .products-reference .stat-panel {
            top: auto;
            bottom: 14px;
-           height: 72px;
+            height: 78px;
            border: 2px solid #111827;
-           border-radius: 12px;
+            border-radius: 14px;
            background: #fff;
            color: #111827;
-           box-shadow: 0 3px 0 #111827;
-         }
-         .products-reference .stat-panel.active {
-            background: #bd304c;
-            color: #ffffff;
+            box-shadow: 0 3px 0 #111827, 0 8px 18px rgba(17, 24, 39, .16);
          }
          .products-reference .stat-panel.our,
          .products-reference .stat-toggle.our { left: 16px; width: calc(50% - 22px); }
          .products-reference .stat-panel.my,
          .products-reference .stat-toggle.my { right: 16px; width: calc(50% - 22px); }
+          .products-reference .stat-panel { gap: 7px; }
+          .products-reference .stat-value {
+            font-size: clamp(17px, 4.4vw, 24px);
+            font-weight: 800;
+          }
+          .products-reference .stat-label {
+            color: #5f6268;
+            font-size: 11px;
+            font-weight: 700;
+          }
          .products-reference .stat-panel.my-only {
            right: 16px;
            left: 16px;
@@ -382,9 +397,25 @@ export default function MyProductsPage() {
         </header>
         <section className="products-hero" aria-label="Produits">
           <img src={equinorProductBanner} alt="" />
-          <div className="stat-panel my my-only active" aria-label={`Revenus : ${formatStatAmount(totalUserEarnings)}`}>
-            <span className="stat-value">{formatStatAmount(totalUserEarnings)}</span>
-            <span className="stat-label">Revenus cumulés</span>
+          <div
+            className="stat-panel our"
+            aria-label={`Total reçu : ${loadingUserProducts ? "chargement" : formatStatAmount(totalReceived)}`}
+            aria-busy={loadingUserProducts}
+          >
+            <span className="stat-value">
+              {loadingUserProducts ? "—" : formatStatAmount(totalReceived)}
+            </span>
+            <span className="stat-label">Total reçu</span>
+          </div>
+          <div
+            className="stat-panel my"
+            aria-label={`Total attendus : ${loadingUserProducts ? "chargement" : formatStatAmount(totalExpected)}`}
+            aria-busy={loadingUserProducts}
+          >
+            <span className="stat-value">
+              {loadingUserProducts ? "—" : formatStatAmount(totalExpected)}
+            </span>
+            <span className="stat-label">Total attendus</span>
           </div>
         </section>
 
