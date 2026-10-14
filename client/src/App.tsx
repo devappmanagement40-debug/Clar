@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import BottomNav from "@/components/bottom-nav";
 import FloatingSupport from "@/components/floating-support";
+import GlobalProcessingOverlay from "@/components/global-processing-overlay";
 import { ADMIN_PATH } from "@/lib/admin-path";
 import { Loader2 } from "lucide-react";
 
@@ -371,6 +372,7 @@ function App() {
             <Suspense fallback={<PageLoading />}>
               <Router />
             </Suspense>
+            <GlobalProcessingOverlay />
             <FloatingSupport />
             <Toaster />
           </BrandThemeScope>

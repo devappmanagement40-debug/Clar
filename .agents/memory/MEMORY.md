@@ -23,3 +23,4 @@
 - [External payment configuration rollback](external-payment-config-rollback.md) — Restoring payment source files from GitHub does not undo provider settings already persisted in external Supabase.
 - [Clapay contract configuration](clapay-contract-configuration.md) — Keep secrets in Plesk, confirm via the authenticated API, and preserve uncertain initiations for signed-callback reconciliation.
 - [Workflow callback arguments](workflow-callback-arguments.md) — Runtime workflow callbacks can require object arguments even when the skill example shows a bare value.
+- [Site-wide processing indicator](site-wide-processing-indicator.md) — Keep action-processing feedback global across app routes, not scoped to the page where one example appeared.
