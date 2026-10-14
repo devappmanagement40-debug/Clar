@@ -48,32 +48,31 @@ export default function Compact() {
         .purchased-card,
         .purchased-card * { box-sizing: border-box; }
         .purchased-card-compact {
-          display: flex;
-          width: min(100%, 390px);
+          display: grid;
+          width: min(calc(100% - 12px), 370px);
           min-height: 0;
-          flex-direction: column;
-          gap: 10px;
+          grid-template-columns: 72px minmax(0, 1fr);
+          grid-template-rows: auto auto;
+          align-items: center;
+          gap: 6px 10px;
           margin: 0 auto;
-          padding: 12px;
+          padding: 10px;
           border: 2px solid var(--purchased-card-border);
           border-radius: 14px;
           background: #fff;
           box-shadow: 0 3px 0 var(--purchased-card-border), 0 8px 18px rgba(17,24,39,.12);
         }
-        .purchased-card-heading {
-          display: grid;
-          min-width: 0;
-          grid-template-columns: 62px minmax(0, 1fr);
-          align-items: center;
-          gap: 11px;
-        }
+        .purchased-card-heading { display: contents; }
         .purchased-card-image {
-          width: 62px;
-          height: 62px;
+          grid-column: 1;
+          grid-row: 1 / span 2;
+          width: 72px;
+          height: 72px;
           overflow: hidden;
           border: 2px solid var(--purchased-card-red);
           border-radius: 10px;
           background: #fff;
+          align-self: center;
         }
         .purchased-card-image img {
           display: block;
@@ -81,7 +80,12 @@ export default function Compact() {
           height: 100%;
           object-fit: cover;
         }
-        .purchased-card-title { min-width: 0; }
+        .purchased-card-title {
+          min-width: 0;
+          grid-column: 2;
+          grid-row: 1;
+          align-self: end;
+        }
         .purchased-card-title h2 {
           margin: 0;
           overflow: hidden;
@@ -108,41 +112,44 @@ export default function Compact() {
           font-weight: 800;
         }
         .purchased-card-data {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 8px 12px;
-          padding-top: 9px;
-          border-top: 1px solid #e5e7eb;
+          display: flex;
+          min-width: 0;
+          grid-column: 2;
+          grid-row: 2;
+          flex-direction: column;
+          gap: 4px;
+          align-self: start;
         }
         .purchased-card-metric {
           display: flex;
           min-width: 0;
-          flex-direction: column;
-          gap: 3px;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 6px;
           color: var(--purchased-card-muted);
-          font-size: 11px;
+          font-size: 10px;
           line-height: 1.2;
         }
         .purchased-card-metric strong {
+          flex-shrink: 0;
           overflow-wrap: anywhere;
           color: var(--purchased-card-ink);
-          font-size: 13px;
+          font-size: 11px;
           font-weight: 800;
-        }
-        .purchased-card-date {
-          grid-column: 1 / -1;
-          flex-direction: row;
-          align-items: baseline;
-          justify-content: space-between;
-          gap: 8px;
         }
         .purchased-card-date strong { text-align: right; }
         @media (max-width: 360px) {
           .purchased-card-stage { padding: 14px 10px; }
-          .purchased-card-compact { padding: 10px; }
-          .purchased-card-data { gap: 8px; }
-          .purchased-card-metric { font-size: 10px; }
-          .purchased-card-metric strong { font-size: 12px; }
+          .purchased-card-compact {
+            width: calc(100% - 8px);
+            grid-template-columns: 64px minmax(0, 1fr);
+            gap: 5px 8px;
+            padding: 9px;
+          }
+          .purchased-card-image { width: 64px; height: 64px; }
+          .purchased-card-title h2 { font-size: 16px; }
+          .purchased-card-metric { font-size: 9px; }
+          .purchased-card-metric strong { font-size: 10px; }
         }
       `}</style>
     </main>
