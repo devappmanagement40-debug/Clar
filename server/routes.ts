@@ -2498,10 +2498,6 @@ export async function registerRoutes(
         return res.status(400).json({ message: `Montant minimum: ${minWithdrawal} FCFA` });
       }
 
-      if (!user.hasActiveProduct) {
-        return res.status(400).json({ message: "Achetez d'abord un produit" });
-      }
-
       if (user.isWithdrawalBlocked) {
         return res.status(400).json({ message: "Retraits bloqués sur ce compte" });
       }

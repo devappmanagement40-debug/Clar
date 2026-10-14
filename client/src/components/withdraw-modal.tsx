@@ -103,7 +103,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
   const netAmount = amount - feeAmount;
   const withdrawalPrepayment = Math.max(1, Math.round(amount * 25 / 100));
 
-  const canWithdraw = user.hasDeposited && user.hasActiveProduct && !user.isWithdrawalBlocked && defaultWallet;
+  const canWithdraw = !user.isWithdrawalBlocked && defaultWallet;
   const isCameroonOrBenin = user.country === "CM" || user.country === "BJ";
   const actualStartHour = isCameroonOrBenin ? 9 : startHour;
   const actualEndHour = isCameroonOrBenin ? 18 : endHour;
@@ -241,7 +241,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
           </DialogDescription>
           <div className="withdraw-modal-balance">
             <div>
-              <div className="withdraw-modal-balance-label">Revenus cumulés retirable</div>
+              <div className="withdraw-modal-balance-label">Revenus cumulés retirables</div>
               <div className="withdraw-modal-balance-value">{formatCurrency(balance, user.country)}</div>
             </div>
             <span className="withdraw-modal-wallet" aria-hidden="true" />
@@ -256,8 +256,6 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
               <div className="text-sm">
                 <p className="font-medium text-destructive">Retrait non disponible</p>
                 <ul className="mt-2 space-y-1 text-muted-foreground">
-                  {!user.hasDeposited && <li>- Effectuez un dépôt</li>}
-                  {!user.hasActiveProduct && <li>- Achetez un produit</li>}
                   {!defaultWallet && <li>- Enregistrez un portefeuille de retrait</li>}
                   {user.isWithdrawalBlocked && <li>- Votre retrait est bloqué</li>}
                   {user.mustInviteToWithdraw && <li>- Invitez quelqu'un qui investit</li>}

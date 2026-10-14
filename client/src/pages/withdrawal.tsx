@@ -17,11 +17,6 @@ interface WalletData {
   isDefault: boolean;
 }
 
-interface UserProduct {
-  id: number;
-  status: string;
-}
-
 function maskWalletAccount(accountNumber: string) {
   const digits = accountNumber.replace(/\D/g, "");
   if (digits.length < 6) return accountNumber;
@@ -78,18 +73,12 @@ export default function WithdrawalPage() {
     refetchOnWindowFocus: true,
   });
 
-  const { data: userProducts = [] } = useQuery<UserProduct[]>({
-    queryKey: ["/api/user/products"],
-  });
-
   const { data: availableBalance } = useQuery<{ availableBalance: string }>({
     queryKey: ["/api/withdrawals/available"],
     enabled: !!user,
     staleTime: 0,
     refetchOnMount: true,
   });
-
-  const hasActiveProduct = userProducts.some((p) => p.status === "active");
 
   useEffect(() => {
     const savedWalletId = localStorage.getItem("selectedWalletId");
@@ -157,10 +146,6 @@ export default function WithdrawalPage() {
         description: `Horaires de retrait : de ${withdrawalStartHour}h à ${withdrawalEndHour}h.`,
         variant: "destructive",
       });
-      return;
-    }
-    if (!hasActiveProduct) {
-      toast({ title: "Produit requis", description: "Vous devez avoir un produit actif pour effectuer un retrait", variant: "destructive" });
       return;
     }
     if (!amount || amount < minWithdrawal) {
@@ -547,7 +532,7 @@ export default function WithdrawalPage() {
               <p className="balance-value" data-testid="text-balance">
                 {currency} {Math.round(balance).toLocaleString("fr-FR")}
               </p>
-              <p className="balance-label">Solde du compte</p>
+              <p className="balance-label">Revenus cumulés retirables</p>
             </div>
             <div className="country-chip">
               <MapPin size={16} aria-hidden="true" />
@@ -639,7 +624,7 @@ export default function WithdrawalPage() {
             </li>
           </ul>
           <p className="withdrawal-safety-note">
-            <strong>Avant de valider :</strong> vérifiez vos informations de portefeuille avant de soumettre votre demande.
+            <strong>À savoir :</strong> seuls les revenus cumulés sont retirables ; les dépôts restent réservés aux achats. Vérifiez vos informations de portefeuille avant de soumettre votre demande.
           </p>
         </section>
       </div>
