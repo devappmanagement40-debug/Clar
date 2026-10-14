@@ -255,6 +255,121 @@ export default function MyProductsPage() {
            .products-reference .product-line { font-size: 12px; }
            .products-reference .buy { font-size: 11px; }
          }
+          .products-reference .my-card {
+            display: flex;
+            min-height: 0;
+            flex-direction: column;
+            gap: 10px;
+            margin: 0 0 12px;
+            padding: 12px;
+            border: 2px solid #111827;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 3px 0 #111827, 0 8px 18px rgba(17, 24, 39, .12);
+          }
+          .products-reference .my-card-heading {
+            display: grid;
+            min-width: 0;
+            grid-template-columns: 64px minmax(0, 1fr);
+            align-items: center;
+            gap: 11px;
+          }
+          .products-reference .my-card-heading .product-picture {
+            position: static;
+            display: grid;
+            width: 64px;
+            height: 64px;
+            flex: 0 0 64px;
+            place-items: center;
+            overflow: hidden;
+            border: 2px solid #bd304c;
+            border-radius: 10px;
+            background: #ffffff;
+          }
+          .products-reference .my-card-heading .product-picture img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            object-fit: cover;
+          }
+          .products-reference .my-card-heading .product-picture > svg {
+            width: 30px;
+            height: 30px;
+            color: #bd304c;
+          }
+          .products-reference .my-card-product-copy { min-width: 0; }
+          .products-reference .my-card-product-copy .product-name {
+            margin: 0;
+            overflow: hidden;
+            color: #bd304c;
+            font-size: 17px;
+            font-weight: 900;
+            line-height: 1.2;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .products-reference .my-card-product-price {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px 8px;
+            margin: 6px 0 0;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.2;
+          }
+          .products-reference .my-card-product-price strong {
+            color: #111827;
+            font-size: 14px;
+            font-weight: 900;
+          }
+          .products-reference .my-card-details {
+            display: grid;
+            min-width: 0;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 12px;
+            padding-top: 9px;
+            border-top: 1px solid #e5e7eb;
+          }
+          .products-reference .my-card-details .product-line {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            gap: 3px;
+            margin: 0;
+            color: #6b7280;
+            font-size: 11px;
+            line-height: 1.2;
+          }
+          .products-reference .my-card-details .product-line strong {
+            display: block;
+            min-width: 0;
+            margin: 0;
+            overflow-wrap: anywhere;
+            color: #111827;
+            font-size: 13px;
+            font-weight: 800;
+          }
+          .products-reference .my-card-details .product-line-date {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+          }
+          .products-reference .my-card-details .product-line-date strong {
+            text-align: right;
+          }
+          @media (max-width: 360px) {
+            .products-reference .my-card { gap: 8px; padding: 10px; }
+            .products-reference .my-card-heading { grid-template-columns: 56px minmax(0, 1fr); gap: 9px; }
+            .products-reference .my-card-heading .product-picture { width: 56px; height: 56px; flex-basis: 56px; }
+            .products-reference .my-card-product-copy .product-name { font-size: 16px; }
+            .products-reference .my-card-details { gap: 8px; }
+            .products-reference .my-card-details .product-line { font-size: 10px; }
+            .products-reference .my-card-details .product-line strong { font-size: 12px; }
+          }
       `}</style>
 
       <div className="products-screen">
@@ -294,20 +409,39 @@ export default function MyProductsPage() {
                       className="product-card my-card"
                       data-testid={`my-product-card-${up.id}`}
                     >
-                      <div className="product-picture">
-                        {up.product?.imageUrl ? (
-                          <img src={up.product.imageUrl} alt={up.product?.name || "Produit"} />
-                        ) : (
-                          <PackageOpen aria-hidden="true" />
-                        )}
+                      <div className="my-card-heading">
+                        <div className="product-picture">
+                          {up.product?.imageUrl ? (
+                            <img src={up.product.imageUrl} alt={up.product?.name || "Produit"} />
+                          ) : (
+                            <PackageOpen aria-hidden="true" />
+                          )}
+                        </div>
+                        <div className="my-card-product-copy">
+                          <p className="product-name">{up.product?.name || "Produit"}</p>
+                          <p className="my-card-product-price">
+                            <span>Prix d'achat</span>
+                            <strong>{Number(up.product?.price || 0).toLocaleString("fr-FR")} {currency}</strong>
+                          </p>
+                        </div>
                       </div>
-                      <div className="product-details">
-                        <p className="product-name">{up.product?.name || "Produit"}</p>
-                        <p className="product-price">{Number(up.product?.price || 0).toLocaleString("fr-FR")} {currency}</p>
-                        <p className="product-line">Jours d'exécution :<strong>{daysCompleted} / {cycleDays}</strong></p>
-                        <p className="product-line">Revenu généré :<strong>{earnedSoFar.toLocaleString("fr-FR")} {currency}</strong></p>
-                        <p className="product-line">Revenu total :<strong>{Number(up.product?.totalReturn || 0).toLocaleString("fr-FR")} {currency}</strong></p>
-                        <p className="product-line">Date :<strong>{formatPurchaseDate(up.purchasedAt)}</strong></p>
+                      <div className="my-card-details">
+                        <p className="product-line">
+                          <span>Jours d'exécution</span>
+                          <strong>{daysCompleted} / {cycleDays}</strong>
+                        </p>
+                        <p className="product-line">
+                          <span>Revenu généré</span>
+                          <strong>{earnedSoFar.toLocaleString("fr-FR")} {currency}</strong>
+                        </p>
+                        <p className="product-line">
+                          <span>Revenu total</span>
+                          <strong>{Number(up.product?.totalReturn || 0).toLocaleString("fr-FR")} {currency}</strong>
+                        </p>
+                        <p className="product-line product-line-date">
+                          <span>Date</span>
+                          <strong>{formatPurchaseDate(up.purchasedAt)}</strong>
+                        </p>
                       </div>
                     </div>
                   );
