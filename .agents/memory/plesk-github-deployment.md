@@ -26,3 +26,9 @@ Replit's workspace Git Provider authentication is separate from its connected Gi
 **Why:** GitHub API access through the connector succeeded while the workspace's configured Git remote rejected its native push credentials.
 
 **How to apply:** When `git push --dry-run` fails authentication against the configured upstream, reconnect the Git Provider before changing application code or asking the user to paste a token.
+
+Keep the HTTP listener available before database bootstrap finishes, expose readiness separately, and hold API requests until initialization succeeds. Plesk may serve static files while returning its generic 500 page for dynamic routes if Node has not bound its port yet.
+
+**Why:** Startup waited for Supabase-backed seeding before listening; the live static page loaded while `/login` and `/api` failed at the Plesk proxy.
+
+**How to apply:** When changing startup or deployment bundles, verify the server binds before bootstrap, `/api/health` reports readiness, and API routes work after initialization. Never treat a static homepage response as proof Node is healthy.

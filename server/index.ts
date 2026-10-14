@@ -14,6 +14,11 @@ import { sendDailyTelegramSummary, startTelegramBot } from "./telegram";
 
 const app = express();
 const httpServer = createServer(app);
+let startupState: "starting" | "ready" | "failed" = "starting";
+let finishStartupWait: () => void = () => undefined;
+const startupFinished = new Promise<void>((resolve) => {
+  finishStartupWait = resolve;
+});
 
 declare module "http" {
   interface IncomingMessage {
@@ -95,32 +100,40 @@ app.use((req, res, next) => {
     next();
   });
 
-  const restoreExistingAdmin = process.env.RESTORE_EXISTING_ADMIN === "true";
-  if (restoreExistingAdmin) {
-    await restoreExistingAccountToSupabase();
-  }
+  // Keep the Plesk/Node listener available while database bootstrap runs.
+  // API traffic is held until initialization succeeds, while static routes
+  // and the readiness endpoint remain available.
+  app.use(async (req, res, next) => {
+    if (req.path === "/api/health") {
+      return res.status(startupState === "ready" ? 200 : 503).json({ status: startupState });
+    }
 
-  // Seed database with initial data
-  await seed().catch(console.error);
-  
+    if (req.path === "/api" || req.path.startsWith("/api/")) {
+      if (startupState === "starting") {
+        let timeout: ReturnType<typeof setTimeout> | undefined;
+        await Promise.race([
+          startupFinished,
+          new Promise<void>((resolve) => {
+            timeout = setTimeout(resolve, 25_000);
+          }),
+        ]);
+        if (timeout) clearTimeout(timeout);
+      }
+
+      if (startupState !== "ready") {
+        return res.status(503).json({
+          message: startupState === "failed"
+            ? "Le service est temporairement indisponible."
+            : "Le service termine son initialisation. Réessayez dans quelques instants.",
+        });
+      }
+    }
+
+    next();
+  });
+
+  const restoreExistingAdmin = process.env.RESTORE_EXISTING_ADMIN === "true";
   await registerRoutes(httpServer, app);
-  if (process.env.NODE_ENV === "production") {
-    startTelegramBot();
-    const scheduleTelegramSummary = () => {
-      const now = new Date();
-      const next = new Date(now);
-      next.setMinutes(0, 0, 0);
-      next.setHours(now.getHours() < 12 ? 12 : 24);
-      const delay = Math.max(1000, next.getTime() - now.getTime());
-      setTimeout(() => {
-        void sendDailyTelegramSummary().catch((error) => console.error("[telegram] summary failed:", error.message));
-        scheduleTelegramSummary();
-      }, delay);
-    };
-    scheduleTelegramSummary();
-  } else {
-    log("Telegram bot polling and summaries disabled outside production", "telegram");
-  }
 
   // Process daily earnings and staking releases
   const processEarningsInterval = async () => {
@@ -137,12 +150,6 @@ app.use((req, res, next) => {
     }
   };
   
-  // Run immediately on startup
-  setTimeout(processEarningsInterval, 5000);
-  
-  // Then run every 5 minutes to ensure timely earnings processing
-  setInterval(processEarningsInterval, 5 * 60 * 1000);
-
   // Clean up deposit screenshots: approved/rejected deposits lose their image after 24h
   const cleanupScreenshots = async () => {
     try {
@@ -152,9 +159,6 @@ app.use((req, res, next) => {
       console.error("Error cleaning up deposit screenshots:", error);
     }
   };
-  setTimeout(cleanupScreenshots, 10000);
-  setInterval(cleanupScreenshots, 60 * 60 * 1000); // every hour
-
   // Reconcile AshtechPay deposits on the server, independently of the user's
   // browser. A pending transaction is checked until three hours old; at the
   // deadline one final provider check is made before marking it rejected.
@@ -202,8 +206,49 @@ app.use((req, res, next) => {
       console.error("[ashtechpay] reconciliation cycle failed:", error);
     }
   };
-  setTimeout(reconcileAshtechDeposits, 15000);
-  setInterval(reconcileAshtechDeposits, 5 * 60 * 1000);
+  const startBackgroundJobs = () => {
+    if (process.env.NODE_ENV === "production") {
+      startTelegramBot();
+      const scheduleTelegramSummary = () => {
+        const now = new Date();
+        const next = new Date(now);
+        next.setMinutes(0, 0, 0);
+        next.setHours(now.getHours() < 12 ? 12 : 24);
+        const delay = Math.max(1000, next.getTime() - now.getTime());
+        setTimeout(() => {
+          void sendDailyTelegramSummary().catch((error) => console.error("[telegram] summary failed:", error.message));
+          scheduleTelegramSummary();
+        }, delay);
+      };
+      scheduleTelegramSummary();
+    } else {
+      log("Telegram bot polling and summaries disabled outside production", "telegram");
+    }
+
+    setTimeout(processEarningsInterval, 5000);
+    setInterval(processEarningsInterval, 5 * 60 * 1000);
+    setTimeout(cleanupScreenshots, 10000);
+    setInterval(cleanupScreenshots, 60 * 60 * 1000);
+    setTimeout(reconcileAshtechDeposits, 15000);
+    setInterval(reconcileAshtechDeposits, 5 * 60 * 1000);
+  };
+
+  const initializeRuntime = async () => {
+    try {
+      if (restoreExistingAdmin) {
+        await restoreExistingAccountToSupabase();
+      }
+      await seed();
+      startupState = "ready";
+      finishStartupWait();
+      log("Database initialization completed; API is ready", "startup");
+      startBackgroundJobs();
+    } catch (error) {
+      startupState = "failed";
+      finishStartupWait();
+      console.error("[startup] Database initialization failed; API remains unavailable:", error);
+    }
+  };
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -241,6 +286,7 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+      void initializeRuntime();
     },
   );
 
