@@ -111,6 +111,11 @@ async function buildAll() {
     `${JSON.stringify(runtimePackage, null, 2)}\n`,
     "utf-8",
   );
+  await writeFile(
+    "dist/pnpm-workspace.yaml",
+    "onlyBuiltDependencies:\n  - bcrypt\n",
+    "utf-8",
+  );
 }
 
 buildAll().catch((err) => {

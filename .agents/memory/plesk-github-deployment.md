@@ -9,6 +9,12 @@ For this project, Plesk's configured application root is `dist`, startup file is
 
 **How to apply:** Keep the runtime manifest generated with `dist`, use `/public` as the document root relative to the application root, use `index.cjs` as startup file, and install dependencies in `dist` before restarting. Keep `SUPABASE_NEW_DATABASE_URL` and `SESSION_SECRET` available to that Node process.
 
+Plesk's pnpm installation must explicitly approve bcrypt's native build script; allow only bcrypt rather than enabling scripts for every dependency.
+
+**Why:** Plesk reported `ERR_PNPM_IGNORED_BUILDS` for bcrypt after resolving the runtime dependencies.
+
+**How to apply:** Keep bcrypt in the generated `dist/pnpm-workspace.yaml` build approval list. In an existing Plesk checkout, run `pnpm approve-builds`, select bcrypt only, then reinstall and restart the app.
+
 Plesk can serve the current static `index.html` while its Node.js process is failing; a working `/` is not proof that login or API routes work. The downloadable `plesk-deploy-bundle.zip` is separate from GitHub's tracked `dist` and can become stale.
 
 **Why:** The live homepage matched the current `dist/public/index.html` exactly while `/login` and `/api/health` returned Plesk 500 errors. The supplied Plesk screenshots showed only access-log status lines, not the Node runtime exception.
