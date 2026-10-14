@@ -1,6 +1,7 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import { builtinModules } from "node:module";
+import { rm, readFile, writeFile } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -31,6 +32,7 @@ const allowlist = [
   "zod",
   "zod-validation-error",
 ];
+const optionalExternalModules = new Set(["pg-native", "supports-color"]);
 
 async function buildAll() {
   await rm("dist", { recursive: true, force: true });
@@ -59,6 +61,56 @@ async function buildAll() {
     external: externals,
     logLevel: "info",
   });
+
+  // Plesk may use dist itself as the application root. Keep the compiled
+  // server's external runtime dependencies discoverable from that directory.
+  const serverBundle = await readFile("dist/index.cjs", "utf-8");
+  const builtins = new Set([
+    ...builtinModules,
+    ...builtinModules.map((name) => `node:${name}`),
+  ]);
+  const declaredDependencies = pkg.dependencies || {};
+  const runtimeDependencies: Record<string, string> = {};
+
+  for (const match of serverBundle.matchAll(/\brequire\((['"])([^'"]+)\1\)/g)) {
+    const specifier = match[2];
+    const packageName = specifier.startsWith("@")
+      ? specifier.split("/").slice(0, 2).join("/")
+      : specifier.split("/")[0];
+
+    if (
+      builtins.has(specifier) ||
+      builtins.has(packageName) ||
+      optionalExternalModules.has(packageName)
+    ) {
+      continue;
+    }
+
+    const version = declaredDependencies[packageName];
+    if (!version) {
+      throw new Error(
+        `Server bundle requires "${packageName}", but it is not declared in package.json dependencies.`,
+      );
+    }
+    runtimeDependencies[packageName] = version;
+  }
+
+  const runtimePackage = {
+    name: `${pkg.name}-server-runtime`,
+    version: pkg.version,
+    private: true,
+    type: "commonjs",
+    engines: { node: ">=20" },
+    scripts: { start: "node index.cjs" },
+    dependencies: Object.fromEntries(
+      Object.entries(runtimeDependencies).sort(([a], [b]) => a.localeCompare(b)),
+    ),
+  };
+  await writeFile(
+    "dist/package.json",
+    `${JSON.stringify(runtimePackage, null, 2)}\n`,
+    "utf-8",
+  );
 }
 
 buildAll().catch((err) => {

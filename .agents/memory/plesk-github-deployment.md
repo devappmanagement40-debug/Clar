@@ -3,11 +3,11 @@ name: Plesk GitHub deployment
 description: Production deployment uses a committed dist build and a Node.js startup file relative to the application root.
 ---
 
-For this project, Plesk must pull the versioned `dist` directory from GitHub; the production server starts `dist/index.cjs` and serves static files from `dist/public`.
+For this project, Plesk's configured application root is `dist`, startup file is `index.cjs`, and document root is `dist/public`; Plesk currently uses pnpm. Include a production runtime `package.json` inside `dist` so package installation runs in the configured root.
 
-**Why:** Plesk does not automatically see the Replit workspace build, and a missing or incorrect document root causes either “startup file not found” or a 403 response.
+**Why:** The Plesk dashboard showed `dist` as the application root while the full project manifest was one level above it; the compiled server also has external runtime dependencies.
 
-**How to apply:** Keep `dist` tracked for Plesk pulls, use `/dist/public` as the document root relative to the application root, use `dist/index.cjs` as the startup file, and provide `SUPABASE_NEW_DATABASE_URL` plus `SESSION_SECRET` as server environment variables.
+**How to apply:** Keep the runtime manifest generated with `dist`, use `/public` as the document root relative to the application root, use `index.cjs` as startup file, and install dependencies in `dist` before restarting. Keep `SUPABASE_NEW_DATABASE_URL` and `SESSION_SECRET` available to that Node process.
 
 Plesk can serve the current static `index.html` while its Node.js process is failing; a working `/` is not proof that login or API routes work. The downloadable `plesk-deploy-bundle.zip` is separate from GitHub's tracked `dist` and can become stale.
 
