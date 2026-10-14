@@ -5,6 +5,7 @@ import { getCountryByCode } from "@/lib/countries";
 import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { withProcessingIndicator } from "@/lib/queryClient";
 import { formatPublicTransactionId } from "@shared/public-transaction-id";
 
 import nodataImg from "@assets/nodata-da225bbb_(1)_1783249133513.png";
@@ -171,18 +172,20 @@ export default function HistoryPage() {
   const handleVerify = async (depositId: number) => {
     setVerifyingId(depositId);
     try {
-      const response = await fetch(`/api/deposits/${depositId}/verify`, { credentials: "include" });
-      const data = await response.json();
-      if (data.status === "approved") {
-        toast({ title: "Paiement confirmé", description: "Votre compte a été crédité" });
-        refreshUser();
-        queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
-      } else if (data.status === "rejected") {
-        toast({ title: "Paiement échoué", description: "Le paiement a été refusé", variant: "destructive" });
-        queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
-      } else {
-        toast({ title: "En cours", description: "Le paiement est toujours en attente" });
-      }
+      await withProcessingIndicator(async () => {
+        const response = await fetch(`/api/deposits/${depositId}/verify`, { credentials: "include" });
+        const data = await response.json();
+        if (data.status === "approved") {
+          toast({ title: "Paiement confirmé", description: "Votre compte a été crédité" });
+          refreshUser();
+          queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
+        } else if (data.status === "rejected") {
+          toast({ title: "Paiement échoué", description: "Le paiement a été refusé", variant: "destructive" });
+          queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
+        } else {
+          toast({ title: "En cours", description: "Le paiement est toujours en attente" });
+        }
+      });
     } catch {
       toast({ title: "Vérification du paiement impossible", description: "Impossible de vérifier le paiement", variant: "destructive" });
     } finally {

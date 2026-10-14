@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useIsMutating } from "@tanstack/react-query";
+import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { PROCESSING_END_EVENT, PROCESSING_START_EVENT } from "@/lib/queryClient";
 
@@ -63,6 +63,9 @@ export function ProcessingOverlay({ message }: { message: string }) {
         body.site-processing-active .animate-spin:not(.site-processing-spinner) {
           visibility: hidden !important;
         }
+        body.site-processing-active .cp-password-loading svg {
+          visibility: hidden !important;
+        }
         .site-processing-message {
           font-size: 16px;
           font-weight: 500;
@@ -100,6 +103,9 @@ export function ProcessingOverlay({ message }: { message: string }) {
 }
 
 export default function GlobalProcessingOverlay() {
+  const pendingForegroundQueries = useIsFetching({
+    predicate: (query) => query.state.data === undefined || !query.options.refetchInterval,
+  });
   const pendingMutations = useIsMutating();
   const [pendingApiRequests, setPendingApiRequests] = useState(0);
 
@@ -115,7 +121,13 @@ export default function GlobalProcessingOverlay() {
     };
   }, []);
 
-  if (pendingMutations === 0 && pendingApiRequests === 0) return null;
+  if (
+    pendingForegroundQueries === 0 &&
+    pendingMutations === 0 &&
+    pendingApiRequests === 0
+  ) {
+    return null;
+  }
 
   return <ProcessingOverlay message="Traitement en cours..." />;
 }

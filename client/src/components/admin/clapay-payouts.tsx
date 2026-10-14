@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, withProcessingIndicator } from "@/lib/queryClient";
 import { parseClapayPayoutCountries } from "@shared/clapay-payout-countries";
 
 type AdminCountry = { code: string; name: string; isActive: boolean };
@@ -359,7 +359,11 @@ export default function AdminClapayPayouts() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => payoutsQuery.refetch()}
+            onClick={() => {
+              void withProcessingIndicator(async () => {
+                await payoutsQuery.refetch();
+              });
+            }}
             disabled={payoutsQuery.isFetching}
           >
             {payoutsQuery.isFetching

@@ -3,6 +3,20 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 export const PROCESSING_START_EVENT = "site:processing-start";
 export const PROCESSING_END_EVENT = "site:processing-end";
 
+export async function withProcessingIndicator<T>(operation: () => Promise<T>): Promise<T> {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PROCESSING_START_EVENT));
+  }
+
+  try {
+    return await operation();
+  } finally {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(PROCESSING_END_EVENT));
+    }
+  }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = await res.text();

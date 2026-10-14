@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronRight, Clock3, Copy, ExternalLink, Loader2, Phone, RefreshCw, ShieldCheck } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, withProcessingIndicator } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
@@ -539,20 +539,22 @@ export default function RobotPayPage() {
     if (!depositId || manualStatusRefreshing) return;
     setManualStatusRefreshing(true);
     try {
-      const response = await fetch("/api/deposits/history", { credentials: "include" });
-      if (!response.ok) throw new Error("Le statut n’a pas pu être actualisé.");
-      const deposits = await response.json() as Array<{ id?: number | string; status?: string }>;
-      const currentDeposit = Array.isArray(deposits)
-        ? deposits.find((deposit) => Number(deposit.id) === depositId)
-        : undefined;
-      if (!currentDeposit) throw new Error("Cette demande est introuvable dans l’historique.");
-      if (currentDeposit.status === "approved" || currentDeposit.status === "rejected") {
-        setStatus(currentDeposit.status);
-        if (currentDeposit.status === "approved") void refreshUser();
-        queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
-      } else {
-        toast({ title: "Toujours en attente", description: "Le paiement n’a pas encore été validé." });
-      }
+      await withProcessingIndicator(async () => {
+        const response = await fetch("/api/deposits/history", { credentials: "include" });
+        if (!response.ok) throw new Error("Le statut n’a pas pu être actualisé.");
+        const deposits = await response.json() as Array<{ id?: number | string; status?: string }>;
+        const currentDeposit = Array.isArray(deposits)
+          ? deposits.find((deposit) => Number(deposit.id) === depositId)
+          : undefined;
+        if (!currentDeposit) throw new Error("Cette demande est introuvable dans l’historique.");
+        if (currentDeposit.status === "approved" || currentDeposit.status === "rejected") {
+          setStatus(currentDeposit.status);
+          if (currentDeposit.status === "approved") void refreshUser();
+          queryClient.invalidateQueries({ queryKey: ["/api/deposits/history"] });
+        } else {
+          toast({ title: "Toujours en attente", description: "Le paiement n’a pas encore été validé." });
+        }
+      });
     } catch (error) {
       toast({
         title: "Actualisation impossible",
