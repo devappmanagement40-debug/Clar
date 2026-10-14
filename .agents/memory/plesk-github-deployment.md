@@ -11,9 +11,9 @@ For this project, Plesk must pull the versioned `dist` directory from GitHub; th
 
 Plesk can serve the current static `index.html` while its Node.js process is failing; a working `/` is not proof that login or API routes work. The downloadable `plesk-deploy-bundle.zip` is separate from GitHub's tracked `dist` and can become stale.
 
-**Why:** The live homepage matched the current `dist/public/index.html` exactly while `/login` and `/api/health` returned Plesk 500 errors, and the archived bundle contained older build files.
+**Why:** The live homepage matched the current `dist/public/index.html` exactly while `/login` and `/api/health` returned Plesk 500 errors. The supplied Plesk screenshots showed only access-log status lines, not the Node runtime exception.
 
-**How to apply:** Verify `/` and a real API route independently. Confirm whether Plesk deploys from GitHub or from the ZIP before changing either artifact; keep the ZIP refreshed when it is the chosen deployment source.
+**How to apply:** Verify `/` and a real API route independently. Treat Plesk access-log 500 lines as evidence of the failing URL, not its root cause; inspect Node stdout/stderr and app-root/startup settings before attributing a code defect. Confirm whether Plesk deploys from GitHub or from the ZIP before changing either artifact.
 
 The August ZIP uses `SUPABASE_DATABASE_URL`, while the current Plesk Node environment uses `SUPABASE_NEW_DATABASE_URL`; the current source and September build use the latter.
 
