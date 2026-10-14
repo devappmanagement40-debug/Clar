@@ -1,6 +1,12 @@
 import { getWithdrawalMethods } from "@shared/withdrawal-methods";
 import { getActiveCountryMethodNames } from "@shared/country-methods";
 
+export const AUTH_HIDDEN_COUNTRY_CODES: readonly string[] = ["TD"];
+
+export function isAuthCountryAllowed(countryCode: string): boolean {
+  return !AUTH_HIDDEN_COUNTRY_CODES.includes(countryCode.toUpperCase());
+}
+
 // The API remains authoritative. These bootstrap entries are used only when its
 // request fails so public country pickers do not become unusable during an outage.
 export const COUNTRIES: Array<{

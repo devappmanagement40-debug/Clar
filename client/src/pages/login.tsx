@@ -6,7 +6,12 @@ import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { FALLBACK_COUNTRIES, type ApiCountry } from "@/lib/countries";
+import {
+  AUTH_HIDDEN_COUNTRY_CODES,
+  FALLBACK_COUNTRIES,
+  isAuthCountryAllowed,
+  type ApiCountry,
+} from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { ChevronDown, Loader2, Smartphone } from "lucide-react";
 import loginBackground from "@assets/0_45528_1791799291731.jpg";
@@ -49,22 +54,25 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!apiCountries || apiCountries.length === 0) return;
-    const isValid = apiCountries.some(ac => ac.code === selectedCountry && ac.isActive);
-    // Keep a remembered/selected country long enough for the server to apply
-    // the administrator-only cross-country login rule.
+    const availableCountries = apiCountries.filter(ac => ac.isActive && isAuthCountryAllowed(ac.code));
+    const isValid = availableCountries.some(ac => ac.code === selectedCountry);
     if (!isValid) {
-      const first = apiCountries.find(ac => ac.isActive);
+      const first = availableCountries[0];
       if (first) form.setValue("country", first.code);
     }
   }, [apiCountries, selectedCountry, form]);
 
   const countryData = (() => {
     if (apiCountries !== undefined) {
-      const c = apiCountries.find(ac => ac.code === selectedCountry && ac.isActive);
+      const c = apiCountries.find(ac =>
+        ac.code === selectedCountry && ac.isActive && isAuthCountryAllowed(ac.code),
+      );
       if (c) return { phonePrefix: c.phonePrefix, name: c.name };
       return null;
     }
-    const f = FALLBACK_COUNTRIES.find(fc => fc.code === selectedCountry);
+    const f = FALLBACK_COUNTRIES.find(fc =>
+      fc.code === selectedCountry && isAuthCountryAllowed(fc.code),
+    );
     return f ? { phonePrefix: f.phonePrefix, name: f.name } : null;
   })();
 
@@ -122,7 +130,7 @@ export default function LoginPage() {
         </section>
       </div>
 
-      <CountrySelector selectedCountryCode={selectedCountry} open={countryModalOpen} onClose={() => setCountryModalOpen(false)} onSelect={(code) => form.setValue("country", code, { shouldValidate: true })} />
+      <CountrySelector selectedCountryCode={selectedCountry} open={countryModalOpen} onClose={() => setCountryModalOpen(false)} onSelect={(code) => form.setValue("country", code, { shouldValidate: true })} excludedCountryCodes={AUTH_HIDDEN_COUNTRY_CODES} />
     </main>
   );
 }
