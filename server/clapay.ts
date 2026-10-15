@@ -39,6 +39,7 @@ type ClapayConfig = {
   initiateSignaturePath: string;
   initiateRedirectPath: string;
   initiateMessagePath: string;
+  initiateConfirmationCodePath: string;
   payoutBodyTemplate: unknown;
   payoutSignaturePath: string;
   statusPath: string;
@@ -156,6 +157,7 @@ function loadConfig(): ClapayConfig {
     initiateSignaturePath: process.env.CLAPAY_INITIATE_SIGNATURE_PATH?.trim() || "signature",
     initiateRedirectPath: process.env.CLAPAY_INITIATE_REDIRECT_PATH?.trim() || "",
     initiateMessagePath: process.env.CLAPAY_INITIATE_MESSAGE_PATH?.trim() || "message",
+    initiateConfirmationCodePath: process.env.CLAPAY_INITIATE_CONFIRMATION_CODE_PATH?.trim() || "",
     payoutBodyTemplate: optionalJsonEnv(
       "CLAPAY_PAYOUT_REQUEST_TEMPLATE",
       DEFAULT_PAYOUT_BODY_TEMPLATE,
@@ -206,6 +208,65 @@ function getAtPath(value: unknown, path: string): unknown {
     if (!current || typeof current !== "object") return undefined;
     return (current as JsonRecord)[key];
   }, value);
+}
+
+const CLAPAY_CONFIRMATION_CODE_KEYS = new Set([
+  "confirmationcode",
+  "confirmcode",
+  "paymentcode",
+  "paymentconfirmationcode",
+  "verificationcode",
+  "verificationpin",
+  "cashcode",
+  "cashinconfirmationcode",
+  "transfercode",
+  "otpcode",
+  "ussdcode",
+]);
+
+function normalizeClapayConfirmationCode(value: unknown): string | undefined {
+  if (typeof value !== "string" && typeof value !== "number") return undefined;
+  const code = String(value).trim();
+  return code && code.length <= 80 && !/[\u0000-\u001f\u007f]/.test(code)
+    ? code
+    : undefined;
+}
+
+export function extractClapayConfirmationCode(
+  payload: unknown,
+  configuredPath = "",
+): string | undefined {
+  if (configuredPath) {
+    const configuredValue = normalizeClapayConfirmationCode(getAtPath(payload, configuredPath));
+    if (configuredValue) return configuredValue;
+  }
+
+  const findCode = (value: unknown, depth: number): string | undefined => {
+    if (depth > 6 || !value || typeof value !== "object") return undefined;
+    if (Array.isArray(value)) {
+      for (const entry of value.slice(0, 20)) {
+        const result = findCode(entry, depth + 1);
+        if (result) return result;
+      }
+      return undefined;
+    }
+
+    const entries = Object.entries(value as JsonRecord);
+    for (const [key, entry] of entries) {
+      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (CLAPAY_CONFIRMATION_CODE_KEYS.has(normalizedKey)) {
+        const code = normalizeClapayConfirmationCode(entry);
+        if (code) return code;
+      }
+    }
+    for (const [, entry] of entries) {
+      const result = findCode(entry, depth + 1);
+      if (result) return result;
+    }
+    return undefined;
+  };
+
+  return findCode(payload, 0);
 }
 
 function isAllowedClapayOperator(country: string, name: string): boolean {
@@ -511,6 +572,7 @@ export async function initiateClapayPayment(values: RequestValues): Promise<{
   signature: string;
   redirectUrl?: string;
   message?: string;
+  confirmationCode?: string;
 }> {
   const config = loadConfig();
   const { countryPhonePrefix, ...templateValues } = values;
@@ -550,6 +612,7 @@ export async function initiateClapayPayment(values: RequestValues): Promise<{
   const messageValue = config.initiateMessagePath
     ? getAtPath(data, config.initiateMessagePath)
     : undefined;
+  const confirmationCode = extractClapayConfirmationCode(data, config.initiateConfirmationCodePath);
   let redirectUrl: string | undefined;
   if (typeof redirectValue === "string" && redirectValue.trim()) {
     try {
@@ -567,6 +630,7 @@ export async function initiateClapayPayment(values: RequestValues): Promise<{
     signature: String(signature),
     redirectUrl,
     message: typeof messageValue === "string" ? messageValue : undefined,
+    confirmationCode,
   };
 }
 

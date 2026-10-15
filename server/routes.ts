@@ -4322,6 +4322,7 @@ export async function registerRoutes(
         depositId: deposit.id,
         redirectUrl: payment.redirectUrl,
         message: payment.message || "Confirmez le paiement sur votre téléphone.",
+        ...(payment.confirmationCode ? { confirmationCode: payment.confirmationCode } : {}),
       });
     } catch (error: any) {
       const initiationMayHaveReachedProvider =

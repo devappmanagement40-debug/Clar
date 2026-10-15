@@ -9,6 +9,12 @@ For initiation requests in every country routed to Clapay, send only the local s
 
 If an initiation request times out or returns an ambiguous response, preserve the deposit as processing and retain its merchant transaction reference so a signed callback can reconcile it. Do not mark it rejected unless Clapay definitively refused the request. When operator metadata marks `otpstarter.MERCHANT` true, collect the operator OTP only for the deposit flow and send it as `operator_otp`; never persist or log the OTP. Clapay payouts do not require an operator OTP, even when the shared operator metadata marks one required for deposits; never ask for or send `operator_otp` on payout requests.
 
+Keep a provider-generated customer confirmation code distinct from Clapay's merchant `signature`, which is used for payment status verification. Extract the customer code from an explicitly named response field or a Plesk-configured JSON path, show it only to the authenticated payer, and do not persist or log it.
+
+**Why:** For NITA deposits, the customer may need a code returned by Clapay to complete confirmation in the NITA service; confusing it with the transaction signature risks showing the wrong value.
+
+**How to apply:** Preserve the existing signature/reference for status checks. Use `CLAPAY_INITIATE_CONFIRMATION_CODE_PATH` when the provider's response field is not one of the recognized confirmation-code names.
+
 **Why:** A live initiation was rejected with an invalid-phone response. The user clarified that Clapay requires only the local number in every country routed to it; removing `+` alone is insufficient. Other providers may require international formatting.
 
 **How to apply:** At the Clapay server boundary, remove the configured calling code from an explicitly international number before filling phone placeholders; for BF and NE payouts, also recognize the full 11-digit international number when the user omitted `+`/`00`, while leaving 8-digit local numbers unchanged. Keep the displayed prefix and stored account number unchanged, and do not alter other providers' payloads. Check available documentation before changing other contract details. Keep status lookup server-side, preserve per-country routing, and make retries safe when the provider may already have accepted a request.

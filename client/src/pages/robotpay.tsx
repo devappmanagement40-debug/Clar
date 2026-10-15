@@ -99,6 +99,7 @@ export default function RobotPayPage() {
   const [message, setMessage] = useState(
     clapayReturnDepositId ? "Retour reçu. Vérification du paiement auprès de Clapay…" : "",
   );
+  const [clapayConfirmationCode, setClapayConfirmationCode] = useState("");
   const [redirectUrl, setRedirectUrl] = useState("");
   const [status, setStatus] = useState(clapayReturnDepositId ? "processing" : "pending");
   const [manualTransactionReference, setManualTransactionReference] = useState("");
@@ -313,11 +314,12 @@ export default function RobotPayPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(sanitizeDepositDisplayText(data.message, "Impossible d’initier le paiement."));
-      return data as { depositId: number; redirectUrl?: string; message?: string };
+      return data as { depositId: number; redirectUrl?: string; message?: string; confirmationCode?: string };
     },
     onSuccess: (data) => {
       setDepositId(data.depositId);
       setRedirectUrl(data.redirectUrl || "");
+      setClapayConfirmationCode(data.confirmationCode || "");
       setMessage(sanitizeDepositDisplayText(data.message, "Confirmez le paiement sur votre téléphone."));
       setStatus("processing");
       setStep(2);
@@ -532,6 +534,16 @@ export default function RobotPayPage() {
        toast({ title: number.paymentLink ? "Lien copié" : "Numéro copié", description: value });
     } catch {
        toast({ title: number.paymentLink || number.phone || "", description: number.paymentLink ? "Ouvrez le lien pour payer" : "Copiez ce numéro manuellement" });
+    }
+  };
+
+  const copyClapayConfirmationCode = async () => {
+    if (!clapayConfirmationCode) return;
+    try {
+      await navigator.clipboard.writeText(clapayConfirmationCode);
+      toast({ title: "Code copié", description: "Le code de confirmation Clapay a été copié." });
+    } catch {
+      toast({ title: "Code de confirmation", description: clapayConfirmationCode });
     }
   };
 
@@ -962,6 +974,32 @@ export default function RobotPayPage() {
           )}
           {step === 2 && !isManualFlow && (
             <div className="space-y-5 text-center">
+              {activeProvider === "clapay" && clapayConfirmationCode && (
+                <section
+                  aria-label="Code de confirmation Clapay"
+                  role="status"
+                  className="rounded-xl border-2 border-[#111827] bg-[#FFF0F3] p-4 text-left shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.1)]"
+                >
+                  <p className="text-sm font-bold uppercase tracking-[0.08em] text-[#A60026]">
+                    Code de confirmation{operator?.name?.toLowerCase().includes("nita") ? " NITA" : ""}
+                  </p>
+                  <p className="mt-2 break-all text-center font-mono text-2xl font-extrabold tracking-[0.12em] text-[#111827]">
+                    {clapayConfirmationCode}
+                  </p>
+                  <p className="mt-2 text-sm leading-5 text-gray-700">
+                    {operator?.name?.toLowerCase().includes("nita")
+                      ? "Présentez ce code dans NITA pour confirmer le paiement."
+                      : "Utilisez ce code pour terminer la confirmation du paiement auprès de l’opérateur."}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={copyClapayConfirmationCode}
+                    className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-[11px] border-2 border-[#111827] bg-[#D40030] px-3 py-2 text-sm font-bold text-white shadow-[0_2px_0_#111827] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
+                  >
+                    <Copy aria-hidden="true" className="h-4 w-4" /> Copier le code
+                  </button>
+                </section>
+              )}
               {redirectUrl ? (
                 <>
                   <p className="text-gray-700">{message || "Ouvrez la page sécurisée pour terminer votre paiement."}</p>
