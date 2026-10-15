@@ -1,5 +1,6 @@
 import { CreditCard, ExternalLink, Loader2, QrCode, RefreshCw, ArrowLeft, Copy, CheckCircle2, Clock3 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 
 type PaymentMethod = "wave" | "card";
 type DepositStatus = "pending" | "approved" | "rejected" | string;
@@ -8,6 +9,7 @@ type HostedPaymentCheckoutProps = {
   method: PaymentMethod;
   amount: number;
   currency: string;
+  countryCode: string;
   countryName: string;
   operatorName: string;
   logoUrl?: string | null;
@@ -54,6 +56,7 @@ export default function HostedPaymentCheckout({
   method,
   amount,
   currency,
+  countryCode,
   countryName,
   operatorName,
   logoUrl,
@@ -80,6 +83,7 @@ export default function HostedPaymentCheckout({
   onHome,
 }: HostedPaymentCheckoutProps) {
   const checkoutUrl = safeHttpUrl(paymentLink);
+  const checkoutClickUrl = withCoteDIvoireWaveAmount(checkoutUrl, amount, countryCode);
   const isWave = method === "wave";
   const accent = "#bd304c";
   const pale = "#fff0f3";
@@ -151,7 +155,7 @@ export default function HostedPaymentCheckout({
 
                 {checkoutUrl ? (
                   <a
-                    href={checkoutUrl}
+                    href={checkoutClickUrl || checkoutUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-4 flex min-h-[58px] items-center justify-center gap-2 rounded-full px-5 text-base font-bold text-white shadow-sm transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2"

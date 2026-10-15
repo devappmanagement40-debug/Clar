@@ -10,6 +10,7 @@ import {
 import { Link } from "wouter";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
+import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 import type { PaymentNumber } from "@shared/schema";
 
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
@@ -1337,7 +1338,7 @@ export default function DepositPage() {
             <p className="text-xs text-gray-500">{selectedNumber.paymentLink ? "Lien de paiement" : "Numéro destinataire"}</p>
             {selectedNumber.paymentLink ? (
               <a
-                href={selectedNumber.paymentLink}
+                href={withCoteDIvoireWaveAmount(selectedNumber.paymentLink, Number(amount), country) || selectedNumber.paymentLink}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-1 flex items-center gap-1 text-sm font-bold text-[#A60026] underline"

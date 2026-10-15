@@ -14,3 +14,9 @@ For recipient-number payments, create the deposit as pending only after the clie
 **Why:** The user chose admin review for manual deposits and asked for the countdown screen shown in the reference; a timer must not imply provider confirmation or cancel a real pending request.
 
 **How to apply:** Keep the status pending until an authorized review changes it. After the countdown, clearly say the request remains pending and allow the client to keep checking its status.
+
+For Côte d’Ivoire only, append the selected XOF amount to configured `https://pay.wave.com` checkout links when opening them. Replace any previous `amount` value while preserving the merchant path and unrelated query parameters; keep the QR URL and copied/admin-stored link unchanged, and do not alter other countries or providers.
+
+**Why:** Wave checkout must receive the exact amount selected in the app, while the existing QR and other payment routes must remain unchanged.
+
+**How to apply:** Build the click URL from the current payment link and amount, gated by country `CI` and exact HTTPS host `pay.wave.com`; use the original URL for QR rendering and any non-matching link.

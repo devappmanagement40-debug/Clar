@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import { CI_WAVE_DEFAULT_PAYMENT_LINK, CI_WAVE_DEFAULT_QR_IMAGE } from "@/lib/payment-checkout-defaults";
+import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 import type { PaymentNumber } from "@shared/schema";
 import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
 
@@ -608,6 +609,7 @@ export default function RobotPayPage() {
         method={hostedManualMethod}
         amount={amount}
         currency={currency}
+        countryCode={country}
         countryName={countryInfo?.name || country}
         operatorName={operator.name || operator.manualNumber.operatorName}
         logoUrl={operator.manualNumber.logoUrl}
@@ -783,7 +785,7 @@ export default function RobotPayPage() {
                 )}
                 {operator.manualNumber.paymentLink ? (
                   <a
-                    href={operator.manualNumber.paymentLink}
+                    href={withCoteDIvoireWaveAmount(operator.manualNumber.paymentLink, amount, country) || operator.manualNumber.paymentLink}
                     target="_blank"
                     rel="noreferrer"
                     className="flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#D40030] bg-white px-3 text-sm font-bold text-[#A60026] underline-offset-2 hover:bg-[#FFF8FA]"
@@ -842,7 +844,7 @@ export default function RobotPayPage() {
                   {operator.manualNumber.paymentLink ? (
                     <div className="flex min-h-10 items-center justify-center rounded-xl border-2 border-[#111827] bg-white px-3 py-1.5 shadow-[0_2px_5px_rgba(17,24,39,0.12)]">
                       <a
-                        href={operator.manualNumber.paymentLink}
+                        href={withCoteDIvoireWaveAmount(operator.manualNumber.paymentLink, amount, country) || operator.manualNumber.paymentLink}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex min-w-0 items-center justify-center gap-1.5 text-center text-sm font-semibold text-[#111827] underline decoration-[#D40030] underline-offset-2"
