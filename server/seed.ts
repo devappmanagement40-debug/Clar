@@ -2,6 +2,7 @@ import { db } from "./db";
 import { users, tasks, paymentChannels, platformSettings, countries, products } from "@shared/schema";
 import { getActiveCountryMethodNames } from "@shared/country-methods";
 import { equinorInitialOffers } from "@shared/equinor-initial-offers";
+import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import bcrypt from "bcrypt";
 import { eq, sql } from "drizzle-orm";
 
@@ -372,8 +373,8 @@ export async function seed() {
     { key: "support2Enabled", value: "true" },
     { key: "channelEnabled", value: "true" },
     { key: "groupEnabled", value: "true" },
-    { key: "minDeposit", value: "3500" },
-    { key: "minWithdrawal", value: "800" },
+    { key: "minDeposit", value: String(DEFAULT_MINIMUM_DEPOSIT) },
+    { key: "minWithdrawal", value: String(DEFAULT_MINIMUM_WITHDRAWAL) },
     { key: "withdrawalFees", value: "16" },
     { key: "withdrawalStartHour", value: "9" },
     { key: "withdrawalEndHour", value: "17" },
@@ -441,17 +442,6 @@ export async function seed() {
       .values({ key: signupBonusMigrationKey, value: "true" })
       .onConflictDoNothing();
     console.log("Signup bonus setting migrated to 1000 FCFA");
-  }
-
-  const minimumWithdrawalMigrationKey = "migration_min_withdrawal_800_applied";
-  if (!existingSettings.some((setting) => setting.key === minimumWithdrawalMigrationKey)) {
-    await db.update(platformSettings)
-      .set({ value: "800", modifiedAt: new Date() })
-      .where(eq(platformSettings.key, "minWithdrawal"));
-    await db.insert(platformSettings)
-      .values({ key: minimumWithdrawalMigrationKey, value: "true" })
-      .onConflictDoNothing();
-    console.log("Minimum withdrawal setting migrated to 800 FCFA");
   }
 
   // Preserve existing payment settings. Deposit routes are configured explicitly

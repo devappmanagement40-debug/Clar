@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ChevronRight, Clock3, CreditCard, Loader2, MapPin } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
+import { DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 
 interface WalletData {
   id: number;
@@ -54,11 +55,10 @@ export default function WithdrawalPage() {
     withdrawalPrepaymentEnabled: boolean;
   }>({
     queryKey: ["/api/settings/withdrawal"],
-    staleTime: 0,
-    refetchOnMount: true,
+    ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
 
-  const minWithdrawal = withdrawalSettings?.minWithdrawal ?? 800;
+  const minWithdrawal = withdrawalSettings?.minWithdrawal ?? DEFAULT_MINIMUM_WITHDRAWAL;
   const withdrawalFee = withdrawalSettings?.withdrawalFees ?? 16;
   const withdrawalStartHour = withdrawalSettings?.withdrawalStartHour ?? 9;
   const withdrawalEndHour = withdrawalSettings?.withdrawalEndHour ?? 17;

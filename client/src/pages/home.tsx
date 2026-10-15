@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import { getCountryByCode } from "@/lib/countries";
+import {
+  DEFAULT_MINIMUM_DEPOSIT,
+  DEFAULT_MINIMUM_WITHDRAWAL,
+  readPositiveIntegerSetting,
+} from "@shared/platform-settings";
 import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
@@ -57,7 +63,14 @@ const userActivityLibrary = [
 export default function HomePage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const { data: settings, isLoading: settingsLoading } = useQuery<Record<string, string>>({ queryKey: ["/api/settings"] });
+  const {
+    data: settings,
+    isLoading: settingsLoading,
+    isFetching: settingsRefreshing,
+  } = useQuery<Record<string, string>>({
+    queryKey: ["/api/settings"],
+    ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
+  });
   const [welcomePopupOpen, setWelcomePopupOpen] = useState(false);
   const [bannerIndex, setBannerIndex] = useState(0);
 
@@ -70,14 +83,14 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    if (!user || settingsLoading) return;
+    if (!user || settingsLoading || settingsRefreshing) return;
 
     const timer = window.setTimeout(() => {
       setWelcomePopupOpen(true);
     }, 250);
 
     return () => window.clearTimeout(timer);
-  }, [user?.id, settingsLoading]);
+  }, [user?.id, settingsLoading, settingsRefreshing]);
 
   if (!user) return null;
   const currency = getCountryByCode(user.country)?.currency || "XOF";
@@ -99,8 +112,8 @@ export default function HomePage() {
     const value = Number.parseFloat(settings?.[key] || "");
     return Number.isFinite(value) ? value : fallback;
   };
-  const minimumDeposit = Math.max(3500, parseIntegerSetting("minDeposit", 3500));
-  const minimumWithdrawal = parseIntegerSetting("minWithdrawal", 800);
+  const minimumDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
+  const minimumWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFee = parseDecimalSetting("withdrawalFees", 16);
   const withdrawalStartHour = parseIntegerSetting("withdrawalStartHour", 9);
   const withdrawalEndHour = parseIntegerSetting("withdrawalEndHour", 17);

@@ -1,4 +1,5 @@
 import pg from "pg";
+import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 
 const { Pool } = pg;
 
@@ -317,7 +318,9 @@ async function run() {
 
     // ── Seed platform settings ──
     const settings = [
-      ["minDeposit", "3500"], ["minWithdrawal", "800"], ["withdrawalFees", "16"],
+      ["minDeposit", String(DEFAULT_MINIMUM_DEPOSIT)],
+      ["minWithdrawal", String(DEFAULT_MINIMUM_WITHDRAWAL)],
+      ["withdrawalFees", "16"],
       ["withdrawalStartHour", "9"], ["withdrawalEndHour", "17"], ["maxWithdrawalsPerDay", "1"],
       ["withdrawalPrepaymentEnabled", "false"],
       ["level1Commission", "25"], ["level2Commission", "4"], ["level3Commission", "1"],

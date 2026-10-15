@@ -11,6 +11,12 @@ import { Link } from "wouter";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
+import { FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
+import {
+  DEFAULT_MINIMUM_DEPOSIT,
+  DEPOSIT_AMOUNT_PRESETS,
+  readPositiveIntegerSetting,
+} from "@shared/platform-settings";
 import type { PaymentNumber } from "@shared/schema";
 
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
@@ -238,8 +244,9 @@ export default function DepositPage() {
   const countryInfo = apiCountries.find(c => c.code === country && c.isActive);
   const currency = countryInfo?.currency || "FCFA";
 
-  const { data: platformSettings } = useQuery<Record<string, string>>({
+  const { data: platformSettings, isFetching: settingsRefreshing } = useQuery<Record<string, string>>({
     queryKey: ["/api/settings"],
+    ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
   const { data: depositMethodsData, isLoading: depositMethodsLoading, isError: depositMethodsError } =
     useQuery<{ country: string; methods: DepositMethodChoice[] }>({
@@ -264,11 +271,11 @@ export default function DepositPage() {
       setSelectedDepositMethod("");
     }
   }, [country, depositMethodSignature]);
-  const MIN_DEPOSIT = Math.max(3500, parseInt(platformSettings?.minDeposit || "3500"));
-  const depositPresets = [
-    3500, 5000, 10000, 25000, 50000,
-    100000, 200000, 300000, 400000, 500000,
-  ].filter((preset) => preset >= MIN_DEPOSIT);
+  const MIN_DEPOSIT = readPositiveIntegerSetting(
+    platformSettings?.minDeposit,
+    DEFAULT_MINIMUM_DEPOSIT,
+  );
+  const depositPresets = DEPOSIT_AMOUNT_PRESETS;
   const ashtechAvailable = depositMethodIds.has("ashtech");
 
   const depositCountryPriority: Record<string, number> = { CI: 0, NE: 1 };
@@ -1003,6 +1010,11 @@ export default function DepositPage() {
           color: #fff;
           box-shadow: 0 3px 0 #111827;
         }
+        .recharge-reference .preset:disabled {
+          cursor: not-allowed;
+          opacity: 0.42;
+          box-shadow: none;
+        }
         .recharge-reference .amount-label {
           display: flex;
           flex-wrap: wrap;
@@ -1223,7 +1235,11 @@ export default function DepositPage() {
         <section className="amount-panel" aria-label="Montant de recharge">
           <p className="amount-label">
             Montant de la recharge
-            <span className="amount-minimum">(Minimum {currency} {MIN_DEPOSIT.toLocaleString("fr-FR")})</span>
+            <span className="amount-minimum">
+              {settingsRefreshing
+                ? "(Actualisation des paramètres…)"
+                : `(Minimum ${currency} ${MIN_DEPOSIT.toLocaleString("fr-FR")})`}
+            </span>
           </p>
           <label className="amount-input">
             <span className="currency">{currency}</span>
@@ -1242,6 +1258,8 @@ export default function DepositPage() {
                 key={preset}
                 type="button"
                 className={`preset ${amount === preset ? "active" : ""}`}
+                disabled={preset < MIN_DEPOSIT}
+                aria-label={`${preset.toLocaleString("fr-FR")} ${currency}${preset < MIN_DEPOSIT ? " - inférieur au minimum" : ""}`}
                 onClick={() => setAmount(preset)}
               >
                 {preset.toLocaleString("fr-FR")}
@@ -1294,6 +1312,7 @@ export default function DepositPage() {
           onClick={handleAmountNext}
           disabled={
             !depositCountry ||
+            settingsRefreshing ||
             depositMethodsLoading ||
             !selectedDepositMethod ||
             inpayInitiateMutation.isPending ||
@@ -1305,7 +1324,10 @@ export default function DepositPage() {
 
         <section className="instructions" aria-label="Bon à savoir">
           <h2 className="instructions-title">Bon à savoir</h2>
-          <p className="instruction"><strong>Montant minimum de recharge :</strong> {MIN_DEPOSIT.toLocaleString("fr-FR")} {currency}</p>
+          <p className="instruction">
+            <strong>Montant minimum de recharge :</strong>{" "}
+            {settingsRefreshing ? "Actualisation…" : `${MIN_DEPOSIT.toLocaleString("fr-FR")} ${currency}`}
+          </p>
           <p className="instruction"><strong>Vérifiez attentivement vos informations de compte</strong> lors du virement pour que votre paiement soit traité correctement</p>
           <p className="instruction"><strong>Chaque commande possède ses propres informations de paiement</strong> ; ne réutilisez pas les informations précédentes pour un second paiement</p>
           <p className="instruction"><strong>Après un virement réussi,</strong> veuillez patienter 10 à 30 minutes.</p>

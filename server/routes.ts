@@ -21,6 +21,11 @@ import {
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
 import { getActiveCountryMethodNames, hasConfiguredCountryMethods } from "@shared/country-methods";
 import { parseClapayPayoutCountries } from "@shared/clapay-payout-countries";
+import {
+  DEFAULT_MINIMUM_DEPOSIT,
+  DEFAULT_MINIMUM_WITHDRAWAL,
+  readPositiveIntegerSetting,
+} from "@shared/platform-settings";
 import { DAILY_BONUS_OUTCOME_COUNT, dailyBonusFromIndex } from "@shared/daily-bonus";
 import { toPublicDepositHistoryItem, toPublicWithdrawalHistoryItem } from "./public-transaction-history";
 import { z } from "zod";
@@ -1276,7 +1281,7 @@ export async function registerRoutes(
       }
 
       const settings = await storage.getSettings();
-      const minDeposit = parseInt(settings.minDeposit || "3500");
+      const minDeposit = readPositiveIntegerSetting(settings.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
        const requestedAmount = typeof amount === "number" ? amount : Number(amount);
        if (!Number.isFinite(requestedAmount) || requestedAmount <= 0) {
         return res.status(400).json({ message: "Montant invalide" });
@@ -1702,7 +1707,7 @@ export async function registerRoutes(
 
       const settings = await storage.getSettings();
       const numericAmount = Number(amount);
-      const minDeposit = parseInt(settings.minDeposit || "3500");
+      const minDeposit = readPositiveIntegerSetting(settings.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
       if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
         return res.status(400).json({ message: "Montant invalide" });
       }
@@ -1974,7 +1979,7 @@ export async function registerRoutes(
       if (!isDepositMethodConfigured(country, "sendavapay", settings)) {
         return res.status(400).json({ message: "SendavaPay n'est pas configuré pour ce pays" });
       }
-      const minDeposit = parseInt(settings.minDeposit || "3500");
+      const minDeposit = readPositiveIntegerSetting(settings.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
       const numericAmount = Number(amount);
       if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
         return res.status(400).json({ message: "Montant invalide" });
@@ -2518,7 +2523,10 @@ export async function registerRoutes(
       }
 
       const settingsForWithdrawal = await storage.getSettings();
-      const minWithdrawal = parseInt(settingsForWithdrawal.minWithdrawal || "800");
+      const minWithdrawal = readPositiveIntegerSetting(
+        settingsForWithdrawal.minWithdrawal,
+        DEFAULT_MINIMUM_WITHDRAWAL,
+      );
       const withdrawalPrepaymentEnabled = settingsForWithdrawal.withdrawalPrepaymentEnabled === "true";
       if (!Number.isInteger(numericAmount) || numericAmount < minWithdrawal) {
         return res.status(400).json({ message: `Montant minimum: ${minWithdrawal} FCFA` });
@@ -2929,7 +2937,7 @@ export async function registerRoutes(
         withdrawalStartHour: parseInt(settings.withdrawalStartHour || "9"),
         withdrawalEndHour: parseInt(settings.withdrawalEndHour || "17"),
         maxWithdrawalsPerDay: parseInt(settings.maxWithdrawalsPerDay || "1"),
-        minWithdrawal: parseInt(settings.minWithdrawal || "800"),
+        minWithdrawal: readPositiveIntegerSetting(settings.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL),
         withdrawalPrepaymentEnabled: settings.withdrawalPrepaymentEnabled === "true",
       });
     } catch (error: any) {
@@ -4272,7 +4280,7 @@ export async function registerRoutes(
       const withdrawalFeePayment = feePaymentId === undefined
         ? undefined
         : await validateWithdrawalFeePayment(user.id, feePaymentId, amount);
-      const minDeposit = parseInt(settings.minDeposit || "3500", 10);
+      const minDeposit = readPositiveIntegerSetting(settings.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
       if (!withdrawalFeePayment && amount < minDeposit) {
         return res.status(400).json({ message: `Montant minimum : ${minDeposit.toLocaleString()} FCFA` });
       }

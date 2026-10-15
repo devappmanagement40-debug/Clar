@@ -1,6 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
+import { FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
+import {
+  DEFAULT_MINIMUM_DEPOSIT,
+  DEFAULT_MINIMUM_WITHDRAWAL,
+  readPositiveIntegerSetting,
+} from "@shared/platform-settings";
 
 interface RulesModalProps {
   open: boolean;
@@ -10,11 +16,12 @@ interface RulesModalProps {
 export default function RulesModal({ open, onClose }: RulesModalProps) {
   const { data: settings } = useQuery<Record<string, string>>({
     queryKey: ["/api/settings"],
+    ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
 
   const signupBonus = settings?.signupBonus || "1000";
-  const minDeposit = settings?.minDeposit || "3500";
-  const minWithdrawal = settings?.minWithdrawal || "800";
+  const minDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
+  const minWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFees = settings?.withdrawalFees || "16";
   const withdrawalStartHour = settings?.withdrawalStartHour || "9";
   const withdrawalEndHour = settings?.withdrawalEndHour || "17";
@@ -35,7 +42,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
             <section>
               <h4 className="font-medium text-foreground mb-2">1. Dépôts</h4>
               <ul className="space-y-1">
-                <li>- Montant minimum : {parseInt(minDeposit).toLocaleString()} FCFA</li>
+                <li>- Montant minimum : {minDeposit.toLocaleString("fr-FR")} FCFA</li>
                 <li>- Les dépôts sont traités dans les plus brefs délais</li>
                 <li>- Assurez-vous que les informations de paiement sont correctes</li>
               </ul>
@@ -44,7 +51,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
             <section>
               <h4 className="font-medium text-foreground mb-2">2. Retraits</h4>
               <ul className="space-y-1">
-                <li>- Montant minimum : {parseInt(minWithdrawal).toLocaleString()} FCFA</li>
+                <li>- Montant minimum : {minWithdrawal.toLocaleString("fr-FR")} FCFA</li>
                 <li>- Frais de retrait : {withdrawalFees}%</li>
                 <li>- Horaires : {withdrawalStartHour}h - {withdrawalEndHour}h</li>
                 <li>- Maximum {maxWithdrawalsPerDay} retrait(s) par jour</li>

@@ -94,3 +94,9 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+export const FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS = {
+  staleTime: 0,
+  refetchOnMount: "always",
+  refetchOnWindowFocus: true,
+} as const;

@@ -11,8 +11,12 @@ import { Switch } from "@/components/ui/switch";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import { Loader2, Save, Link, Clock, Users, Zap } from "lucide-react";
+import {
+  DEFAULT_MINIMUM_DEPOSIT,
+  DEFAULT_MINIMUM_WITHDRAWAL,
+} from "@shared/platform-settings";
 import {
   DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
   parseClapayPayoutCountries,
@@ -142,8 +146,9 @@ interface AdminSettingsProps {
 export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
   const { toast } = useToast();
 
-  const { data: settings, isLoading } = useQuery<Record<string, string>>({
+  const { data: settings, isLoading, isFetching: settingsRefreshing } = useQuery<Record<string, string>>({
     queryKey: ["/api/admin/settings"],
+    ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
   const { data: countries = [], isLoading: countriesLoading } = useQuery<AdminCountry[]>({
     queryKey: ["/api/admin/countries"],
@@ -179,8 +184,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       channelEnabled: true,
       groupEnabled: true,
       signupBonus: "1000",
-      minDeposit: "3500",
-      minWithdrawal: "800",
+      minDeposit: String(DEFAULT_MINIMUM_DEPOSIT),
+      minWithdrawal: String(DEFAULT_MINIMUM_WITHDRAWAL),
       withdrawalFees: "16",
       maxWithdrawalsPerDay: "1",
       withdrawalStartHour: "9",
@@ -225,8 +230,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         channelEnabled: settings.channelEnabled !== "false",
         groupEnabled: settings.groupEnabled !== "false",
         signupBonus: settings.signupBonus || "1000",
-        minDeposit: settings.minDeposit || "3500",
-        minWithdrawal: settings.minWithdrawal || "800",
+        minDeposit: settings.minDeposit || String(DEFAULT_MINIMUM_DEPOSIT),
+        minWithdrawal: settings.minWithdrawal || String(DEFAULT_MINIMUM_WITHDRAWAL),
         withdrawalFees: settings.withdrawalFees || "16",
         maxWithdrawalsPerDay: settings.maxWithdrawalsPerDay || "1",
         withdrawalStartHour: settings.withdrawalStartHour || "9",
@@ -312,7 +317,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
     },
   });
 
-  if (isLoading || countriesLoading || paymentNumbersLoading) {
+  if (isLoading || settingsRefreshing || countriesLoading || paymentNumbersLoading) {
     return <Skeleton className="h-96" />;
   }
 

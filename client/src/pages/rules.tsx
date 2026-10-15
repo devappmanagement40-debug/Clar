@@ -1,16 +1,23 @@
 import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
+import {
+  DEFAULT_MINIMUM_DEPOSIT,
+  DEFAULT_MINIMUM_WITHDRAWAL,
+  readPositiveIntegerSetting,
+} from "@shared/platform-settings";
 import "./rules.css";
 
 export default function RulesPage() {
   const { data: settings } = useQuery<Record<string, string>>({
     queryKey: ["/api/settings"],
+    ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
 
   const signupBonus = settings?.signupBonus || "1000";
-  const minDeposit = settings?.minDeposit || "3500";
-  const minWithdrawal = settings?.minWithdrawal || "800";
+  const minDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
+  const minWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFees = settings?.withdrawalFees || "16";
   const withdrawalStartHour = settings?.withdrawalStartHour || "9";
   const withdrawalEndHour = settings?.withdrawalEndHour || "17";
@@ -22,7 +29,6 @@ export default function RulesPage() {
     const amount = Number.parseInt(value, 10);
     return Number.isFinite(amount) ? amount.toLocaleString("fr-FR") : value;
   };
-
   return (
     <main className="cp-rules-page">
       <div className="cp-rules-screen">
@@ -54,8 +60,8 @@ export default function RulesPage() {
         <section className="cp-rules-section">
           <h2>2. Dépôts et Retraits</h2>
           <ul>
-            <li>Le dépôt minimum est de {formatXof(minDeposit)} XOF.</li>
-            <li>Le retrait minimum est de {formatXof(minWithdrawal)} XOF.</li>
+            <li>Le dépôt minimum est de {minDeposit.toLocaleString("fr-FR")} XOF.</li>
+            <li>Le retrait minimum est de {minWithdrawal.toLocaleString("fr-FR")} XOF.</li>
             <li>Les frais de retrait affichés avant validation sont de {withdrawalFees}%.</li>
             <li>Les retraits sont disponibles entre {withdrawalStartHour} h et {withdrawalEndHour} h, dans la limite de {maxWithdrawalsPerDay} demande(s) par jour.</li>
             <li>Le montant net reçu et les frais sont présentés avant la confirmation du retrait.</li>

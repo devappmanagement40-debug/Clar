@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
+import { DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import { Loader2, AlertCircle, Clock, Wallet } from "lucide-react";
 import type { WithdrawalWallet } from "@shared/schema";
 import { useLocation } from "wouter";
@@ -47,6 +48,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
   }>({
     queryKey: ["/api/settings/withdrawal"],
     enabled: open,
+    ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
 
   const form = useForm<WithdrawForm>({
@@ -94,7 +96,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
   const fees = withdrawalSettings?.withdrawalFees || 16;
   const startHour = withdrawalSettings?.withdrawalStartHour || 8;
   const endHour = withdrawalSettings?.withdrawalEndHour || 17;
-  const minWithdrawal = withdrawalSettings?.minWithdrawal ?? 800;
+  const minWithdrawal = withdrawalSettings?.minWithdrawal ?? DEFAULT_MINIMUM_WITHDRAWAL;
   const withdrawalPrepaymentEnabled = withdrawalSettings?.withdrawalPrepaymentEnabled ?? false;
   const country = getCountryByCode(user.country);
 
