@@ -30,8 +30,8 @@ const SOLEASPAY_PENDING_DEPOSIT_KEY = "soleaspay-pending-deposit";
 const DEPOSIT_STEP_STYLES = `
   .deposit-step-shell {
     min-height: 100dvh;
-    width: 100%;
-    max-width: 448px;
+    width: calc(100% - 32px);
+    max-width: 400px;
     margin: 0 auto;
     overflow: hidden;
     background: #fff7f8;
