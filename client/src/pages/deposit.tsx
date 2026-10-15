@@ -30,7 +30,8 @@ const SOLEASPAY_PENDING_DEPOSIT_KEY = "soleaspay-pending-deposit";
 const DEPOSIT_STEP_STYLES = `
   .deposit-step-shell {
     min-height: 100dvh;
-    max-width: 512px;
+    width: 100%;
+    max-width: 448px;
     margin: 0 auto;
     overflow: hidden;
     background: #fff7f8;
@@ -43,7 +44,7 @@ const DEPOSIT_STEP_STYLES = `
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px 16px;
+    padding: 14px 22px;
     border-bottom: 2px solid #111827;
     background: #fff7f8;
   }
@@ -54,7 +55,7 @@ const DEPOSIT_STEP_STYLES = `
     min-height: 42px;
     padding: 8px 12px 8px 8px;
     border: 2px solid #111827;
-    border-radius: 11px;
+    border-radius: 14px;
     background: #fff;
     color: #111827;
     font-size: 15px;
@@ -69,24 +70,30 @@ const DEPOSIT_STEP_STYLES = `
     min-height: 40px;
     padding: 8px 12px;
     border: 2px solid #111827;
-    border-radius: 11px;
+    border-radius: 14px;
     background: #fff;
     color: ${TON_GREEN_DARK};
     font-size: 12px;
     font-weight: 800;
   }
   .deposit-step-shell .deposit-step-content {
-    padding: 16px;
+    padding: 16px 22px;
   }
-  .deposit-step-shell .deposit-step-summary {
+  .deposit-step-shell > .deposit-step-summary {
+    margin-right: 22px !important;
+    margin-left: 22px !important;
     border: 2px solid #111827;
-    border-radius: 14px;
+    border-radius: 17px;
     background: #fff;
     box-shadow: 0 4px 0 #111827;
   }
+  .deposit-step-shell .deposit-step-content > .deposit-step-summary {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
   .deposit-step-shell .deposit-step-card {
     border: 2px solid #111827;
-    border-radius: 14px;
+    border-radius: 17px;
     background: #fff;
   }
   .deposit-step-shell .deposit-step-card-accent {
@@ -95,13 +102,13 @@ const DEPOSIT_STEP_STYLES = `
   }
   .deposit-step-shell .deposit-step-field {
     border: 2px solid #111827 !important;
-    border-radius: 12px !important;
+    border-radius: 15px !important;
     background: #fff !important;
   }
   .deposit-step-shell .deposit-step-primary {
     min-height: 54px;
     border: 2px solid #111827 !important;
-    border-radius: 12px !important;
+    border-radius: 15px !important;
     background: ${TON_GREEN} !important;
     color: #fff !important;
     font-weight: 800 !important;
@@ -113,7 +120,7 @@ const DEPOSIT_STEP_STYLES = `
   }
   .deposit-step-shell .deposit-step-secondary {
     border: 2px solid #111827 !important;
-    border-radius: 12px !important;
+    border-radius: 15px !important;
     background: #fff !important;
     color: #111827 !important;
     font-weight: 800 !important;
@@ -132,7 +139,7 @@ const DEPOSIT_STEP_STYLES = `
   }
   .deposit-step-shell .deposit-step-operator {
     border: 2px solid #d1d5db !important;
-    border-radius: 12px !important;
+    border-radius: 15px !important;
     background: #fff !important;
   }
   .deposit-step-shell .deposit-step-operator-selected {
@@ -141,12 +148,13 @@ const DEPOSIT_STEP_STYLES = `
   }
   .deposit-step-shell .deposit-step-otp {
     border: 2px solid #111827 !important;
-    border-radius: 12px !important;
+    border-radius: 15px !important;
     background: #fff !important;
   }
   @media (max-width: 360px) {
     .deposit-step-shell .deposit-step-header { padding-right: 12px; padding-left: 12px; }
-    .deposit-step-shell .deposit-step-content { padding: 12px; }
+    .deposit-step-shell .deposit-step-content { padding: 12px 14px; }
+    .deposit-step-shell > .deposit-step-summary { margin-right: 14px !important; margin-left: 14px !important; }
     .deposit-step-shell .deposit-step-back { font-size: 14px; }
   }
 `;
@@ -873,7 +881,7 @@ export default function DepositPage() {
         }
         .recharge-reference .recharge-screen {
           width: 100%;
-          max-width: 512px;
+          max-width: 448px;
           min-height: 100dvh;
           margin: 0 auto;
           overflow: hidden;
@@ -978,7 +986,7 @@ export default function DepositPage() {
           white-space: nowrap;
         }
         .recharge-reference .amount-panel {
-          padding: 32px 18px 18px;
+          padding: 28px 24px 18px;
           background: #fff;
         }
         .recharge-reference .preset-row {
@@ -1036,7 +1044,7 @@ export default function DepositPage() {
           align-items: center;
           overflow: hidden;
           border: 2px solid #111827;
-          border-radius: 12px;
+          border-radius: 15px;
           background: #fff;
         }
         .recharge-reference .amount-input input {
@@ -1060,7 +1068,7 @@ export default function DepositPage() {
           font-weight: 800;
         }
         .recharge-reference .country-panel {
-          margin: 15px 18px 0;
+          margin: 15px 24px 0;
         }
         .recharge-reference .country-heading {
           display: block;
@@ -1082,7 +1090,7 @@ export default function DepositPage() {
           gap: 12px;
           padding: 9px 14px;
           border: 2px solid #111827;
-          border-radius: 12px;
+          border-radius: 16px;
           background: #fff;
           color: #111827;
           text-align: left;
@@ -1132,13 +1140,13 @@ export default function DepositPage() {
         }
         .recharge-reference .continue {
           display: flex;
-          width: calc(100% - 36px);
+          width: calc(100% - 48px);
           min-height: 57px;
           align-items: center;
           justify-content: center;
-          margin: 24px 18px 0;
+          margin: 24px 24px 0;
           border: 2px solid #111827;
-          border-radius: 12px;
+          border-radius: 16px;
           background: ${TON_GRADIENT};
           color: #fff;
           font-size: 16px;
@@ -1153,11 +1161,11 @@ export default function DepositPage() {
           opacity: .55;
         }
         .recharge-reference .instructions {
-          margin: 18px 18px 24px;
+          margin: 18px 24px 24px;
           padding: 22px 16px 10px;
           border: 2px solid #111827;
           border-top: 5px solid ${TON_GREEN};
-          border-radius: 14px;
+          border-radius: 18px;
           background: #fff;
           color: #4b5563;
         }
@@ -1199,8 +1207,9 @@ export default function DepositPage() {
           .recharge-reference .balance-value { font-size: 24px; }
           .recharge-reference .country-chip { padding: 0 9px; font-size: 12px; }
           .recharge-reference .amount-panel { padding-right: 12px; padding-left: 12px; }
-          .recharge-reference .country-panel { margin-right: 12px; margin-left: 12px; }
-          .recharge-reference .continue { width: calc(100% - 24px); margin-right: 12px; margin-left: 12px; }
+          .recharge-reference .country-panel { margin-right: 16px; margin-left: 16px; }
+          .recharge-reference .continue { width: calc(100% - 32px); margin-right: 16px; margin-left: 16px; }
+          .recharge-reference .instructions { margin-right: 16px; margin-left: 16px; }
           .recharge-reference .preset { font-size: 12px; }
           .recharge-reference .instruction { font-size: 15px; }
         }
