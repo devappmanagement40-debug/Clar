@@ -24,3 +24,4 @@
 - [Clapay contract configuration](clapay-contract-configuration.md) — Keep secrets in Plesk, confirm via the authenticated API, and preserve uncertain initiations for signed-callback reconciliation.
 - [Workflow callback arguments](workflow-callback-arguments.md) — Runtime workflow callbacks can require object arguments even when the skill example shows a bare value.
 - [Site-wide processing indicator](site-wide-processing-indicator.md) — Keep action-processing feedback global across app routes, not scoped to the page where one example appeared.
+- [Provider reference privacy](provider-reference-privacy.md) — Keep provider transaction IDs internal; customer history and payment responses use stable public IDs.

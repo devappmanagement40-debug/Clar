@@ -11,30 +11,7 @@ interface Deposit {
   amount: string | number;
   status: string;
   createdAt: string;
-  reference?: string | null;
-  inpayOutTradeNo?: string | null;
-  inpayOrderNumber?: string | null;
-  soleaspayOrderId?: string | null;
-  omnipayReference?: string | null;
-  sendavapayReference?: string | null;
-  westpayReference?: string | null;
-  ashtechReference?: string | null;
-  ashtechTransactionId?: string | null;
-}
-
-function getDepositProviderReference(deposit: Deposit) {
-  return (
-    deposit.inpayOutTradeNo ||
-    deposit.inpayOrderNumber ||
-    deposit.soleaspayOrderId ||
-    deposit.omnipayReference ||
-    deposit.sendavapayReference ||
-    deposit.westpayReference ||
-    deposit.ashtechReference ||
-    deposit.ashtechTransactionId ||
-    deposit.reference ||
-    ""
-  );
+  publicReference?: string;
 }
 
 function formatDepositDate(value: string) {
@@ -155,8 +132,7 @@ export default function DepositHistoryRealPage() {
           </div>
         ) : (
           deposits.map((deposit) => {
-            const providerReference = getDepositProviderReference(deposit);
-            const publicId = formatPublicTransactionId("D", deposit.id);
+            const publicId = deposit.publicReference || formatPublicTransactionId("D", deposit.id);
             const status = getDepositStatus(deposit.status);
             const amount = Number(deposit.amount);
             const formattedAmount = Number.isFinite(amount)
@@ -181,12 +157,6 @@ export default function DepositHistoryRealPage() {
                 <p className="mt-2 text-sm font-medium text-neutral-600">
                   Recharge Mobile Money
                 </p>
-                {providerReference ? (
-                  <p className="mt-1 truncate text-xs text-neutral-500" title={providerReference}>
-                    Référence paiement : {providerReference}
-                  </p>
-                ) : null}
-
                 <div className="mt-3 flex items-center justify-between gap-3 border-t border-dashed border-neutral-300 pt-3">
                   <time
                     className="text-xs font-medium tabular-nums text-neutral-500"

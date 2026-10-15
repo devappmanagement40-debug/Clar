@@ -17,6 +17,8 @@ interface Deposit {
   status: string;
   paymentMethod: string;
   createdAt: string;
+  publicReference?: string;
+  canVerifyPayment?: boolean;
   soleaspayReference?: string;
   soleaspayOrderId?: string;
   reference?: string;
@@ -37,6 +39,7 @@ interface Withdrawal {
   netAmount: string;
   status: string;
   createdAt: string;
+  publicReference?: string;
   sendavapayReference?: string;
   inpayOrderNumber?: string;
   inpayOutTradeNo?: string;
@@ -72,9 +75,6 @@ const getWithdrawalProviderRef = (withdrawal: Withdrawal) =>
   withdrawal.omnipayId ||
   withdrawal.sendavapayReference ||
   "";
-
-const maskRef = (reference: string) =>
-  reference.length <= 6 ? reference : `${reference.slice(0, 2)}****${reference.slice(-4)}`;
 
 const formatDateTime = (dateString: string) => {
   const date = new Date(dateString);
@@ -161,13 +161,15 @@ export default function HistoryPage() {
 
   const isPendingDeposit = (deposit: Deposit) =>
     (deposit.status === "pending" || deposit.status === "processing") &&
-    Boolean(
-      deposit.soleaspayReference ||
-      deposit.soleaspayOrderId ||
-      deposit.omnipayId ||
-      deposit.omnipayReference ||
-      deposit.sendavapayReference,
-    );
+    (Boolean(deposit.canVerifyPayment) ||
+      Boolean(
+        isAdmin &&
+          !deposit.sendavapayReference &&
+          (deposit.soleaspayReference ||
+            deposit.soleaspayOrderId ||
+            deposit.omnipayId ||
+            deposit.omnipayReference),
+      ));
 
   const handleVerify = async (depositId: number) => {
     setVerifyingId(depositId);
@@ -553,15 +555,15 @@ export default function HistoryPage() {
                         <Status label={label} color={color} />
                       </div>
                       <div className="history-divider" />
-                      <Row label="ID transaction :" value={formatPublicTransactionId("D", deposit.id)} />
-                      {providerReference ? (
+                      <Row label="ID transaction :" value={deposit.publicReference || formatPublicTransactionId("D", deposit.id)} />
+                      {isAdmin && providerReference ? (
                         <Row
                           label="Référence paiement :"
-                          value={isAdmin ? providerReference : maskRef(providerReference)}
+                          value={providerReference}
                         />
                       ) : null}
                       <Row label="Heure du dépôt :" value={formatDateTime(deposit.createdAt)} />
-                      {isPendingDeposit(deposit) && !deposit.sendavapayReference ? (
+                      {isPendingDeposit(deposit) ? (
                         <button
                           className="history-verify"
                           onClick={() => handleVerify(deposit.id)}
@@ -593,7 +595,7 @@ export default function HistoryPage() {
                   <article className="history-card withdrawal-receipt-card" key={withdrawal.id} data-testid={`withdrawal-item-${withdrawal.id}`}>
                     <div className="withdrawal-receipt-header">
                       <p className="withdrawal-receipt-reference">
-                        {formatPublicTransactionId("R", withdrawal.id)}
+                        {withdrawal.publicReference || formatPublicTransactionId("R", withdrawal.id)}
                       </p>
                       <span className="withdrawal-receipt-status" style={{ backgroundColor: color }}>
                         {label}
@@ -603,10 +605,10 @@ export default function HistoryPage() {
                       <Row label="Montant :" value={`${gross.toLocaleString("fr-FR")} ${currency}`} />
                       <Row label="Reçu :" value={`${net.toLocaleString("fr-FR")} ${currency}`} />
                       <Row label="Date :" value={formatReceiptDateTime(withdrawal.createdAt)} />
-                      {providerReference ? (
+                      {isAdmin && providerReference ? (
                         <Row
                           label="Référence paiement :"
-                          value={isAdmin ? providerReference : maskRef(providerReference)}
+                          value={providerReference}
                         />
                       ) : null}
                     </div>

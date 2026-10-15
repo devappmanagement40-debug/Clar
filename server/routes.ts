@@ -22,6 +22,7 @@ import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdra
 import { getActiveCountryMethodNames, hasConfiguredCountryMethods } from "@shared/country-methods";
 import { parseClapayPayoutCountries } from "@shared/clapay-payout-countries";
 import { DAILY_BONUS_OUTCOME_COUNT, dailyBonusFromIndex } from "@shared/daily-bonus";
+import { toPublicDepositHistoryItem, toPublicWithdrawalHistoryItem } from "./public-transaction-history";
 import { z } from "zod";
 import ConnectPgSimple from "connect-pg-simple";
 import { 
@@ -1404,9 +1405,11 @@ export async function registerRoutes(
             });
 
             return res.json({ 
-              deposit,
+              deposit: {
+                ...toPublicDepositHistoryItem(deposit),
+                soleaspayOrderId: deposit.soleaspayOrderId,
+              },
               soleaspay: true,
-              reference: paymentResult.data.reference,
               status: paymentResult.status,
               message: paymentResult.message
             });
@@ -1477,7 +1480,7 @@ export async function registerRoutes(
             countryCode: normalizedDeposit.country,
             redirectUrl: callbackUrl,
           });
-          return res.json({ deposit, westpayUrl, westpay: true });
+          return res.json({ deposit: toPublicDepositHistoryItem(deposit), westpayUrl, westpay: true });
         } catch (westpayError: any) {
           console.error("[westpay] deposit error:", westpayError);
           notifyTelegramPaymentError({
@@ -1547,7 +1550,7 @@ export async function registerRoutes(
             inpayOutTradeNo: outTradeNo,
             inpayOrderNumber: result.orderNumber,
           });
-          return res.json({ deposit, inpayUrl: result.url, inpay: true });
+          return res.json({ deposit: toPublicDepositHistoryItem(deposit), inpayUrl: result.url, inpay: true });
         } catch (inpayError: any) {
           await storage.updateDeposit(inpayDeposit.id, { status: "rejected", processedAt: new Date() });
           void sendTelegramInpayError({
@@ -1587,7 +1590,7 @@ export async function registerRoutes(
          withdrawalFeePaymentId: withdrawalFeePayment?.id,
       });
 
-      res.json({ deposit, soleaspay: false });
+      res.json({ deposit: toPublicDepositHistoryItem(deposit), soleaspay: false });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
@@ -1667,7 +1670,8 @@ export async function registerRoutes(
   app.get("/api/deposits/history", requireAuth, async (req, res) => {
     try {
       const deposits = await storage.getUserDeposits(req.session.userId!);
-      res.json(deposits);
+      const user = await storage.getUser(req.session.userId!);
+      res.json(user?.isAdmin ? deposits : deposits.map(toPublicDepositHistoryItem));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -1818,8 +1822,7 @@ export async function registerRoutes(
 
       res.status(202).json({
         depositId: deposit.id,
-        transactionId: result.transaction_id,
-        reference,
+        publicReference: toPublicDepositHistoryItem(deposit).publicReference,
         status: mappedStatus,
         requiresOtp: Boolean(result.ussd_code || result.message?.toLowerCase().includes("otp")),
         ussdCode: result.ussd_code || null,
@@ -1874,7 +1877,7 @@ export async function registerRoutes(
           error: "otp_required",
           message: error.message,
           depositId: otpDeposit.id,
-          reference: otpReference,
+          publicReference: toPublicDepositHistoryItem(otpDeposit).publicReference,
           requiresOtp: true,
           ussdCode: otpUssdCode,
         });
@@ -2039,7 +2042,7 @@ export async function registerRoutes(
       res.json({
         depositId: deposit.id,
         paymentToken: result.data.paymentToken,
-        reference: result.data.reference,
+        publicReference: toPublicDepositHistoryItem(deposit).publicReference,
         expiresAt: result.data.expiresAt,
       });
     } catch (error: any) {
@@ -2082,7 +2085,16 @@ export async function registerRoutes(
         await storage.updateDeposit(depositId, { status: "processing" });
       }
 
-      res.json(result);
+      res.json({
+        success: Boolean(result.success),
+        ...(result.requiresOtp !== undefined ? { requiresOtp: result.requiresOtp } : {}),
+        ...(result.otpToken ? { otpToken: result.otpToken } : {}),
+        ...(result.ussdCode ? { ussdCode: result.ussdCode } : {}),
+        ...(result.requiresRedirect !== undefined ? { requiresRedirect: result.requiresRedirect } : {}),
+        ...(result.redirectUrl ? { redirectUrl: result.redirectUrl } : {}),
+        ...(result.message ? { message: result.message } : {}),
+        ...(result.error ? { error: result.error } : {}),
+      });
     } catch (error: any) {
       console.error("[sendavapay] initiate error:", error);
       notifyTelegramPaymentError({
@@ -2105,7 +2117,11 @@ export async function registerRoutes(
         return res.status(400).json({ message: "otpToken et otp requis" });
       }
       const result = await sendavapaySubmitOtp({ otpToken, otp });
-      res.json(result);
+      res.json({
+        success: Boolean(result.success),
+        ...(result.message ? { message: result.message } : {}),
+        ...(result.error ? { error: result.error } : {}),
+      });
     } catch (error: any) {
       console.error("[sendavapay] submit-otp error:", error);
       notifyTelegramPaymentError({
@@ -2130,7 +2146,12 @@ export async function registerRoutes(
         await storage.updateDeposit(depositId, { status: "processing" });
       }
       const result = await sendavapayRetry(paymentToken);
-      res.json(result);
+      res.json({
+        success: Boolean(result.success),
+        ...(result.status ? { status: result.status } : {}),
+        ...(result.message ? { message: result.message } : {}),
+        ...(result.error ? { error: result.error } : {}),
+      });
     } catch (error: any) {
       console.error("[sendavapay] retry error:", error);
       notifyTelegramPaymentError({
@@ -2605,7 +2626,8 @@ export async function registerRoutes(
   app.get("/api/withdrawals/history", requireAuth, async (req, res) => {
     try {
       const withdrawals = await storage.getUserWithdrawals(req.session.userId!);
-      res.json(withdrawals);
+      const user = await storage.getUser(req.session.userId!);
+      res.json(user?.isAdmin ? withdrawals : withdrawals.map(toPublicWithdrawalHistoryItem));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
