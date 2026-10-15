@@ -570,6 +570,17 @@ export default function RobotPayPage() {
     setOperator(nextOperator);
     setManualTransactionReference("");
     setClapayOperatorOtp("");
+  };
+
+  const continueFromOperatorSelection = () => {
+    if (!operator) {
+      toast({ title: "Opérateur requis", description: "Sélectionnez votre opérateur.", variant: "destructive" });
+      return;
+    }
+    if (!phone.trim()) {
+      toast({ title: "Numéro requis", description: "Saisissez le numéro utilisé pour effectuer le paiement.", variant: "destructive" });
+      return;
+    }
     setStep(1);
   };
 
@@ -651,7 +662,7 @@ export default function RobotPayPage() {
               <Stepper step={Math.max(0, Math.min(2, step - 1))} />
             ) : null}
           {step === 0 && (
-            <div className="space-y-5">
+            <div className="space-y-4">
                 <p className="px-1 text-lg font-bold text-[#111827]">
                 {isManualFlow
                    ? "Sélectionnez un opérateur Mobile Money"
@@ -659,46 +670,81 @@ export default function RobotPayPage() {
                     ? "Sélectionnez votre opérateur Mobile Money :"
                     : "Sélectionnez le mode de paiement :"}
               </p>
-               {isManualFlow && <p className="px-1 text-sm leading-6 text-gray-600">Choisissez l’opérateur du compte auquel vous allez envoyer {amount.toLocaleString()} {currency}.</p>}
+                {isManualFlow && <p className="px-1 text-sm leading-6 text-gray-600">Choisissez l’opérateur du compte auquel vous allez envoyer {amount.toLocaleString()} {currency}.</p>}
                 {loadingOperators ? <Loader2 className="w-7 h-7 animate-spin mx-auto text-[#D40030]" /> : operators.length === 0 ? <p className="text-center text-gray-500">{manualNumbersError && isManualFlow ? "Impossible de charger les moyens de paiement. Réessayez." : providerError instanceof Error ? sanitizeDepositDisplayText(providerError.message, "Aucun opérateur disponible pour ce pays.") : "Aucun opérateur disponible pour ce pays."}</p> : (
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     {operators.map((op, i) => (
                       <button
                         key={`${op.id || op.name}-${i}`}
                         type="button"
                         onClick={() => chooseOperator(op)}
+                        aria-pressed={operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider}
                         aria-label={`Sélectionner ${op.name || op.code || "cet opérateur"}`}
-                        className={`group flex min-h-[68px] w-full items-center justify-between gap-4 rounded-xl border-2 border-[#111827] px-4 py-3.5 text-left transition duration-200 ease-out active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D40030]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-5 ${
-                          operator === op
-                            ? "bg-[#FFF0F3] ring-2 ring-[#D40030]/25 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)]"
+                        className={`group flex min-h-[112px] w-full flex-col items-start justify-between gap-3 rounded-xl border-2 border-[#111827] p-3 text-left transition duration-200 ease-out active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D40030]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:min-h-[124px] sm:p-4 ${
+                          operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider
+                            ? "border-[#D40030] bg-[#FFF0F3] ring-2 ring-[#D40030]/25 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)]"
                             : "bg-white shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)] hover:-translate-y-0.5 hover:bg-[#FFF8FA] hover:shadow-[0_5px_0_#111827,0_9px_16px_rgba(17,24,39,0.16)]"
                         }`}
                       >
-                        <span className="flex min-w-0 flex-1 items-center gap-3">
+                        <span className="flex w-full min-w-0 items-center justify-between gap-2">
+                          <span className="flex min-w-0 items-center gap-2.5">
                           {op.manualNumber?.logoUrl ? (
-                            <img src={op.manualNumber.logoUrl} alt="" aria-hidden="true" className="h-10 w-10 shrink-0 rounded-lg border border-gray-200 bg-white object-contain p-1" />
+                            <img src={op.manualNumber.logoUrl} alt="" aria-hidden="true" className="h-9 w-9 shrink-0 rounded-lg border border-gray-200 bg-white object-contain p-1 sm:h-10 sm:w-10" />
                           ) : (
-                            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-[#E7A2B2] bg-[#FFF0F3] text-[#D40030]">
-                              <Phone className="h-5 w-5" aria-hidden="true" />
+                            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#E7A2B2] bg-[#FFF0F3] text-[#D40030] sm:h-10 sm:w-10">
+                              <Phone className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
                             </span>
                           )}
                           <span className="min-w-0">
-                            <span className="block text-lg font-bold leading-snug text-[#111827]">{op.name}</span>
+                            <span className="block truncate text-base font-bold leading-snug text-[#111827] sm:text-lg">{op.name}</span>
                             {op.manualNumber?.ownerName && <span className="mt-0.5 block truncate text-xs font-medium text-gray-500">{op.manualNumber.ownerName}</span>}
                           </span>
+                          </span>
+                          <ChevronRight
+                            aria-hidden="true"
+                            className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
+                              operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider
+                                ? "translate-x-0.5 text-[#A60026]"
+                                : "text-gray-500 group-hover:translate-x-0.5 group-hover:text-[#A60026]"
+                            }`}
+                          />
                         </span>
-                        <ChevronRight
-                          aria-hidden="true"
-                          className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
-                            operator === op
-                              ? "translate-x-0.5 text-[#A60026]"
-                              : "text-gray-500 group-hover:translate-x-0.5 group-hover:text-[#A60026]"
-                          }`}
-                        />
+                        {op.manualNumber?.phone && (
+                          <span className="w-full border-t border-[#E7A2B2]/70 pt-2 font-mono text-sm font-semibold tabular-nums text-[#5A1728]">
+                            {op.manualNumber.phone}
+                          </span>
+                        )}
                       </button>
                     ))}
                   </div>
               )}
+              <div className="space-y-1.5">
+                <label htmlFor="robotpay-payer-phone-selection" className="block text-sm font-semibold text-[#111827]">
+                  Numéro du payeur <span className="text-[#D40030]">*</span>
+                </label>
+                <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
+                  <Phone className="h-4 w-4 shrink-0 text-[#D40030]" aria-hidden="true" />
+                  <span className="ml-2 shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
+                  <input
+                    id="robotpay-payer-phone-selection"
+                    value={phone}
+                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, 12))}
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    aria-required="true"
+                    className="w-full min-w-0 px-3 py-2.5 text-[#111827] outline-none"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={continueFromOperatorSelection}
+                disabled={!operator || !phone.trim()}
+                className="w-full rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Continuer
+              </button>
             </div>
           )}
           {step === 1 && isManualFlow && operator?.manualNumber && (
@@ -811,12 +857,6 @@ export default function RobotPayPage() {
                   </button>
                 </section>
               )}
-              <label htmlFor="robotpay-payer-phone" className="block text-sm font-semibold text-[#111827]">Téléphone payeur</label>
-              <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
-                <Phone className="h-4 w-4 text-[#111827]" />
-                <span className="shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
-                <input id="robotpay-payer-phone" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 12))} type="tel" inputMode="numeric" className="w-full px-3 py-2.5 text-[#111827] outline-none" />
-              </div>
               {activeProvider === "clapay" && operator?.requiresOtp && (
                 <div className="text-left">
                   <label htmlFor="robotpay-clapay-operator-otp" className="mb-1.5 block text-sm font-semibold text-[#111827]">
@@ -875,28 +915,9 @@ export default function RobotPayPage() {
                     {operator.manualNumber.ownerName && <p><strong>Bénéficiaire :</strong> {operator.manualNumber.ownerName}</p>}
                     <p><strong>Montant à envoyer :</strong> {amount.toLocaleString()} {currency}</p>
                     <p className="break-all"><strong>Compte :</strong> {operator.manualNumber.paymentLink || operator.manualNumber.phone}</p>
+                    <p><strong>Numéro du payeur :</strong> {paymentPhone}</p>
                   </div>
                 )}
-              </div>
-
-              <div>
-                <label htmlFor="robotpay-payer-phone" className="mb-1.5 block text-sm font-semibold text-[#111827]">
-                  Téléphone utilisé pour le paiement <span className="text-[#D40030]">*</span>
-                </label>
-                <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
-                  <Phone className="h-4 w-4 text-[#D40030]" aria-hidden="true" />
-                  <span className="ml-2 shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
-                  <input
-                    id="robotpay-payer-phone"
-                    value={phone}
-                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, 12))}
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel-national"
-                    aria-required="true"
-                    className="w-full min-w-0 px-3 py-3 text-[#111827] outline-none"
-                  />
-                </div>
               </div>
 
               <div>
