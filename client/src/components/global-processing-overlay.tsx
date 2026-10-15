@@ -104,7 +104,10 @@ export function ProcessingOverlay({ message }: { message: string }) {
 
 export default function GlobalProcessingOverlay() {
   const pendingForegroundQueries = useIsFetching({
-    predicate: (query) => query.state.data === undefined || !query.options.refetchInterval,
+    predicate: (query) => {
+      const queryOptions = query.options as typeof query.options & { refetchInterval?: unknown };
+      return query.state.data === undefined || !queryOptions.refetchInterval;
+    },
   });
   const pendingMutations = useIsMutating();
   const [pendingApiRequests, setPendingApiRequests] = useState(0);
