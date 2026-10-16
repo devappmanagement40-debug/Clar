@@ -34,7 +34,7 @@ function getWalletOperatorIcon(paymentMethod: string) {
   if (method.includes("airtel")) return "/operators/airtel.png";
   if (method.includes("wave")) return "/operators/wave.png";
   if (method.includes("tmoney") || method.includes("t-money")) return "/operators/tmoney.png";
-  return "/favicon.png?v=equinor";
+  return "/favicon.png?v=catl-logo";
 }
 
 const walletStyles = `

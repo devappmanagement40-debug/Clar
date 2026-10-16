@@ -1,21 +1,21 @@
 {
-  "name": "Equinor",
-  "short_name": "Equinor",
-  "description": "Equinor, votre espace personnel pour accéder à vos services.",
+  "name": "CATL",
+  "short_name": "CATL",
+  "description": "CATL, votre espace personnel pour accéder à vos services.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#bd304c",
+  "theme_color": "#1947b8",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon.png?v=equinor",
+      "src": "/catl-icon-192.png?v=catl-logo",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/equinor-icon-512.png?v=equinor",
+      "src": "/catl-icon-512.png?v=catl-logo",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

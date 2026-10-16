@@ -14,15 +14,17 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import "./home.css";
 
 import notificationBell from "@assets/generated_images/home-notification-bell.png";
-import offshorePlatform from "@assets/image_1791813575847.jpg";
-import johanSverdrupPlatform from "@assets/1277577_1791813575929.jpg";
-import equinorScreen from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791814341065.jpg";
-import equinorLogo from "@assets/Equinor_1791812599322.png";
+import catlBatteries from "@/assets/images/catl-auth-background.webp";
+import catlBooth1 from "@/assets/images/catl-booth-1.webp";
+import catlBooth2 from "@/assets/images/catl-booth-2.webp";
+import catlBooth3 from "@/assets/images/catl-booth-3.webp";
+import { CatlLogo } from "@/components/catl-logo";
 
 const bannerSlides = [
-  { image: offshorePlatform, alt: "Installation énergétique offshore en mer" },
-  { image: johanSverdrupPlatform, alt: "Plateforme offshore Johan Sverdrup" },
-  { image: equinorScreen, alt: "Marque Equinor affichée sur un écran" },
+  { image: catlBatteries, alt: "Batteries CATL" },
+  { image: catlBooth1, alt: "Stand CATL dans un salon professionnel" },
+  { image: catlBooth2, alt: "Espace d’exposition CATL" },
+  { image: catlBooth3, alt: "Stand CATL dans un salon d’exposition" },
 ] as const;
 
 const quickActions = [
@@ -75,12 +77,12 @@ export default function HomePage() {
   const [bannerIndex, setBannerIndex] = useState(0);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!user || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => {
       setBannerIndex((current) => (current + 1) % bannerSlides.length);
     }, 5000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user || settingsLoading || settingsRefreshing) return;
@@ -137,15 +139,15 @@ export default function HomePage() {
     <>
       <main className="cp-home">
         <div className="cp-shell">
-          <section className="cp-hero" aria-label="Bannière d’accueil">
+          <section className="cp-hero" aria-label="Bannière défilante CATL">
             <div className="cp-hero-slides" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
               {bannerSlides.map(({ image, alt }, index) => (
                 <div className="cp-hero-slide" key={image} aria-hidden={index !== bannerIndex}>
-                  <img src={image} alt={index === bannerIndex ? alt : ""} />
+                  <img className="cp-hero-image" src={image} alt={index === bannerIndex ? alt : ""} />
                 </div>
               ))}
             </div>
-            <div className="cp-hero-dots" role="group" aria-label="Images de la bannière">
+            <div className="cp-hero-dots" role="group" aria-label="Images de la bannière CATL">
               {bannerSlides.map((slide, index) => (
                 <button
                   key={slide.image}
@@ -211,12 +213,8 @@ export default function HomePage() {
             ))}
           </section>
 
-          <section className="cp-feature cp-feature--image" aria-label="Bannière Equinor">
-            <img
-              className="cp-feature-image"
-              src={equinorScreen}
-              alt="Marque Equinor affichée sur un écran"
-            />
+          <section className="cp-secondary-banner" aria-label="Image de batteries CATL">
+            <img src={catlBatteries} alt="Modules de batteries CATL" />
           </section>
 
           <section className="cp-user-activity" aria-label="Activités affichées">
@@ -224,7 +222,7 @@ export default function HomePage() {
               <div className="cp-user-activity-track">
                 {[...userActivityMessages, ...userActivityMessages].map((activity, index) => (
                   <article className="cp-user-activity-row" key={`${index}-${activity}`}>
-                    <img className="cp-user-activity-avatar" src={equinorLogo} alt="" />
+                    <CatlLogo className="cp-user-activity-avatar cp-user-activity-brand" alt="" aria-hidden="true" />
                     <span className="cp-user-activity-text">{activity}</span>
                   </article>
                 ))}

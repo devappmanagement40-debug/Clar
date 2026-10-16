@@ -1,7 +1,7 @@
 import { getWithdrawalMethods } from "@shared/withdrawal-methods";
 import { getActiveCountryMethodNames } from "@shared/country-methods";
 
-export const AUTH_HIDDEN_COUNTRY_CODES: readonly string[] = ["TD"];
+export const AUTH_HIDDEN_COUNTRY_CODES: readonly string[] = [];
 
 export function isAuthCountryAllowed(countryCode: string): boolean {
   return !AUTH_HIDDEN_COUNTRY_CODES.includes(countryCode.toUpperCase());
@@ -29,7 +29,7 @@ export const FALLBACK_COUNTRIES: Array<{
   { code: "CI", name: "Côte d'Ivoire", currency: "XOF", phonePrefix: "225", operators: [], withdrawalMethods: ["Wave"] },
   { code: "BF", name: "Burkina Faso", currency: "XOF", phonePrefix: "226", operators: ["Orange Burkina", "Moov Africa Burkina"], withdrawalMethods: ["Orange Burkina", "Moov Africa Burkina"] },
   { code: "NE", name: "Niger", currency: "XOF", phonePrefix: "227", operators: ["NITA TRANSFERT", "AMANA TRANSFERT"], withdrawalMethods: ["Airtel Money", "Wave"] },
-  { code: "TD", name: "Tchad", currency: "XAF", phonePrefix: "235", operators: ["Airtel Money", "Moov"], withdrawalMethods: ["Airtel Money", "Moov"] },
+  { code: "BJ", name: "Bénin", currency: "XOF", phonePrefix: "229", operators: [], withdrawalMethods: [] },
 ];
 
 // Legacy compatibility - kept for places still using ELIGIBLE_COUNTRIES directly

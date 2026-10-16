@@ -15,6 +15,7 @@ import {
 import { CountrySelector } from "@/components/country-selector";
 import { ChevronDown, Loader2, Smartphone } from "lucide-react";
 import registerBackground from "@/assets/images/catl-auth-background.webp";
+import { CatlLogo } from "@/components/catl-logo";
 import "./auth-pages.css";
 
 const registerSchema = z.object({
@@ -120,7 +121,9 @@ export default function RegisterPage() {
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="register-title">
           <header className="auth-brand">
-            <h1 id="register-title" className="auth-title">CATL</h1>
+            <h1 id="register-title" className="auth-title">
+              <CatlLogo className="auth-brand-logo" />
+            </h1>
             <p className="auth-subtitle">Créez votre compte</p>
           </header>
           <form onSubmit={form.handleSubmit(onSubmit)}>

@@ -107,57 +107,62 @@ export async function seed() {
     console.log("Super admin access verified");
   }
 
+  const requestedCountries = [
+    {
+      code: "TG",
+      name: "Togo",
+      currency: "XOF",
+      phonePrefix: "228",
+      operators: ["Togocel", "Moov Africa Togo"],
+      withdrawalMethods: ["Togocel", "Moov Africa Togo"],
+      isActive: true,
+    },
+    {
+      code: "CI",
+      name: "Côte d'Ivoire",
+      currency: "XOF",
+      phonePrefix: "225",
+      operators: [],
+      withdrawalMethods: ["Wave"],
+      isActive: true,
+    },
+    {
+      code: "BF",
+      name: "Burkina Faso",
+      currency: "XOF",
+      phonePrefix: "226",
+      operators: ["Orange Burkina", "Moov Africa Burkina"],
+      withdrawalMethods: ["Orange Burkina", "Moov Africa Burkina"],
+      isActive: true,
+    },
+    {
+      code: "NE",
+      name: "Niger",
+      currency: "XOF",
+      phonePrefix: "227",
+      operators: ["NITA TRANSFERT", "AMANA TRANSFERT"],
+      withdrawalMethods: ["Airtel Money", "Wave"],
+      isActive: true,
+    },
+    {
+      code: "BJ",
+      name: "Bénin",
+      currency: "XOF",
+      phonePrefix: "229",
+      operators: [],
+      withdrawalMethods: [],
+      isActive: true,
+    },
+  ].map((country) => ({
+    ...country,
+    operators: JSON.stringify(country.operators),
+    withdrawalMethods: JSON.stringify(country.withdrawalMethods),
+  }));
+
   // Seed countries only on first install — never overwrite admin changes
   const existingCountries = await db.select().from(countries);
   if (existingCountries.length === 0) {
-    const defaultCountries = [
-      {
-        code: "TG",
-        name: "Togo",
-        currency: "XOF",
-        phonePrefix: "228",
-        operators: JSON.stringify(["Togocel", "Moov Africa Togo"]),
-        withdrawalMethods: JSON.stringify(["Togocel", "Moov Africa Togo"]),
-        isActive: true,
-      },
-      {
-        code: "CI",
-        name: "Côte d'Ivoire",
-        currency: "XOF",
-        phonePrefix: "225",
-        operators: JSON.stringify([]),
-        withdrawalMethods: JSON.stringify(["Wave"]),
-        isActive: true,
-      },
-      {
-        code: "BF",
-        name: "Burkina Faso",
-        currency: "XOF",
-        phonePrefix: "226",
-        operators: JSON.stringify(["Orange Burkina", "Moov Africa Burkina"]),
-        withdrawalMethods: JSON.stringify(["Orange Burkina", "Moov Africa Burkina"]),
-        isActive: true,
-      },
-      {
-        code: "NE",
-        name: "Niger",
-        currency: "XOF",
-        phonePrefix: "227",
-        operators: JSON.stringify(["NITA TRANSFERT", "AMANA TRANSFERT"]),
-        withdrawalMethods: JSON.stringify(["Airtel Money", "Wave"]),
-        isActive: true,
-      },
-      {
-        code: "TD",
-        name: "Tchad",
-        currency: "XAF",
-        phonePrefix: "235",
-        operators: JSON.stringify(["Airtel Money", "Moov"]),
-        withdrawalMethods: JSON.stringify(["Airtel Money", "Moov"]),
-        isActive: true,
-      },
-    ];
-    for (const countryData of defaultCountries) {
+    for (const countryData of requestedCountries) {
       await db.insert(countries).values(countryData);
       console.log(`Country added: ${countryData.name}`);
     }
@@ -165,46 +170,47 @@ export async function seed() {
     console.log(`Countries skipped — ${existingCountries.length} existing countries preserved`);
   }
 
-  const currentCountries = await db.select().from(countries);
-  if (!currentCountries.some((country) => country.code.toUpperCase() === "TD")) {
-    await db.insert(countries).values({
-      code: "TD",
-      name: "Tchad",
-      currency: "XAF",
-      phonePrefix: "235",
-      operators: JSON.stringify(["Airtel Money", "Moov"]),
-      withdrawalMethods: JSON.stringify(["Airtel Money", "Moov"]),
-      isActive: true,
-    });
-    console.log("Country added: Tchad");
+  const countryCatalogMigrationKey = "country_catalog_requested_west_africa_applied";
+  const countryCatalogMigration = await db.transaction(async (tx) => {
+    const [marker] = await tx.insert(platformSettings)
+      .values({ key: countryCatalogMigrationKey, value: "applied" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+    if (!marker) return null;
+
+    const [tchadAccounts] = await tx.select({ count: sql<number>`count(*)::int` })
+      .from(users)
+      .where(eq(users.country, "TD"));
+
+    for (const countryData of requestedCountries) {
+      await tx.insert(countries).values(countryData).onConflictDoNothing();
+    }
+
+    const requestedCountryCodes = new Set(requestedCountries.map((country) => country.code));
+    const countryRows = await tx.select().from(countries);
+    for (const country of countryRows) {
+      const shouldBeActive = requestedCountryCodes.has(country.code.toUpperCase());
+      if (country.isActive !== shouldBeActive) {
+        await tx.update(countries)
+          .set({ isActive: shouldBeActive })
+          .where(eq(countries.id, country.id));
+      }
+    }
+
+    return tchadAccounts?.count ?? 0;
+  });
+  if (countryCatalogMigration !== null) {
+    console.log(`[country catalog] Applied requested countries; retained ${countryCatalogMigration} existing Tchad account(s) and historical records.`);
   }
+
+  const currentCountries = await db.select().from(countries);
 
   const legacyWithdrawalDefaults: Record<string, string[]> = {
     CI: ["Wave"],
     NE: ["Airtel Money", "Wave"],
   };
-  const legacyTchadNames = ["Airtel Tchad", "Moov Africa Tchad"];
-  const currentTchadNames = ["Airtel Money", "Moov"];
-  const normalizedNames = (names: string[]) => names.map((name) => name.toLocaleLowerCase()).sort();
   for (const country of currentCountries) {
-    if (
-      country.code.toUpperCase() === "TD" &&
-      JSON.stringify(normalizedNames(getActiveCountryMethodNames(country.operators))) ===
-        JSON.stringify(normalizedNames(legacyTchadNames))
-    ) {
-      const updateData: { operators: string; withdrawalMethods?: string } = {
-        operators: JSON.stringify(currentTchadNames),
-      };
-      const existingWithdrawalNames = getActiveCountryMethodNames(country.withdrawalMethods);
-      if (
-        country.withdrawalMethods === null ||
-        JSON.stringify(normalizedNames(existingWithdrawalNames)) === JSON.stringify(normalizedNames(legacyTchadNames))
-      ) {
-        updateData.withdrawalMethods = JSON.stringify(currentTchadNames);
-      }
-      await db.update(countries).set(updateData).where(eq(countries.id, country.id));
-      continue;
-    }
+    if (!country.isActive) continue;
     if (country.withdrawalMethods !== null) continue;
     const code = country.code.toUpperCase();
     const methods = legacyWithdrawalDefaults[code] ?? getActiveCountryMethodNames(country.operators);

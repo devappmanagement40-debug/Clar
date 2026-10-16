@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 
-import { equinorLogo, equinorOffshore, equinorPlatform } from "@/assets/equinor-media";
+import { CatlLogo } from "@/components/catl-logo";
+import { equinorOffshore, equinorPlatform } from "@/assets/equinor-media";
 
 interface LinksSettings {
   supportLink: string;
@@ -28,7 +29,7 @@ export default function ServicePage() {
         .service-reference .service-back { display: grid; width: 42px; height: 42px; flex: none; place-items: center; border: 2px solid #111827; border-radius: 11px; padding: 0; background: #fff; box-shadow: 0 3px 0 #111827; color: #111827; }
         .service-reference .service-back svg { width: 22px; height: 22px; stroke-width: 2.5; }
         .service-reference .service-brand { display: flex; min-width: 0; align-items: center; gap: 10px; }
-        .service-reference .service-logo { width: 45px; height: 45px; flex: none; border: 2px solid #111827; border-radius: 50%; object-fit: contain; background: #fff; }
+        .service-reference .service-logo { width: 68px; height: 34px; flex: none; border: 1px solid #d7dfec; border-radius: 8px; padding: 3px; object-fit: contain; background: #fff; }
         .service-reference .service-title { margin: 0; color: #111827; font-size: 20px; font-weight: 800; line-height: 1.2; }
         .service-reference .benefits { padding: 16px; background: #ffffff; }
         .service-reference .benefit-banner { display: block; width: 100%; height: 184px; border: 2px solid #111827; border-radius: 13px; object-fit: cover; object-position: center; box-shadow: 0 4px 0 #111827; }
@@ -68,7 +69,7 @@ export default function ServicePage() {
             </button>
           </Link>
           <div className="service-brand">
-            <img className="service-logo" src={equinorLogo} alt="Equinor" />
+            <CatlLogo className="service-logo" alt="Logo CATL" />
             <h1 className="service-title">Service client</h1>
           </div>
         </header>

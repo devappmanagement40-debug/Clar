@@ -7,13 +7,13 @@ The user requested a compact homepage based on their mobile reference, with whit
 
 **Why:** The user asked for white backgrounds and clear card borders, then later chose CATL blue as the new brand direction.
 
-**How to apply:** Keep homepage card surfaces white with clear black borders and deliberate offset shadows. Use CATL blue instead of crimson for future requested homepage changes. Preserve live values and routes.
+**How to apply:** Keep homepage card surfaces white with clear black borders and deliberate offset shadows. Use CATL blue accents and the supplied CATL image behind the homepage content. Preserve live values and routes.
 
 Use native SVG icons from the existing icon set for homepage quick actions, the announcement bell, and the information dialog, colored with the page's crimson accent.
 
 **Why:** The user asked for native icons in the homepage palette while keeping the rest of the page unchanged.
 
-**How to apply:** Keep those native SVG icons and their current crimson color on the homepage; preserve their actions and layout, and do not change icon assets on other pages.
+**How to apply:** Keep those native SVG icons in the CATL blue accent; preserve their actions and layout, and do not change icon assets on other pages.
 
 The latest homepage reference shows small bullet separators in the scrolling activity strip; keep that strip display-only and separate from the account ledger.
 

@@ -15,6 +15,7 @@ import {
 import { CountrySelector } from "@/components/country-selector";
 import { ChevronDown, Loader2, Smartphone } from "lucide-react";
 import loginBackground from "@/assets/images/catl-auth-background.webp";
+import { CatlLogo } from "@/components/catl-logo";
 import "./auth-pages.css";
 
 const loginSchema = z.object({
@@ -102,7 +103,9 @@ export default function LoginPage() {
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="login-title">
           <header className="auth-brand">
-            <h1 id="login-title" className="auth-title">CATL</h1>
+            <h1 id="login-title" className="auth-title">
+              <CatlLogo className="auth-brand-logo" />
+            </h1>
             <p className="auth-subtitle">Connectez-vous à votre espace</p>
           </header>
           <form onSubmit={form.handleSubmit(onSubmit)}>

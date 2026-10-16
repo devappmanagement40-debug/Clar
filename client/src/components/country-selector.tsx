@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FALLBACK_API_COUNTRIES, type ApiCountry } from "@/lib/countries";
-import { Check, Loader2, Search, X } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 
 interface CountrySelectorProps {
   open: boolean;
@@ -9,6 +9,61 @@ interface CountrySelectorProps {
   onSelect: (countryCode: string) => void;
   selectedCountryCode?: string;
   excludedCountryCodes?: readonly string[];
+}
+
+function CountryFlag({ code }: { code: string }) {
+  const normalizedCode = code.toUpperCase();
+
+  switch (normalizedCode) {
+    case "TG":
+      return (
+        <svg className="country-picker-flag" viewBox="0 0 60 40" aria-hidden="true">
+          <rect width="60" height="40" fill="#006a4e" />
+          <path d="M0 8h60v8H0zM0 24h60v8H0z" fill="#ffce00" />
+          <path d="M0 0h24v16H0z" fill="#d21034" />
+          <path d="m12 2.5 2.1 4.3 4.8.7-3.5 3.4.8 4.8-4.2-2.3-4.2 2.3.8-4.8L5.1 7.5l4.8-.7z" fill="#fff" />
+        </svg>
+      );
+    case "CI":
+      return (
+        <svg className="country-picker-flag" viewBox="0 0 60 40" aria-hidden="true">
+          <path fill="#f77f00" d="M0 0h20v40H0z" />
+          <path fill="#fff" d="M20 0h20v40H20z" />
+          <path fill="#009a44" d="M40 0h20v40H40z" />
+        </svg>
+      );
+    case "BF":
+      return (
+        <svg className="country-picker-flag" viewBox="0 0 60 40" aria-hidden="true">
+          <path fill="#ef2b2d" d="M0 0h60v20H0z" />
+          <path fill="#009e49" d="M0 20h60v20H0z" />
+          <path fill="#fcd116" d="m30 11 2.4 5h5.5l-4.4 3.4 1.7 5.3-5.2-3.1-5.2 3.1 1.7-5.3-4.4-3.4h5.5z" />
+        </svg>
+      );
+    case "NE":
+      return (
+        <svg className="country-picker-flag" viewBox="0 0 60 40" aria-hidden="true">
+          <path fill="#e05206" d="M0 0h60v13.33H0z" />
+          <path fill="#fff" d="M0 13.33h60v13.34H0z" />
+          <path fill="#0db02b" d="M0 26.67h60V40H0z" />
+          <circle cx="30" cy="20" r="6.5" fill="#e05206" />
+        </svg>
+      );
+    case "BJ":
+      return (
+        <svg className="country-picker-flag" viewBox="0 0 60 40" aria-hidden="true">
+          <path fill="#008751" d="M0 0h24v40H0z" />
+          <path fill="#fcd116" d="M24 0h36v20H24z" />
+          <path fill="#e8112d" d="M24 20h36v20H24z" />
+        </svg>
+      );
+    default:
+      return <span className="country-picker-flag-fallback" aria-hidden="true">{normalizedCode}</span>;
+  }
+}
+
+function normalizeSearchText(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
 }
 
 export function CountrySelector({
@@ -32,7 +87,9 @@ export function CountrySelector({
   useEffect(() => {
     if (!open) return;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousBodyOverflow = document.body.style.overflow;
     const touchDevice = window.matchMedia("(pointer: coarse)").matches;
+    document.body.style.overflow = "hidden";
     (touchDevice ? closeButtonRef.current : searchInputRef.current)?.focus({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -57,6 +114,7 @@ export function CountrySelector({
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousBodyOverflow;
       previousFocus?.focus({ preventScroll: true });
     };
   }, [open]);
@@ -74,8 +132,8 @@ export function CountrySelector({
     .filter(c => c.isActive && !excludedCodes.has(c.code.toUpperCase()))
     .map(c => ({ code: c.code, name: c.name, phonePrefix: c.phonePrefix }))
     .filter(country => {
-      const query = search.trim().toLowerCase();
-      return !query || country.name.toLowerCase().includes(query) || country.phonePrefix.includes(query);
+      const query = normalizeSearchText(search.trim());
+      return !query || normalizeSearchText(country.name).includes(query) || country.phonePrefix.includes(query);
     });
 
   return (
@@ -89,7 +147,7 @@ export function CountrySelector({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="country-picker-header">
-          <h2 id="country-picker-heading">Choisir un pays</h2>
+          <h2 id="country-picker-heading">Sélectionnez un pays</h2>
           <button ref={closeButtonRef} type="button" className="country-picker-close" onClick={closePicker} aria-label="Fermer">
             <X aria-hidden="true" />
           </button>
@@ -101,7 +159,7 @@ export function CountrySelector({
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Rechercher un pays"
+            placeholder="Rechercher un pays..."
             aria-label="Rechercher un pays"
           />
         </div>
@@ -122,9 +180,9 @@ export function CountrySelector({
                 aria-pressed={selected}
                 data-testid={`country-option-${country.code}`}
               >
+                <CountryFlag code={country.code} />
                 <span className="country-picker-name">{country.name}</span>
                 <span className="country-picker-prefix">+{country.phonePrefix}</span>
-                {selected && <Check className="country-picker-check" aria-hidden="true" />}
               </button>
             );
           })}

@@ -1,5 +1,11 @@
-const CACHE_NAME = "equinor-v5";
-const STATIC_ASSETS = ["/", "/manifest.json", "/favicon.png?v=equinor", "/equinor-icon-512.png?v=equinor"];
+const CACHE_NAME = "catl-v1";
+const STATIC_ASSETS = [
+  "/",
+  "/manifest.json",
+  "/favicon.png?v=catl-logo",
+  "/catl-icon-192.png?v=catl-logo",
+  "/catl-icon-512.png?v=catl-logo",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

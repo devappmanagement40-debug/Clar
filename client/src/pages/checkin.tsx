@@ -5,7 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { getCountryByCode } from "@/lib/countries";
 import { CalendarCheck, ChevronLeft, Coins, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
-import { equinorLogo, equinorOffshore, equinorPhone } from "@/assets/equinor-media";
+import { CatlLogo } from "@/components/catl-logo";
+import { equinorOffshore, equinorPhone } from "@/assets/equinor-media";
 
 interface BonusStatus {
   canClaim: boolean;
@@ -111,10 +112,11 @@ export default function CheckinPage() {
           font-weight: 800;
         }
         .checkin-reference .brand img {
-          width: 32px;
-          height: 32px;
-          border: 2px solid #111827;
-          border-radius: 50%;
+          width: 58px;
+          height: 29px;
+          border: 1px solid #d7dfec;
+          border-radius: 7px;
+          padding: 2px;
           background: #fff;
           object-fit: contain;
         }
@@ -374,7 +376,7 @@ export default function CheckinPage() {
             <ChevronLeft aria-hidden="true" /><span>Retour</span>
           </button>
           <div className="brand">
-            <img src={equinorLogo} alt="Equinor" />
+            <CatlLogo alt="Logo CATL" />
             <span>Pointage du jour</span>
           </div>
           <span className="topbar-badge">BONUS QUOTIDIEN</span>

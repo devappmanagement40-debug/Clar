@@ -27,7 +27,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ADMIN_PATH } from "@/lib/admin-path";
-import { equinorLogo, equinorPhone } from "@/assets/equinor-media";
+import { CatlLogo } from "@/components/catl-logo";
+import { equinorPhone } from "@/assets/equinor-media";
 import "./account.css";
 
 interface InstallPromptEvent extends Event {
@@ -201,7 +202,7 @@ export default function AccountPage() {
         <section className="cp-account-header" aria-label="Informations du compte">
           <div className="cp-profile-row">
             <div className="cp-profile-avatar">
-              <img src={equinorLogo} alt="Equinor" />
+              <CatlLogo alt="Logo CATL" />
             </div>
             <div className="cp-profile-copy">
               <p className="cp-account-phone">+{phonePrefix} {user.phone}</p>

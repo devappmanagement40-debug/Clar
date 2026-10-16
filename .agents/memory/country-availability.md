@@ -15,8 +15,8 @@ Public pickers may use the seeded country list only when `/api/countries` fails;
 
 **How to apply:** Use the fallback only for failed requests, label it as temporary, and keep inactive-country enforcement on the server.
 
-Keep each country's deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore country-specific runtime overrides. The Tchad catalog starts with Airtel Money and Moov for both lists.
+The user's current active country list is exactly Togo (TG), Côte d'Ivoire (CI), Burkina Faso (BF), Niger (NE), and Bénin (BJ). Keep other catalog rows inactive rather than deleting them. Bénin uses XOF and phone prefix 229; its payment methods remain unconfigured until the user chooses them.
 
-**Why:** the user asked for country-wide admin control over adding, editing, and disabling payment methods.
+**Why:** the user requested this exact country list on 2026-10-16 and existing country codes may still be needed for historical records.
 
-**How to apply:** Treat the country catalog as the runtime source of truth for every country, including Tchad.
+**How to apply:** Keep each country's deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore country-specific runtime overrides. When the active country set changes, update the app's first-install defaults and temporary API-failure fallbacks, and use a one-time reversible transition for existing rows.
