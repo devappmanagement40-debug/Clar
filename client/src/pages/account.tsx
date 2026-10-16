@@ -5,14 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode, type ApiCountry } from "@/lib/countries";
 import {
-  ArrowDownCircle,
-  ArrowUpCircle,
-  CheckCircle2,
   ChevronRight,
   CreditCard,
   Download,
   Gift,
-  HelpCircle,
   Headset,
   History,
   Info,
@@ -29,6 +25,17 @@ import { useToast } from "@/hooks/use-toast";
 import { ADMIN_PATH } from "@/lib/admin-path";
 import { CatlLogo } from "@/components/catl-logo";
 import { equinorPhone } from "@/assets/equinor-media";
+import depositIcon from "@/assets/images/home-icons/deposit.png";
+import withdrawalIcon from "@/assets/images/home-icons/withdrawal.png";
+import supportIcon from "@/assets/images/home-icons/support.png";
+import checkinIcon from "@/assets/images/home-icons/checkin.png";
+import aboutServiceIcon from "@assets/IMG_20260829_070949_099_1792169768206.jpg";
+import cardServiceIcon from "@assets/IMG_20260829_070948_735_1792169768250.jpg";
+import supportServiceIcon from "@assets/IMG_20260829_070945_309_1792169768290.jpg";
+import rulesServiceIcon from "@assets/IMG_20260829_070922_702_1792169768453.jpg";
+import historyServiceIcon from "@assets/IMG_20260829_070849_484_1792169768572.jpg";
+import giftServiceIcon from "@assets/IMG_20260829_070918_659_1792169768495.jpg";
+import appServiceIcon from "@assets/IMG_20260829_070845_119_1792169768653.jpg";
 import "./account.css";
 
 interface InstallPromptEvent extends Event {
@@ -114,21 +121,21 @@ export default function AccountPage() {
       : `VIP ${vipLevel}`;
 
   const quickActions = [
-    { label: "Dépôt", icon: ArrowDownCircle, href: "/deposit" },
-    { label: "Retrait", icon: ArrowUpCircle, href: "/withdrawal" },
-    { label: "Aide", icon: HelpCircle, href: "/service" },
-    { label: "Pointage", icon: CheckCircle2, href: "/checkin" },
+    { label: "Dépôt", icon: depositIcon, href: "/deposit" },
+    { label: "Retrait", icon: withdrawalIcon, href: "/withdrawal" },
+    { label: "Aide", icon: supportIcon, href: "/service" },
+    { label: "Pointage", icon: checkinIcon, href: "/checkin" },
   ];
 
   const serviceItems = [
-    { label: "À propos", icon: Info, href: "/about" },
-    { label: "Bon à savoir", icon: ScrollText, href: "/rules" },
-    { label: "Historique", icon: History, href: "/history" },
-    { label: "Service client", icon: Headset, href: "/service" },
-    { label: "Télécharger l’application", icon: Download, action: "download" as const },
-    { label: "Lier une carte bancaire", icon: CreditCard, href: "/wallet" },
-    { label: "Changer le mot de passe", icon: KeyRound, href: "/change-password" },
-    { label: "Échanger un cadeau", icon: Gift, href: "/gift-code" },
+    { label: "À propos", icon: Info, image: aboutServiceIcon, href: "/about" },
+    { label: "Bon à savoir", icon: ScrollText, image: rulesServiceIcon, href: "/rules" },
+    { label: "Historique", icon: History, image: historyServiceIcon, href: "/history" },
+    { label: "Service client", icon: Headset, image: supportServiceIcon, href: "/service" },
+    { label: "Télécharger l’application", icon: Download, image: appServiceIcon, action: "download" as const },
+    { label: "Lier une carte bancaire", icon: CreditCard, image: cardServiceIcon, href: "/wallet" },
+    { label: "Changer le mot de passe", icon: KeyRound, image: null, href: "/change-password" },
+    { label: "Échanger un cadeau", icon: Gift, image: giftServiceIcon, href: "/gift-code" },
   ];
 
   const handleLogout = async () => {
@@ -222,9 +229,9 @@ export default function AccountPage() {
         </section>
 
         <section className="cp-account-quick-actions" aria-label="Actions rapides">
-          {quickActions.map(({ label, icon: Icon, href }) => (
+          {quickActions.map(({ label, icon, href }) => (
             <button key={label} type="button" onClick={() => navigate(href)}>
-              <span><Icon aria-hidden="true" /></span>
+              <span><img src={icon} alt="" aria-hidden="true" /></span>
               <span>{label}</span>
             </button>
           ))}
@@ -244,7 +251,7 @@ export default function AccountPage() {
         <section className="cp-account-services" aria-labelledby="account-services-title">
           <h2 id="account-services-title">Services du compte</h2>
           <div className="cp-services-list">
-            {serviceItems.map(({ label, icon: Icon, href, action }) => (
+            {serviceItems.map(({ label, icon: Icon, image, href, action }) => (
               <button
                 key={label}
                 type="button"
@@ -256,7 +263,9 @@ export default function AccountPage() {
                   if (href) navigate(href);
                 }}
               >
-                <span className="cp-service-icon"><Icon aria-hidden="true" /></span>
+                <span className={`cp-service-icon${image ? " cp-service-icon--image" : ""}`}>
+                  {image ? <img src={image} alt="" aria-hidden="true" /> : <Icon aria-hidden="true" />}
+                </span>
                 <span>{label}</span>
                 <ChevronRight className="cp-service-chevron" aria-hidden="true" />
               </button>

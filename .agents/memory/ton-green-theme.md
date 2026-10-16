@@ -9,14 +9,32 @@ The user requested a compact homepage based on their mobile reference, with whit
 
 **How to apply:** Keep homepage card surfaces white with clear black borders and deliberate offset shadows. Use CATL blue accents across pages and the supplied CATL image behind page content. Preserve live values and routes.
 
-Use the user's supplied image icons for the homepage quick actions, announcement bell, and pointage entry instead of substituting unrelated native SVGs.
+Use the user's supplied image icons for homepage quick actions, the announcement bell, and pointage. Reuse matching assets in the account shortcuts and service rows only when their meaning fits the action.
 
-**Why:** The user asked for native icons in the homepage palette while keeping the rest of the page unchanged.
+**Why:** The user asked for image icons on the homepage, then requested their reuse in the account shortcuts and matching icons in the account services list.
 
-**How to apply:** Keep the supplied icons, preserve their actions and layout, and do not change unrelated icon assets on other pages.
+**How to apply:** Match supplied icons to the relevant labels, preserve actions and layout, and keep existing semantic icons where no supplied image clearly fits (such as password, admin, and logout).
 
 The latest homepage reference shows small bullet separators in the scrolling activity strip; keep that strip display-only and separate from the account ledger.
 
 **Why:** The user provided a newer homepage reference and asked to apply its structure while preserving the current platform fields.
 
 **How to apply:** Preserve the decorative scrolling examples, use simple bullet separators, and do not present them as live transactions or alter account balances.
+
+For the product listing, follow the user's mobile card reference: product thumbnail with a cycle-duration sticker, title with a map-pin marker, total and daily revenue, purchase price, and an "Investir" action. Use CATL blue for brand accents and preserve live product data and purchase behavior; do not copy the unrelated Surface product names or images.
+
+**Why:** The user supplied the reference on 2026-10-16 and asked for the product card to be reproduced icon by icon while retaining the platform color.
+
+**How to apply:** Keep the layout compact and scan-friendly on mobile, use the actual product image and cycle data, and retain the existing purchase flow.
+
+The purchase confirmation should use the CATL blue palette and clearly summarize the selected product, purchase price, daily and total revenue, and deposit-versus-withdrawable-earnings funding. Keep the confirmation responsive and preserve existing balance calculations and server validation.
+
+**Why:** The user asked for the page and purchase confirmation to be stabilized and for the popup to look professional in the platform's new colors.
+
+**How to apply:** Present financial details in a clear hierarchy with distinct cancel and confirm actions, without changing purchase or balance rules.
+
+After a failed purchase request, keep the confirmation open and show the error there so the user can retry or cancel without losing the product and balance details. Clear stale errors when another product is opened.
+
+**Why:** A rejected or interrupted purchase should not force the user to restart the confirmation flow.
+
+**How to apply:** Keep server validation authoritative and only send another purchase request after the user explicitly retries.
