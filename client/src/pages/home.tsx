@@ -9,11 +9,10 @@ import {
   DEFAULT_MINIMUM_WITHDRAWAL,
   readPositiveIntegerSetting,
 } from "@shared/platform-settings";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
 
-import notificationBell from "@assets/generated_images/home-notification-bell.png";
 import depositIcon from "@/assets/images/home-icons/deposit.png";
 import withdrawalIcon from "@/assets/images/home-icons/withdrawal.png";
 import supportIcon from "@/assets/images/home-icons/support.png";
@@ -138,7 +137,8 @@ export default function HomePage() {
     "Avant de confirmer une demande, vérifiez les coordonnées du portefeuille et le montant net affiché.",
   ];
   const groupLink = settings?.groupLink || "";
-  const popupButtonLabel = "Rejoindre le groupe d’entraide";
+  const groupEnabled = settings?.groupEnabled !== "false";
+  const popupButtonLabel = settings?.popupButtonLabel || "Rejoindre le groupe Telegram";
 
   return (
     <>
@@ -241,22 +241,38 @@ export default function HomePage() {
 
       <Dialog open={welcomePopupOpen} onOpenChange={setWelcomePopupOpen}>
         <DialogContent className="cp-dialog z-[60]" overlayClassName="cp-dialog-overlay">
-          <div className="cp-dialog-banner">
-            <DialogTitle className="cp-dialog-title">Informations utiles</DialogTitle>
-          </div>
-          <div className="cp-dialog-mark" aria-hidden="true">
-            <img className="cp-dialog-bell-image" src={notificationBell} alt="" />
-          </div>
+          <header className="cp-dialog-banner">
+            <DialogTitle className="cp-dialog-title">Message important</DialogTitle>
+            <button
+              className="cp-dialog-x"
+              type="button"
+              onClick={() => setWelcomePopupOpen(false)}
+              aria-label="Fermer le message"
+            >
+              <X size={21} aria-hidden="true" />
+            </button>
+          </header>
           <div className="cp-dialog-copy">
             <DialogDescription className="cp-dialog-message">
-              Consultez les principales conditions applicables aux dépôts, aux retraits et au pointage.
+              Bienvenue sur votre espace. Consultez les conditions des dépôts, des retraits et des bonus avant toute opération.
             </DialogDescription>
+            <img
+              className="cp-dialog-company-image"
+              src={catlBooth1}
+              alt="Stand CATL dans un salon professionnel"
+              loading="lazy"
+            />
+            {groupEnabled && groupLink && (
+              <p className="cp-dialog-community-note">
+                Pour recevoir les annonces et échanger avec la communauté, vous pouvez rejoindre notre groupe Telegram.
+              </p>
+            )}
             <ol className="cp-dialog-list">
               {popupRules.map((rule) => <li key={rule}>{rule}</li>)}
             </ol>
           </div>
           <div className="cp-dialog-actions">
-            {groupLink && (
+            {groupEnabled && groupLink && (
               <a className="cp-dialog-telegram" href={groupLink} target="_blank" rel="noreferrer" onClick={() => setWelcomePopupOpen(false)}>
                 <span className="cp-telegram-logo" aria-hidden="true">
                   <svg viewBox="0 0 40 40" focusable="false">
@@ -271,7 +287,7 @@ export default function HomePage() {
                 <ChevronRight size={19} aria-hidden="true" />
               </a>
             )}
-            <button className="cp-dialog-close" type="button" onClick={() => setWelcomePopupOpen(false)}>FERMER</button>
+            <button className="cp-dialog-close" type="button" onClick={() => setWelcomePopupOpen(false)}>Confirmer</button>
           </div>
         </DialogContent>
       </Dialog>

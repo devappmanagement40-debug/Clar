@@ -335,7 +335,7 @@ body:has(.cp-home) { background: #081d58 !important; }
 .cp-bottom-nav button[aria-current="page"] span:last-child { color: var(--cp-accent-deep) !important; font-weight: 700; }
 .cp-bottom-nav button:hover span:last-child { color: var(--cp-accent-deep); }
 
-.cp-dialog-overlay { background-color: rgba(20, 18, 20, .72); backdrop-filter: blur(2px); }
+.cp-dialog-overlay { background-color: rgba(8, 29, 88, .66); backdrop-filter: blur(3px); }
 .cp-dialog {
   --cp-accent: #1947b8;
   --cp-accent-deep: #12358f;
@@ -346,24 +346,24 @@ body:has(.cp-home) { background: #081d58 !important; }
   display: flex;
   width: calc(100% - 32px);
   max-width: 410px;
-  height: min(620px, calc(100dvh - 36px));
-  min-height: min(460px, calc(100dvh - 36px));
+  height: min(680px, calc(100dvh - 32px));
+  min-height: min(460px, calc(100dvh - 32px));
   max-height: calc(100dvh - 36px);
   flex-direction: column;
   gap: 0;
   overflow: visible;
-  border: 2px solid var(--cp-card-border);
-  border-radius: 22px;
+  border: 1px solid #dce6fb;
+  border-radius: 20px;
   padding: 0;
   background: #fff;
   color: var(--cp-ink);
-  box-shadow: 0 4px 0 #17191c, 0 24px 72px rgba(18, 12, 14, .34);
+  box-shadow: 0 18px 58px rgba(8, 29, 88, .28);
 }
 .cp-dialog > button:last-child { display: none; }
 .cp-dialog-banner {
   position: relative;
   display: flex;
-  min-height: 104px;
+  min-height: 78px;
   flex: none;
   align-items: center;
   justify-content: center;
@@ -373,24 +373,25 @@ body:has(.cp-home) { background: #081d58 !important; }
   color: #fff;
 }
 .cp-dialog-telegram:focus-visible,
-.cp-dialog-close:focus-visible { outline: 3px solid rgba(25, 71, 184, .4); outline-offset: 3px; }
-.cp-dialog-mark {
+.cp-dialog-close:focus-visible,
+.cp-dialog-x:focus-visible { outline: 3px solid rgba(25, 71, 184, .4); outline-offset: 3px; }
+.cp-dialog-x {
   position: absolute;
-  z-index: 2;
-  top: 74px;
-  left: 50%;
+  top: 50%;
+  right: 14px;
   display: grid;
-  width: 62px;
-  height: 62px;
+  width: 36px;
+  height: 36px;
   place-items: center;
-  transform: translateX(-50%);
-  border: 4px solid #fff;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, .46);
   border-radius: 50%;
-  background: var(--cp-accent-soft);
-  color: var(--cp-accent);
-  box-shadow: 0 3px 12px rgba(23, 25, 28, .16);
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color .15s ease, transform .15s ease;
 }
-.cp-dialog-bell-image { display: block; width: 35px; height: 35px; object-fit: contain; }
+.cp-dialog-x:hover { background: rgba(255, 255, 255, .25); transform: translateY(-50%) scale(1.04); }
 .cp-dialog-copy {
   display: flex;
   min-height: 0;
@@ -399,14 +400,16 @@ body:has(.cp-home) { background: #081d58 !important; }
   margin: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 42px 22px 16px;
+  padding: 18px 20px 16px;
   color: var(--cp-ink);
   scrollbar-color: #d7c9cc transparent;
   scrollbar-width: thin;
 }
-.cp-dialog-title { margin: 0; color: #fff; font: 700 22px/1.18 "Space Grotesk", sans-serif; letter-spacing: .045em; text-align: center; text-transform: uppercase; }
-.cp-dialog-message { flex: none; margin: 0; color: #514a4e; font: 600 13px/1.5 "DM Sans", sans-serif; text-align: left; }
-.cp-dialog-list { display: grid; gap: 9px; margin: 13px 0 0; padding-left: 23px; color: #393438; font: 500 13px/1.46 "DM Sans", sans-serif; }
+.cp-dialog-title { margin: 0; color: #fff; font: 700 21px/1.18 "Space Grotesk", sans-serif; letter-spacing: .01em; text-align: center; }
+.cp-dialog-message { flex: none; margin: 0; color: #39435a; font: 500 14px/1.52 "DM Sans", sans-serif; text-align: left; }
+.cp-dialog-company-image { display: block; width: 100%; max-height: 174px; aspect-ratio: 16 / 8; margin: 14px 0 0; border: 1px solid #dce6fb; border-radius: 12px; background: #edf2ff; object-fit: cover; object-position: center; box-shadow: 0 4px 14px rgba(8, 29, 88, .12); }
+.cp-dialog-community-note { flex: none; margin: 12px 0 0; color: #535f78; font: 500 13px/1.45 "DM Sans", sans-serif; }
+.cp-dialog-list { display: grid; gap: 8px; margin: 12px 0 0; padding-left: 23px; color: #343b4b; font: 500 12px/1.43 "DM Sans", sans-serif; }
 .cp-dialog-list li { padding-left: 3px; }
 .cp-dialog-list li::marker { color: var(--cp-accent-deep); font-weight: 800; }
 .cp-dialog-actions { display: flex; width: 100%; flex: none; flex-direction: column; gap: 9px; border-top: 1px solid var(--cp-line); border-radius: 0 0 20px 20px; padding: 13px 20px 18px; background: #fff; }
@@ -440,9 +443,9 @@ body:has(.cp-home) { background: #081d58 !important; }
 .cp-telegram-logo { display: grid; width: 32px; height: 32px; flex: none; place-items: center; overflow: hidden; border-radius: 50%; }
 .cp-telegram-logo svg { display: block; width: 100%; height: 100%; }
 .cp-dialog-telegram > span:not(.cp-telegram-logo) { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-wrap: balance; }
-.cp-dialog-close { min-height: 48px; border-color: #17191c; background: #17191c; color: #fff; }
+.cp-dialog-close { min-height: 48px; border-color: #cbd9f6; background: #f3f6ff; color: var(--cp-accent-deep); }
 .cp-dialog-telegram:hover { background: var(--cp-accent-deep); box-shadow: 0 1px 0 var(--cp-accent-deep); transform: translateY(2px); }
-.cp-dialog-close:hover { border-color: var(--cp-accent-deep); background: var(--cp-accent-deep); }
+.cp-dialog-close:hover { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
 
 @keyframes cp-rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -468,21 +471,21 @@ body:has(.cp-home) { background: #081d58 !important; }
 
 @media (max-width: 370px) {
   .cp-dialog { width: calc(100% - 28px); }
-  .cp-dialog-banner { min-height: 96px; padding-right: 46px; padding-left: 46px; }
-  .cp-dialog-mark { top: 67px; width: 58px; height: 58px; }
-  .cp-dialog-copy { padding: 39px 14px 12px; }
+  .cp-dialog-banner { min-height: 72px; padding-right: 52px; padding-left: 52px; }
+  .cp-dialog-copy { padding: 15px 14px 12px; }
   .cp-dialog-title { font-size: 19px; }
-  .cp-dialog-message { font-size: 12px; }
-  .cp-dialog-list { gap: 7px; margin-top: 11px; padding-left: 21px; font-size: 12px; }
+  .cp-dialog-message { font-size: 13px; }
+  .cp-dialog-company-image { max-height: 142px; margin-top: 11px; }
+  .cp-dialog-list { gap: 7px; margin-top: 10px; padding-left: 21px; font-size: 11px; }
   .cp-dialog-actions { padding: 10px 14px 13px; }
 }
 
 @media (max-height: 620px) {
   .cp-dialog { height: calc(100dvh - 28px); min-height: calc(100dvh - 28px); max-height: calc(100dvh - 28px); }
-  .cp-dialog-banner { min-height: 88px; }
-  .cp-dialog-mark { top: 61px; width: 54px; height: 54px; }
-  .cp-dialog-copy { padding-top: 34px; }
-  .cp-dialog-list { gap: 6px; margin-top: 9px; font-size: 12px; }
+  .cp-dialog-banner { min-height: 68px; }
+  .cp-dialog-copy { padding-top: 12px; }
+  .cp-dialog-company-image { max-height: 116px; margin-top: 9px; }
+  .cp-dialog-list { gap: 5px; margin-top: 8px; font-size: 11px; }
   .cp-dialog-actions { gap: 7px; padding-top: 8px; padding-bottom: 10px; }
 }
 
