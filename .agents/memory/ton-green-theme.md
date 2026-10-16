@@ -39,8 +39,8 @@ After a failed purchase request, keep the confirmation open and show the error t
 
 **How to apply:** Keep server validation authoritative and only send another purchase request after the user explicitly retries.
 
-The withdrawal page should use light white and pale-blue surfaces with CATL-blue accents; do not use black or dark page/card backgrounds.
+The withdrawal page should use light white surfaces with CATL-blue accents and clearly defined cards; do not use black or dark page/card fills.
 
-**Why:** the user corrected the dark withdrawal appearance and asked for it to match the deposit page.
+**Why:** the user rejected the dark withdrawal appearance, then asked its cards and background treatment to match the homepage and deposit page.
 
-**How to apply:** Keep text dark for contrast, use the supplied battery image behind a light overlay, and keep form, wallet, and rules cards bright.
+**How to apply:** Reuse the homepage's CATL background image and subtle overlay with a transparent shell. Keep cards bright white with strong dark outlines and offset shadows; dark outlines are acceptable, but dark fills are not.
