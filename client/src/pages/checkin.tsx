@@ -6,7 +6,7 @@ import { getCountryByCode } from "@/lib/countries";
 import { CalendarCheck, ChevronLeft, Coins, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { CatlLogo } from "@/components/catl-logo";
-import { equinorOffshore, equinorPhone } from "@/assets/equinor-media";
+import { catlBatteryBackground, catlBooth1 } from "@/assets/catl-media";
 
 interface BonusStatus {
   canClaim: boolean;
@@ -384,7 +384,7 @@ export default function CheckinPage() {
 
         <section className="hero" aria-label="Bonus quotidien">
           <div className="hero-art">
-            <img src={equinorPhone} alt="" />
+            <img src={catlBatteryBackground} alt="" />
           </div>
           <div className="hero-copy">
             <strong>Bonus du jour</strong>
@@ -427,7 +427,7 @@ export default function CheckinPage() {
         <section className="earnings-card" aria-label="Bilan de vos récompenses">
           <div className="stats">
             <div className="stat">
-              <img className="stat-background" src={equinorOffshore} alt="" aria-hidden="true" />
+              <img className="stat-background" src={catlBooth1} alt="" aria-hidden="true" />
               <div className="stat-content">
                 <Coins className="stat-icon" aria-hidden="true" />
                 <p className="stat-value secondary">{formatAmount(totalBonusClaimed)}</p>
@@ -435,7 +435,7 @@ export default function CheckinPage() {
               </div>
             </div>
             <div className="stat">
-              <img className="stat-background" src={equinorPhone} alt="" aria-hidden="true" />
+              <img className="stat-background" src={catlBatteryBackground} alt="" aria-hidden="true" />
               <div className="stat-content">
                 <CalendarCheck className="stat-icon" aria-hidden="true" />
                 <p className="stat-value">{bonusStatus?.daysPointed || 0}</p>

@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { equinorPhone } from "@/assets/equinor-media";
+import { catlBatteryBackground } from "@/assets/catl-media";
 import telegramIcon from "@assets/tg-1_1787390593655.png";
 
 export default function GiftCodePage() {
@@ -82,7 +82,7 @@ export default function GiftCodePage() {
           <h1>Échanger un cadeau</h1>
         </header>
         <div className="gift-banner">
-          <img className="gift-hero" src={equinorPhone} alt="" data-testid="img-gift-banner" />
+          <img className="gift-hero" src={catlBatteryBackground} alt="" data-testid="img-gift-banner" />
         </div>
         <p className="gift-description">Vous pouvez obtenir un code cadeau dans le groupe</p>
         <a className="gift-telegram" href={settings?.groupLink || "https://t.me/sybotx"} target="_blank" rel="noreferrer">

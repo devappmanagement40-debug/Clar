@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 
 import { CatlLogo } from "@/components/catl-logo";
-import { equinorOffshore, equinorPlatform } from "@/assets/equinor-media";
+import { catlBooth1, catlBooth2 } from "@/assets/catl-media";
 
 interface LinksSettings {
   supportLink: string;
@@ -75,13 +75,13 @@ export default function ServicePage() {
         </header>
 
         <section className="benefits" aria-label="Présentation d'Equinor">
-          <img className="benefit-banner" src={equinorOffshore} alt="" />
+          <img className="benefit-banner" src={catlBooth1} alt="" />
         </section>
 
         <section className="telegram-section" aria-labelledby="support-heading">
           <h2 id="support-heading" className="telegram-title">Assistance Equinor</h2>
           <div className="telegram-grid">
-            <img className="bike-image" src={equinorPlatform} alt="" />
+            <img className="bike-image" src={catlBooth2} alt="" />
             <div className="telegram-actions">
               {supportLinks.map((link) => (
                 <button key={link.testId} type="button" className={`telegram-link ${link.size}`} onClick={() => window.open(link.href, "_blank")} data-testid={link.testId}>

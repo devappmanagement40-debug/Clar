@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getCountryByCode } from "@/lib/countries";
 import { Loader2, PackageOpen } from "lucide-react";
-import equinorProductBanner from "@assets/ITM4W5DOSVIZHOJCQX74LIO7CA_1791819301503.jpg";
+import { catlBooth1 } from "@/assets/catl-media";
 
 export default function MyProductsPage() {
   const { user } = useAuth();
@@ -396,7 +396,7 @@ export default function MyProductsPage() {
           <strong>Mes produits</strong>
         </header>
         <section className="products-hero" aria-label="Produits">
-          <img src={equinorProductBanner} alt="" />
+          <img src={catlBooth1} alt="" />
           <div
             className="stat-panel our"
             aria-label={`Total reçu : ${loadingUserProducts ? "chargement" : formatStatAmount(totalReceived)}`}

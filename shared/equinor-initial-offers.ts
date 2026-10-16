@@ -4,7 +4,7 @@ export const equinorInitialOffers = [
     price: 3500,
     dailyEarnings: 800,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-platform.jpg",
+    imageUrl: "/images/catl/products/catl-booth-1.webp",
     isActive: true,
   },
   {
@@ -12,7 +12,7 @@ export const equinorInitialOffers = [
     price: 10000,
     dailyEarnings: 2550,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-rig.jpg",
+    imageUrl: "/images/catl/products/catl-booth-2.webp",
     isActive: true,
   },
   {
@@ -20,7 +20,7 @@ export const equinorInitialOffers = [
     price: 20000,
     dailyEarnings: 5200,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/equinor-brand.jpg",
+    imageUrl: "/images/catl/products/catl-booth-3.webp",
     isActive: true,
   },
   {
@@ -28,7 +28,7 @@ export const equinorInitialOffers = [
     price: 5000,
     dailyEarnings: 1200,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-platform.jpg",
+    imageUrl: "/images/catl/products/catl-booth-1.webp",
     isActive: false,
   },
   {
@@ -36,7 +36,7 @@ export const equinorInitialOffers = [
     price: 15000,
     dailyEarnings: 3800,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-rig.jpg",
+    imageUrl: "/images/catl/products/catl-booth-2.webp",
     isActive: false,
   },
   {
@@ -44,7 +44,7 @@ export const equinorInitialOffers = [
     price: 25000,
     dailyEarnings: 6500,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/equinor-brand.jpg",
+    imageUrl: "/images/catl/products/catl-booth-3.webp",
     isActive: false,
   },
   {
@@ -52,7 +52,7 @@ export const equinorInitialOffers = [
     price: 50000,
     dailyEarnings: 13000,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-platform.jpg",
+    imageUrl: "/images/catl/products/catl-booth-1.webp",
     isActive: false,
   },
   {
@@ -60,7 +60,7 @@ export const equinorInitialOffers = [
     price: 100000,
     dailyEarnings: 26000,
     cycleDays: 150,
-    imageUrl: "/images/equinor/products/offshore-rig.jpg",
+    imageUrl: "/images/catl/products/catl-booth-2.webp",
     isActive: false,
   },
 ] as const;

@@ -24,7 +24,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ADMIN_PATH } from "@/lib/admin-path";
 import { CatlLogo } from "@/components/catl-logo";
-import { equinorPhone } from "@/assets/equinor-media";
+import { catlBatteryBackground } from "@/assets/catl-media";
 import depositIcon from "@/assets/images/home-icons/deposit.png";
 import withdrawalIcon from "@/assets/images/home-icons/withdrawal.png";
 import supportIcon from "@/assets/images/home-icons/support.png";
@@ -240,7 +240,7 @@ export default function AccountPage() {
         </section>
 
         <section className="cp-account-promo" aria-label="Missions Equinor">
-          <img src={equinorPhone} alt="Téléphone Equinor présenté dans une ambiance lumineuse" />
+          <img src={catlBatteryBackground} alt="Visuel de batteries CATL" />
           <div>
             <strong>Centre des missions</strong>
             <span>Terminez des missions et obtenez des bonus attractifs.</span>

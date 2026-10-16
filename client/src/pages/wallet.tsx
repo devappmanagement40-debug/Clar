@@ -9,7 +9,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getCountriesForDisplay, getWithdrawalMethodsForCountry, type ApiCountry } from "@/lib/countries";
 import { Loader2, Plus, Trash2, CreditCard, ChevronLeft, ChevronRight, ChevronDown, Shield, Check, Search, X, Wifi } from "lucide-react";
 import emptyIllustration from "@assets/illustration-8_1784762965573.png";
-import { equinorOffshore } from "@/assets/equinor-media";
+import { catlBatteryBackground } from "@/assets/catl-media";
 import { Link, useLocation, useSearch } from "wouter";
 import type { WithdrawalWallet } from "@shared/schema";
 
@@ -559,7 +559,7 @@ const walletStyles = `
     background-color: #ffffff;
     background-image:
       linear-gradient(rgba(255, 255, 255, .22), rgba(255, 255, 255, .22)),
-      url("${equinorOffshore}");
+      url("${catlBatteryBackground}");
     background-position: top center;
     background-repeat: no-repeat;
     background-size: 100% auto;

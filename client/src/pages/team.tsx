@@ -133,8 +133,8 @@ export default function TeamPage() {
           <section className="team-banner" aria-label="Votre réseau">
             {!bannerImageFailed && (
               <img
-                src="/images/equinor/products/offshore-platform.jpg"
-                alt="Plateforme offshore au large"
+                src="/images/catl/products/catl-booth-1.webp"
+                alt="Stand CATL"
                 onError={() => setBannerImageFailed(true)}
               />
             )}
