@@ -21,6 +21,12 @@ For Côte d’Ivoire only, append the selected XOF amount to configured `https:/
 
 **How to apply:** Build the click URL from the current payment link and amount, gated by country `CI` and exact HTTPS host `pay.wave.com`; use the original URL for QR rendering and any non-matching link.
 
+The 30-minute countdown shown on the Côte d’Ivoire Wave checkout is indicative only. Reaching zero must not block payment, close the page, or change deposit status.
+
+**Why:** The user approved the countdown as a visual match to the mockup, but the configured Wave link has no corresponding expiry behavior.
+
+**How to apply:** Keep this display timer separate from payment validity and deposit review; only enforce expiry if Wave later provides a real expiration signal.
+
 When building new country-specific deposit pages from supplied mockups, add them alongside existing deposit pages; do not replace or remove the existing pages unless the user explicitly asks.
 
 **Why:** The user clarified that new deposit pages are a new addition and the existing deposit pages must remain.
