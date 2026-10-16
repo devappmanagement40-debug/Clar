@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ChevronLeft, Clock, Info, Copy, CheckCircle, Upload, Phone, Loader2,
+  ChevronLeft, Clock, Copy, CheckCircle, Upload, Phone, Loader2, Coins, Gift,
   ImageIcon, ArrowRight, Zap, RefreshCw, ExternalLink, CreditCard, Check, Wallet,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -143,6 +143,21 @@ const DEPOSIT_STEP_STYLES = `
     border: 2px solid #111827 !important;
     border-radius: 12px !important;
     background: #fff !important;
+  }
+  .deposit-step-shell [class*="text-[#D40030]"],
+  .deposit-step-shell [class*="text-[#A60026]"],
+  .deposit-step-shell [class*="border-[#D40030]"],
+  .deposit-step-shell [class*="hover:border-[#D40030]"],
+  .deposit-step-shell [class*="focus:border-[#D40030]"] {
+    color: #1947b8 !important;
+    border-color: #1947b8 !important;
+  }
+  .deposit-step-shell [class*="bg-[#D40030]"] {
+    background-color: #1947b8 !important;
+  }
+  .deposit-step-shell [class*="bg-[#FFF0F3]"],
+  .deposit-step-shell [class*="hover:bg-[#FFF0F3]"] {
+    background-color: #edf2ff !important;
   }
   @media (max-width: 360px) {
     .deposit-step-shell .deposit-step-header { padding-right: 12px; padding-left: 12px; }
@@ -1025,11 +1040,6 @@ export default function DepositPage() {
           font-size: 16px;
           font-weight: 800;
         }
-        .recharge-reference .amount-minimum {
-          color: #6b7280;
-          font-size: 12px;
-          font-weight: 500;
-        }
         .recharge-reference .amount-input {
           display: flex;
           height: 60px;
@@ -1204,27 +1214,281 @@ export default function DepositPage() {
           .recharge-reference .preset { font-size: 12px; }
           .recharge-reference .instruction { font-size: 15px; }
         }
+        .recharge-reference {
+          background: #f7f6f2;
+          color: #18233b;
+          font-family: "DM Sans", "Avenir Next", system-ui, sans-serif;
+        }
+        .recharge-reference .recharge-screen {
+          max-width: 512px;
+          padding-bottom: max(18px, env(safe-area-inset-bottom));
+          background: #f7f6f2;
+        }
+        .recharge-reference .recharge-hero {
+          height: 64px;
+          background: #12358f;
+          border: 0;
+          color: #fff;
+        }
+        .recharge-reference .recharge-title { color: #fff; font-size: 19px; font-weight: 750; }
+        .recharge-reference .history-button,
+        .recharge-reference .recharge-back {
+          top: 11px;
+          width: 40px;
+          height: 40px;
+          border: 0;
+          border-radius: 50%;
+          background: rgb(255 255 255 / 13%);
+          color: #fff;
+          box-shadow: none;
+        }
+        .recharge-reference .history-button:active,
+        .recharge-reference .recharge-back:active {
+          background: rgb(255 255 255 / 22%);
+          color: #fff;
+          box-shadow: none;
+        }
+        .recharge-reference .deposit-intro {
+          position: relative;
+          display: flex;
+          min-height: 118px;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+          margin: 18px 18px 0;
+          padding: 23px 19px 35px;
+          overflow: hidden;
+          border-radius: 22px 22px 12px 12px;
+          background: linear-gradient(125deg, #1947b8 0%, #12358f 100%);
+          color: #fff;
+        }
+        .recharge-reference .deposit-intro-copy {
+          position: relative;
+          z-index: 1;
+          margin: 0;
+          max-width: 270px;
+          font-size: 16px;
+          font-weight: 700;
+          line-height: 1.45;
+        }
+        .recharge-reference .deposit-intro-icon {
+          flex: 0 0 auto;
+          width: 42px;
+          height: 42px;
+          margin-top: 1px;
+          color: #dce7ff;
+          opacity: .92;
+        }
+        .recharge-reference .account-summary {
+          position: relative;
+          z-index: 2;
+          min-height: 106px;
+          justify-content: center;
+          margin: -7px 18px 0;
+          padding: 18px 16px;
+          border: 0;
+          border-radius: 24px;
+          background: #fff;
+          box-shadow: 0 8px 24px rgb(27 46 89 / 7%);
+          text-align: center;
+        }
+        .recharge-reference .balance-value {
+          display: inline;
+          color: #c58220;
+          font-size: 23px;
+          font-weight: 800;
+          letter-spacing: -.03em;
+        }
+        .recharge-reference .balance-label {
+          display: inline;
+          margin: 0 7px 0 0;
+          color: #777b83;
+          font-size: 16px;
+        }
+        .recharge-reference .country-chip { display: none; }
+        .recharge-reference .amount-panel {
+          margin: 22px 18px 0;
+          padding: 17px 16px 16px;
+          border-radius: 18px;
+          background: #fff;
+          box-shadow: 0 5px 20px rgb(27 46 89 / 4%);
+        }
+        .recharge-reference .amount-label {
+          display: flex;
+          align-items: center;
+          margin: 0 0 12px;
+          padding-bottom: 11px;
+          border-bottom: 1px solid #e8e8e6;
+          color: #252a32;
+          font-size: 16px;
+          font-weight: 750;
+        }
+        .recharge-reference .amount-heading-icon { flex: none; width: 20px; height: 20px; margin-right: 9px; color: #1947b8; }
+        .recharge-reference .preset-row {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 7px;
+          margin: 0 0 10px;
+          overflow: visible;
+        }
+        .recharge-reference .preset {
+          min-width: 0;
+          min-height: 48px;
+          border: 1px solid #d5d7db;
+          border-radius: 10px;
+          background: #fff;
+          color: #30343b;
+          font-size: 15px;
+          font-weight: 600;
+          box-shadow: none;
+        }
+        .recharge-reference .preset.active {
+          border-color: #1947b8;
+          background: #1947b8;
+          color: #fff;
+          box-shadow: 0 3px 9px rgb(25 71 184 / 20%);
+        }
+        .recharge-reference .amount-input {
+          height: 52px;
+          border: 1px solid #d5d7db;
+          border-radius: 10px;
+          background: #fff;
+        }
+        .recharge-reference .amount-input:focus-within {
+          border-color: #1947b8;
+          box-shadow: 0 0 0 3px rgb(25 71 184 / 12%);
+        }
+        .recharge-reference .amount-input input { font-size: 16px; }
+        .recharge-reference .currency {
+          padding: 0 13px;
+          border: 0;
+          color: #4c5361;
+          font-size: 15px;
+          font-weight: 700;
+        }
+        .recharge-reference .country-panel {
+          margin: 16px 18px 0;
+          padding: 16px;
+          border-radius: 17px;
+          background: #fff;
+          box-shadow: 0 5px 20px rgb(27 46 89 / 4%);
+        }
+        .recharge-reference .country-heading {
+          margin: 0 0 10px;
+          color: #292e37;
+          font-size: 15px;
+          font-weight: 750;
+        }
+        .recharge-reference .country-options {
+          display: block;
+        }
+        .recharge-reference .country-select {
+          width: 100%;
+          height: 52px;
+          padding: 0 13px;
+          border: 1px solid #d5d7db;
+          border-radius: 10px;
+          outline: 0;
+          background: #fff;
+          color: #454a53;
+          font: inherit;
+          font-size: 15px;
+        }
+        .recharge-reference .country-select:focus {
+          border-color: #1947b8;
+          box-shadow: 0 0 0 3px rgb(25 71 184 / 12%);
+        }
+        .recharge-reference .country-options .country-option { display: none; }
+        .recharge-reference .continue {
+          width: calc(100% - 36px);
+          min-height: 58px;
+          margin: 17px 18px 0;
+          border: 0;
+          border-radius: 999px;
+          background: linear-gradient(112deg, #1947b8 0%, #12358f 100%);
+          color: #fff;
+          font-size: 16px;
+          font-weight: 750;
+          box-shadow: 0 5px 13px rgb(18 53 143 / 20%);
+        }
+        .recharge-reference .continue:active:not(:disabled) {
+          transform: translateY(1px);
+          box-shadow: 0 2px 6px rgb(18 53 143 / 20%);
+        }
+        .recharge-reference .continue:disabled { opacity: .5; }
+        .recharge-reference .instructions {
+          margin: 17px 18px 20px;
+          padding: 16px 15px 5px;
+          border: 0;
+          border-radius: 17px;
+          background: #fff;
+          color: #444a54;
+          box-shadow: 0 5px 20px rgb(27 46 89 / 4%);
+        }
+        .recharge-reference .instructions-title {
+          margin: 0 0 12px;
+          font-size: 16px;
+          font-weight: 800;
+        }
+        .recharge-reference .instructions-title::before {
+          content: "!";
+          display: inline-grid;
+          width: 19px;
+          height: 19px;
+          place-items: center;
+          margin-right: 8px;
+          border-radius: 50%;
+          background: #1947b8;
+          color: #fff;
+          font-size: 13px;
+          font-weight: 800;
+        }
+        .recharge-reference .instruction {
+          margin: 0 0 12px 0;
+          padding-left: 0;
+          font-size: 14px;
+          line-height: 1.55;
+        }
+        .recharge-reference .instruction::before { display: none; }
+        .recharge-reference .instruction strong { color: #303640; }
+        @media (max-width: 360px) {
+          .recharge-reference .deposit-intro,
+          .recharge-reference .account-summary,
+          .recharge-reference .amount-panel,
+          .recharge-reference .country-panel,
+          .recharge-reference .instructions { margin-right: 12px; margin-left: 12px; }
+          .recharge-reference .continue { width: calc(100% - 24px); margin-right: 12px; margin-left: 12px; }
+          .recharge-reference .preset { font-size: 13px; }
+        }
       `}</style>
 
       <div className="recharge-screen">
         <header className="recharge-hero" aria-label="Dépôt">
-          <h1 className="recharge-title">Recharge</h1>
-          <Link href="/account">
-            <button className="recharge-back" aria-label="Retour">
+          <h1 className="recharge-title">
+            <Coins className="inline-block h-5 w-5 align-[-3px]" aria-hidden="true" />
+            <span className="ml-2">Recharger</span>
+          </h1>
+          <Link href="/account" className="recharge-back" aria-label="Retour">
               <ChevronLeft className="h-6 w-6" strokeWidth={2.6} aria-hidden="true" />
-            </button>
           </Link>
-          <Link href="/deposits-history">
-            <button className="history-button" aria-label="Historique des recharges">
+          <Link href="/deposits-history" className="history-button" aria-label="Historique des dépôts">
               <Clock className="h-6 w-6" strokeWidth={2.4} aria-hidden="true" />
-            </button>
           </Link>
         </header>
 
+        <section className="deposit-intro" aria-label="Minimum de dépôt">
+          <p className="deposit-intro-copy">
+            Recharge minimum : {settingsRefreshing
+              ? "Actualisation…"
+              : `${MIN_DEPOSIT.toLocaleString("fr-FR")} ${currency}`}
+          </p>
+          <Gift className="deposit-intro-icon" strokeWidth={1.8} aria-hidden="true" />
+        </section>
+
         <section className="account-summary" aria-label="Solde et pays du compte">
           <div>
-            <p className="balance-value">{currency} {accountBalance.toLocaleString("fr-FR")}</p>
-            <p className="balance-label">Solde du compte</p>
+            <p className="balance-label">Solde du compte :</p>
+            <p className="balance-value">{accountBalance.toLocaleString("fr-FR")} {currency}</p>
           </div>
           <div className="country-chip" aria-live="polite">
             <Wallet className="country-chip-icon h-5 w-5" strokeWidth={2.4} aria-hidden="true" />
@@ -1234,24 +1498,9 @@ export default function DepositPage() {
 
         <section className="amount-panel" aria-label="Montant de recharge">
           <p className="amount-label">
-            Montant de la recharge
-            <span className="amount-minimum">
-              {settingsRefreshing
-                ? "(Actualisation des paramètres…)"
-                : `(Minimum ${currency} ${MIN_DEPOSIT.toLocaleString("fr-FR")})`}
-            </span>
+            <CreditCard className="amount-heading-icon" strokeWidth={2.2} aria-hidden="true" />
+            <span>Sélectionner le montant de recharge</span>
           </p>
-          <label className="amount-input">
-            <span className="currency">{currency}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value ? Number(event.target.value) : "")}
-              placeholder="Veuillez saisir le montant"
-              aria-label="Montant de recharge"
-            />
-          </label>
           <div className="preset-row">
             {depositPresets.map((preset) => (
               <button
@@ -1266,11 +1515,33 @@ export default function DepositPage() {
               </button>
             ))}
           </div>
+          <label className="amount-input">
+            <span className="currency">{currency}</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={amount}
+              onChange={(event) => setAmount(event.target.value ? Number(event.target.value) : "")}
+              placeholder="Veuillez saisir le montant"
+              aria-label="Montant de recharge"
+            />
+          </label>
         </section>
 
         <section className="country-panel" aria-label="Pays et institutions de recharge">
-          <h2 className="country-heading">Méthode de recharge</h2>
+          <h2 className="country-heading">Pays du paiement</h2>
           <div className="country-options" role="group" aria-label="Choisir le pays de recharge">
+            <select
+              className="country-select"
+              aria-label="Pays du paiement"
+              value={depositCountry}
+              onChange={(event) => setDepositCountry(event.target.value)}
+            >
+              <option value="">Sélectionnez un pays</option>
+              {activeDepositCountries.map((item) => (
+                <option key={item.code} value={item.code}>{item.name}</option>
+              ))}
+            </select>
             {activeDepositCountries.map((item) => {
               const isSelected = depositCountry === item.code;
               return (
@@ -1319,11 +1590,11 @@ export default function DepositPage() {
             wpInitiateMutation.isPending
           }
         >
-          Valider le paiement
+          Recharger
         </button>
 
         <section className="instructions" aria-label="Bon à savoir">
-          <h2 className="instructions-title">Bon à savoir</h2>
+          <h2 className="instructions-title">Rappel important</h2>
           <p className="instruction">
             <strong>Montant minimum de recharge :</strong>{" "}
             {settingsRefreshing ? "Actualisation…" : `${MIN_DEPOSIT.toLocaleString("fr-FR")} ${currency}`}
