@@ -2585,7 +2585,7 @@ export async function registerRoutes(
 
       const todayCount = await storage.getUserWithdrawalCountToday(user.id);
       const settingsForMax = await storage.getSettings();
-      const maxPerDay = parseInt(settingsForMax.maxWithdrawalsPerDay || "1");
+      const maxPerDay = parseInt(settingsForMax.maxWithdrawalsPerDay || "3");
       if (todayCount >= maxPerDay) {
         return res.status(400).json({ message: `Maximum ${maxPerDay} retrait${maxPerDay > 1 ? 's' : ''} par jour` });
       }
@@ -2936,7 +2936,7 @@ export async function registerRoutes(
         withdrawalFees: parseFloat(settings.withdrawalFees || "16"),
         withdrawalStartHour: parseInt(settings.withdrawalStartHour || "9"),
         withdrawalEndHour: parseInt(settings.withdrawalEndHour || "17"),
-        maxWithdrawalsPerDay: parseInt(settings.maxWithdrawalsPerDay || "1"),
+        maxWithdrawalsPerDay: parseInt(settings.maxWithdrawalsPerDay || "3"),
         minWithdrawal: readPositiveIntegerSetting(settings.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL),
         withdrawalPrepaymentEnabled: settings.withdrawalPrepaymentEnabled === "true",
       });

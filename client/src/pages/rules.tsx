@@ -22,9 +22,9 @@ export default function RulesPage() {
   const withdrawalFees = settings?.withdrawalFees || "16";
   const withdrawalStartHour = settings?.withdrawalStartHour || "9";
   const withdrawalEndHour = settings?.withdrawalEndHour || "17";
-  const maxWithdrawalsPerDay = settings?.maxWithdrawalsPerDay || "1";
-  const lv1 = settings?.level1Commission || "25";
-  const lv2 = settings?.level2Commission || "4";
+  const maxWithdrawalsPerDay = settings?.maxWithdrawalsPerDay || "3";
+  const lv1 = settings?.level1Commission || "28";
+  const lv2 = settings?.level2Commission || "1";
   const lv3 = settings?.level3Commission || "1";
   const formatXof = (value: string) => {
     const amount = Number.parseInt(value, 10);

@@ -124,7 +124,7 @@ export default function HomePage() {
   const withdrawalFee = parseDecimalSetting("withdrawalFees", 16);
   const withdrawalStartHour = parseIntegerSetting("withdrawalStartHour", 9);
   const withdrawalEndHour = parseIntegerSetting("withdrawalEndHour", 17);
-  const maxWithdrawalsPerDay = parseIntegerSetting("maxWithdrawalsPerDay", 1);
+  const maxWithdrawalsPerDay = parseIntegerSetting("maxWithdrawalsPerDay", 3);
   const withdrawalPrepaymentEnabled = settings?.withdrawalPrepaymentEnabled === "true";
   const popupRules = [
     `Montant minimum du dépôt : ${formatPopupMoney(minimumDeposit)}.`,
