@@ -20,3 +20,9 @@ For Côte d’Ivoire only, append the selected XOF amount to configured `https:/
 **Why:** Wave checkout must receive the exact amount selected in the app, while the existing QR and other payment routes must remain unchanged.
 
 **How to apply:** Build the click URL from the current payment link and amount, gated by country `CI` and exact HTTPS host `pay.wave.com`; use the original URL for QR rendering and any non-matching link.
+
+When building new country-specific deposit pages from supplied mockups, add them alongside existing deposit pages; do not replace or remove the existing pages unless the user explicitly asks.
+
+**Why:** The user clarified that new deposit pages are a new addition and the existing deposit pages must remain.
+
+**How to apply:** Preserve current deposit routes and screens while implementing the new country-specific flows. Verify that old pages still exist after each change.
