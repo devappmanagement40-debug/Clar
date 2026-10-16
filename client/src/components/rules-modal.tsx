@@ -55,7 +55,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
                 <li>- Frais de retrait : {withdrawalFees}%</li>
                 <li>- Horaires : {withdrawalStartHour}h - {withdrawalEndHour}h</li>
                 <li>- Maximum {maxWithdrawalsPerDay} retrait(s) par jour</li>
-                <li>- Un produit actif est requis pour retirer</li>
+                <li>- Seul le solde des gains est retirable; aucun produit actif n'est requis</li>
                 <li>- Un portefeuille de retrait doit être enregistré</li>
               </ul>
             </section>

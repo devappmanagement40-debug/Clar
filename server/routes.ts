@@ -2496,7 +2496,7 @@ export async function registerRoutes(
       }
       const withdrawableBalance = parseFloat(await storage.getWithdrawableBalance(user.id));
       if (withdrawalAmount > withdrawableBalance) {
-        return res.status(400).json({ message: "Le montant des dépôts n'est pas retirable" });
+        return res.status(400).json({ message: "Le solde des gains est insuffisant; les dépôts ne sont pas retirables." });
       }
       const { payment, requiredAmount } = await prepareWithdrawalFeePayment(user.id, withdrawalAmount);
       res.json({
@@ -2545,7 +2545,7 @@ export async function registerRoutes(
 
        const withdrawableBalance = parseFloat(await storage.getWithdrawableBalance(user.id));
        if (numericAmount > withdrawableBalance) {
-         return res.status(400).json({ message: "Le montant des dépôts n'est pas retirable" });
+          return res.status(400).json({ message: "Le solde des gains est insuffisant; les dépôts ne sont pas retirables." });
       }
       const requestedWalletId = req.body.walletId;
       let wallet: Awaited<ReturnType<typeof storage.getDefaultWallet>>;
