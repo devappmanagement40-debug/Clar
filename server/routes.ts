@@ -18,6 +18,7 @@ import {
   users,
   type ClapayPayout,
 } from "@shared/schema";
+import { catlVipOffers } from "@shared/catl-vip-offers";
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
 import { getActiveCountryMethodNames, hasConfiguredCountryMethods } from "@shared/country-methods";
 import { parseClapayPayoutCountries } from "@shared/clapay-payout-countries";
@@ -101,6 +102,8 @@ import {
 } from "./telegram";
 import { notifyTelegramPaymentError } from "./telegram-events";
 import express from "express";
+
+const currentCatlProductNames = new Set<string>(catlVipOffers.map(offer => offer.name));
 
 // --- Brute-force protection (in-memory) ---
 const loginAttempts = new Map<string, { count: number; blockedUntil: number }>();
@@ -787,6 +790,9 @@ export async function registerRoutes(
   app.get("/api/products", requireAuth, async (req, res) => {
     try {
       const products = await storage.getProducts(true);
+      const customerCatalogProducts = products.filter(product =>
+        product.isActive || currentCatlProductNames.has(product.name),
+      );
       const userProductsList = await storage.getUserProducts(req.session.userId!);
       const user = await storage.getUser(req.session.userId!);
       
@@ -802,7 +808,7 @@ export async function registerRoutes(
       const canClaimFree = !user?.lastFreeProductClaim || 
         new Date(user.lastFreeProductClaim) < today;
 
-      const productsWithOwnership = products.map(p => ({
+      const productsWithOwnership = customerCatalogProducts.map(p => ({
         ...p,
         isOwned: productCounts.has(p.id),
         ownedCount: productCounts.get(p.id) || 0,
