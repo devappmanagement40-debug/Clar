@@ -14,7 +14,7 @@ import {
 } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { ChevronDown, Loader2, Smartphone } from "lucide-react";
-import loginBackground from "@assets/0_45528_1791799291731.jpg";
+import loginBackground from "@/assets/images/catl-auth-background.webp";
 import "./auth-pages.css";
 
 const loginSchema = z.object({
@@ -95,7 +95,10 @@ export default function LoginPage() {
       <img className="auth-background-image" src={loginBackground} alt="" aria-hidden="true" />
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="login-title">
-          <h1 id="login-title" className="auth-visually-hidden">Connexion à Equinor</h1>
+          <header className="auth-brand">
+            <h1 id="login-title" className="auth-title">CATL</h1>
+            <p className="auth-subtitle">Connectez-vous à votre espace</p>
+          </header>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <input type="hidden" {...form.register("country")} />
 

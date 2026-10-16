@@ -14,7 +14,7 @@ import {
 } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { ChevronDown, Loader2, Smartphone } from "lucide-react";
-import registerBackground from "@assets/0_45533_1791799295363.jpg";
+import registerBackground from "@/assets/images/catl-auth-background.webp";
 import "./auth-pages.css";
 
 const registerSchema = z.object({
@@ -97,7 +97,7 @@ export default function RegisterPage() {
         password: data.password,
         invitationCode: data.invitationCode,
       });
-      toast({ title: "Inscription réussie !", description: "Bienvenue sur Equinor !" });
+      toast({ title: "Inscription réussie !", description: "Bienvenue sur CATL !" });
       navigate("/");
     } catch (error: any) {
       toast({ title: "Inscription impossible", description: error.message || "Vérifiez vos informations et réessayez.", variant: "destructive" });
@@ -113,7 +113,10 @@ export default function RegisterPage() {
       <img className="auth-background-image" src={registerBackground} alt="" aria-hidden="true" />
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="register-title">
-          <h1 id="register-title" className="auth-visually-hidden">Créer un compte Equinor</h1>
+          <header className="auth-brand">
+            <h1 id="register-title" className="auth-title">CATL</h1>
+            <p className="auth-subtitle">Créez votre compte</p>
+          </header>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <input type="hidden" {...form.register("country")} />
 

@@ -6,7 +6,9 @@
 }
 
 .auth-reference {
-  --equinor-auth-red: #d40030;
+  --catl-blue: #1947b8;
+  --catl-blue-dark: #12358f;
+  --catl-blue-deep: #081d58;
   position: relative;
   isolation: isolate;
   display: block;
@@ -14,7 +16,7 @@
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
-  background-color: #aa0a2b;
+  background-color: var(--catl-blue-deep);
   color: #171717;
   font-family: Roboto, "Segoe UI", sans-serif;
 }
@@ -36,9 +38,9 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgb(80 80 80 / 18%) 0%,
-    rgb(75 75 75 / 24%) 52%,
-    rgb(65 65 65 / 30%) 100%
+    rgb(8 27 85 / 34%) 0%,
+    rgb(8 27 85 / 50%) 52%,
+    rgb(5 17 58 / 68%) 100%
   );
   content: "";
   pointer-events: none;
@@ -59,11 +61,25 @@
 .auth-reference .auth-panel {
   width: min(100%, 410px);
   margin: 0 auto;
-  transform: translateY(3vh);
 }
 
-.auth-reference.auth-register .auth-panel {
-  transform: translateY(11vh);
+.auth-reference .auth-brand {
+  margin-bottom: 22px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 45%);
+}
+
+.auth-reference .auth-title {
+  margin: 0;
+  font: 800 clamp(34px, 8vw, 44px)/1.05 Roboto, "Segoe UI", sans-serif;
+  letter-spacing: 0.12em;
+}
+
+.auth-reference .auth-subtitle {
+  margin: 8px 0 0;
+  color: rgb(255 255 255 / 94%);
+  font: 600 17px/1.35 Roboto, "Segoe UI", sans-serif;
 }
 
 .auth-reference .auth-visually-hidden {
@@ -103,7 +119,7 @@
 
 .auth-reference .auth-field:focus-within {
   border-color: #fff;
-  box-shadow: 0 0 0 3px rgb(212 0 48 / 40%), 0 5px 16px rgb(0 0 0 / 18%);
+  box-shadow: 0 0 0 3px rgb(85 145 255 / 68%), 0 5px 16px rgb(0 0 0 / 18%);
 }
 
 .auth-reference .auth-field.has-error,
@@ -206,8 +222,8 @@
   border: 0;
   border-radius: 9px;
   padding: 10px 18px;
-  background: #fff;
-  color: var(--equinor-auth-red);
+  background: var(--catl-blue);
+  color: #fff;
   font: 800 22px/1.25 Roboto, "Segoe UI", sans-serif;
   box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
   cursor: pointer;
@@ -215,7 +231,7 @@
 }
 
 .auth-reference .auth-submit:hover:not(:disabled) {
-  background: #fff7f8;
+  background: var(--catl-blue-dark);
   box-shadow: 0 8px 22px rgb(0 0 0 / 25%);
 }
 
@@ -275,16 +291,16 @@
   .auth-reference::before {
     background: linear-gradient(
       180deg,
-      rgb(80 80 80 / 18%) 0%,
-      rgb(75 75 75 / 24%) 52%,
-      rgb(65 65 65 / 30%) 100%
+      rgb(8 27 85 / 34%) 0%,
+      rgb(8 27 85 / 50%) 52%,
+      rgb(5 17 58 / 68%) 100%
     );
   }
 }
 
-/* Equinor palette for the login and registration country picker. */
+/* CATL palette for the login and registration country picker. */
 .auth-reference .country-picker-overlay {
-  background: rgb(38 8 15 / 62%);
+  background: rgb(5 17 58 / 68%);
 }
 
 .auth-reference .country-picker {
@@ -297,7 +313,7 @@
 
 .auth-reference .country-picker-header {
   padding: 13px 15px;
-  background: var(--equinor-auth-red);
+  background: var(--catl-blue-dark);
 }
 
 .auth-reference .country-picker-header h2 {
@@ -316,13 +332,13 @@
 }
 
 .auth-reference .country-picker-search {
-  border-color: #ded0d3;
+  border-color: #d4def5;
   background: #fff;
 }
 
 .auth-reference .country-picker-search:focus-within {
-  border-color: var(--equinor-auth-red);
-  box-shadow: 0 0 0 2px rgb(212 0 48 / 16%);
+  border-color: var(--catl-blue);
+  box-shadow: 0 0 0 2px rgb(25 71 184 / 18%);
 }
 
 .auth-reference .country-picker-search svg {
@@ -339,7 +355,7 @@
 }
 
 .auth-reference .country-picker-list {
-  scrollbar-color: var(--equinor-auth-red) transparent;
+  scrollbar-color: var(--catl-blue) transparent;
 }
 
 .auth-reference .country-picker-row {
@@ -349,12 +365,12 @@
 
 .auth-reference .country-picker-row:hover,
 .auth-reference .country-picker-row:focus-visible {
-  background: #fff3f5;
+  background: #f2f6ff;
 }
 
 .auth-reference .country-picker-row.is-selected {
-  background: #fde8ed;
-  color: #ad0028;
+  background: #e9efff;
+  color: var(--catl-blue-dark);
 }
 
 .auth-reference .country-picker-prefix {
@@ -362,7 +378,7 @@
 }
 
 .auth-reference .country-picker-check {
-  color: var(--equinor-auth-red);
+  color: var(--catl-blue);
 }
 
 .auth-reference .country-picker-empty {

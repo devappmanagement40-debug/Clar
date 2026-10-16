@@ -3,11 +3,11 @@ name: Page visual styling
 description: Existing page layout and color decisions that remain separate from the Equinor name.
 ---
 
-The user requested a compact homepage based on their mobile reference, with white card surfaces and a more visible crimson accent. Preserve live account fields, quick actions, and the fixed horizontal bottom navigation. Leave login and registration untouched. The user reports official authorization for supplied Equinor images in requested homepage banners; see [the brand authorization scope](vestas-platform.md).
+The user requested a compact homepage based on their mobile reference, with white card surfaces, black borders, and a fixed horizontal bottom navigation. Preserve live account fields and quick actions. The newer CATL rebrand direction supersedes the former crimson accent; use blue accents when the homepage is next changed.
 
-**Why:** The user asked for white backgrounds and clearer card colors based on their references and later confirmed authorization for the supplied carousel images.
+**Why:** The user asked for white backgrounds and clear card borders, then later chose CATL blue as the new brand direction.
 
-**How to apply:** Keep the homepage canvas and card surfaces pure white; use clear black borders with deliberate offset shadows and a crimson accent. Preserve live values and routes. Display the user-supplied authorized images only in homepage banners the user requests, fully visible without cropping; leave login/registration untouched.
+**How to apply:** Keep homepage card surfaces white with clear black borders and deliberate offset shadows. Use CATL blue instead of crimson for future requested homepage changes. Preserve live values and routes.
 
 Use native SVG icons from the existing icon set for homepage quick actions, the announcement bell, and the information dialog, colored with the page's crimson accent.
 
