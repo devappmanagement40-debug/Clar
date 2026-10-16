@@ -637,12 +637,10 @@ export default function RobotPayPage() {
         step={step}
         amount={amount}
         currency={currency}
-        operators={operators}
         selectedOperator={operator}
         phone={phone}
         phonePrefix={phonePrefix}
         onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, 10))}
-        onChooseOperator={(item) => chooseOperator(item as Operator)}
         onContinue={continueFromOperatorSelection}
         onBack={() => {
           if (step === 0) {
@@ -666,7 +664,6 @@ export default function RobotPayPage() {
             : null
         }
         paymentPhone={operator?.manualNumber?.phone}
-        ownerName={operator?.manualNumber?.ownerName}
         transactionReference={manualTransactionReference}
         onTransactionReferenceChange={setManualTransactionReference}
         onSubmitPayment={() => manualMutation.mutate()}
