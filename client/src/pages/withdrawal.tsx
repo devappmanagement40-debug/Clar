@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   ArrowUpRight,
   ChevronRight,
-  Clock3,
   CreditCard,
   Info,
   Loader2,
@@ -18,6 +17,7 @@ import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import { catlBatteryBackground } from "@/assets/catl-media";
+import withdrawHistoryIcon from "@assets/IMG_20260829_070945_804_1792174059478.jpg";
 
 interface WalletData {
   id: number;
@@ -271,6 +271,13 @@ export default function WithdrawalPage() {
         .withdraw-icon-link:active { transform: translateY(1px); }
         .withdraw-back-link { left: 16px; }
         .withdraw-history-link { right: 16px; }
+        .withdraw-history-icon {
+          display: block;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
         .withdraw-hero {
           position: relative;
           display: grid;
@@ -654,7 +661,7 @@ export default function WithdrawalPage() {
             </Link>
             <h1 className="withdraw-title">Retrait</h1>
             <Link href="/history" className="withdraw-icon-link withdraw-history-link" aria-label="Historique des transactions">
-              <Clock3 size={19} aria-hidden="true" />
+              <img src={withdrawHistoryIcon} alt="" className="withdraw-history-icon" />
             </Link>
           </header>
 
