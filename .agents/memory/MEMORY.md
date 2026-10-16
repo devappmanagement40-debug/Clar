@@ -15,7 +15,7 @@
 - [Dev workflow port conflict](workflow-port-conflict.md) — a failed restart can leave a prior server child listening on port 5000; inspect the listener before retrying.
 - [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits and signup bonuses are purchase-only; earnings remain the only withdrawable balance.
 - [VIP levels](vip-levels.md) — new accounts start at VIP 0; the highest ranked paid offer purchased determines the displayed level.
-- [VIP duration](vip-duration.md) — Product cycle length is admin-managed; startup code must never force a fixed duration.
+- [VIP duration](vip-duration.md) — CATL VIP totals are daily earnings × 150 days; apply new terms only to future purchases and preserve current holders.
 - [Task milestone management](task-milestones.md) — Keep task thresholds and rewards database-driven, editable in admin, and never restore deleted values on app startup.
 - [Mockup sandbox isolation](mockup-sandbox-dependencies.md) — Separate dependencies and preview ports mean a main-app screenshot can misreport a healthy sandbox preview.
 - [Workflow secret scope](workflow-secret-scope.md) — One-off shell commands may lack secrets available to the managed app workflow; use scoped presence checks and guarded execution.

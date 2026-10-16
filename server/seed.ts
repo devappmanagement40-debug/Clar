@@ -1,10 +1,10 @@
 import { db } from "./db";
 import { users, tasks, paymentChannels, platformSettings, countries, products } from "@shared/schema";
 import { getActiveCountryMethodNames } from "@shared/country-methods";
-import { equinorInitialOffers } from "@shared/equinor-initial-offers";
+import { catlVipOffers } from "@shared/catl-vip-offers";
 import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import bcrypt from "bcrypt";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 export async function seed() {
   console.log("Seeding database...");
@@ -219,16 +219,15 @@ export async function seed() {
       .where(eq(countries.id, country.id));
   }
 
-  // Insert the approved initial offers once. The marker and rows share a transaction,
-  // so later starts preserve admin edits and deletions instead of reseeding the catalog.
-  const productCatalogSeedKey = "migration_initial_equinor_offers_applied";
-  const initialOffersResult = await db.transaction(async tx => {
+  // Add the CATL VIP catalog once without editing terms on previously purchased offers.
+  const vipCatalogSeedKey = "migration_catl_vip_offers_applied";
+  const vipCatalogResult = await db.transaction(async tx => {
     const [seedMarker] = await tx.insert(platformSettings)
-      .values({ key: productCatalogSeedKey, value: "pending" })
+      .values({ key: vipCatalogSeedKey, value: "pending" })
       .onConflictDoNothing()
       .returning({ key: platformSettings.key });
 
-    if (!seedMarker) return { inserted: 0, alreadyApplied: true, existing: 0 };
+    if (!seedMarker) return { inserted: 0, retired: 0, alreadyApplied: true };
 
     const existingProducts = await tx.select({
       name: products.name,
@@ -237,7 +236,7 @@ export async function seed() {
     const existingNames = new Set(
       existingProducts.map(product => product.name.trim().toLocaleLowerCase("fr")),
     );
-    const offersToInsert = equinorInitialOffers.filter(
+    const offersToInsert = catlVipOffers.filter(
       offer => !existingNames.has(offer.name.toLocaleLowerCase("fr")),
     );
     const firstSortOrder = existingProducts.reduce(
@@ -259,16 +258,31 @@ export async function seed() {
       })));
     }
 
+    const legacyOfferNames = [
+      "Énergie Essentielle",
+      "Énergie Plus",
+      "Énergie Premium",
+      "Énergie Horizon",
+      "Énergie Atlas",
+      "Énergie Performance",
+      "Énergie Excellence",
+      "Énergie Signature",
+    ];
+    const retiredOffers = await tx.update(products)
+      .set({ isActive: false })
+      .where(and(eq(products.isActive, true), inArray(products.name, legacyOfferNames)))
+      .returning({ id: products.id });
+
     await tx.update(platformSettings)
       .set({ value: "true" })
-      .where(eq(platformSettings.key, productCatalogSeedKey));
+      .where(eq(platformSettings.key, vipCatalogSeedKey));
 
-    return { inserted: offersToInsert.length, alreadyApplied: false };
+    return { inserted: offersToInsert.length, retired: retiredOffers.length, alreadyApplied: false };
   });
-  if (initialOffersResult.alreadyApplied) {
-    console.log("Initial product offers skipped — bootstrap already applied");
+  if (vipCatalogResult.alreadyApplied) {
+    console.log("CATL VIP plans skipped — bootstrap already applied");
   } else {
-    console.log(`Initial product offers added: ${initialOffersResult.inserted}; existing products preserved`);
+    console.log(`CATL VIP plans added: ${vipCatalogResult.inserted}; legacy offers retired: ${vipCatalogResult.retired}`);
   }
 
   // Apply defaults once only. Persisting the marker means admin deletions stay deleted after a restart.

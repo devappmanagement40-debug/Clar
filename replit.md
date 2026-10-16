@@ -135,7 +135,7 @@ The "Start application" workflow runs `npm run dev` and serves the app on port 5
 - **Withdrawal Hours**: 8h-17h (9h-18h for Cameroon/Benin)
 - **Max Withdrawals/Day**: 3
 - **Referral Commissions**: Level 1 (28%), Level 2 (1%), Level 3 (1%)
-- **Product Cycle**: 80 days by default
+- **CATL VIP Product Cycle**: 150 days; total return is daily earnings × 150, for new purchases only
 
 ## Supported Countries
 - Cameroun (CM) - XAF - Orange Money, MTN

@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { equinorInitialOffers } from "@shared/equinor-initial-offers";
+import { catlVipOffers } from "@shared/catl-vip-offers";
 import { Edit, Loader2, TrendingUp, Plus, Trash2 } from "lucide-react";
 import type { Product } from "@shared/schema";
 
@@ -84,11 +84,11 @@ export default function AdminProducts() {
       if (!products) throw new Error("Le catalogue n’est pas encore chargé.");
 
       const existingNames = new Set(products.map(product => product.name.trim().toLocaleLowerCase("fr")));
-      const productsToCreate = equinorInitialOffers.filter(
+      const productsToCreate = catlVipOffers.filter(
         product => !existingNames.has(product.name.toLocaleLowerCase("fr")),
       );
       if (productsToCreate.length === 0) {
-        return { created: 0, alreadyPresent: equinorInitialOffers.length };
+        return { created: 0, alreadyPresent: catlVipOffers.length };
       }
 
       const nextSortOrder = products.reduce((highest, product) => Math.max(highest, product.sortOrder), -1) + 1;
@@ -107,16 +107,16 @@ export default function AdminProducts() {
 
       return {
         created: productsToCreate.length,
-        alreadyPresent: equinorInitialOffers.length - productsToCreate.length,
+        alreadyPresent: catlVipOffers.length - productsToCreate.length,
       };
     },
     onSuccess: ({ created, alreadyPresent }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
-        title: created ? `${created} produit(s) ajouté(s)` : "Les huit offres sont déjà présentes",
+        title: created ? `${created} plan(s) VIP ajouté(s)` : "Les neuf plans VIP sont déjà présents",
         description: created
-          ? `${alreadyPresent} déjà présent(s). Les trois premières offres sont actives ; les cinq montants d’exemple restent inactifs.`
+          ? `${alreadyPresent} déjà présent(s). Les nouveaux plans sont actifs; les fiches existantes sont conservées.`
           : "Aucune nouvelle fiche n’a été créée.",
       });
     },
@@ -322,19 +322,19 @@ export default function AdminProducts() {
             disabled={!products || isLoading || initialOffersMutation.isPending}
             onClick={() => {
               if (window.confirm(
-                "Ajouter les huit fiches ? Les trois premières seront actives et achetables. Les cinq autres utiliseront des montants d’exemple et resteront inactives jusqu’à leur modification dans l’administration.",
+                "Ajouter les 9 plans VIP manquants ? Les plans ajoutés seront actifs et les fiches existantes resteront inchangées.",
               )) {
                 initialOffersMutation.mutate();
               }
             }}
-            data-testid="button-add-initial-equinor-offers"
+            data-testid="button-add-initial-catl-vip-offers"
           >
             {initialOffersMutation.isPending ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Plus className="w-4 h-4 mr-2" />
             )}
-            Ajouter 8 offres
+            Ajouter les 9 plans VIP
           </Button>
           <Button onClick={() => { setShowCreateForm(true); createForm.reset(); }} data-testid="button-add-product">
             <Plus className="w-4 h-4 mr-2" />
@@ -343,7 +343,7 @@ export default function AdminProducts() {
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        Les fiches ajoutées ici restent modifiables. Les cinq offres supplémentaires sont inactives avec des montants provisoires.
+        Les plans VIP ajoutés ici restent modifiables dans cette section.
       </p>
 
       {isLoading ? (
