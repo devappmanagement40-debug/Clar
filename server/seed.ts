@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { users, tasks, paymentChannels, platformSettings, countries, products } from "@shared/schema";
-import { getActiveCountryMethodNames } from "@shared/country-methods";
+import { getActiveCountryMethodNames, parseCountryMethodEntries } from "@shared/country-methods";
 import { catlVipOffers } from "@shared/catl-vip-offers";
 import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import bcrypt from "bcrypt";
@@ -113,7 +113,7 @@ export async function seed() {
       name: "Togo",
       currency: "XOF",
       phonePrefix: "228",
-      operators: ["Togocel", "Moov Africa Togo"],
+      operators: ["Togocel", "Moov Africa Togo", "TMoney"],
       withdrawalMethods: ["Togocel", "Moov Africa Togo"],
       isActive: true,
     },
@@ -201,6 +201,59 @@ export async function seed() {
   });
   if (countryCatalogMigration !== null) {
     console.log(`[country catalog] Applied requested countries; retained ${countryCatalogMigration} existing Tchad account(s) and historical records.`);
+  }
+
+  const togoDepositMethodsMigrationKey = "togo_deposit_methods_moov_tmoney_applied";
+  const togoDepositMethodsMigration = await db.transaction(async (tx) => {
+    const [togo] = await tx.select({ id: countries.id, operators: countries.operators })
+      .from(countries)
+      .where(eq(countries.code, "TG"))
+      .limit(1);
+    if (!togo) return "missing";
+
+    const [marker] = await tx.insert(platformSettings)
+      .values({ key: togoDepositMethodsMigrationKey, value: "applied" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+    if (!marker) return "already-applied";
+
+    const methods = parseCountryMethodEntries(togo.operators);
+    const normalizeName = (name: string) => name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+    let changed = false;
+
+    const moov = methods.find((method) => normalizeName(method.name).includes("moov"));
+    if (moov) {
+      if (!moov.isActive) {
+        moov.isActive = true;
+        changed = true;
+      }
+    } else {
+      methods.push({ name: "Moov Africa Togo", isActive: true });
+      changed = true;
+    }
+
+    const tmoney = methods.find((method) => normalizeName(method.name).includes("tmoney"));
+    if (tmoney) {
+      if (!tmoney.isActive) {
+        tmoney.isActive = true;
+        changed = true;
+      }
+    } else {
+      methods.push({ name: "TMoney", isActive: true });
+      changed = true;
+    }
+
+    if (changed) {
+      await tx.update(countries)
+        .set({ operators: JSON.stringify(methods) })
+        .where(eq(countries.id, togo.id));
+    }
+    return changed ? "updated" : "already-configured";
+  });
+  if (togoDepositMethodsMigration === "updated") {
+    console.log("[Togo deposits] Moov Money and TMoney enabled; withdrawal methods unchanged.");
+  } else if (togoDepositMethodsMigration === "already-configured") {
+    console.log("[Togo deposits] Moov Money and TMoney were already configured.");
   }
 
   const currentCountries = await db.select().from(countries);

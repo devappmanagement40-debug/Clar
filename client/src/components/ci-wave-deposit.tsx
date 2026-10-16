@@ -209,7 +209,7 @@ export default function CiWaveDeposit({
   return (
     <main
       className="min-h-[100dvh] px-3 py-5 text-[#263342] sm:px-5 sm:py-10"
-      style={{ background: step === 0 ? "#f3a35d" : "linear-gradient(135deg, #f0a15a 0%, #e99a60 52%, #168bb5 100%)" }}
+      style={{ background: step === 0 ? "linear-gradient(180deg, #ee9a59 0%, #df9053 52%, #ec9958 100%)" : "linear-gradient(135deg, #ee9a59 0%, #32859d 100%)" }}
     >
       <div className="mx-auto w-full max-w-[480px] overflow-hidden rounded-[22px] border-2 border-white bg-white shadow-[0_18px_55px_rgba(25,45,65,0.3)]">
         <header className="flex items-center justify-between border-b border-[#edf0f3] px-4 py-3.5 sm:px-6">
@@ -218,7 +218,7 @@ export default function CiWaveDeposit({
             <span className="mt-0.5 flex items-center gap-1 text-[10px] font-bold leading-3 text-[#52647a]"><span aria-hidden="true">🇨🇮</span>{copy.country} · {copy.countryCode}</span>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
-            {!submitted && <div className="flex min-w-12 flex-col items-center rounded-lg bg-[#fff4e8] px-1.5 py-1 text-[#b8581b]" aria-label={`${copy.indicative} ${formatTime(indicativeSeconds)}`}>
+            {!submitted && <div className="flex min-w-12 flex-col items-center rounded-lg bg-white px-1.5 py-1 text-[#ee9a59] shadow-[0_3px_10px_rgba(20,30,50,0.12)]" aria-label={`${copy.indicative} ${formatTime(indicativeSeconds)}`}>
               <span className="font-mono text-xs font-extrabold tabular-nums">{formatTime(indicativeSeconds)}</span>
               <span className="text-[8px] font-bold uppercase leading-3">{copy.indicative}</span>
             </div>}
@@ -246,15 +246,15 @@ export default function CiWaveDeposit({
           <section className="space-y-5 px-4 py-5 sm:px-6 sm:py-6">
             <div className="flex items-center justify-between rounded-xl border-2 border-[#d5dce4] bg-[#f7f8fa] px-4 py-3 shadow-sm">
               <span className="text-sm font-semibold text-[#687586]">{copy.paymentAmount}</span>
-              <strong className="text-base font-extrabold text-[#c85e1d]">FCFA {displayAmount}</strong>
+              <strong className="text-base font-extrabold text-[#ee9a59]">FCFA {displayAmount}</strong>
             </div>
             <div className="space-y-2.5">
               <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-white bg-white shadow-[0_4px_14px_rgba(23,139,198,0.28)]">
                 <img src="/operators/wave-brand.png" alt={copy.waveLogoAlt} className="h-full w-full rounded-full object-contain" />
               </div>
-              <div className="flex min-h-[52px] items-center justify-center rounded-xl border-2 border-[#a74f1b] bg-[#e9944d] px-4 text-base font-bold text-white shadow-[0_4px_12px_rgba(83,49,19,0.16)]">
+              <div className="flex min-h-[52px] items-center justify-center rounded-xl border-2 border-[#ee9a59] bg-[#efa266] px-4 text-base font-bold text-white shadow-[0_4px_12px_rgba(238,154,89,0.32)]">
                 <span>{selectedName}</span>
-                <span className="ml-auto grid h-7 w-7 place-items-center rounded-full bg-white text-[#c85e1d] shadow-sm"><Check className="h-4 w-4" aria-hidden="true" /></span>
+                <span className="ml-auto grid h-7 w-7 place-items-center rounded-full bg-white text-[#ee9a59] shadow-sm"><Check className="h-4 w-4" aria-hidden="true" /></span>
               </div>
             </div>
             <label htmlFor="ci-wave-phone" className="block text-sm font-semibold text-[#344258]">
@@ -265,10 +265,10 @@ export default function CiWaveDeposit({
               </span>
             </label>
             <p className="rounded-lg bg-[#fff4ef] px-3 py-2.5 text-sm font-semibold leading-5 text-[#c75348]">{copy.phoneHint}</p>
-            <button type="button" onClick={onContinue} disabled={!selectedOperator || phone.replace(/\D/g, "").length !== 10} className="flex min-h-[54px] w-full items-center justify-center rounded-xl bg-[#b8581b] px-4 text-base font-bold text-white shadow-[0_4px_0_#8f4418] transition hover:bg-[#a34d19] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ee9951]/40 disabled:cursor-not-allowed disabled:opacity-55">
+            <button type="button" onClick={onContinue} disabled={!selectedOperator || phone.replace(/\D/g, "").length !== 10} className="flex min-h-[54px] w-full items-center justify-center rounded-xl bg-[#ee9a59] px-4 text-base font-bold text-white shadow-[0_4px_10px_rgba(0,0,0,0.16)] transition hover:bg-[#df9053] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ee9a59]/40 disabled:cursor-not-allowed disabled:opacity-100">
               {copy.submit}
             </button>
-            <div className="flex items-center gap-3 rounded-xl bg-[#178bc6] px-4 py-3.5 text-white shadow-[0_4px_12px_rgba(23,139,198,0.2)]">
+            <div className="flex items-center gap-3 rounded-xl bg-[#1d86e3] px-4 py-3.5 text-white shadow-[0_4px_12px_rgba(29,134,227,0.24)]">
               <ShieldCheck className="h-6 w-6 shrink-0" aria-hidden="true" />
               <div><p className="text-sm font-bold">{copy.secureTitle}</p><p className="mt-0.5 text-xs leading-4 text-white/95">{copy.secureBody}</p></div>
             </div>
@@ -305,14 +305,14 @@ export default function CiWaveDeposit({
             {status === "pending" && <button type="button" onClick={onRefreshStatus} disabled={!depositId || isRefreshing} className="mt-3 min-h-12 w-full rounded-xl border border-[#cbd5df] bg-white font-bold text-[#315170] hover:bg-[#f7f9fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd] disabled:opacity-55">{isRefreshing ? copy.refreshing : copy.refresh}</button>}
             <div className="mt-5 grid grid-cols-2 gap-3">
               <button type="button" onClick={onViewHistory} className="min-h-12 rounded-xl border border-[#d6dde5] px-3 text-sm font-bold text-[#40516a] hover:bg-[#f7f9fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd]">{copy.history}</button>
-              <button type="button" onClick={onHome} className="min-h-12 rounded-xl bg-[#b8581b] px-3 text-sm font-bold text-white hover:bg-[#a34d19] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd]">{copy.home}</button>
+              <button type="button" onClick={onHome} className="min-h-12 rounded-xl bg-[#ee9a59] px-3 text-sm font-bold text-white hover:bg-[#df9053] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd]">{copy.home}</button>
             </div>
           </section>
         ) : (
           <section className="space-y-4 px-4 py-5 sm:px-6 sm:py-6">
             <div role="tablist" aria-label={copy.openApp} className="grid grid-cols-2 gap-1 rounded-xl bg-[#f0f2f4] p-1">
-              <button type="button" role="tab" aria-selected={view === "app"} onClick={() => setView("app")} className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd] ${view === "app" ? "bg-[#b8581b] text-white shadow-sm" : "text-[#435064] hover:bg-white"}`}><Smartphone className="h-4 w-4" aria-hidden="true" />{copy.openApp}</button>
-              <button type="button" role="tab" aria-selected={view === "qr"} onClick={() => setView("qr")} className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd] ${view === "qr" ? "bg-[#b8581b] text-white shadow-sm" : "text-[#435064] hover:bg-white"}`}><QrCode className="h-4 w-4" aria-hidden="true" />{copy.scanQr}</button>
+              <button type="button" role="tab" aria-selected={view === "app"} onClick={() => setView("app")} className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd] ${view === "app" ? "bg-[#ee9a59] text-white shadow-sm" : "text-[#435064] hover:bg-white"}`}><Smartphone className="h-4 w-4" aria-hidden="true" />{copy.openApp}</button>
+              <button type="button" role="tab" aria-selected={view === "qr"} onClick={() => setView("qr")} className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd] ${view === "qr" ? "bg-[#ee9a59] text-white shadow-sm" : "text-[#435064] hover:bg-white"}`}><QrCode className="h-4 w-4" aria-hidden="true" />{copy.scanQr}</button>
             </div>
             <div className="flex items-center justify-between rounded-xl border-2 border-[#d5dce4] bg-[#f7f8fa] px-4 py-3 shadow-sm">
               <span className="text-sm font-semibold text-[#687586]">{copy.amount}</span><strong className="text-lg font-extrabold text-[#c85e1d]">{displayAmount} <span className="text-sm">FCFA</span></strong>
@@ -320,14 +320,14 @@ export default function CiWaveDeposit({
             {view === "app" ? (
               <>
                 <div className="flex gap-2.5 rounded-xl border-l-4 border-[#ee9951] bg-[#eaf5fc] px-3.5 py-3 text-sm leading-5 text-[#315e7e]"><Info className="mt-0.5 h-4 w-4 shrink-0 text-[#178ebd]" aria-hidden="true" /><p>{copy.openWaveInfo}</p></div>
-                <div className="rounded-xl border-2 border-[#b96a31] bg-[#e9944d] px-5 py-5 text-center text-white shadow-[0_7px_18px_rgba(83,49,19,0.22)]">
+                <div className="rounded-xl border-2 border-[#ee9a59] bg-[#ee9a59] px-5 py-5 text-center text-white shadow-[0_7px_18px_rgba(238,154,89,0.28)]">
                   <div className="mx-auto flex items-center justify-center gap-3">
                     <img src="/operators/wave-brand.png" alt={copy.waveLogoAlt} className="h-24 w-24 shrink-0 rounded-2xl border-2 border-white bg-white p-1 object-contain shadow-md" />
                     <span className="text-2xl font-extrabold leading-tight">{copy.payWith}</span>
                   </div>
                   <p className="mx-auto mt-3 max-w-[300px] text-sm font-semibold leading-5">{copy.openAppInstructions}</p>
                 </div>
-                {appLink ? <a href={appLink} target="_blank" rel="noopener noreferrer" className="flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-[#0f6d8d] px-4 text-center font-bold text-white shadow-[0_4px_12px_rgba(15,109,141,.24)] hover:bg-[#0b5d79] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#178ebd]/25"><ExternalLink className="h-5 w-5" aria-hidden="true" />{copy.openAppToPay}</a> : <p className="rounded-lg bg-[#fff5e9] p-3 text-sm font-semibold text-[#9b5d29]">{copy.paymentLinkMissing}</p>}
+                {appLink ? <a href={appLink} target="_blank" rel="noopener noreferrer" className="flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-[#0d8bb8] px-4 text-center font-bold text-white shadow-[0_4px_12px_rgba(13,139,184,0.24)] hover:bg-[#0b7ca6] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#178ebd]/25"><ExternalLink className="h-5 w-5" aria-hidden="true" />{copy.openAppToPay}</a> : <p className="rounded-lg bg-[#fff5e9] p-3 text-sm font-semibold text-[#9b5d29]">{copy.paymentLinkMissing}</p>}
                 <p className="text-center text-xs leading-5 text-[#7b8795]">{copy.returnAfterPayment}</p>
                 <div className="flex gap-2.5 rounded-xl border-l-4 border-[#ee9951] bg-[#eaf5fc] px-3.5 py-3 text-sm leading-5 text-[#315e7e]"><Info className="mt-0.5 h-4 w-4 shrink-0 text-[#178ebd]" aria-hidden="true" /><p>{copy.completedTransfer}</p></div>
               </>
@@ -344,10 +344,10 @@ export default function CiWaveDeposit({
               <div><h2 className="text-base font-extrabold text-[#25344a]">{copy.transactionReference}</h2><p className="mt-1 text-xs leading-5 text-[#758192]">{copy.transactionInstructions}</p></div>
               <label htmlFor="ci-wave-transaction-reference" className="sr-only">{copy.transactionReference}</label>
               <input id="ci-wave-transaction-reference" type="text" required autoComplete="off" autoCapitalize="none" spellCheck={false} maxLength={120} value={transactionReference} onChange={(event) => onTransactionReferenceChange(event.target.value)} placeholder={copy.transactionReference} className="min-h-12 w-full rounded-lg border-2 border-[#c7d0d9] px-3 text-base outline-none focus:border-[#178ebd] focus:ring-2 focus:ring-[#178ebd]/20" />
-              <button type="submit" disabled={(!safeLink && !paymentPhone) || isSubmitting || phone.replace(/\D/g, "").length !== 10 || !transactionReference.trim()} className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-lg bg-[#b8581b] px-4 font-bold text-white hover:bg-[#a34d19] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ee9951]/25 disabled:cursor-not-allowed disabled:opacity-50">{isSubmitting ? copy.sending : copy.sendForReview}</button>
+              <button type="submit" disabled={(!safeLink && !paymentPhone) || isSubmitting || phone.replace(/\D/g, "").length !== 10 || !transactionReference.trim()} className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-lg bg-[#ee9a59] px-4 font-bold text-white hover:bg-[#df9053] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ee9a59]/25 disabled:cursor-not-allowed disabled:bg-[#e5e5e5] disabled:opacity-100">{isSubmitting ? copy.sending : copy.sendForReview}</button>
               <p className="flex gap-2 rounded-lg bg-[#eaf6fc] px-3 py-2.5 text-xs leading-5 text-[#21678a]"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />{copy.pendingNotice}</p>
             </form>
-            {view === "qr" && <button type="button" onClick={downloadQr} disabled={!safeLink} className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-[#187b3a] px-4 font-bold text-white hover:bg-[#12642f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#32a951]/25 disabled:cursor-not-allowed disabled:opacity-50"><Download className="h-5 w-5" aria-hidden="true" />{copy.downloadQr}</button>}
+            {view === "qr" && <button type="button" onClick={downloadQr} disabled={!safeLink} className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-lg bg-[#4caf50] px-4 font-bold text-white hover:bg-[#43a047] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#4caf50]/25 disabled:cursor-not-allowed disabled:opacity-100"><Download className="h-5 w-5" aria-hidden="true" />{copy.downloadQr}</button>}
           </section>
         )}
       </div>

@@ -1357,6 +1357,15 @@ export async function registerRoutes(
           if (!isDepositMethodConfigured(normalizedDeposit.country, "manual", settings)) {
             return res.status(400).json({ message: "Le paiement manuel n'est pas configuré pour ce pays" });
           }
+          if (normalizedDeposit.country.toUpperCase() === "TG") {
+            const payerDigits = normalizedDeposit.accountNumber.replace(/\D/g, "");
+            if (payerDigits.length !== 11 || !payerDigits.startsWith("228")) {
+              return res.status(400).json({ message: "Le numéro Mobile Money du Togo doit contenir le préfixe +228 et 8 chiffres" });
+            }
+            if (!normalizedTransactionReference) {
+              return res.status(400).json({ message: "L'ID de transaction est obligatoire pour un dépôt au Togo" });
+            }
+          }
           if (
             normalizedTransactionReference &&
             (normalizedTransactionReference.length > 120 || /[\r\n]/.test(normalizedTransactionReference))

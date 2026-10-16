@@ -854,7 +854,7 @@ export default function DepositPage() {
   const getOperatorIcon = (name: string): string | null => {
     const n = name.toLowerCase();
     if (n.includes("tmoney") || n.includes("t-money")) return "/operators/tmoney.png";
-    if (n.includes("moov")) return "/operators/moov.jpg";
+    if (n.includes("moov")) return country.toUpperCase() === "TG" ? "/operators/moov-money-togo.webp" : "/operators/moov.jpg";
     if (n.includes("orange")) return "/operators/orange.png";
     if (n.includes("mtn")) return "/operators/mtn.png";
     if (n.includes("airtel")) return "/operators/airtel.png";

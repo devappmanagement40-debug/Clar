@@ -25,7 +25,7 @@ export const FALLBACK_COUNTRIES: Array<{
   operators: string[];
   withdrawalMethods: string[];
 }> = [
-  { code: "TG", name: "Togo", currency: "XOF", phonePrefix: "228", operators: ["Togocel", "Moov Africa Togo"], withdrawalMethods: ["Togocel", "Moov Africa Togo"] },
+  { code: "TG", name: "Togo", currency: "XOF", phonePrefix: "228", operators: ["Togocel", "Moov Africa Togo", "TMoney"], withdrawalMethods: ["Togocel", "Moov Africa Togo"] },
   { code: "CI", name: "Côte d'Ivoire", currency: "XOF", phonePrefix: "225", operators: [], withdrawalMethods: ["Wave"] },
   { code: "BF", name: "Burkina Faso", currency: "XOF", phonePrefix: "226", operators: ["Orange Burkina", "Moov Africa Burkina"], withdrawalMethods: ["Orange Burkina", "Moov Africa Burkina"] },
   { code: "NE", name: "Niger", currency: "XOF", phonePrefix: "227", operators: ["NITA TRANSFERT", "AMANA TRANSFERT"], withdrawalMethods: ["Airtel Money", "Wave"] },

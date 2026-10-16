@@ -5,13 +5,14 @@ import { Check, ChevronRight, Clock3, Copy, ExternalLink, Loader2, Phone, Refres
 import { apiRequest, withProcessingIndicator } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
+import { getCountriesForDisplay, parseOperators, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import { CI_WAVE_DEFAULT_PAYMENT_LINK, CI_WAVE_DEFAULT_QR_IMAGE } from "@/lib/payment-checkout-defaults";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 import type { PaymentNumber } from "@shared/schema";
 import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
 import CiWaveDeposit from "@/components/ci-wave-deposit";
+import TogoManualDeposit from "@/components/togo-manual-deposit";
 
 type Provider = "ashtech" | "sendavapay" | "soleaspay" | "clapay";
 type Operator = { id?: string; name?: string; operator?: string; slug?: string; code?: string; requiresOtp?: boolean; status?: string; provider?: Provider; manualNumber?: PaymentNumber };
@@ -79,6 +80,7 @@ export default function RobotPayPage() {
   const isSoleaspayFlow = requestedProvider === "soleaspay";
   const isManualFlow = requestedProvider === "manual";
   const isCiManualFlow = isManualFlow && country === "CI";
+  const isTgManualFlow = isManualFlow && country === "TG";
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
@@ -250,6 +252,20 @@ export default function RobotPayPage() {
             manualNumber: number,
           })),
           ];
+  const togoOperatorChoices: Operator[] = isTgManualFlow
+    ? parseOperators(countryInfo?.operators || "[]").flatMap((name) => {
+        const configuredNumbers = manualNumbers.filter(
+          (number) => number.operatorName.trim().toLocaleLowerCase() === name.trim().toLocaleLowerCase(),
+        );
+        return configuredNumbers.length
+          ? configuredNumbers.map((number) => ({
+              id: `manual-${number.id}`,
+              name: number.operatorName,
+              manualNumber: number,
+            }))
+          : [{ id: `togo-unconfigured-${name}`, name }];
+      })
+    : operators;
   const loadingOperators = isSoleaspayFlow
     ? soleaspayServicesLoading
      : manualNumbersLoading || providerLoading || sendavaLoading || ashtechLoading || clapayLoading;
@@ -613,6 +629,10 @@ export default function RobotPayPage() {
       toast({ title: "Numéro requis", description: "Saisissez le numéro utilisé pour effectuer le paiement.", variant: "destructive" });
       return;
     }
+    if (isTgManualFlow && phone.replace(/\D/g, "").length !== 8) {
+      toast({ title: "Numéro invalide", description: "Saisissez les 8 chiffres de votre numéro Mobile Money au Togo.", variant: "destructive" });
+      return;
+    }
     if (isCiManualFlow && hostedManualMethod === "wave" && phone.replace(/\D/g, "").length !== 10) {
       toast({ title: "Numéro invalide", description: "Saisissez les 10 chiffres de votre numéro Wave.", variant: "destructive" });
       return;
@@ -628,6 +648,48 @@ export default function RobotPayPage() {
       operators[0]?.name || operators[0]?.manualNumber?.operatorName || "",
     ) === "wave";
   const ciWaveCheckoutActive = isCiManualFlow && hostedManualMethod === "wave" && !!operator?.manualNumber;
+  if (isTgManualFlow) {
+    return (
+      <TogoManualDeposit
+        step={step}
+        amount={amount}
+        currency={currency}
+        countryName={countryInfo?.name || "Togo"}
+        phonePrefix={phonePrefix}
+        operators={togoOperatorChoices}
+        isLoadingOperators={loadingOperators}
+        hasOperatorsError={manualNumbersError}
+        selectedOperator={operator}
+        phone={phone}
+        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, 8))}
+        onSelectOperator={chooseOperator}
+        onContinue={continueFromOperatorSelection}
+        onBack={() => {
+          if (step === 0) {
+            navigate("/deposit");
+            return;
+          }
+          if (step === 1) {
+            setStep(0);
+            return;
+          }
+          navigate("/");
+        }}
+        transactionReference={manualTransactionReference}
+        onTransactionReferenceChange={setManualTransactionReference}
+        onCopyPaymentTarget={copyPaymentNumber}
+        onSubmit={() => manualMutation.mutate()}
+        isSubmitting={manualMutation.isPending}
+        status={status}
+        depositId={depositId}
+        secondsRemaining={manualVerificationSecondsLeft}
+        onRefreshStatus={refreshManualPaymentStatus}
+        isRefreshing={manualStatusRefreshing}
+        onViewHistory={() => navigate("/deposits-history")}
+        onHome={() => navigate("/")}
+      />
+    );
+  }
   if (
     (step === 0 && ciWaveSelectionAvailable && (!operator || hostedManualMethod === "wave")) ||
     (ciWaveCheckoutActive && (step === 1 || (step === 3 && manualSubmitted)))

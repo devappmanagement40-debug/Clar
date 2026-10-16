@@ -300,7 +300,7 @@ async function run() {
 
     // ── Seed countries ──
     const countriesData = [
-      { code: "TG", name: "Togo", currency: "XOF", phone_prefix: "228", operators: '["Togocel","Moov Africa Togo"]' },
+      { code: "TG", name: "Togo", currency: "XOF", phone_prefix: "228", operators: '["Togocel","Moov Africa Togo","TMoney"]' },
       { code: "CI", name: "Côte d'Ivoire", currency: "XOF", phone_prefix: "225", operators: "[]" },
       { code: "BF", name: "Burkina Faso", currency: "XOF", phone_prefix: "226", operators: '["Orange Burkina","Moov Africa Burkina"]' },
       { code: "NE", name: "Niger", currency: "XOF", phone_prefix: "227", operators: '["NITA TRANSFERT","AMANA TRANSFERT"]' },
