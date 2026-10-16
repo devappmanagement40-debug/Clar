@@ -38,3 +38,9 @@ After a failed purchase request, keep the confirmation open and show the error t
 **Why:** A rejected or interrupted purchase should not force the user to restart the confirmation flow.
 
 **How to apply:** Keep server validation authoritative and only send another purchase request after the user explicitly retries.
+
+The withdrawal page should use light white and pale-blue surfaces with CATL-blue accents; do not use black or dark page/card backgrounds.
+
+**Why:** the user corrected the dark withdrawal appearance and asked for it to match the deposit page.
+
+**How to apply:** Keep text dark for contrast, use the supplied battery image behind a light overlay, and keep form, wallet, and rules cards bright.

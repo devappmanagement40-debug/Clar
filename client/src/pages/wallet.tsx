@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getCountriesForDisplay, getWithdrawalMethodsForCountry, type ApiCountry } from "@/lib/countries";
+import { CountrySelector } from "@/components/country-selector";
 import { Loader2, Plus, Trash2, CreditCard, ChevronLeft, ChevronRight, ChevronDown, Shield, Check, Search, X, Wifi } from "lucide-react";
 import emptyIllustration from "@assets/illustration-8_1784762965573.png";
 import { catlBatteryBackground } from "@/assets/catl-media";
@@ -937,7 +938,6 @@ export default function WalletPage() {
   const [selectedMethod, setSelectedMethod] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [bankSearch, setBankSearch] = useState("");
-  const [countrySearch, setCountrySearch] = useState("");
 
   const { data: wallets, isLoading } = useQuery<WithdrawalWallet[]>({
     queryKey: ["/api/wallets"],
@@ -1038,7 +1038,6 @@ export default function WalletPage() {
     setSelectedCountry(countryCode);
     setSelectedMethod("");
     form.setValue("paymentMethod", "");
-    setCountrySearch("");
     setShowCountrySheet(false);
   };
 
@@ -1097,8 +1096,10 @@ export default function WalletPage() {
               onClick={() => setShowCountrySheet(true)}
               className="wallet-reference-row"
               data-testid="button-select-country"
+              aria-haspopup="dialog"
+              aria-expanded={showCountrySheet}
             >
-              <span className="wallet-reference-label">Type</span>
+              <span className="wallet-reference-label">Pays</span>
               <span className={`wallet-reference-value${selectedCountry ? "" : " is-empty"}`}>
                 {selectedCountryLabel}
               </span>
@@ -1161,67 +1162,13 @@ export default function WalletPage() {
           </div>
         </footer>
 
-        {showCountrySheet && (
-          <div className="country-picker-overlay" onClick={() => { setCountrySearch(""); setShowCountrySheet(false); }}>
-            <section
-              className="country-picker"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Choisir un pays"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="country-picker-header">
-                <h2>Choisir un pays</h2>
-                <button
-                  className="country-picker-close"
-                  onClick={() => { setCountrySearch(""); setShowCountrySheet(false); }}
-                  aria-label="Fermer"
-                >
-                  <X aria-hidden="true" />
-                </button>
-              </div>
-              <div className="country-picker-search">
-                <Search aria-hidden="true" />
-                <input
-                  autoFocus
-                  value={countrySearch}
-                  onChange={(e) => setCountrySearch(e.target.value)}
-                  placeholder="Rechercher un pays"
-                  aria-label="Rechercher un pays"
-                />
-              </div>
-              <div className="country-picker-list">
-                {countriesError && (
-                  <p className="country-picker-empty" role="status">Liste locale temporaire affichée.</p>
-                )}
-                {activeCountries
-                  .filter((country) => country.name.toLowerCase().includes(countrySearch.trim().toLowerCase()))
-                  .map((country) => (
-                    <button
-                      key={country.code}
-                      onClick={() => handleChooseCountry(country.code)}
-                      className={`country-picker-row${selectedCountry === country.code ? " is-selected" : ""}`}
-                      data-testid={`button-country-${country.code}`}
-                    >
-                      <span className="country-picker-name">{country.name}</span>
-                      <span className="country-picker-prefix">{country.code}</span>
-                      {selectedCountry === country.code && (
-                        <span className="country-picker-check"><Check aria-hidden="true" /></span>
-                      )}
-                    </button>
-                  ))}
-                {activeCountries.length === 0 && (
-                  <p className="country-picker-empty">Chargement des pays...</p>
-                )}
-                {activeCountries.length > 0 && activeCountries.filter(
-                  (country) => country.name.toLowerCase().includes(countrySearch.trim().toLowerCase()),
-                ).length === 0 && (
-                  <p className="country-picker-empty">Aucun pays trouvé</p>
-                )}
-              </div>
-            </section>
-          </div>
-        )}
+        <CountrySelector
+          open={showCountrySheet}
+          onClose={() => setShowCountrySheet(false)}
+          onSelect={handleChooseCountry}
+          selectedCountryCode={selectedCountry}
+          allowedCountryCodes={activeCountries.map((country) => country.code)}
+        />
 
         {showBankSheet && (
           <div className="country-picker-overlay" onClick={() => { setBankSearch(""); setShowBankSheet(false); }}>

@@ -20,3 +20,9 @@ The user's current active country list is exactly Togo (TG), Côte d'Ivoire (CI)
 **Why:** the user requested this exact country list on 2026-10-16 and existing country codes may still be needed for historical records.
 
 **How to apply:** Keep each country's deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore country-specific runtime overrides. When the active country set changes, update the app's first-install defaults and temporary API-failure fallbacks, and use a one-time reversible transition for existing rows.
+
+The withdrawal page must keep the country from the user's profile; do not let the withdrawal form select a separate country. Deposit and withdrawal-account setup can use the active-country selector.
+
+**Why:** the user chose to keep the profile country for withdrawals.
+
+**How to apply:** Keep withdrawal currency and payout methods tied to the profile country, while limiting deposit and wallet-account country choices to active countries.

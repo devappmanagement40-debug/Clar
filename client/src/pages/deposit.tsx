@@ -4,10 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ChevronLeft, Clock, Copy, CheckCircle, Upload, Phone, Loader2, Coins, Gift,
+  ChevronDown, ChevronLeft, Clock, Copy, CheckCircle, Upload, Phone, Loader2, Coins, Gift,
   ImageIcon, ArrowRight, Zap, RefreshCw, ExternalLink, CreditCard, Check, Wallet,
 } from "lucide-react";
 import { Link } from "wouter";
+import { CountrySelector } from "@/components/country-selector";
 import { getCountriesForDisplay, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
@@ -211,6 +212,7 @@ export default function DepositPage() {
 
   const [amount, setAmount] = useState<number | "">("");
   const [depositCountry, setDepositCountry] = useState("");
+  const [showCountrySelector, setShowCountrySelector] = useState(false);
   const [senderPhone, setSenderPhone] = useState(user?.phone || "");
   const [screenshot, setScreenshot] = useState<string>("");
   const [screenshotName, setScreenshotName] = useState("");
@@ -1079,67 +1081,6 @@ export default function DepositPage() {
           font-size: 16px;
           font-weight: 800;
         }
-        .recharge-reference .country-options {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .recharge-reference .country-option {
-          display: flex;
-          width: 100%;
-          min-height: 58px;
-          align-items: center;
-          gap: 12px;
-          padding: 9px 14px;
-          border: 2px solid #111827;
-          border-radius: 12px;
-          background: #fff;
-          color: #111827;
-          text-align: left;
-          font-size: 15px;
-          font-weight: 750;
-          box-shadow: 0 3px 0 #111827;
-          transition: transform 120ms ease, background-color 120ms ease, color 120ms ease;
-        }
-        .recharge-reference .country-option:active {
-          transform: translateY(2px);
-          box-shadow: 0 1px 0 #111827;
-        }
-        .recharge-reference .country-option-icon {
-          display: grid;
-          width: 38px;
-          height: 38px;
-          flex: 0 0 38px;
-          place-items: center;
-          border: 1.5px solid #eab1be;
-          border-radius: 10px;
-          background: #edf2ff;
-          color: ${TON_GREEN};
-        }
-        .recharge-reference .country-option-name {
-          flex: 1;
-          min-width: 0;
-        }
-        .recharge-reference .country-option.is-selected {
-          border-color: #111827;
-          background: ${TON_GRADIENT};
-          color: #fff;
-        }
-        .recharge-reference .country-option.is-selected .country-option-icon {
-          border-color: #fff;
-          background: #fff;
-          color: ${TON_GREEN_DARK};
-        }
-        .recharge-reference .country-option-check {
-          flex: 0 0 auto;
-          box-sizing: content-box;
-          width: 18px;
-          height: 18px;
-          padding: 3px;
-          border-radius: 50%;
-          background: #fff;
-          color: ${TON_GREEN_DARK};
-        }
         .recharge-reference .continue {
           display: flex;
           width: calc(100% - 36px);
@@ -1383,9 +1324,13 @@ export default function DepositPage() {
           display: block;
         }
         .recharge-reference .country-select {
+          display: flex;
           width: 100%;
-          height: 52px;
-          padding: 0 13px;
+          min-height: 52px;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 0 14px;
           border: 1px solid #d5d7db;
           border-radius: 10px;
           outline: 0;
@@ -1393,12 +1338,22 @@ export default function DepositPage() {
           color: #454a53;
           font: inherit;
           font-size: 15px;
+          text-align: left;
+          cursor: pointer;
+          transition: border-color .16s ease, box-shadow .16s ease;
         }
-        .recharge-reference .country-select:focus {
+        .recharge-reference .country-select:focus-visible {
           border-color: #1947b8;
           box-shadow: 0 0 0 3px rgb(25 71 184 / 12%);
         }
-        .recharge-reference .country-options .country-option { display: none; }
+        .recharge-reference .country-select-prefix {
+          margin-left: auto;
+          color: #1947b8;
+          font-size: 13px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .recharge-reference .country-select svg { flex: none; color: #6b7280; }
         .recharge-reference .continue {
           width: calc(100% - 36px);
           min-height: 58px;
@@ -1530,37 +1485,20 @@ export default function DepositPage() {
 
         <section className="country-panel" aria-label="Pays et institutions de recharge">
           <h2 className="country-heading">Pays du paiement</h2>
-          <div className="country-options" role="group" aria-label="Choisir le pays de recharge">
-            <select
+          <div className="country-options">
+            <button
+              type="button"
               className="country-select"
-              aria-label="Pays du paiement"
-              value={depositCountry}
-              onChange={(event) => setDepositCountry(event.target.value)}
+              onClick={() => setShowCountrySelector(true)}
+              aria-label={`Pays du paiement : ${countryInfo?.name || "sélectionner un pays"}`}
+              aria-haspopup="dialog"
+              aria-expanded={showCountrySelector}
+              data-testid="button-select-deposit-country"
             >
-              <option value="">Sélectionnez un pays</option>
-              {activeDepositCountries.map((item) => (
-                <option key={item.code} value={item.code}>{item.name}</option>
-              ))}
-            </select>
-            {activeDepositCountries.map((item) => {
-              const isSelected = depositCountry === item.code;
-              return (
-                <button
-                  key={item.code}
-                  type="button"
-                  className={`country-option${isSelected ? " is-selected" : ""}`}
-                  aria-pressed={isSelected}
-                  onClick={() => setDepositCountry(item.code)}
-                  data-testid={`deposit-country-${item.code.toLowerCase()}`}
-                >
-                  <span className="country-option-icon" aria-hidden="true">
-                    <CreditCard className="h-6 w-6" strokeWidth={2.4} />
-                  </span>
-                  <span className="country-option-name">{item.name}</span>
-                  {isSelected && <Check className="country-option-check h-5 w-5" strokeWidth={2.8} aria-hidden="true" />}
-                </button>
-              );
-            })}
+              <span>{countryInfo?.name || "Sélectionnez un pays"}</span>
+              {countryInfo?.phonePrefix && <span className="country-select-prefix">+{countryInfo.phonePrefix}</span>}
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
           {activeDepositCountries.length === 0 && !countriesError && (
             <p className="text-sm text-gray-600">Aucun pays de dépôt n’est disponible pour le moment.</p>
@@ -1603,6 +1541,13 @@ export default function DepositPage() {
           <p className="instruction"><strong>Chaque commande possède ses propres informations de paiement</strong> ; ne réutilisez pas les informations précédentes pour un second paiement</p>
           <p className="instruction"><strong>Après un virement réussi,</strong> veuillez patienter 10 à 30 minutes.</p>
         </section>
+        <CountrySelector
+          open={showCountrySelector}
+          onClose={() => setShowCountrySelector(false)}
+          onSelect={setDepositCountry}
+          selectedCountryCode={depositCountry}
+          allowedCountryCodes={activeDepositCountries.map((item) => item.code)}
+        />
       </div>
     </main>
   );

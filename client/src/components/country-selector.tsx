@@ -8,6 +8,7 @@ interface CountrySelectorProps {
   onClose: () => void;
   onSelect: (countryCode: string) => void;
   selectedCountryCode?: string;
+  allowedCountryCodes?: readonly string[];
   excludedCountryCodes?: readonly string[];
 }
 
@@ -71,6 +72,7 @@ export function CountrySelector({
   onClose,
   onSelect,
   selectedCountryCode,
+  allowedCountryCodes,
   excludedCountryCodes = [],
 }: CountrySelectorProps) {
   const [search, setSearch] = useState("");
@@ -127,9 +129,16 @@ export function CountrySelector({
   };
 
   const countrySource = isError ? FALLBACK_API_COUNTRIES : apiCountries || [];
+  const allowedCodes = allowedCountryCodes
+    ? new Set(allowedCountryCodes.map(code => code.toUpperCase()))
+    : null;
   const excludedCodes = new Set(excludedCountryCodes.map(code => code.toUpperCase()));
   const countries = countrySource
-    .filter(c => c.isActive && !excludedCodes.has(c.code.toUpperCase()))
+    .filter(c =>
+      c.isActive &&
+      (!allowedCodes || allowedCodes.has(c.code.toUpperCase())) &&
+      !excludedCodes.has(c.code.toUpperCase()),
+    )
     .map(c => ({ code: c.code, name: c.name, phonePrefix: c.phonePrefix }))
     .filter(country => {
       const query = normalizeSearchText(search.trim());
@@ -137,7 +146,7 @@ export function CountrySelector({
     });
 
   return (
-    <div className="country-picker-overlay" onClick={closePicker}>
+    <div className="country-picker-overlay shared-country-selector" onClick={closePicker}>
       <section
         ref={dialogRef}
         className="country-picker"
