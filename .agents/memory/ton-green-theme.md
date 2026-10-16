@@ -15,6 +15,12 @@ Use the user's supplied image icons for homepage quick actions, the announcement
 
 **How to apply:** Match supplied icons to the relevant labels, preserve actions and layout, use the lock image for password changes and the supplied X image for logout, and keep existing semantic icons where no supplied image fits (such as admin access).
 
+On the withdrawal page, use actual image or SVG assets for icons; do not draw icon artwork with CSS pseudo-elements.
+
+**Why:** the user said the CSS-generated icon decorations looked strange and asked for real icons instead.
+
+**How to apply:** Use a relevant supplied image or semantic SVG icon, and keep CSS limited to layout, sizing, and surface styling.
+
 The latest homepage reference shows small bullet separators in the scrolling activity strip; keep that strip display-only and separate from the account ledger.
 
 **Why:** The user provided a newer homepage reference and asked to apply its structure while preserving the current platform fields.

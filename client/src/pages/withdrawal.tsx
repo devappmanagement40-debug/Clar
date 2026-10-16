@@ -5,7 +5,6 @@ import { apiRequest, FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryCl
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft,
-  ArrowUpRight,
   ChevronRight,
   CreditCard,
   Info,
@@ -17,6 +16,7 @@ import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import { catlBatteryBackground } from "@/assets/catl-media";
+import withdrawalActionIcon from "@/assets/images/home-icons/withdrawal.png";
 import withdrawHistoryIcon from "@assets/IMG_20260829_070945_804_1792174059478.jpg";
 
 interface WalletData {
@@ -294,18 +294,6 @@ export default function WithdrawalPage() {
           box-shadow: 0 3px 0 #17191c, 0 8px 18px rgba(17,24,39,.16);
           color: var(--wd-ink);
         }
-        .withdraw-hero::after {
-          position: absolute;
-          right: -43px;
-          bottom: -100px;
-          width: 230px;
-          height: 230px;
-          border: 1px solid rgba(25,71,184,.12);
-          border-radius: 50%;
-          box-shadow: 0 0 0 20px rgba(25,71,184,.045), 0 0 0 43px rgba(25,71,184,.03);
-          content: "";
-          pointer-events: none;
-        }
         .withdraw-balance-copy { position: relative; z-index: 1; }
         .withdraw-eyebrow {
           margin: 0 0 8px;
@@ -331,32 +319,13 @@ export default function WithdrawalPage() {
           font-size: 12px;
           line-height: 1.45;
         }
-        .withdraw-hero-mark {
-          position: relative;
-          z-index: 1;
-          display: grid;
-          width: 90px;
-          height: 90px;
+        .withdraw-hero-icon {
+          display: block;
+          width: 82px;
+          height: 82px;
           justify-self: end;
-          place-items: center;
-          border: 1px solid rgba(25,71,184,.13);
-          border-radius: 28px;
-          background: rgba(255,255,255,.76);
-          color: #1947b8;
-          box-shadow: 0 12px 28px rgba(37,73,140,.08);
-          transform: rotate(4deg);
+          object-fit: contain;
         }
-        .withdraw-hero-mark::before,
-        .withdraw-hero-mark::after {
-          position: absolute;
-          width: 46px;
-          height: 46px;
-          border: 1px solid rgba(25,71,184,.12);
-          border-radius: 15px;
-          content: "";
-        }
-        .withdraw-hero-mark::after { width: 60px; height: 60px; border-radius: 20px; }
-        .withdraw-hero-mark svg { z-index: 1; }
         .withdraw-content { padding: 18px 16px 0; }
         .withdraw-card {
           border: 2px solid #17191c;
@@ -634,9 +603,7 @@ export default function WithdrawalPage() {
         }
         @media (max-width: 360px) {
           .withdraw-hero { grid-template-columns: minmax(0, 1fr) 76px; min-height: 184px; padding-right: 16px; padding-left: 16px; }
-          .withdraw-hero-mark { width: 68px; height: 68px; border-radius: 22px; }
-          .withdraw-hero-mark::before { width: 37px; height: 37px; }
-          .withdraw-hero-mark::after { width: 48px; height: 48px; }
+          .withdraw-hero-icon { width: 62px; height: 62px; }
           .withdraw-content { padding-right: 12px; padding-left: 12px; }
           .withdraw-form-card, .withdraw-instructions { padding-right: 14px; padding-left: 14px; }
           .withdraw-rule { font-size: 11px; }
@@ -673,9 +640,7 @@ export default function WithdrawalPage() {
               </p>
               <p className="withdraw-balance-caption">Revenus disponibles pour retrait</p>
             </div>
-            <div className="withdraw-hero-mark" aria-hidden="true">
-              <ArrowUpRight size={30} strokeWidth={1.8} />
-            </div>
+            <img src={withdrawalActionIcon} alt="" className="withdraw-hero-icon" aria-hidden="true" />
           </section>
 
           <div className="withdraw-content">
