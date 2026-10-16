@@ -9,11 +9,15 @@ import {
   DEFAULT_MINIMUM_WITHDRAWAL,
   readPositiveIntegerSetting,
 } from "@shared/platform-settings";
-import { ArrowDownCircle, ArrowUpCircle, Bell, CheckCircle2, ChevronRight, HelpCircle } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
 
 import notificationBell from "@assets/generated_images/home-notification-bell.png";
+import depositIcon from "@/assets/images/home-icons/deposit.png";
+import withdrawalIcon from "@/assets/images/home-icons/withdrawal.png";
+import supportIcon from "@/assets/images/home-icons/support.png";
+import checkinIcon from "@/assets/images/home-icons/checkin.png";
 import catlBatteries from "@/assets/images/catl-auth-background.webp";
 import catlBooth1 from "@/assets/images/catl-booth-1.webp";
 import catlBooth2 from "@/assets/images/catl-booth-2.webp";
@@ -28,10 +32,10 @@ const bannerSlides = [
 ] as const;
 
 const quickActions = [
-  { label: "Dépôt", href: "/deposit", icon: ArrowDownCircle },
-  { label: "Retrait", href: "/withdrawal", icon: ArrowUpCircle },
-  { label: "Aide", href: "/service", icon: HelpCircle },
-  { label: "Pointage", href: "/checkin", icon: CheckCircle2 },
+  { label: "Dépôt", href: "/deposit", icon: depositIcon },
+  { label: "Retrait", href: "/withdrawal", icon: withdrawalIcon },
+  { label: "Aide", href: "/service", icon: supportIcon },
+  { label: "Pointage", href: "/checkin", icon: checkinIcon },
 ] as const;
 
 const announcementLibrary = [
@@ -184,7 +188,7 @@ export default function HomePage() {
             aria-label="Ouvrir les informations du compte"
             aria-describedby="cp-notice-messages"
           >
-            <span className="cp-notice-icon"><Bell size={19} strokeWidth={2.2} aria-hidden="true" /></span>
+            <span className="cp-notice-icon"><img src={checkinIcon} alt="" aria-hidden="true" /></span>
             <span className="cp-notice-marquee" aria-hidden="true">
               <span className="cp-notice-track">
                 {[0, 1].map((copy) => (
@@ -203,10 +207,10 @@ export default function HomePage() {
           </button>
 
           <section className="cp-actions" aria-label="Actions rapides">
-            {quickActions.map(({ label, href, icon: Icon }) => (
+            {quickActions.map(({ label, href, icon }) => (
               <button key={label} className="cp-action" type="button" onClick={() => navigate(href)}>
                 <span className="cp-action-icon">
-                  <Icon size={28} strokeWidth={2.1} aria-hidden="true" />
+                  <img src={icon} alt="" aria-hidden="true" />
                 </span>
                 <span>{label}</span>
               </button>
