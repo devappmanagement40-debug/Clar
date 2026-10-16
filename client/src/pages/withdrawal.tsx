@@ -162,7 +162,7 @@ export default function WithdrawalPage() {
   if (walletsLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#1947b8]" />
       </div>
     );
   }
@@ -214,7 +214,7 @@ export default function WithdrawalPage() {
           padding: 0;
           background: #fff;
           box-shadow: 0 3px 0 #111827;
-          color: #bd304c;
+          color: #1947b8;
           text-decoration: none;
         }
         .withdraw-reference .history-button {
@@ -294,9 +294,9 @@ export default function WithdrawalPage() {
           gap: 7px;
           flex-shrink: 0;
           padding: 0 10px;
-          border: 1px solid #bd304c;
+          border: 1px solid #1947b8;
           border-radius: 999px;
-          background: #bd304c;
+          background: #1947b8;
           color: #ffffff;
           font-size: 12px;
           font-weight: 700;
@@ -360,7 +360,7 @@ export default function WithdrawalPage() {
           padding: 14px;
           border: 2px solid #111827;
           border-radius: 12px;
-          background: #fff0f3;
+          background: #edf2ff;
           color: #4b5563;
           font-size: 13px;
           line-height: 1.45;
@@ -377,7 +377,7 @@ export default function WithdrawalPage() {
           gap: 8px;
           border: 2px solid #111827;
           border-radius: 10px;
-          background: #bd304c;
+          background: #1947b8;
           color: #ffffff;
           font-weight: 800;
           box-shadow: 0 2px 0 #111827;
@@ -410,13 +410,13 @@ export default function WithdrawalPage() {
           height: 34px;
           margin-right: 10px;
           flex-shrink: 0;
-          color: #bd304c;
+          color: #1947b8;
         }
         .withdraw-reference .wallet-choice svg:last-child {
           width: 22px;
           height: 22px;
           margin-left: auto;
-          color: #bd304c;
+          color: #1947b8;
         }
         .withdraw-reference .wallet-copy {
           overflow: hidden;
@@ -429,7 +429,7 @@ export default function WithdrawalPage() {
           margin: 18px 16px 8px;
           padding: 22px 16px 10px;
           border: 2px solid #111827;
-          border-top: 5px solid #bd304c;
+          border-top: 5px solid #1947b8;
           border-radius: 14px;
           background: #fff;
         }
@@ -442,7 +442,7 @@ export default function WithdrawalPage() {
         .withdraw-reference .instructions-title::before {
           content: "•";
           margin-right: 8px;
-          color: #bd304c;
+          color: #1947b8;
           font-size: 24px;
           line-height: 0;
         }
@@ -493,7 +493,7 @@ export default function WithdrawalPage() {
           margin: 18px 16px 0;
           border: 2px solid #111827;
           border-radius: 12px;
-          background: #bd304c;
+          background: #1947b8;
           color: #ffffff;
           font-size: 16px;
           font-weight: 800;

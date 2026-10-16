@@ -49,10 +49,10 @@ interface Withdrawal {
 
 type ActiveTab = "deposits" | "withdrawals";
 
-const CARD_ORANGE = "#bd304c";
+const CARD_ORANGE = "#1947b8";
 const CARD_DARK = "#111827";
 const CARD_SUCCESS = "#16a34a";
-const CARD_BACKGROUND = "#fff0f3";
+const CARD_BACKGROUND = "#edf2ff";
 
 const getDepositProviderRef = (deposit: Deposit) =>
   deposit.inpayOutTradeNo ||
@@ -111,16 +111,16 @@ const getStatusInfo = (status: string) => {
     case "rejected":
       return { label: "Paiement échoué", color: "#b42318" };
     case "processing":
-      return { label: "En traitement", color: "#bd304c" };
+      return { label: "En traitement", color: "#1947b8" };
     default:
-      return { label: "En attente...", color: "#bd304c" };
+      return { label: "En attente...", color: "#1947b8" };
   }
 };
 
 const getWithdrawalStatusInfo = (status: string) => {
   const info = getStatusInfo(status);
   if (status === "completed" || status === "approved") {
-    return { label: "Succès", color: "#bd304c" };
+    return { label: "Succès", color: "#1947b8" };
   }
   return info;
 };
@@ -288,7 +288,7 @@ export default function HistoryPage() {
           cursor: pointer;
         }
         .history-tab.active {
-          background: #bd304c;
+          background: #1947b8;
           color: #ffffff;
           font-weight: 700;
         }
@@ -304,7 +304,7 @@ export default function HistoryPage() {
         .history-content {
           min-height: calc(100dvh - 156px);
           padding: 18px 16px 40px;
-          background: #fff0f3;
+          background: #edf2ff;
         }
         .history-list {
           display: grid;

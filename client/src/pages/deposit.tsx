@@ -22,8 +22,8 @@ import type { PaymentNumber } from "@shared/schema";
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
 type DepositMethodChoice = { provider: DepositMethodId };
 
-const TON_GREEN = "#D40030";
-const TON_GREEN_DARK = "#A60026";
+const TON_GREEN = "#1947b8";
+const TON_GREEN_DARK = "#12358f";
 const TON_GRADIENT = `linear-gradient(112deg, ${TON_GREEN} 0%, ${TON_GREEN_DARK} 100%)`;
 const SOLEASPAY_PENDING_DEPOSIT_KEY = "soleaspay-pending-deposit";
 
@@ -33,7 +33,7 @@ const DEPOSIT_STEP_STYLES = `
     max-width: 512px;
     margin: 0 auto;
     overflow: hidden;
-    background: #fff7f8;
+    background: #f6f8ff;
     color: #111827;
     font-family: Inter, Arial, sans-serif;
   }
@@ -45,7 +45,7 @@ const DEPOSIT_STEP_STYLES = `
     gap: 12px;
     padding: 14px 16px;
     border-bottom: 2px solid #111827;
-    background: #fff7f8;
+    background: #f6f8ff;
   }
   .deposit-step-shell .deposit-step-back {
     display: inline-flex;
@@ -91,7 +91,7 @@ const DEPOSIT_STEP_STYLES = `
   }
   .deposit-step-shell .deposit-step-card-accent {
     border-color: ${TON_GREEN};
-    background: #fff0f3;
+    background: #edf2ff;
   }
   .deposit-step-shell .deposit-step-field {
     border: 2px solid #111827 !important;
@@ -125,7 +125,7 @@ const DEPOSIT_STEP_STYLES = `
     place-items: center;
     border: 2px solid #111827;
     border-radius: 50%;
-    background: #fff0f3;
+    background: #edf2ff;
   }
   .deposit-step-shell .deposit-step-icon svg {
     color: ${TON_GREEN};
@@ -137,7 +137,7 @@ const DEPOSIT_STEP_STYLES = `
   }
   .deposit-step-shell .deposit-step-operator-selected {
     border-color: ${TON_GREEN} !important;
-    background: #fff0f3 !important;
+    background: #edf2ff !important;
   }
   .deposit-step-shell .deposit-step-otp {
     border: 2px solid #111827 !important;
@@ -909,7 +909,7 @@ export default function DepositPage() {
           border: 1.5px solid #eab1be;
           border-radius: 12px;
           padding: 0;
-          background: #fff0f3;
+          background: #edf2ff;
           color: ${TON_GREEN_DARK};
           box-shadow: 0 2px 0 #f2c2cc;
         }
@@ -957,7 +957,7 @@ export default function DepositPage() {
           padding: 0 13px;
           border: 1px solid #e5e7eb;
           border-radius: 999px;
-          background: #fff7f8;
+          background: #f6f8ff;
           color: #111827;
           font-size: 13px;
           font-weight: 700;
@@ -1103,7 +1103,7 @@ export default function DepositPage() {
           place-items: center;
           border: 1.5px solid #eab1be;
           border-radius: 10px;
-          background: #fff0f3;
+          background: #edf2ff;
           color: ${TON_GREEN};
         }
         .recharge-reference .country-option-name {

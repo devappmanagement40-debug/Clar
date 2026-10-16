@@ -1,6 +1,6 @@
 .cp-account {
-  --account-red: #bd304c;
-  --account-red-deep: #92263d;
+  --account-red: #1947b8;
+  --account-red-deep: #12358f;
   --account-ink: #252327;
   --account-muted: #6d6970;
   --account-paper: #fff;
@@ -369,7 +369,7 @@ body:has(.cp-account) { background: #fff !important; }
 }
 
 .cp-services-list .cp-admin-row .cp-service-icon {
-  background: #f8e7eb;
+  background: #edf2ff;
 }
 
 .cp-services-list .cp-logout-row {
@@ -377,7 +377,7 @@ body:has(.cp-account) { background: #fff !important; }
 }
 
 .cp-account button:focus-visible {
-  outline: 3px solid rgba(189, 48, 76, .4);
+  outline: 3px solid rgb(25 71 184 / 40%);
   outline-offset: 3px;
 }
 

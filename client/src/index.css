@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE - Equinor application theme */
+/* LIGHT MODE - CATL application theme */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -20,20 +20,20 @@
   --card-foreground: 0 0% 10%;
   --card-border: 0 0% 90%;
 
-  --sidebar: 16 100% 18%;
+  --sidebar: 221 72% 16%;
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 16 80% 12%;
+  --sidebar-border: 221 72% 11%;
   --sidebar-primary: 0 0% 100%;
-  --sidebar-primary-foreground: 16 100% 18%;
-  --sidebar-accent: 16 80% 26%;
+  --sidebar-primary-foreground: 221 72% 16%;
+  --sidebar-accent: 221 68% 25%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 16 100% 18%;
+  --sidebar-ring: 221 76% 41%;
 
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 10%;
   --popover-border: 0 0% 90%;
 
-  --primary: 16 100% 35%;
+  --primary: 221 76% 41%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 0 0% 96%;
@@ -42,19 +42,19 @@
   --muted: 0 0% 94%;
   --muted-foreground: 0 0% 45%;
 
-  --accent: 16 70% 93%;
-  --accent-foreground: 16 100% 35%;
+  --accent: 221 100% 96%;
+  --accent-foreground: 221 76% 41%;
 
   --destructive: 0 75% 55%;
   --destructive-foreground: 0 0% 100%;
 
   --input: 0 0% 85%;
-  --ring: 16 100% 35%;
-  --chart-1: 0 75% 50%;
-  --chart-2: 160 65% 45%;
-  --chart-3: 200 70% 50%;
-  --chart-4: 280 65% 55%;
-  --chart-5: 340 70% 55%;
+  --ring: 221 76% 41%;
+  --chart-1: 221 76% 48%;
+  --chart-2: 205 76% 48%;
+  --chart-3: 190 70% 42%;
+  --chart-4: 235 65% 58%;
+  --chart-5: 198 55% 60%;
 
   --font-sans: 'Inter', sans-serif;
   --font-serif: Georgia, serif;
@@ -93,16 +93,21 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* Equinor crimson theme.
+/* CATL blue theme.
  * The homepage keeps its own visual identity; App.tsx adds this scope
- * to the other routes so the dashboard is not recolored by these overrides.
+ * to authenticated routes that need shared brand styling.
  */
 .equinor-theme {
-  --equinor-red: #bd304c;
-  --equinor-red-dark: #9e263c;
-  --equinor-red-deep: #7a1c31;
-  --equinor-red-soft: #fff0f3;
-  --equinor-gradient: linear-gradient(112deg, #bd304c 0%, #9e263c 100%);
+  --catl-blue: #1947b8;
+  --catl-blue-dark: #12358f;
+  --catl-blue-deep: #081d58;
+  --catl-blue-soft: #edf2ff;
+  --catl-gradient: linear-gradient(112deg, #1947b8 0%, #12358f 100%);
+  --equinor-red: var(--catl-blue);
+  --equinor-red-dark: var(--catl-blue-dark);
+  --equinor-red-deep: var(--catl-blue-deep);
+  --equinor-red-soft: var(--catl-blue-soft);
+  --equinor-gradient: var(--catl-gradient);
 
   --background: 0 0% 100%;
   --foreground: 0 0% 10%;
@@ -113,21 +118,21 @@
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 10%;
   --popover-border: 0 0% 90%;
-  --primary: 348 59% 46%;
+  --primary: 221 76% 41%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 345 45% 96%;
+  --secondary: 220 100% 97%;
   --secondary-foreground: 0 0% 12%;
-  --muted: 345 18% 96%;
+  --muted: 220 22% 96%;
   --muted-foreground: 0 0% 43%;
-  --accent: 345 60% 94%;
-  --accent-foreground: 348 59% 38%;
+  --accent: 221 100% 96%;
+  --accent-foreground: 221 76% 41%;
   --input: 0 0% 84%;
-  --ring: 348 59% 46%;
-  --chart-1: 348 59% 46%;
-  --chart-2: 337 58% 39%;
-  --chart-3: 8 68% 52%;
-  --chart-4: 325 54% 54%;
-  --chart-5: 355 45% 66%;
+  --ring: 221 76% 41%;
+  --chart-1: 221 76% 48%;
+  --chart-2: 205 76% 48%;
+  --chart-3: 190 70% 42%;
+  --chart-4: 235 65% 58%;
+  --chart-5: 198 55% 60%;
 }
 
 /* Recolor legacy brand utilities and orange accents across every non-home route.
@@ -141,7 +146,7 @@
 .equinor-theme [class~="text-[#FF7A14]"],
 .equinor-theme [class*="text-[#b84d00]"],
 .equinor-theme [class*="text-[#5b2500]"] {
-  color: #bd304c !important;
+  color: #1947b8 !important;
 }
 
 .equinor-theme [class~="bg-[#3174d1]"],
@@ -149,12 +154,12 @@
 .equinor-theme [class~="bg-[#55c9e5]"],
 .equinor-theme [class~="bg-[#FF4500]"],
 .equinor-theme [class~="bg-[#FF7A14]"] {
-  background-color: #bd304c !important;
+  background-color: #1947b8 !important;
   color: #ffffff !important;
 }
 
 .equinor-theme [class*="bg-[#fff1e6]"] {
-  background-color: #fff0f3 !important;
+  background-color: #edf2ff !important;
 }
 
 .equinor-theme [class~="border-[#3174d1]"],
@@ -164,30 +169,30 @@
 .equinor-theme [class~="border-[#FF4500]"],
 .equinor-theme [class*="border-[#FF7A14]"],
 .equinor-theme [class*="border-[#FF4500]"] {
-  border-color: #bd304c !important;
+  border-color: #1947b8 !important;
 }
 
 .equinor-theme [class*="ring-[#FF7A14]"],
 .equinor-theme [class*="ring-[#FF4500]"] {
-  --tw-ring-color: #bd304c !important;
+  --tw-ring-color: #1947b8 !important;
 }
 
 .equinor-theme [class*="decoration-[#FF7A14]"] {
-  text-decoration-color: #bd304c !important;
+  text-decoration-color: #1947b8 !important;
 }
 
 .equinor-theme [class~="hover:text-[#b84d00]"]:hover {
-  color: #bd304c !important;
+  color: #1947b8 !important;
 }
 
 .equinor-theme [class*="text-orange-"],
 .equinor-theme [class*="text-amber-"] {
-  color: #9e263c !important;
+  color: #12358f !important;
 }
 
 .equinor-theme [class*="bg-orange-"],
 .equinor-theme [class*="bg-amber-"] {
-  background-color: #bd304c !important;
+  background-color: #1947b8 !important;
 }
 
 .equinor-theme [class*="bg-orange-50"],
@@ -196,12 +201,12 @@
 .equinor-theme [class*="bg-amber-50"],
 .equinor-theme [class*="bg-amber-100"],
 .equinor-theme [class*="bg-amber-200"] {
-  background-color: #fff0f3 !important;
+  background-color: #edf2ff !important;
 }
 
 .equinor-theme [class*="bg-orange-"][class*="/"],
 .equinor-theme [class*="bg-amber-"][class*="/"] {
-  background-color: rgb(189 48 76 / 14%) !important;
+  background-color: rgb(25 71 184 / 14%) !important;
 }
 
 .equinor-theme [class~="bg-orange-500"],
@@ -215,30 +220,30 @@
 
 .equinor-theme [class*="dark:bg-orange-950"],
 .equinor-theme [class*="dark:bg-amber-950"] {
-  background-color: #4b1c27 !important;
+  background-color: #081d58 !important;
   color: #ffffff !important;
 }
 
 .equinor-theme [class*="border-orange-"],
 .equinor-theme [class*="border-amber-"] {
-  border-color: #bd304c !important;
+  border-color: #1947b8 !important;
 }
 
 .equinor-theme [class*="ring-orange-"],
 .equinor-theme [class*="ring-amber-"] {
-  --tw-ring-color: #bd304c !important;
+  --tw-ring-color: #1947b8 !important;
 }
 
 .equinor-theme [class*="from-orange-"],
 .equinor-theme [class*="from-amber-"] {
-  --tw-gradient-from: #bd304c !important;
-  --tw-gradient-to: rgb(189 48 76 / 0%) !important;
+  --tw-gradient-from: #1947b8 !important;
+  --tw-gradient-to: rgb(25 71 184 / 0%) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
 .equinor-theme [class*="to-orange-"],
 .equinor-theme [class*="to-amber-"] {
-  --tw-gradient-to: #9e263c !important;
+  --tw-gradient-to: #12358f !important;
 }
 
 /* Inline gradients are used for the branded headers and action buttons.
@@ -255,8 +260,8 @@
 .equinor-theme [style*="#E03E00"],
 .equinor-theme [style*="#ff7a14"],
 .equinor-theme [style*="#FF7A14"] {
-  border-color: #bd304c !important;
-  color: #bd304c !important;
+  border-color: #1947b8 !important;
+  color: #1947b8 !important;
 }
 
 .equinor-theme [style*="linear-gradient"][style*="#3174d1"],
@@ -265,6 +270,92 @@
 .equinor-theme [style*="linear-gradient"][style*="#E03E00"],
 .equinor-theme [style*="linear-gradient"][style*="#ff7a14"] {
   color: white !important;
+}
+
+.catl-page-background {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #081d58;
+  background-image:
+    linear-gradient(180deg, rgb(8 27 85 / 6%), rgb(5 17 58 / 14%)),
+    url("./assets/images/catl-auth-background.webp");
+  background-position: center, center;
+  background-size: cover, cover;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+}
+
+.catl-page-background :is(main, .min-h-screen, .min-h-full, .wallet-page) {
+  background: transparent !important;
+}
+
+.catl-page-background :is(
+  .cp-products-shell,
+  .cp-products-stats,
+  .service-screen,
+  .cp-about-screen,
+  .cp-rules-screen,
+  .cp-password-screen,
+  .checkin-screen,
+  .withdraw-screen,
+  .recharge-screen,
+  .history-screen,
+  .products-screen
+) {
+  background: transparent !important;
+}
+
+.catl-page-background :is(.cp-about-body, .cp-rules-body) {
+  background: rgb(255 255 255 / 88%);
+}
+
+.equinor-theme :is(
+  [class~="text-[#bd304c]"],
+  [class~="text-[#9e263c]"],
+  [class*="text-[#bd304c]/"],
+  [class*="text-[#9e263c]/"]
+) {
+  color: #1947b8 !important;
+}
+
+.equinor-theme :is([class~="bg-[#bd304c]"], [class~="bg-[#9e263c]"]) {
+  background-color: #1947b8 !important;
+  color: #ffffff !important;
+}
+
+.equinor-theme [class*="bg-[#bd304c]/"],
+.equinor-theme [class*="bg-[#9e263c]/"] {
+  background-color: rgb(25 71 184 / 20%) !important;
+}
+
+.equinor-theme :is([class~="bg-[#fff0f3]"], [class~="bg-[#fff4f6]"], [class~="bg-[#fff7f8]"], [class~="bg-[#fffafb]"]) {
+  background-color: #edf2ff !important;
+}
+
+.equinor-theme :is(
+  [class~="border-[#bd304c]"],
+  [class~="border-[#9e263c]"],
+  [class*="border-[#bd304c]/"],
+  [class*="border-[#9e263c]/"],
+  [class*="border-t-[#bd304c]"],
+  [class*="border-t-[#9e263c]"],
+  [class*="border-l-[#bd304c]"],
+  [class*="border-l-[#9e263c]"]
+) {
+  border-color: #1947b8 !important;
+}
+
+.equinor-theme [class~="hover:bg-[#9e263c]"]:hover,
+.equinor-theme [class~="hover:bg-[#bd304c]"]:hover {
+  background-color: #12358f !important;
+}
+
+.equinor-theme [style*="background: #bd304c"],
+.equinor-theme [style*="background-color: #bd304c"],
+.equinor-theme [style*="background: #9e263c"],
+.equinor-theme [style*="background-color: #9e263c"] {
+  background: #1947b8 !important;
+  color: #ffffff !important;
 }
 
 .dark {
@@ -287,17 +378,17 @@
   --sidebar: 0 0% 5%;
   --sidebar-foreground: 0 0% 95%;
   --sidebar-border: 0 0% 15%;
-  --sidebar-primary: 16 100% 50%;
+  --sidebar-primary: 221 76% 50%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 0 0% 15%;
   --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-ring: 16 100% 50%;
+  --sidebar-ring: 221 76% 50%;
 
   --popover: 0 0% 10%;
   --popover-foreground: 0 0% 95%;
   --popover-border: 0 0% 18%;
 
-  --primary: 16 100% 50%;
+  --primary: 221 76% 50%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 0 0% 18%;
@@ -306,15 +397,15 @@
   --muted: 0 0% 15%;
   --muted-foreground: 0 0% 55%;
 
-  --accent: 16 80% 45%;
+  --accent: 221 68% 42%;
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 70% 50%;
   --destructive-foreground: 0 0% 100%;
 
   --input: 0 0% 22%;
-  --ring: 16 100% 50%;
-  --chart-1: 16 100% 50%;
+  --ring: 221 76% 50%;
+  --chart-1: 221 76% 50%;
   --chart-2: 160 65% 45%;
   --chart-3: 200 70% 50%;
   --chart-4: 280 65% 55%;
@@ -498,8 +589,8 @@
 }
 
 .country-picker-search:focus-within {
-  border-color: #bd304c;
-  box-shadow: 0 0 0 2px rgba(189, 48, 76, .18);
+  border-color: #1947b8;
+  box-shadow: 0 0 0 2px rgb(25 71 184 / 18%);
 }
 
 .country-picker-search svg {
@@ -573,7 +664,7 @@
 }
 
 .country-picker-row.is-selected {
-  background: #fff0e6;
+  background: #edf2ff;
 }
 
 .country-picker-name {
@@ -594,7 +685,7 @@
   width: 18px;
   height: 18px;
   flex: none;
-  color: #9e263c;
+  color: #1947b8;
   stroke-width: 2.5;
 }
 

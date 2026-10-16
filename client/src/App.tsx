@@ -125,8 +125,14 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 function BrandThemeScope({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const isDashboard = location === "/";
+  const authRoutes = ["/login", "/register", "/html/register", "/invitation", "/rejoindre"];
+  const isAuthPage = authRoutes.includes(location);
+  const classes = [
+    !isDashboard && "equinor-theme",
+    !isDashboard && !isAuthPage && "catl-page-background",
+  ].filter(Boolean).join(" ");
 
-  return <div className={isDashboard ? undefined : "equinor-theme"}>{children}</div>;
+  return <div className={classes || undefined}>{children}</div>;
 }
 
 function FloatingSupportOnNonAuthPages() {

@@ -76,7 +76,7 @@ export default function InvestPage() {
       {/* ── Header ── */}
       <div
         className="flex items-center justify-between px-4 py-3 shadow-sm"
-        style={{ background: "linear-gradient(135deg, #bd304c 0%, #9e263c 100%)" }}
+        style={{ background: "linear-gradient(135deg, #1947b8 0%, #12358f 100%)" }}
       >
           <div className="flex items-center gap-2">
             <span className="text-white text-sm font-bold">Equinor</span>
@@ -172,7 +172,7 @@ export default function InvestPage() {
           >
             <div
               className="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl"
-              style={{ background: "linear-gradient(160deg, #bd304c 0%, #9e263c 100%)" }}
+              style={{ background: "linear-gradient(160deg, #1947b8 0%, #12358f 100%)" }}
               onClick={e => e.stopPropagation()}
             >
               {/* ── Title block ── */}

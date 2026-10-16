@@ -122,9 +122,9 @@ export default function CheckinPage() {
         }
         .checkin-reference .topbar-badge {
           padding: 6px 7px;
-          border: 2px solid #bd304c;
+          border: 2px solid #1947b8;
           border-radius: 10px;
-          color: #9e263c;
+          color: #12358f;
           font-size: 8px;
           font-weight: 800;
         }
@@ -211,7 +211,7 @@ export default function CheckinPage() {
           line-height: 1.05;
         }
         .checkin-reference .reward-heading span {
-          color: #9e263c;
+          color: #12358f;
         }
         .checkin-reference .reward-row {
           margin-top: 12px;
@@ -226,7 +226,7 @@ export default function CheckinPage() {
         .checkin-reference .reward-copy strong {
           display: block;
           margin-top: 8px;
-          color: #9e263c;
+          color: #12358f;
           font-size: clamp(30px, 8vw, 38px);
           font-weight: 900;
           line-height: 1;
@@ -279,12 +279,12 @@ export default function CheckinPage() {
           width: 22px;
           height: 22px;
           margin-bottom: 5px;
-          color: #bd304c;
+          color: #1947b8;
           stroke-width: 2.4;
         }
         .checkin-reference .stat-value {
           margin: 0;
-          color: #9e263c;
+          color: #12358f;
           font-size: 28px;
           font-weight: 900;
           line-height: 1;
@@ -313,7 +313,7 @@ export default function CheckinPage() {
           margin: 14px 16px 0;
           border: 2px solid #111827;
           border-radius: 12px;
-          background: #bd304c;
+          background: #1947b8;
           color: #ffffff;
           font-size: clamp(16px, 4.8vw, 19px);
           font-weight: 900;
@@ -337,7 +337,7 @@ export default function CheckinPage() {
           margin: 14px 16px 24px;
           padding: 16px 16px 7px;
           border: 2px solid #111827;
-          border-top: 5px solid #bd304c;
+          border-top: 5px solid #1947b8;
           border-radius: 14px;
           background: #fff;
         }
@@ -356,7 +356,7 @@ export default function CheckinPage() {
           line-height: 1.5;
         }
         .checkin-reference .instruction b {
-          color: #bd304c;
+          color: #1947b8;
           font-size: 16px;
         }
         @media (max-width: 360px) {

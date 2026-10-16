@@ -91,7 +91,7 @@ export default function TasksPage() {
 
   return (
     <main className="min-h-full bg-white pb-24 text-[#151515]" data-testid="page-task-center">
-      <header className="border-b-2 border-black bg-[#bd304c] text-white">
+      <header className="border-b-2 border-black bg-[#1947b8] text-white">
         <div className="mx-auto flex min-h-[68px] w-full max-w-xl items-center gap-3 px-4 py-3">
           <Link
             href="/"
@@ -129,7 +129,7 @@ export default function TasksPage() {
             <p className="mt-1 text-[10px] font-semibold text-gray-600">Terminées</p>
           </div>
           <div className="min-w-0 px-2 py-3 text-center">
-            <p className="text-base font-extrabold leading-tight text-[#bd304c] sm:text-lg">
+            <p className="text-base font-extrabold leading-tight text-[#1947b8] sm:text-lg">
               {claimableCount}
             </p>
             <p className="mt-1 text-[10px] font-semibold text-gray-600">À réclamer</p>
@@ -139,7 +139,7 @@ export default function TasksPage() {
         <section className="mt-6">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
-              <Trophy className="h-5 w-5 shrink-0 text-[#bd304c]" aria-hidden="true" />
+              <Trophy className="h-5 w-5 shrink-0 text-[#1947b8]" aria-hidden="true" />
               <h2 className="truncate text-base font-extrabold">Paliers de parrainage</h2>
             </div>
             {claimableCount > 0 && (
@@ -147,7 +147,7 @@ export default function TasksPage() {
                 type="button"
                 onClick={claimAll}
                 disabled={claimMutation.isPending}
-                className="inline-flex shrink-0 items-center gap-1 rounded-lg border-2 border-black bg-[#bd304c] px-3 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#151515] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg border-2 border-black bg-[#1947b8] px-3 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#151515] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                 data-testid="button-claim-rewards"
               >
                 Tout réclamer <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -180,7 +180,7 @@ export default function TasksPage() {
               <button
                 type="button"
                 onClick={() => void refetch()}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg border-2 border-black bg-[#bd304c] px-4 py-2 text-sm font-bold text-white"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg border-2 border-black bg-[#1947b8] px-4 py-2 text-sm font-bold text-white"
               >
                 <RefreshCw className="h-4 w-4" aria-hidden="true" />
                 Réessayer
@@ -219,8 +219,8 @@ export default function TasksPage() {
                           task.isCompleted
                             ? "border-gray-300 bg-gray-100 text-gray-800"
                             : isClaimable
-                              ? "border-[#bd304c] bg-[#bd304c] text-white"
-                              : "border-[#bd304c] bg-white text-[#bd304c]"
+                              ? "border-[#1947b8] bg-[#1947b8] text-white"
+                              : "border-[#1947b8] bg-white text-[#1947b8]"
                         }`}
                       >
                         {task.isCompleted && <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />}
@@ -232,7 +232,7 @@ export default function TasksPage() {
                     </div>
 
                     <div className="grid grid-cols-[76px_minmax(0,1fr)] items-center gap-3 p-3 sm:grid-cols-[84px_minmax(0,1fr)]">
-                      <div className="flex h-[76px] w-[76px] items-center justify-center overflow-hidden rounded-xl border border-[#bd304c]/25 bg-[#fff0f3] sm:h-[84px] sm:w-[84px]">
+                      <div className="flex h-[76px] w-[76px] items-center justify-center overflow-hidden rounded-xl border border-[#1947b8]/25 bg-[#edf2ff] sm:h-[84px] sm:w-[84px]">
                         <img
                           src={giftImage}
                           alt=""
@@ -246,7 +246,7 @@ export default function TasksPage() {
                           <span className="font-extrabold text-[#151515]">Requis : </span>
                           {requirement}
                         </p>
-                        <p className="mt-1 text-lg font-extrabold leading-tight text-[#bd304c]">
+                        <p className="mt-1 text-lg font-extrabold leading-tight text-[#1947b8]">
                           {task.reward.toLocaleString("fr-FR")}{" "}
                           <span className="text-[11px] font-bold text-[#151515]">{currency}</span>
                         </p>
@@ -265,7 +265,7 @@ export default function TasksPage() {
                         >
                           <div
                             className={`h-full rounded-full transition-[width] duration-500 ${
-                              task.isCompleted ? "bg-emerald-600" : "bg-[#bd304c]"
+                              task.isCompleted ? "bg-emerald-600" : "bg-[#1947b8]"
                             }`}
                             style={{ width: `${progress}%` }}
                           />
@@ -287,7 +287,7 @@ export default function TasksPage() {
                               type="button"
                               onClick={() => claimMutation.mutate(task.id)}
                               disabled={claimMutation.isPending}
-                              className="inline-flex min-w-[82px] shrink-0 items-center justify-center rounded-lg border-2 border-black bg-[#bd304c] px-3 py-1.5 text-[10px] font-extrabold text-white shadow-[2px_2px_0_#151515] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                              className="inline-flex min-w-[82px] shrink-0 items-center justify-center rounded-lg border-2 border-black bg-[#1947b8] px-3 py-1.5 text-[10px] font-extrabold text-white shadow-[2px_2px_0_#151515] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                               data-testid={`button-claim-${task.id}`}
                             >
                               {claimMutation.isPending ? (

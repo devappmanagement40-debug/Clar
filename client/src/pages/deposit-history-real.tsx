@@ -47,7 +47,7 @@ function getDepositStatus(status: string) {
     case "initiated":
       return {
         label: "En cours",
-        className: "border-[#bd304c]/35 bg-[#fff0f3] text-[#9e263c]",
+        className: "border-[#1947b8]/35 bg-[#edf2ff] text-[#12358f]",
       };
     case "rejected":
     case "failed":
@@ -86,7 +86,7 @@ export default function DepositHistoryRealPage() {
           <Link
             href="/deposit"
             aria-label="Retour à la recharge"
-            className="absolute left-3 grid h-10 w-10 place-items-center rounded-xl border-2 border-[#171717] bg-white text-[#bd304c] shadow-[0_2px_0_#171717] transition active:translate-y-0.5 active:shadow-none"
+            className="absolute left-3 grid h-10 w-10 place-items-center rounded-xl border-2 border-[#171717] bg-white text-[#1947b8] shadow-[0_2px_0_#171717] transition active:translate-y-0.5 active:shadow-none"
           >
             <ChevronLeft className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
           </Link>
@@ -116,7 +116,7 @@ export default function DepositHistoryRealPage() {
               type="button"
               onClick={() => void refetch()}
               disabled={isFetching}
-              className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border-2 border-[#171717] bg-[#bd304c] px-4 text-sm font-bold text-white shadow-[0_2px_0_#171717] transition active:translate-y-0.5 active:shadow-none disabled:opacity-60"
+              className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border-2 border-[#171717] bg-[#1947b8] px-4 text-sm font-bold text-white shadow-[0_2px_0_#171717] transition active:translate-y-0.5 active:shadow-none disabled:opacity-60"
             >
               <RotateCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} aria-hidden="true" />
               Réessayer
@@ -124,7 +124,7 @@ export default function DepositHistoryRealPage() {
           </div>
         ) : deposits.length === 0 ? (
           <div className="rounded-xl border-2 border-[#171717] bg-white px-5 py-9 text-center shadow-[0_3px_0_#171717]">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-[#bd304c]/30 bg-[#fff0f3] text-[#bd304c]">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-[#1947b8]/30 bg-[#edf2ff] text-[#1947b8]">
               <Receipt className="h-6 w-6" aria-hidden="true" />
             </div>
             <p className="mt-3 font-bold text-neutral-900">Aucune recharge pour le moment</p>
@@ -142,7 +142,7 @@ export default function DepositHistoryRealPage() {
             return (
               <article
                 key={deposit.id}
-                className="rounded-xl border-2 border-[#171717] border-l-[5px] border-l-[#bd304c] bg-white p-4 shadow-[0_3px_0_#171717]"
+                className="rounded-xl border-2 border-[#171717] border-l-[5px] border-l-[#1947b8] bg-white p-4 shadow-[0_3px_0_#171717]"
                 data-testid={`deposit-item-${deposit.id}`}
               >
                 <div className="flex min-w-0 items-start justify-between gap-3">

@@ -112,14 +112,14 @@ export default function ProductsPage() {
         .cp-products-page {
           min-height: 100dvh;
           padding-bottom: calc(78px + env(safe-area-inset-bottom));
-          background: #ffffff;
+          background: transparent;
           color: #17191c;
           font-family: Inter, Arial, sans-serif;
         }
-        .cp-products-shell { width: 100%; max-width: 512px; margin: 0 auto; background: #ffffff; }
+        .cp-products-shell { width: 100%; max-width: 512px; margin: 0 auto; background: transparent; }
         .cp-products-stats {
           display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
-          padding: 16px 18px 14px; background: #ffffff;
+          padding: 16px 18px 14px; background: transparent;
         }
         .cp-products-stat {
           display: flex; min-width: 0; min-height: 82px; align-items: center; gap: 10px;
@@ -131,18 +131,18 @@ export default function ProductsPage() {
           width: 100%; font: inherit; text-align: left; cursor: pointer;
           transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease;
         }
-        .cp-products-stat-link:hover { background: #fff7f8; box-shadow: 0 4px 0 #17191c, 0 9px 18px rgba(17,24,39,.15); }
+        .cp-products-stat-link:hover { background: #f6f8ff; box-shadow: 0 4px 0 #17191c, 0 9px 18px rgba(17,24,39,.15); }
         .cp-products-stat-link:active { transform: translateY(1px); }
         .cp-products-stat-link:focus-visible,
         .cp-product-buy:focus-visible,
         .cp-products-retry:focus-visible,
         .cp-products-modal-actions button:focus-visible {
-          outline: 3px solid rgba(189,48,76,.35); outline-offset: 3px;
+          outline: 3px solid rgba(25,71,184,.35); outline-offset: 3px;
         }
         .cp-products-stat-icon {
           display: grid; width: 42px; height: 42px; flex: 0 0 42px;
-          place-items: center; border: 1px solid #f0dadd; border-radius: 12px;
-          background: #fff0f3; color: #bd304c;
+          place-items: center; border: 1px solid #d6e2ff; border-radius: 12px;
+          background: #edf2ff; color: #1947b8;
         }
         .cp-products-stat-icon svg { width: 22px; height: 22px; }
         .cp-products-stat-icon--image {
@@ -155,7 +155,7 @@ export default function ProductsPage() {
           text-overflow: ellipsis; white-space: nowrap;
         }
         .cp-products-stat-label { display: block; margin-top: 5px; color: #625e63; font-size: 12px; line-height: 1.2; }
-        .cp-products-stat-chevron { flex: 0 0 auto; color: #bd304c; }
+        .cp-products-stat-chevron { flex: 0 0 auto; color: #1947b8; }
         .cp-products-list { display: grid; gap: 14px; padding: 0 18px; }
         .cp-product-card {
           display: grid;
@@ -170,11 +170,11 @@ export default function ProductsPage() {
         .cp-product-card.is-unavailable .cp-product-image { border-color: #9ca3af; }
         .cp-product-image {
           position: relative; width: 100%; aspect-ratio: 1; min-width: 0; overflow: hidden;
-          border: 2px solid #17191c; border-radius: 12px; background: #fff4f6;
+          border: 2px solid #17191c; border-radius: 12px; background: #f6f8ff;
         }
         .cp-product-image-placeholder {
           position: absolute; inset: 0; display: grid; place-items: center;
-          background: #fff4f6; color: #bd304c;
+          background: #f6f8ff; color: #1947b8;
         }
         .cp-product-image img {
           position: absolute; z-index: 1; inset: 0; display: block;
@@ -192,12 +192,12 @@ export default function ProductsPage() {
         }
         .cp-product-line span { min-width: 0; }
         .cp-product-line strong { max-width: 100%; color: #17191c; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
-        .cp-product-line.revenue strong { color: #9e263c; }
+        .cp-product-line.revenue strong { color: #12358f; }
         .cp-product-buy {
           display: inline-flex; grid-column: 3; grid-row: 1; min-width: 0; min-height: 38px;
           align-items: center; justify-content: center; justify-self: stretch;
           padding: 8px 7px; border: 2px solid #17191c; border-radius: 999px;
-          background: linear-gradient(120deg, #bd304c 0%, #9e263c 100%);
+          background: linear-gradient(120deg, #1947b8 0%, #12358f 100%);
           color: #ffffff; font-size: 13px; font-weight: 800; white-space: nowrap;
           box-shadow: 0 2px 0 #17191c, 0 5px 10px rgba(17,24,39,.12);
           transition: transform .16s ease, filter .16s ease;
@@ -214,11 +214,11 @@ export default function ProductsPage() {
           padding: 20px; background: #ffffff; color: #625e63; text-align: center;
           box-shadow: 0 3px 0 #17191c, 0 8px 18px rgba(17,24,39,.12);
         }
-        .cp-products-empty > svg { color: #bd304c; }
+        .cp-products-empty > svg { color: #1947b8; }
         .cp-products-empty p { max-width: 280px; margin: 0; font-size: 14px; line-height: 1.4; }
         .cp-products-retry {
           min-height: 42px; margin-top: 4px; padding: 9px 16px;
-          border: 2px solid #17191c; border-radius: 10px; background: #bd304c;
+          border: 2px solid #17191c; border-radius: 10px; background: #1947b8;
           color: #fff; font-size: 13px; font-weight: 800;
         }
         .cp-products-modal-backdrop {
@@ -234,7 +234,7 @@ export default function ProductsPage() {
         .cp-products-modal p { margin: 7px 0 0; color: #625e63; font-size: 12px; line-height: 1.4; }
         .cp-products-modal-wallets {
           display: grid; gap: 7px; margin-top: 12px; padding: 10px;
-          border: 1px solid #e4d5d8; border-radius: 10px; background: #fffafb;
+          border: 1px solid #dbe5ff; border-radius: 10px; background: #f8faff;
         }
         .cp-products-modal-wallet-row {
           display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
@@ -242,8 +242,8 @@ export default function ProductsPage() {
         }
         .cp-products-modal-wallet-row strong { flex: 0 0 auto; color: #17191c; font-size: 11px; }
         .cp-products-modal-wallet-note {
-          margin: 2px 0 0 !important; padding-top: 7px; border-top: 1px dashed #dfc7cd;
-          color: #7f2639 !important; font-size: 10px !important;
+          margin: 2px 0 0 !important; padding-top: 7px; border-top: 1px dashed #cbd8f7;
+          color: #12358f !important; font-size: 10px !important;
         }
         .cp-products-modal-warning {
           display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 9px;
@@ -255,7 +255,7 @@ export default function ProductsPage() {
           min-height: 40px; padding: 8px; border: 2px solid #17191c; border-radius: 10px;
           background: #ffffff; color: #17191c; font-size: 13px; font-weight: 800;
         }
-        .cp-products-modal-actions button:last-child { border-color: #17191c; background: #bd304c; color: #ffffff; }
+        .cp-products-modal-actions button:last-child { border-color: #17191c; background: #1947b8; color: #ffffff; }
         @media (max-width: 370px) {
           .cp-products-stats { gap: 8px; padding-right: 14px; padding-left: 14px; }
           .cp-products-stat { gap: 8px; padding: 9px; }

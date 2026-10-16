@@ -20,7 +20,7 @@ export default function BottomNav() {
     <nav
       className={`bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t bg-white shadow-[0_-1px_2px_rgba(0,0,0,.05)] ${isHome ? "cp-bottom-nav" : ""}`}
       style={{
-        borderColor: "rgba(189, 48, 76, 0.3)",
+        borderColor: "rgba(25, 71, 184, 0.3)",
       }}
       aria-label="Navigation principale"
     >
@@ -48,7 +48,7 @@ export default function BottomNav() {
                 aria-hidden="true"
                 className="bottom-nav-icon h-[32px] w-[32px]"
                 style={{
-                  backgroundColor: isActive ? "#bd304c" : "#8f969b",
+                  backgroundColor: isActive ? "#1947b8" : "#8f969b",
                   WebkitMaskImage: `url("${item.icon}")`,
                   maskImage: `url("${item.icon}")`,
                 }}
@@ -56,7 +56,7 @@ export default function BottomNav() {
               <span
                 className="text-[11px] font-medium leading-none"
                   style={{
-                    color: isActive ? "#9e263c" : "#55565a",
+                    color: isActive ? "#12358f" : "#55565a",
                   }}
               >
                 {isHome ? homeLabel : item.label}

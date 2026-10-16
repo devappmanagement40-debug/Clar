@@ -41,8 +41,8 @@ export default function ServicePage() {
         .service-reference .telegram-link { position: relative; display: grid; width: 100%; align-items: center; justify-items: center; box-sizing: border-box; border: 2px solid #111827; border-radius: 11px; padding: 0 37px 0 10px; background: #fff; color: #111827; font-size: 17px; font-weight: 800; line-height: 23px; text-align: center; white-space: pre-line; box-shadow: 0 3px 0 #111827; transition: transform .12s ease, background-color .12s ease; }
         .service-reference .telegram-link.short { height: 62px; }
         .service-reference .telegram-link.tall { height: 78px; margin-top: 14px; }
-        .service-reference .telegram-link:active { transform: translateY(2px); background: #fff0f3; box-shadow: 0 1px 0 #111827; }
-        .service-reference .telegram-link svg { position: absolute; right: 11px; width: 22px; height: 22px; color: #bd304c; stroke-width: 2.5; }
+        .service-reference .telegram-link:active { transform: translateY(2px); background: #edf2ff; box-shadow: 0 1px 0 #111827; }
+        .service-reference .telegram-link svg { position: absolute; right: 11px; width: 22px; height: 22px; color: #1947b8; stroke-width: 2.5; }
         .service-reference .online-hours { margin-top: 15px; color: #4b5563; font-size: 14px; font-weight: 700; line-height: 1.45; text-align: center; white-space: normal; }
         .service-reference .online-hours p { margin: 0; }
         .service-reference .advice { min-height: 210px; box-sizing: border-box; padding: 20px 16px 70px; background: #ffffff; }

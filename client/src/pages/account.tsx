@@ -304,7 +304,7 @@ export default function AccountPage() {
                 verifyPinMutation.mutate(adminPin);
               }}
               disabled={verifyPinMutation.isPending || adminPin.length < 4}
-              className="w-full bg-[#bd304c] hover:bg-[#9e263c]"
+              className="w-full bg-[#1947b8] hover:bg-[#12358f]"
               data-testid="button-verify-pin"
             >
               {verifyPinMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -41,7 +41,7 @@
   border: 0;
   padding: 0;
   background: transparent;
-  color: #bd304c;
+  color: #1947b8;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -53,7 +53,7 @@
 }
 
 .cp-rules-back:focus-visible {
-  outline: 2px solid #bd304c;
+  outline: 2px solid #1947b8;
   outline-offset: 3px;
   border-radius: 5px;
 }
@@ -67,7 +67,7 @@
 
 .cp-rules-section + .cp-rules-section {
   margin-top: 28px;
-  border-top: 2px solid rgba(189, 48, 76, .28);
+  border-top: 2px solid rgb(25 71 184 / 28%);
   padding-top: 22px;
 }
 
@@ -85,7 +85,7 @@
   height: 21px;
   margin-right: 8px;
   border-radius: 3px;
-  background: #bd304c;
+  background: #1947b8;
   content: "";
   vertical-align: -3px;
 }

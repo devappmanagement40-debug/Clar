@@ -55,20 +55,20 @@ export default function GiftCodePage() {
         .gift-reference .gift-title::after { display: block; width: 42px; height: 42px; flex: none; content: ""; }
         .gift-reference .gift-banner { margin: 20px 16px 0; overflow: hidden; border: 2px solid #111827; border-radius: 12px; background: #ffffff; box-shadow: 0 5px 0 #111827, 0 10px 18px rgba(17, 24, 39, .15); }
         .gift-reference .gift-hero { display: block; width: 100%; height: auto; aspect-ratio: 1.75 / 1; object-fit: cover; }
-        .gift-reference .gift-description { display: flex; min-height: 70px; align-items: center; margin: 20px 16px 0; border: 2px solid #111827; border-radius: 12px; padding: 15px 16px; background: #fff0f3; color: #111827; font-size: 16px; font-weight: 700; line-height: 1.35; box-shadow: 0 4px 0 #111827; }
+        .gift-reference .gift-description { display: flex; min-height: 70px; align-items: center; margin: 20px 16px 0; border: 2px solid #111827; border-radius: 12px; padding: 15px 16px; background: #edf2ff; color: #111827; font-size: 16px; font-weight: 700; line-height: 1.35; box-shadow: 0 4px 0 #111827; }
         .gift-reference .gift-telegram { display: flex; min-height: 82px; align-items: center; gap: 14px; margin: 18px 16px 0; border: 2px solid #111827; border-radius: 12px; padding: 12px 16px; background: #ffffff; box-shadow: 0 4px 0 #111827; text-decoration: none; }
         .gift-reference .gift-telegram img { width: 52px; height: 52px; flex: none; object-fit: contain; }
         .gift-reference .gift-telegram strong { min-width: 0; flex: 1; color: #111827; font-size: 17px; font-weight: 800; }
         .gift-reference .gift-telegram svg { width: 22px; height: 22px; flex: none; color: #111827; stroke-width: 2.5; }
         .gift-reference .gift-form { margin: 18px 16px 0; border: 2px solid #111827; border-radius: 12px; padding: 18px 16px 20px; background: #ffffff; box-shadow: 0 5px 0 #111827, 0 10px 18px rgba(17, 24, 39, .12); }
         .gift-reference .gift-label { display: block; margin-bottom: 10px; color: #111827; font-size: 17px; font-weight: 800; }
-        .gift-reference .gift-label span { color: #9e263c; }
+        .gift-reference .gift-label span { color: #12358f; }
         .gift-reference .gift-input { display: block; width: 100%; height: 62px; border: 2px solid #111827; border-radius: 11px; padding: 0 16px; outline: 0; background: #ffffff; color: #111827; font-size: 16px; font-weight: 500; }
-        .gift-reference .gift-input:focus { border-color: #bd304c; box-shadow: 0 0 0 3px rgba(189, 48, 76, .2); }
+        .gift-reference .gift-input:focus { border-color: #1947b8; box-shadow: 0 0 0 3px rgb(25 71 184 / 20%); }
         .gift-reference .gift-input::placeholder { color: #4b5563; opacity: 1; }
-        .gift-reference .gift-submit { display: grid; width: 100%; min-height: 62px; place-items: center; margin: 22px 0 0; border: 2px solid #111827; border-radius: 11px; background: #bd304c; color: #ffffff; font-size: 19px; font-weight: 800; box-shadow: 0 4px 0 #111827, 0 7px 14px rgba(17, 24, 39, .18); cursor: pointer; }
-        .gift-reference .gift-submit:hover:not(:disabled) { background: #9e263c; }
-        .gift-reference .gift-submit:focus-visible { outline: 3px solid rgba(189, 48, 76, .28); outline-offset: 2px; }
+        .gift-reference .gift-submit { display: grid; width: 100%; min-height: 62px; place-items: center; margin: 22px 0 0; border: 2px solid #111827; border-radius: 11px; background: #1947b8; color: #ffffff; font-size: 19px; font-weight: 800; box-shadow: 0 4px 0 #111827, 0 7px 14px rgba(17, 24, 39, .18); cursor: pointer; }
+        .gift-reference .gift-submit:hover:not(:disabled) { background: #12358f; }
+        .gift-reference .gift-submit:focus-visible { outline: 3px solid rgb(25 71 184 / 28%); outline-offset: 2px; }
         .gift-reference .gift-submit:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #111827, 0 3px 7px rgba(17, 24, 39, .18); }
         .gift-reference .gift-submit:disabled { cursor: wait; opacity: .7; }
         @media (max-width: 370px) {

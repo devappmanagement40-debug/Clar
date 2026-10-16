@@ -226,10 +226,10 @@ export default function AdminTasks() {
                   <p className="text-sm text-muted-foreground">{task.description}</p>
                   <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
                     <span className="inline-flex items-center gap-1.5">
-                      <Users className="h-4 w-4 text-[#bd304c]" />
+                      <Users className="h-4 w-4 text-[#1947b8]" />
                       {task.requiredInvites.toLocaleString("fr-FR")} invitations
                     </span>
-                    <span className="font-semibold text-[#bd304c]">
+                    <span className="font-semibold text-[#1947b8]">
                       {task.reward.toLocaleString("fr-FR")} XOF
                     </span>
                   </div>

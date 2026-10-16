@@ -85,8 +85,8 @@ export default function HostedPaymentCheckout({
   const checkoutUrl = safeHttpUrl(paymentLink);
   const checkoutClickUrl = withCoteDIvoireWaveAmount(checkoutUrl, amount, countryCode);
   const isWave = method === "wave";
-  const accent = "#bd304c";
-  const pale = "#fff0f3";
+  const accent = "#1947b8";
+  const pale = "#edf2ff";
   const paymentConfigured = Boolean(checkoutUrl || (isWave && paymentPhone?.trim()));
   const displayAmount = amount.toLocaleString("fr-FR");
 
@@ -142,7 +142,7 @@ export default function HostedPaymentCheckout({
         <div className="space-y-4 px-3 py-4 sm:px-4">
           {!submitted ? (
             <>
-              <section className="rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#bd304c] bg-white p-4 text-center shadow-[0_3px_0_#17191c] sm:p-5">
+              <section className="rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#1947b8] bg-white p-4 text-center shadow-[0_3px_0_#17191c] sm:p-5">
                 <h2 className="text-lg font-bold leading-7 text-[#424a50]">
                   {checkoutUrl
                     ? isWave
@@ -237,7 +237,7 @@ export default function HostedPaymentCheckout({
                   event.preventDefault();
                   onSubmitPayment();
                 }}
-                className="space-y-4 rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#bd304c] bg-white p-4 shadow-[0_3px_0_#17191c] sm:p-5"
+                className="space-y-4 rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#1947b8] bg-white p-4 shadow-[0_3px_0_#17191c] sm:p-5"
               >
                 <div className="text-left">
                   <h2 className="text-lg font-bold leading-7 text-[#424a50]">Soumettre la preuve de paiement</h2>
@@ -302,7 +302,7 @@ export default function HostedPaymentCheckout({
             </>
           ) : (
             <>
-              <section className="rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#bd304c] bg-white p-5 shadow-[0_3px_0_#17191c]">
+              <section className="rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#1947b8] bg-white p-5 shadow-[0_3px_0_#17191c]">
                 <div className="text-center">
                   {status === "approved" ? (
                     <CheckCircle2 className="mx-auto h-14 w-14" style={{ color: accent }} />

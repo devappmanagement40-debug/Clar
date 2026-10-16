@@ -49,9 +49,9 @@ export default function MyProductsPage() {
       <style>{`
         .products-reference { color: #151515; font-family: Inter, Arial, sans-serif; }
         .products-reference .products-screen { width: 100%; max-width: 500px; margin: 0 auto; overflow: hidden; }
-         .products-reference .products-hero { position: relative; height: min(70.31vw, 360px); min-height: 270px; overflow: hidden; background: #bd304c; }
+         .products-reference .products-hero { position: relative; height: min(70.31vw, 360px); min-height: 270px; overflow: hidden; background: #1947b8; }
          .products-reference .products-hero img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 48%; pointer-events: none; }
-         .products-reference .stat-panel { position: absolute; top: 58%; z-index: 1; display: flex; height: 38%; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 24px; background: #bd304c; color: #fff; text-align: center; pointer-events: none; }
+         .products-reference .stat-panel { position: absolute; top: 58%; z-index: 1; display: flex; height: 38%; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 24px; background: #1947b8; color: #fff; text-align: center; pointer-events: none; }
          .products-reference .stat-panel.our { left: 4%; width: 45%; }
          .products-reference .stat-panel.my { right: 4%; width: 45%; }
          .products-reference .stat-value { display: block; max-width: 100%; overflow: hidden; padding: 0 8px; font-size: clamp(20px, 5vw, 30px); font-weight: 500; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
@@ -59,16 +59,16 @@ export default function MyProductsPage() {
          .products-reference .stat-toggle { position: absolute; top: 58%; z-index: 2; height: 38%; background: transparent; }
          .products-reference .stat-toggle.our { left: 4%; width: 45%; }
          .products-reference .stat-toggle.my { right: 4%; width: 45%; }
-         .products-reference .product-list { padding: 0 12px 20px; background: white; }
+          .products-reference .product-list { padding: 0 12px 20px; background: transparent; }
          .products-reference .product-card { position: relative; height: 265px; margin-bottom: 0; overflow: hidden; border: 0; border-bottom: 1px solid #eeeeee; border-radius: 0; background: white; box-shadow: none; }
-          .products-reference .product-picture { position: absolute; top: 12px; right: 7px; left: auto; width: 154px; height: 154px; overflow: hidden; border: 2px solid #bd304c; border-radius: 11px; background: #fff; }
+          .products-reference .product-picture { position: absolute; top: 12px; right: 7px; left: auto; width: 154px; height: 154px; overflow: hidden; border: 2px solid #1947b8; border-radius: 11px; background: #fff; }
          .products-reference .product-picture img { width: 100%; height: 100%; object-fit: cover; }
          .products-reference .product-details { position: absolute; top: 17px; left: 31px; right: 181px; overflow: hidden; }
-          .products-reference .product-name { overflow: hidden; color: #bd304c; font-size: 23px; font-weight: 500; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+          .products-reference .product-name { overflow: hidden; color: #1947b8; font-size: 23px; font-weight: 500; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
          .products-reference .product-price { margin-top: 22px; color: #171717; font-size: 17px; font-weight: 400; }
          .products-reference .product-line { margin-top: 12px; color: #171717; font-size: 16px; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; }
          .products-reference .product-line strong { margin-left: 8px; color: #171717; font-weight: 400; }
-          .products-reference .buy { position: absolute; right: 7px; bottom: 25px; display: grid; width: 154px; height: 61px; place-items: center; border-radius: 14px; background: linear-gradient(180deg, #bd304c 0%, #9e263c 100%); color: white; font-size: 18px; font-weight: 400; line-height: 1.1; text-align: center; }
+           .products-reference .buy { position: absolute; right: 7px; bottom: 25px; display: grid; width: 154px; height: 61px; place-items: center; border-radius: 14px; background: linear-gradient(180deg, #1947b8 0%, #12358f 100%); color: white; font-size: 18px; font-weight: 400; line-height: 1.1; text-align: center; }
          .products-reference .my-card { height: 265px; padding-bottom: 0; }
          .products-reference .my-card .product-details { position: absolute; top: 17px; left: 31px; right: 181px; margin-left: 0; padding-top: 0; padding-right: 0; }
          .products-reference .my-card .product-picture { top: 12px; }
@@ -93,7 +93,7 @@ export default function MyProductsPage() {
          }
          .products-reference .products-screen {
            max-width: 512px;
-            background: #ffffff;
+             background: transparent;
          }
          .products-reference .products-header {
            display: flex;
@@ -110,11 +110,11 @@ export default function MyProductsPage() {
            font-size: 20px;
            font-weight: 900;
          }
-         .products-reference .products-hero {
+          .products-reference .products-hero {
            height: 238px;
            min-height: 0;
            border-bottom: 2px solid #111827;
-            background: #bd304c;
+             background: #1947b8;
          }
          .products-reference .products-hero img {
            position: relative;
@@ -163,9 +163,9 @@ export default function MyProductsPage() {
            font-size: 12px;
            font-weight: 800;
          }
-         .products-reference .product-list {
+          .products-reference .product-list {
            padding: 18px 16px 28px;
-            background: #ffffff;
+             background: transparent;
          }
          .products-reference .product-card {
            display: grid;
@@ -189,7 +189,7 @@ export default function MyProductsPage() {
            width: 100%;
            height: 116px;
             place-items: center;
-            border: 2px solid #bd304c;
+             border: 2px solid #1947b8;
            border-radius: 10px;
          }
          .products-reference .product-picture img {
@@ -199,7 +199,7 @@ export default function MyProductsPage() {
            object-fit: contain;
             background: #ffffff;
          }
-          .products-reference .product-picture > svg { width: 42px; height: 42px; color: #bd304c; }
+           .products-reference .product-picture > svg { width: 42px; height: 42px; color: #1947b8; }
          .products-reference .product-details,
          .products-reference .my-card .product-details {
            position: static;
@@ -209,7 +209,7 @@ export default function MyProductsPage() {
            overflow: hidden;
          }
          .products-reference .product-name {
-            color: #bd304c;
+             color: #1947b8;
            font-size: 19px;
            font-weight: 900;
            white-space: normal;
@@ -239,7 +239,7 @@ export default function MyProductsPage() {
            height: auto;
            border: 2px solid #111827;
            border-radius: 11px;
-            background: #bd304c;
+             background: #1947b8;
             color: #ffffff;
            font-size: 13px;
            font-weight: 900;
@@ -256,7 +256,7 @@ export default function MyProductsPage() {
            border-radius: 14px;
            background: #fff;
          }
-          .products-reference .empty > svg { width: 52px; height: 52px; color: #bd304c; }
+           .products-reference .empty > svg { width: 52px; height: 52px; color: #1947b8; }
          @media (max-width: 360px) {
           .products-reference .products-hero { height: 228px; }
            .products-reference .product-list { padding-right: 12px; padding-left: 12px; }
@@ -296,7 +296,7 @@ export default function MyProductsPage() {
             align-self: center;
             place-items: center;
             overflow: hidden;
-            border: 2px solid #bd304c;
+            border: 2px solid #1947b8;
             border-radius: 10px;
             background: #ffffff;
           }
@@ -310,7 +310,7 @@ export default function MyProductsPage() {
           .products-reference .my-card-heading .product-picture > svg {
             width: 30px;
             height: 30px;
-            color: #bd304c;
+            color: #1947b8;
           }
           .products-reference .my-card-product-copy {
             min-width: 0;
@@ -321,7 +321,7 @@ export default function MyProductsPage() {
           .products-reference .my-card-product-copy .product-name {
             margin: 0;
             overflow: hidden;
-            color: #bd304c;
+            color: #1947b8;
             font-size: 17px;
             font-weight: 900;
             line-height: 1.2;
@@ -423,7 +423,7 @@ export default function MyProductsPage() {
           <div>
               {loadingUserProducts ? (
                 <div className="flex justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#bd304c]" />
+                    <Loader2 className="w-8 h-8 animate-spin text-[#1947b8]" />
                 </div>
               ) : allUserProducts.length === 0 ? (
                 <div className="empty">
