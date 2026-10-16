@@ -1,4 +1,4 @@
-- [CATL brand transition](catl-brand-transition.md) — Use the supplied logo across brand marks and the battery image as the app-wide background; don't imply CATL endorsement.
+- [CATL brand transition](catl-brand-transition.md) — Use supplied CATL assets, avoid implying endorsement, and keep the home popup white with a flat Confirm footer.
 - [New application transition](new-application-transition.md) — Treat the rebuild as a fresh application; preserve Supabase-managed schemas and confirm before further destructive changes.
 - [Deposit checkout routing](deposit-checkout-routing.md) — Keep aggregator choice internal; manual number deposits stay pending through the countdown until admin review.
 - [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).

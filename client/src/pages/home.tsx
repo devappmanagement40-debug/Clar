@@ -256,6 +256,21 @@ export default function HomePage() {
             <DialogDescription className="cp-dialog-message">
               Bienvenue sur votre espace. Consultez les conditions des dépôts, des retraits et des bonus avant toute opération.
             </DialogDescription>
+            {groupEnabled && groupLink && (
+              <a className="cp-dialog-telegram" href={groupLink} target="_blank" rel="noreferrer" onClick={() => setWelcomePopupOpen(false)}>
+                <span className="cp-telegram-logo" aria-hidden="true">
+                  <svg viewBox="0 0 40 40" focusable="false">
+                    <circle cx="20" cy="20" r="20" fill="#229ED9" />
+                    <path
+                      d="M29.25 10.83 25.1 30.04c-.31 1.36-1.11 1.7-2.25 1.06l-6.22-4.59-3 2.89c-.34.34-.62.62-1.27.62l.45-6.34 11.55-10.43c.5-.45-.11-.7-.78-.25L9.3 22.47l-6.15-1.92c-1.34-.42-1.37-1.34.28-1.96l24.02-9.26c1.11-.41 2.08.27 1.8 1.5Z"
+                      fill="white"
+                    />
+                  </svg>
+                </span>
+                <span>{popupButtonLabel}</span>
+                <ChevronRight size={19} aria-hidden="true" />
+              </a>
+            )}
             <img
               className="cp-dialog-company-image"
               src={catlBooth1}
@@ -272,21 +287,6 @@ export default function HomePage() {
             </ol>
           </div>
           <div className="cp-dialog-actions">
-            {groupEnabled && groupLink && (
-              <a className="cp-dialog-telegram" href={groupLink} target="_blank" rel="noreferrer" onClick={() => setWelcomePopupOpen(false)}>
-                <span className="cp-telegram-logo" aria-hidden="true">
-                  <svg viewBox="0 0 40 40" focusable="false">
-                    <circle cx="20" cy="20" r="20" fill="#229ED9" />
-                    <path
-                      d="M29.25 10.83 25.1 30.04c-.31 1.36-1.11 1.7-2.25 1.06l-6.22-4.59-3 2.89c-.34.34-.62.62-1.27.62l.45-6.34 11.55-10.43c.5-.45-.11-.7-.78-.25L9.3 22.47l-6.15-1.92c-1.34-.42-1.37-1.34.28-1.96l24.02-9.26c1.11-.41 2.08.27 1.8 1.5Z"
-                      fill="white"
-                    />
-                  </svg>
-                </span>
-                <span>{popupButtonLabel}</span>
-                <ChevronRight size={19} aria-hidden="true" />
-              </a>
-            )}
             <button className="cp-dialog-close" type="button" onClick={() => setWelcomePopupOpen(false)}>Confirmer</button>
           </div>
         </DialogContent>
