@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import type { User } from "@shared/schema";
 import { apiRequest } from "./queryClient";
 
+export const isUiPreview = import.meta.env.VITE_UI_PREVIEW_MODE === "true";
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -18,6 +20,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshUser = useCallback(async () => {
+    if (isUiPreview) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/auth/me", { credentials: "include" });
       if (response.ok) {
@@ -38,6 +46,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser]);
 
   const login = async (phone: string, country: string, password: string) => {
+    if (isUiPreview) {
+      throw new Error("La connexion est désactivée dans l’aperçu sans base de données.");
+    }
     const response = await apiRequest("POST", "/api/auth/login", { phone, country, password });
     const data = await response.json();
     if (!response.ok) {
@@ -47,6 +58,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (data: { fullName: string; phone: string; country: string; password: string; invitationCode?: string }) => {
+    if (isUiPreview) {
+      throw new Error("L’inscription est désactivée dans l’aperçu sans base de données.");
+    }
     const response = await apiRequest("POST", "/api/auth/register", data);
     const result = await response.json();
     if (!response.ok) {
@@ -56,6 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    if (isUiPreview) {
+      setUser(null);
+      return;
+    }
     await apiRequest("POST", "/api/auth/logout", {});
     setUser(null);
   };

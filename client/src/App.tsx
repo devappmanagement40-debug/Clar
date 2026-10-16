@@ -129,6 +129,19 @@ function BrandThemeScope({ children }: { children: React.ReactNode }) {
   return <div className={isDashboard ? undefined : "equinor-theme"}>{children}</div>;
 }
 
+function FloatingSupportOnNonAuthPages() {
+  const [location] = useLocation();
+  const publicAuthRoutes = new Set([
+    "/login",
+    "/register",
+    "/html/register",
+    "/invitation",
+    "/rejoindre",
+  ]);
+
+  return publicAuthRoutes.has(location) ? null : <FloatingSupport />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -344,7 +357,7 @@ function App() {
               <Router />
             </Suspense>
             <GlobalProcessingOverlay />
-            <FloatingSupport />
+            <FloatingSupportOnNonAuthPages />
             <Toaster />
           </BrandThemeScope>
         </AuthProvider>

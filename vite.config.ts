@@ -3,10 +3,29 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
+function previewApiUnavailablePlugin() {
+  return {
+    name: "preview-api-unavailable",
+    configureServer(server: import("vite").ViteDevServer) {
+      if (process.env.VITE_UI_PREVIEW_MODE !== "true") return;
+
+      server.middlewares.use((req, res, next) => {
+        if (!req.url?.startsWith("/api/")) return next();
+        res.statusCode = 503;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({
+          message: "Mode aperçu : les fonctions de données sont indisponibles sans base de données.",
+        }));
+      });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
+    previewApiUnavailablePlugin(),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [

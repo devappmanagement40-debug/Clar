@@ -19,6 +19,7 @@
 - [Task milestone management](task-milestones.md) — Keep task thresholds and rewards database-driven, editable in admin, and never restore deleted values on app startup.
 - [Mockup sandbox isolation](mockup-sandbox-dependencies.md) — Separate dependencies and preview ports mean a main-app screenshot can misreport a healthy sandbox preview.
 - [Workflow secret scope](workflow-secret-scope.md) — One-off shell commands may lack secrets available to the managed app workflow; use scoped presence checks and guarded execution.
+- [Database-free visual preview](database-free-preview.md) — Keep a clearly labeled UI-only preview available when the database URL is absent; never present preview actions or fake financial data as live.
 - [Telegram bot polling](telegram-bot-polling.md) — Run one production getUpdates poller per bot token; parallel pollers conflict.
 - [External payment configuration rollback](external-payment-config-rollback.md) — Restoring payment source files from GitHub does not undo provider settings already persisted in external Supabase.
 - [Clapay contract configuration](clapay-contract-configuration.md) — Keep secrets in Plesk, confirm via the authenticated API, and preserve uncertain initiations for signed-callback reconciliation.

@@ -4,7 +4,8 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development node_modules/.bin/tsx server/index.ts",
+    "dev": "if [ -n \"${SUPABASE_NEW_DATABASE_URL:-}${SUPABASE_DATABASE_URL:-}\" ]; then NODE_ENV=development node_modules/.bin/tsx server/index.ts; else npm run dev:preview; fi",
+    "dev:preview": "NODE_ENV=development VITE_UI_PREVIEW_MODE=true vite --host 0.0.0.0 --port 5000 --strictPort",
     "build": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",

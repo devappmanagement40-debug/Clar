@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/lib/auth";
+import { isUiPreview, useAuth } from "@/lib/auth";
 import {
   AUTH_HIDDEN_COUNTRY_CODES,
   FALLBACK_COUNTRIES,
@@ -59,6 +59,7 @@ export default function RegisterPage() {
 
   const { data: apiCountries, isLoading: countriesLoading } = useQuery<ApiCountry[]>({
     queryKey: ["/api/countries"],
+    enabled: !isUiPreview,
   });
 
   const selectedCountry = form.watch("country");
@@ -111,6 +112,11 @@ export default function RegisterPage() {
   return (
     <main className="auth-reference auth-register">
       <img className="auth-background-image" src={registerBackground} alt="" aria-hidden="true" />
+      {isUiPreview && (
+        <aside className="auth-preview-notice" role="status">
+          Aperçu visuel uniquement · base de données non connectée
+        </aside>
+      )}
       <div className="auth-screen">
         <section className="auth-panel" aria-labelledby="register-title">
           <header className="auth-brand">
@@ -163,7 +169,7 @@ export default function RegisterPage() {
             </div>
 
             <button type="button" className="auth-switch" onClick={() => navigate("/login")} data-testid="link-login">Aller à la connexion &gt;</button>
-            <button type="submit" disabled={isLoading} className="auth-submit" data-testid="button-register">
+            <button type="submit" disabled={isLoading || isUiPreview} className="auth-submit" data-testid="button-register">
               {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "S’inscrire"}
             </button>
           </form>
