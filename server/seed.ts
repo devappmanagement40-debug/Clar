@@ -379,6 +379,33 @@ export async function seed() {
     console.log(`CATL VIP availability set: ${vipAvailabilityResult.activated} active, ${vipAvailabilityResult.deactivated} inactive`);
   }
 
+  // Update the provided product image once, preserving future admin image edits.
+  const vipProductImageSeedKey = "migration_catl_vip_product_image_applied";
+  const vipProductImageResult = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: vipProductImageSeedKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+
+    if (!seedMarker) return { updated: 0, alreadyApplied: true };
+
+    const updatedRows = await tx.update(products)
+      .set({ imageUrl: catlVipOffers[0].imageUrl })
+      .where(inArray(products.name, catlVipOffers.map(offer => offer.name)))
+      .returning({ id: products.id });
+
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, vipProductImageSeedKey));
+
+    return { updated: updatedRows.length, alreadyApplied: false };
+  });
+  if (vipProductImageResult.alreadyApplied) {
+    console.log("CATL VIP product images skipped — migration already applied");
+  } else {
+    console.log(`CATL VIP product images updated: ${vipProductImageResult.updated}`);
+  }
+
   // Apply defaults once only. Persisting the marker means admin deletions stay deleted after a restart.
   const initialTasksSeedKey = "migration_initial_tasks_applied";
   const initialTasksSeedResult = await db.transaction(async tx => {

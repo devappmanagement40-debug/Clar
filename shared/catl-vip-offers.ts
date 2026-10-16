@@ -1,10 +1,12 @@
+const catlProductImageUrl = "/images/catl/products/catl-battery-packs.webp";
+
 export const catlVipOffers = [
   {
     name: "Cellule Essentielle",
     price: 3500,
     dailyEarnings: 800,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-1.webp",
+    imageUrl: catlProductImageUrl,
     isActive: true,
   },
   {
@@ -12,7 +14,7 @@ export const catlVipOffers = [
     price: 6000,
     dailyEarnings: 2000,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-2.webp",
+    imageUrl: catlProductImageUrl,
     isActive: true,
   },
   {
@@ -20,7 +22,7 @@ export const catlVipOffers = [
     price: 10000,
     dailyEarnings: 3500,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-3.webp",
+    imageUrl: catlProductImageUrl,
     isActive: true,
   },
   {
@@ -28,7 +30,7 @@ export const catlVipOffers = [
     price: 20000,
     dailyEarnings: 7000,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-1.webp",
+    imageUrl: catlProductImageUrl,
     isActive: true,
   },
   {
@@ -36,7 +38,7 @@ export const catlVipOffers = [
     price: 50000,
     dailyEarnings: 17500,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-2.webp",
+    imageUrl: catlProductImageUrl,
     isActive: true,
   },
   {
@@ -44,7 +46,7 @@ export const catlVipOffers = [
     price: 80000,
     dailyEarnings: 28800,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-3.webp",
+    imageUrl: catlProductImageUrl,
     isActive: true,
   },
   {
@@ -52,7 +54,7 @@ export const catlVipOffers = [
     price: 150000,
     dailyEarnings: 57000,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-1.webp",
+    imageUrl: catlProductImageUrl,
     isActive: false,
   },
   {
@@ -60,7 +62,7 @@ export const catlVipOffers = [
     price: 300000,
     dailyEarnings: 120000,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-2.webp",
+    imageUrl: catlProductImageUrl,
     isActive: false,
   },
   {
@@ -68,7 +70,7 @@ export const catlVipOffers = [
     price: 500000,
     dailyEarnings: 225000,
     cycleDays: 150,
-    imageUrl: "/images/catl/products/catl-booth-3.webp",
+    imageUrl: catlProductImageUrl,
     isActive: false,
   },
 ] as const;
