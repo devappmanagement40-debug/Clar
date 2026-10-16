@@ -56,9 +56,9 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgb(8 27 85 / 34%) 0%,
-    rgb(8 27 85 / 50%) 52%,
-    rgb(5 17 58 / 68%) 100%
+    rgb(8 27 85 / 8%) 0%,
+    rgb(8 27 85 / 16%) 52%,
+    rgb(5 17 58 / 24%) 100%
   );
   content: "";
   pointer-events: none;
@@ -321,9 +321,9 @@
   .auth-reference::before {
     background: linear-gradient(
       180deg,
-      rgb(8 27 85 / 34%) 0%,
-      rgb(8 27 85 / 50%) 52%,
-      rgb(5 17 58 / 68%) 100%
+      rgb(8 27 85 / 8%) 0%,
+      rgb(8 27 85 / 16%) 52%,
+      rgb(5 17 58 / 24%) 100%
     );
   }
 }
