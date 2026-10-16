@@ -335,7 +335,7 @@ body:has(.cp-home) { background: #081d58 !important; }
 .cp-bottom-nav button[aria-current="page"] span:last-child { color: var(--cp-accent-deep) !important; font-weight: 700; }
 .cp-bottom-nav button:hover span:last-child { color: var(--cp-accent-deep); }
 
-.cp-dialog-overlay { background-color: rgba(0, 0, 0, .52); backdrop-filter: blur(2px); }
+.cp-dialog-overlay { background-color: rgba(0, 0, 0, .58); backdrop-filter: blur(3px); }
 .cp-dialog {
   --cp-accent: #1947b8;
   --cp-accent-deep: #12358f;
@@ -352,22 +352,22 @@ body:has(.cp-home) { background: #081d58 !important; }
   flex-direction: column;
   gap: 0;
   overflow: visible;
-  border: 1px solid #e6e6e6;
+  border: 1px solid #d8dbe2;
   border-radius: 20px;
   padding: 0;
   background: #fff;
   color: var(--cp-ink);
-  box-shadow: 0 18px 58px rgba(0, 0, 0, .2);
+  box-shadow: 0 22px 68px rgba(0, 0, 0, .34);
 }
 .cp-dialog > button:last-child { display: none; }
 .cp-dialog-banner {
   position: relative;
   display: flex;
-  min-height: 68px;
+  min-height: 72px;
   flex: none;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #dfe2e8;
   border-radius: 19px 19px 0 0;
   padding: 18px 56px;
   background: #fff;
@@ -401,19 +401,19 @@ body:has(.cp-home) { background: #081d58 !important; }
   margin: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 16px 20px 16px;
+  padding: 18px 20px 17px;
   color: var(--cp-ink);
-  scrollbar-color: #d7c9cc transparent;
+  scrollbar-color: #9aa8c4 transparent;
   scrollbar-width: thin;
 }
-.cp-dialog-title { margin: 0; color: #191919; font: 600 20px/1.18 "DM Sans", sans-serif; letter-spacing: 0; text-align: center; }
-.cp-dialog-message { flex: none; margin: 0; color: #39435a; font: 500 14px/1.52 "DM Sans", sans-serif; text-align: left; }
-.cp-dialog-company-image { display: block; width: 100%; max-height: 174px; aspect-ratio: 16 / 8; margin: 14px 0 0; border: 1px solid #e3e3e3; border-radius: 4px; background: #f5f5f5; object-fit: cover; object-position: center; }
-.cp-dialog-community-note { flex: none; margin: 12px 0 0; color: #535f78; font: 500 13px/1.45 "DM Sans", sans-serif; }
-.cp-dialog-list { display: grid; gap: 8px; margin: 12px 0 0; padding-left: 23px; color: #343b4b; font: 500 12px/1.43 "DM Sans", sans-serif; }
+.cp-dialog-title { margin: 0; color: #191919; font: 700 21px/1.18 "DM Sans", sans-serif; letter-spacing: 0; text-align: center; }
+.cp-dialog-message { flex: none; margin: 0; color: #252327; font: 600 14px/1.52 "DM Sans", sans-serif; text-align: left; }
+.cp-dialog-company-image { display: block; width: 100%; max-height: 174px; aspect-ratio: 16 / 8; margin: 14px 0 0; border: 2px solid #1947b8; border-radius: 10px; background: #f5f7fc; object-fit: cover; object-position: center; box-shadow: 0 4px 14px rgba(8, 29, 88, .18); }
+.cp-dialog-community-note { flex: none; margin: 12px 0 0; color: #30394a; font: 600 13px/1.48 "DM Sans", sans-serif; }
+.cp-dialog-list { display: grid; gap: 9px; margin: 12px 0 0; padding-left: 23px; color: #252327; font: 500 13px/1.48 "DM Sans", sans-serif; }
 .cp-dialog-list li { padding-left: 3px; }
 .cp-dialog-list li::marker { color: var(--cp-accent-deep); font-weight: 800; }
-.cp-dialog-actions { display: flex; width: 100%; flex: none; flex-direction: column; gap: 0; border-top: 1px solid #eeeeee; border-radius: 0 0 20px 20px; padding: 0; background: #fff; }
+.cp-dialog-actions { display: flex; width: 100%; flex: none; flex-direction: column; gap: 0; border-top: 2px solid #dfe2e8; border-radius: 0 0 20px 20px; padding: 0; background: #fff; }
 .cp-dialog-telegram,
 .cp-dialog-close {
   display: flex;
@@ -430,21 +430,22 @@ body:has(.cp-home) { background: #081d58 !important; }
   transition: transform .15s ease, background-color .15s ease;
 }
 .cp-dialog-telegram {
-  min-height: 54px;
+  min-height: 58px;
   gap: 11px;
-  border-color: var(--cp-accent-deep);
-  border-radius: 10px;
+  border: 2px solid var(--cp-accent-deep);
+  border-radius: 12px;
   padding: 7px 12px;
   background: var(--cp-accent);
-  box-shadow: 0 3px 0 var(--cp-accent-deep);
+  box-shadow: 0 4px 0 var(--cp-accent-deep);
   color: #fff;
+  font-size: 14px;
   text-decoration: none;
   transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
 .cp-telegram-logo { display: grid; width: 32px; height: 32px; flex: none; place-items: center; overflow: hidden; border-radius: 50%; }
 .cp-telegram-logo svg { display: block; width: 100%; height: 100%; }
 .cp-dialog-telegram > span:not(.cp-telegram-logo) { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-wrap: balance; }
-.cp-dialog-close { min-height: 56px; border: 0; border-radius: 0 0 19px 19px; background: #fff; color: #191919; font-size: 16px; font-weight: 500; }
+.cp-dialog-close { min-height: 60px; border: 0; border-radius: 0 0 19px 19px; background: #fff; color: #191919; font-size: 16px; font-weight: 700; }
 .cp-dialog-telegram:hover { background: var(--cp-accent-deep); box-shadow: 0 1px 0 var(--cp-accent-deep); transform: translateY(2px); }
 .cp-dialog-close:hover { background: #f7f7f7; }
 
@@ -472,13 +473,13 @@ body:has(.cp-home) { background: #081d58 !important; }
 
 @media (max-width: 370px) {
   .cp-dialog { width: calc(100% - 28px); }
-  .cp-dialog-banner { min-height: 64px; padding-right: 52px; padding-left: 52px; }
+  .cp-dialog-banner { min-height: 68px; padding-right: 52px; padding-left: 52px; }
   .cp-dialog-copy { padding: 14px 14px 12px; }
   .cp-dialog-title { font-size: 19px; }
   .cp-dialog-message { font-size: 13px; }
   .cp-dialog-company-image { max-height: 142px; margin-top: 11px; }
-  .cp-dialog-list { gap: 7px; margin-top: 10px; padding-left: 21px; font-size: 11px; }
-  .cp-dialog-actions { padding: 10px 14px 13px; }
+  .cp-dialog-list { gap: 7px; margin-top: 10px; padding-left: 21px; font-size: 12px; }
+  .cp-dialog-actions { padding: 0; }
 }
 
 @media (max-height: 620px) {
@@ -486,8 +487,8 @@ body:has(.cp-home) { background: #081d58 !important; }
   .cp-dialog-banner { min-height: 60px; }
   .cp-dialog-copy { padding-top: 12px; }
   .cp-dialog-company-image { max-height: 116px; margin-top: 9px; }
-  .cp-dialog-list { gap: 5px; margin-top: 8px; font-size: 11px; }
-  .cp-dialog-actions { gap: 7px; padding-top: 8px; padding-bottom: 10px; }
+  .cp-dialog-list { gap: 6px; margin-top: 8px; font-size: 12px; }
+  .cp-dialog-actions { gap: 0; padding: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
