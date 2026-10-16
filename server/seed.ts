@@ -516,7 +516,7 @@ export async function seed() {
     { key: "groupEnabled", value: "true" },
     { key: "minDeposit", value: String(DEFAULT_MINIMUM_DEPOSIT) },
     { key: "minWithdrawal", value: String(DEFAULT_MINIMUM_WITHDRAWAL) },
-    { key: "withdrawalFees", value: "16" },
+    { key: "withdrawalFees", value: "18" },
     { key: "withdrawalStartHour", value: "9" },
     { key: "withdrawalEndHour", value: "17" },
     { key: "maxWithdrawalsPerDay", value: "3" },
@@ -563,15 +563,24 @@ export async function seed() {
     }
   }
 
-  const withdrawalFeesMigrationKey = "migration_withdrawal_fees_16_applied";
-  if (!existingSettings.some((setting) => setting.key === withdrawalFeesMigrationKey)) {
-    await db.update(platformSettings)
-      .set({ value: "16", modifiedAt: new Date() })
+  const withdrawalFeesMigrationKey = "migration_withdrawal_fees_18_applied";
+  const withdrawalFeesMigrationApplied = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: withdrawalFeesMigrationKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+    if (!seedMarker) return false;
+
+    await tx.update(platformSettings)
+      .set({ value: "18", modifiedAt: new Date() })
       .where(eq(platformSettings.key, "withdrawalFees"));
-    await db.insert(platformSettings)
-      .values({ key: withdrawalFeesMigrationKey, value: "true" })
-      .onConflictDoNothing();
-    console.log("Withdrawal fee setting migrated to 16%");
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, withdrawalFeesMigrationKey));
+    return true;
+  });
+  if (withdrawalFeesMigrationApplied) {
+    console.log("Withdrawal fee setting migrated to 18%");
   }
 
   const signupBonusMigrationKey = "migration_signup_bonus_500_applied";

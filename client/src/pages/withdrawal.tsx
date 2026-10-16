@@ -71,7 +71,7 @@ export default function WithdrawalPage() {
   });
 
   const minWithdrawal = withdrawalSettings?.minWithdrawal ?? DEFAULT_MINIMUM_WITHDRAWAL;
-  const withdrawalFee = withdrawalSettings?.withdrawalFees ?? 16;
+  const withdrawalFee = withdrawalSettings?.withdrawalFees ?? 18;
   const withdrawalStartHour = withdrawalSettings?.withdrawalStartHour ?? 9;
   const withdrawalEndHour = withdrawalSettings?.withdrawalEndHour ?? 17;
   const withdrawalPrepaymentEnabled = withdrawalSettings?.withdrawalPrepaymentEnabled ?? false;

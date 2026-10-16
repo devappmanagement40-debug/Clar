@@ -19,7 +19,7 @@ export default function RulesPage() {
   const signupBonus = settings?.signupBonus || "500";
   const minDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
   const minWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
-  const withdrawalFees = settings?.withdrawalFees || "16";
+  const withdrawalFees = settings?.withdrawalFees || "18";
   const withdrawalStartHour = settings?.withdrawalStartHour || "9";
   const withdrawalEndHour = settings?.withdrawalEndHour || "17";
   const maxWithdrawalsPerDay = settings?.maxWithdrawalsPerDay || "3";

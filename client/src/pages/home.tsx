@@ -120,7 +120,7 @@ export default function HomePage() {
   };
   const minimumDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
   const minimumWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
-  const withdrawalFee = parseDecimalSetting("withdrawalFees", 16);
+  const withdrawalFee = parseDecimalSetting("withdrawalFees", 18);
   const withdrawalStartHour = parseIntegerSetting("withdrawalStartHour", 9);
   const withdrawalEndHour = parseIntegerSetting("withdrawalEndHour", 17);
   const maxWithdrawalsPerDay = parseIntegerSetting("maxWithdrawalsPerDay", 3);

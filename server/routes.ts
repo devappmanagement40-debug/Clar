@@ -2620,7 +2620,7 @@ export async function registerRoutes(
       }
 
       const settings = await storage.getSettings();
-       const fees = parseFloat(settings.withdrawalFees || "16");
+      const fees = parseFloat(settings.withdrawalFees || "18");
       const feeAmount = Math.round(numericAmount * fees / 100);
       const netAmount = numericAmount - feeAmount;
 
@@ -2939,7 +2939,7 @@ export async function registerRoutes(
     try {
       const settings = await storage.getSettings();
       res.json({
-        withdrawalFees: parseFloat(settings.withdrawalFees || "16"),
+        withdrawalFees: parseFloat(settings.withdrawalFees || "18"),
         withdrawalStartHour: parseInt(settings.withdrawalStartHour || "9"),
         withdrawalEndHour: parseInt(settings.withdrawalEndHour || "17"),
         maxWithdrawalsPerDay: parseInt(settings.maxWithdrawalsPerDay || "3"),

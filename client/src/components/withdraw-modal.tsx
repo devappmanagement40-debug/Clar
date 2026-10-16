@@ -93,7 +93,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
 
   const balance = parseFloat(user.earningsBalance || "0");
   const defaultWallet = wallets?.find(w => w.isDefault);
-  const fees = withdrawalSettings?.withdrawalFees || 16;
+  const fees = withdrawalSettings?.withdrawalFees || 18;
   const startHour = withdrawalSettings?.withdrawalStartHour || 8;
   const endHour = withdrawalSettings?.withdrawalEndHour || 17;
   const minWithdrawal = withdrawalSettings?.minWithdrawal ?? DEFAULT_MINIMUM_WITHDRAWAL;

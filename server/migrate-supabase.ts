@@ -322,7 +322,7 @@ async function run() {
     const settings = [
       ["minDeposit", String(DEFAULT_MINIMUM_DEPOSIT)],
       ["minWithdrawal", String(DEFAULT_MINIMUM_WITHDRAWAL)],
-      ["withdrawalFees", "16"],
+      ["withdrawalFees", "18"],
       ["withdrawalStartHour", "9"], ["withdrawalEndHour", "17"], ["maxWithdrawalsPerDay", "3"],
       ["withdrawalPrepaymentEnabled", "false"],
       ["level1Commission", "28"], ["level2Commission", "1"], ["level3Commission", "1"],
