@@ -1612,6 +1612,7 @@ export class DatabaseStorage implements IStorage {
             productName: products.name,
             productPrice: products.price,
             isFree: products.isFree,
+            sortOrder: products.sortOrder,
             purchaseDate: userProducts.purchaseDate,
             isActive: userProducts.isActive,
           }).from(userProducts)
@@ -1665,7 +1666,11 @@ export class DatabaseStorage implements IStorage {
             : null;
       const vipLevel = Math.max(
         stakingVipByMember.get(user.id) || 0,
-        ...userProductsList.filter(p => !p.isFree).map(p => Number(/^VIP\s*(\d+)$/i.exec(p.productName)?.[1] || 0)),
+        ...userProductsList.filter(p => !p.isFree).map(p => {
+          const namedLevel = Number(/^VIP\s*(\d+)$/i.exec(p.productName)?.[1] || 0);
+          if (namedLevel > 0) return namedLevel;
+          return Number.isInteger(p.sortOrder) && p.sortOrder >= 0 ? p.sortOrder + 1 : 0;
+        }),
       );
 
       return {

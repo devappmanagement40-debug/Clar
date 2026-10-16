@@ -236,16 +236,13 @@ export async function seed() {
     const existingNames = new Set(
       existingProducts.map(product => product.name.trim().toLocaleLowerCase("fr")),
     );
-    const offersToInsert = catlVipOffers.filter(
-      offer => !existingNames.has(offer.name.toLocaleLowerCase("fr")),
+    const offersToInsert = catlVipOffers.filter((offer, index) =>
+      !existingNames.has(offer.name.toLocaleLowerCase("fr")) &&
+      !existingNames.has(`vip ${index + 1}`),
     );
-    const firstSortOrder = existingProducts.reduce(
-      (highest, product) => Math.max(highest, product.sortOrder),
-      -1,
-    ) + 1;
 
     if (offersToInsert.length > 0) {
-      await tx.insert(products).values(offersToInsert.map((offer, index) => ({
+      await tx.insert(products).values(offersToInsert.map(offer => ({
         name: offer.name,
         price: offer.price,
         dailyEarnings: offer.dailyEarnings,
@@ -254,7 +251,7 @@ export async function seed() {
         imageUrl: offer.imageUrl,
         isFree: false,
         isActive: offer.isActive,
-        sortOrder: firstSortOrder + index,
+        sortOrder: catlVipOffers.findIndex(vipOffer => vipOffer.name === offer.name),
       })));
     }
 
@@ -283,6 +280,103 @@ export async function seed() {
     console.log("CATL VIP plans skipped — bootstrap already applied");
   } else {
     console.log(`CATL VIP plans added: ${vipCatalogResult.inserted}; legacy offers retired: ${vipCatalogResult.retired}`);
+  }
+
+  // Rename the existing VIP labels without changing any price or earnings terms.
+  const vipProductNamesSeedKey = "migration_catl_vip_product_names_applied";
+  const vipProductNamesResult = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: vipProductNamesSeedKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+
+    if (!seedMarker) return { renamed: 0, alreadyApplied: true };
+
+    let renamed = 0;
+    for (let index = 0; index < catlVipOffers.length; index += 1) {
+      const offer = catlVipOffers[index];
+      const rows = await tx.update(products)
+        .set({ name: offer.name, sortOrder: index })
+        .where(eq(products.name, `VIP ${index + 1}`))
+        .returning({ id: products.id });
+      renamed += rows.length;
+    }
+
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, vipProductNamesSeedKey));
+
+    return { renamed, alreadyApplied: false };
+  });
+  if (vipProductNamesResult.alreadyApplied) {
+    console.log("CATL product names skipped — migration already applied");
+  } else {
+    console.log(`CATL product names updated: ${vipProductNamesResult.renamed}`);
+  }
+
+  // Keep the new ninth-plan name distinct from the retired legacy offer.
+  const vipProductNameCollisionKey = "migration_catl_vip_product_name_collision_fixed";
+  const vipProductNameCollisionResult = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: vipProductNameCollisionKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+
+    if (!seedMarker) return { renamed: 0, alreadyApplied: true };
+
+    const renamedRows = await tx.update(products)
+      .set({ name: "Puissance Signature" })
+      .where(and(
+        eq(products.name, "Énergie Signature"),
+        eq(products.price, 500000),
+        eq(products.dailyEarnings, 225000),
+        eq(products.cycleDays, 150),
+        eq(products.sortOrder, 8),
+      ))
+      .returning({ id: products.id });
+
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, vipProductNameCollisionKey));
+
+    return { renamed: renamedRows.length, alreadyApplied: false };
+  });
+  if (!vipProductNameCollisionResult.alreadyApplied) {
+    console.log(`CATL product name collision resolved: ${vipProductNameCollisionResult.renamed}`);
+  }
+
+  // Apply the initial six-active / three-inactive CATL catalog state once.
+  const vipAvailabilitySeedKey = "migration_catl_vip_availability_applied";
+  const vipAvailabilityResult = await db.transaction(async tx => {
+    const [seedMarker] = await tx.insert(platformSettings)
+      .values({ key: vipAvailabilitySeedKey, value: "pending" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+
+    if (!seedMarker) return { activated: 0, deactivated: 0, alreadyApplied: true };
+
+    let activated = 0;
+    let deactivated = 0;
+    for (let index = 0; index < catlVipOffers.length; index += 1) {
+      const offer = catlVipOffers[index];
+      const rows = await tx.update(products)
+        .set({ isActive: offer.isActive })
+        .where(eq(products.name, offer.name))
+        .returning({ id: products.id });
+      if (offer.isActive) activated += rows.length;
+      else deactivated += rows.length;
+    }
+
+    await tx.update(platformSettings)
+      .set({ value: "true" })
+      .where(eq(platformSettings.key, vipAvailabilitySeedKey));
+
+    return { activated, deactivated, alreadyApplied: false };
+  });
+  if (vipAvailabilityResult.alreadyApplied) {
+    console.log("CATL VIP availability skipped — migration already applied");
+  } else {
+    console.log(`CATL VIP availability set: ${vipAvailabilityResult.activated} active, ${vipAvailabilityResult.deactivated} inactive`);
   }
 
   // Apply defaults once only. Persisting the marker means admin deletions stay deleted after a restart.

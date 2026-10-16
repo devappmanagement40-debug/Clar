@@ -47,6 +47,9 @@ export default function AdminProducts() {
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/admin/products/all"],
   });
+  const sortedProducts = [...(products || [])].sort((a, b) =>
+    Number(b.isActive) - Number(a.isActive) || a.sortOrder - b.sortOrder,
+  );
 
   const editForm = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
@@ -91,12 +94,11 @@ export default function AdminProducts() {
         return { created: 0, alreadyPresent: catlVipOffers.length };
       }
 
-      const nextSortOrder = products.reduce((highest, product) => Math.max(highest, product.sortOrder), -1) + 1;
       for (let index = 0; index < productsToCreate.length; index += 1) {
         const product = productsToCreate[index];
         const response = await apiRequest("POST", "/api/admin/products", {
           ...product,
-          sortOrder: nextSortOrder + index,
+          sortOrder: catlVipOffers.findIndex(vipOffer => vipOffer.name === product.name),
           isFree: false,
         });
         if (!response.ok) {
@@ -232,7 +234,7 @@ export default function AdminProducts() {
       <FormField control={form.control} name="name" render={({ field }) => (
         <FormItem>
           <FormLabel>Nom du produit</FormLabel>
-          <FormControl><Input {...field} placeholder="Ex: VIP 3" /></FormControl>
+          <FormControl><Input {...field} placeholder="Ex: Cellule Essentielle" /></FormControl>
           <FormMessage />
         </FormItem>
       )} />
@@ -348,8 +350,8 @@ export default function AdminProducts() {
 
       {isLoading ? (
         Array(4).fill(0).map((_, i) => <Skeleton key={i} className="h-32" />)
-      ) : products && products.length > 0 ? (
-        products.map((product) => (
+      ) : sortedProducts.length > 0 ? (
+        sortedProducts.map((product) => (
           <Card key={product.id}>
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">

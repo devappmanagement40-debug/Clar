@@ -14,7 +14,7 @@
 - [Fictitious financial examples](demo-referrals.md) — Keep varied home activity messages display-only; show each vertical entry as its own framed block, not a table.
 - [Dev workflow port conflict](workflow-port-conflict.md) — a failed restart can leave a prior server child listening on port 5000; inspect the listener before retrying.
 - [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits and signup bonuses are purchase-only; earnings remain the only withdrawable balance.
-- [VIP levels](vip-levels.md) — new accounts start at VIP 0; the highest ranked paid offer purchased determines the displayed level.
+- [VIP levels](vip-levels.md) — rank paid VIPs by offer order, not display name; the initial catalog sells offers 1–6 and keeps 7–9 inactive.
 - [VIP duration](vip-duration.md) — CATL VIP totals are daily earnings × 150 days; apply new terms only to future purchases and preserve current holders.
 - [Task milestone management](task-milestones.md) — Keep task thresholds and rewards database-driven, editable in admin, and never restore deleted values on app startup.
 - [Mockup sandbox isolation](mockup-sandbox-dependencies.md) — Separate dependencies and preview ports mean a main-app screenshot can misreport a healthy sandbox preview.

@@ -1,6 +1,6 @@
 export const catlVipOffers = [
   {
-    name: "VIP 1",
+    name: "Cellule Essentielle",
     price: 3500,
     dailyEarnings: 800,
     cycleDays: 150,
@@ -8,7 +8,7 @@ export const catlVipOffers = [
     isActive: true,
   },
   {
-    name: "VIP 2",
+    name: "Énergie Lithium",
     price: 6000,
     dailyEarnings: 2000,
     cycleDays: 150,
@@ -16,7 +16,7 @@ export const catlVipOffers = [
     isActive: true,
   },
   {
-    name: "VIP 3",
+    name: "Cellule LFP",
     price: 10000,
     dailyEarnings: 3500,
     cycleDays: 150,
@@ -24,7 +24,7 @@ export const catlVipOffers = [
     isActive: true,
   },
   {
-    name: "VIP 4",
+    name: "Module Énergétique",
     price: 20000,
     dailyEarnings: 7000,
     cycleDays: 150,
@@ -32,7 +32,7 @@ export const catlVipOffers = [
     isActive: true,
   },
   {
-    name: "VIP 5",
+    name: "Stockage Avancé",
     price: 50000,
     dailyEarnings: 17500,
     cycleDays: 150,
@@ -40,7 +40,7 @@ export const catlVipOffers = [
     isActive: true,
   },
   {
-    name: "VIP 6",
+    name: "Puissance Durable",
     price: 80000,
     dailyEarnings: 28800,
     cycleDays: 150,
@@ -48,27 +48,27 @@ export const catlVipOffers = [
     isActive: true,
   },
   {
-    name: "VIP 7",
+    name: "Batterie Haute Capacité",
     price: 150000,
     dailyEarnings: 57000,
     cycleDays: 150,
     imageUrl: "/images/catl/products/catl-booth-1.webp",
-    isActive: true,
+    isActive: false,
   },
   {
-    name: "VIP 8",
+    name: "Stockage Industriel",
     price: 300000,
     dailyEarnings: 120000,
     cycleDays: 150,
     imageUrl: "/images/catl/products/catl-booth-2.webp",
-    isActive: true,
+    isActive: false,
   },
   {
-    name: "VIP 9",
+    name: "Puissance Signature",
     price: 500000,
     dailyEarnings: 225000,
     cycleDays: 150,
     imageUrl: "/images/catl/products/catl-booth-3.webp",
-    isActive: true,
+    isActive: false,
   },
 ] as const;
