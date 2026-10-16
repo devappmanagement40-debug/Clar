@@ -16,7 +16,7 @@ export default function RulesPage() {
     ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
 
-  const signupBonus = settings?.signupBonus || "1000";
+  const signupBonus = settings?.signupBonus || "500";
   const minDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
   const minWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFees = settings?.withdrawalFees || "16";
@@ -89,7 +89,7 @@ export default function RulesPage() {
           <section className="cp-rules-section">
             <h2>4. Bonus</h2>
             <ul>
-              <li>Le bonus d’inscription actuellement configuré est de {formatXof(signupBonus)} XOF.</li>
+              <li>Le bonus d’inscription actuellement configuré est de {formatXof(signupBonus)} XOF. Il est crédité sur le solde des dépôts et réservé aux achats.</li>
               <li>Les bonus et récompenses sont soumis aux conditions affichées dans la rubrique correspondante de l’application.</li>
             </ul>
           </section>

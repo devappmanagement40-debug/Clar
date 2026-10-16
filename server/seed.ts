@@ -4,7 +4,7 @@ import { getActiveCountryMethodNames } from "@shared/country-methods";
 import { equinorInitialOffers } from "@shared/equinor-initial-offers";
 import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import bcrypt from "bcrypt";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export async function seed() {
   console.log("Seeding database...");
@@ -389,7 +389,7 @@ export async function seed() {
     { key: "level1Commission", value: "25" },
     { key: "level2Commission", value: "4" },
     { key: "level3Commission", value: "1" },
-    { key: "signupBonus", value: "1000" },
+    { key: "signupBonus", value: "500" },
     { key: "soleaspayEnabled", value: "false" },
     { key: "soleaspayCountries", value: "" },
     { key: "soleaspayChannelName", value: "SoleaPay" },
@@ -439,15 +439,21 @@ export async function seed() {
     console.log("Withdrawal fee setting migrated to 16%");
   }
 
-  const signupBonusMigrationKey = "migration_signup_bonus_1000_applied";
+  const signupBonusMigrationKey = "migration_signup_bonus_500_applied";
   if (!existingSettings.some((setting) => setting.key === signupBonusMigrationKey)) {
-    await db.update(platformSettings)
-      .set({ value: "1000", modifiedAt: new Date() })
-      .where(eq(platformSettings.key, "signupBonus"));
+    const currentSignupBonus = existingSettings.find((setting) => setting.key === "signupBonus")?.value;
+    if (currentSignupBonus !== undefined && Number.parseFloat(currentSignupBonus) === 1000) {
+      await db.update(platformSettings)
+        .set({ value: "500", modifiedAt: new Date() })
+        .where(and(
+          eq(platformSettings.key, "signupBonus"),
+          eq(platformSettings.value, currentSignupBonus),
+        ));
+      console.log("Signup bonus setting migrated from 1000 to 500 FCFA");
+    }
     await db.insert(platformSettings)
       .values({ key: signupBonusMigrationKey, value: "true" })
       .onConflictDoNothing();
-    console.log("Signup bonus setting migrated to 1000 FCFA");
   }
 
   // Preserve existing payment settings. Deposit routes are configured explicitly

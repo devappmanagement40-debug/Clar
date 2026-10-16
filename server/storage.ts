@@ -541,11 +541,12 @@ export class DatabaseStorage implements IStorage {
     const referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const hashedPassword = await bcrypt.hash(data.password!, 10);
 
-    // Get signup bonus from settings (default 1000)
-    let signupBonus = "1000";
+    // Get signup bonus from settings (default 500); signup bonuses belong to the
+    // deposit wallet, where they can fund purchases but cannot be withdrawn.
+    let signupBonus = "500";
     try {
       const settings = await this.getSettings();
-      signupBonus = settings.signupBonus || "1000";
+      signupBonus = settings.signupBonus || "500";
     } catch {}
 
     const [user] = await db.insert(users).values({
@@ -553,8 +554,8 @@ export class DatabaseStorage implements IStorage {
       password: hashedPassword,
       referralCode,
       balance: signupBonus,
-      depositBalance: "0",
-      earningsBalance: signupBonus,
+      depositBalance: signupBonus,
+      earningsBalance: "0",
       walletActivatedAt: new Date(),
     } as any).returning();
     
@@ -564,8 +565,8 @@ export class DatabaseStorage implements IStorage {
       amount: signupBonus,
       description: "Bonus d'inscription",
       walletImpact: JSON.stringify({
-        depositDelta: 0,
-        earningsDelta: Number(signupBonus),
+        depositDelta: Number(signupBonus),
+        earningsDelta: 0,
         legacyDepositDelta: 0,
         legacyEarningsDelta: 0,
       }),

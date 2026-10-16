@@ -19,7 +19,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
     ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
 
-  const signupBonus = settings?.signupBonus || "1000";
+  const signupBonus = settings?.signupBonus || "500";
   const minDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
   const minWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFees = settings?.withdrawalFees || "16";
@@ -83,7 +83,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
 
             <section>
               <h4 className="font-medium text-foreground mb-2">5. Bonus d'inscription</h4>
-              <p>Chaque nouveau membre reçoit {parseInt(signupBonus).toLocaleString()} FCFA de bonus à l'inscription.</p>
+              <p>Chaque nouveau membre reçoit {parseInt(signupBonus).toLocaleString()} FCFA de bonus sur le solde des dépôts, réservé aux achats.</p>
             </section>
           </div>
         </ScrollArea>

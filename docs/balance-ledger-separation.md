@@ -6,8 +6,8 @@
 
 La plateforme doit avoir deux soldes distincts :
 
-- **Solde des dépôts (`deposit_balance`)** : reçoit les dépôts approuvés. Il n’est pas retirable.
-- **Solde des revenus (`earnings_balance`)** : reçoit les revenus journaliers, le bonus d’inscription et tous les autres crédits qui ne sont pas des dépôts. C’est le seul solde retirable.
+- **Solde des dépôts (`deposit_balance`)** : reçoit les dépôts approuvés et le bonus d’inscription. Il n’est pas retirable et reste réservé aux achats.
+- **Solde des revenus (`earnings_balance`)** : reçoit les revenus journaliers et les autres crédits qui ne sont pas des dépôts ou le bonus d’inscription. C’est le seul solde retirable.
 
 Les crédits hors dépôts comprennent les commissions, récompenses de tâches, cadeaux, pointages, réclamations de produits gratuits, déblocages de staking et remboursements de retraits.
 
@@ -34,7 +34,7 @@ earnings_balance numeric(15,2)
 
 Pendant la transition, `balance` reste inchangé et sert de total historique. Après rapprochement validé, il devra être maintenu comme total dérivé (`deposit_balance + earnings_balance`) ou retiré des lectures financières; il ne devra jamais devenir une troisième source de vérité.
 
-Le compteur `total_earnings` reste distinct du portefeuille retirable. La règle de préparation met le bonus d’inscription dans `earnings_balance`, sans changer la définition de la statistique « Revenus cumulés ».
+Le compteur `total_earnings` reste distinct du portefeuille retirable. Le bonus d’inscription est crédité au solde des dépôts et n’incrémente pas le compteur « Revenus cumulés ».
 
 ## Rapprochement des comptes existants
 

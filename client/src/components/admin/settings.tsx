@@ -183,7 +183,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       support2Enabled: true,
       channelEnabled: true,
       groupEnabled: true,
-      signupBonus: "1000",
+      signupBonus: "500",
       minDeposit: String(DEFAULT_MINIMUM_DEPOSIT),
       minWithdrawal: String(DEFAULT_MINIMUM_WITHDRAWAL),
       withdrawalFees: "16",
@@ -229,7 +229,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         support2Enabled: settings.support2Enabled !== "false",
         channelEnabled: settings.channelEnabled !== "false",
         groupEnabled: settings.groupEnabled !== "false",
-        signupBonus: settings.signupBonus || "1000",
+        signupBonus: settings.signupBonus || "500",
         minDeposit: settings.minDeposit || String(DEFAULT_MINIMUM_DEPOSIT),
         minWithdrawal: settings.minWithdrawal || String(DEFAULT_MINIMUM_WITHDRAWAL),
         withdrawalFees: settings.withdrawalFees || "16",
@@ -610,7 +610,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               <FormItem>
                 <FormLabel>Bonus d'inscription (FCFA)</FormLabel>
                 <FormControl><Input {...field} type="number" min="0" /></FormControl>
-                <FormDescription>Montant offert à chaque nouvel utilisateur à l'inscription.</FormDescription>
+                <FormDescription>Crédité sur le solde des dépôts et réservé aux achats.</FormDescription>
                 <FormMessage />
               </FormItem>
             )} />
