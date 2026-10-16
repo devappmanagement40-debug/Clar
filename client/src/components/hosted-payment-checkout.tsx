@@ -1,4 +1,5 @@
-import { CreditCard, ExternalLink, Loader2, QrCode, RefreshCw, ArrowLeft, Copy, CheckCircle2, Clock3 } from "lucide-react";
+import { useRef, useState } from "react";
+import { CreditCard, ExternalLink, Loader2, QrCode, RefreshCw, ArrowLeft, Copy, CheckCircle2, Clock3, Download, Info, Smartphone } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 
@@ -85,10 +86,35 @@ export default function HostedPaymentCheckout({
   const checkoutUrl = safeHttpUrl(paymentLink);
   const checkoutClickUrl = withCoteDIvoireWaveAmount(checkoutUrl, amount, countryCode);
   const isWave = method === "wave";
+  const [wavePaymentView, setWavePaymentView] = useState<"app" | "qr">("app");
+  const qrContainerRef = useRef<HTMLDivElement>(null);
   const accent = "#1947b8";
   const pale = "#edf2ff";
   const paymentConfigured = Boolean(checkoutUrl || (isWave && paymentPhone?.trim()));
+  const qrAvailable = Boolean(checkoutUrl);
   const displayAmount = amount.toLocaleString("fr-FR");
+
+  const downloadQrCode = () => {
+    if (qrImageUrl) {
+      const link = document.createElement("a");
+      link.href = qrImageUrl;
+      link.download = "catl-wave-ci-qr.jpg";
+      link.click();
+      return;
+    }
+
+    const svg = qrContainerRef.current?.querySelector("svg");
+    if (!svg) return;
+    const serializedSvg = new XMLSerializer().serializeToString(svg);
+    const downloadUrl = URL.createObjectURL(
+      new Blob([serializedSvg], { type: "image/svg+xml;charset=utf-8" }),
+    );
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = "catl-wave-ci-qr.svg";
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+  };
 
   return (
     <main className="min-h-[100dvh] bg-[#f6f4f5] text-[#25292d]">
@@ -142,6 +168,149 @@ export default function HostedPaymentCheckout({
         <div className="space-y-4 px-3 py-4 sm:px-4">
           {!submitted ? (
             <>
+              {isWave ? (
+                <section className="overflow-hidden rounded-2xl border border-[#d9e4fb] bg-white shadow-[0_12px_34px_rgba(21,66,153,0.12)]">
+                  <div className="border-b border-[#e8eefb] bg-gradient-to-br from-[#f6f9ff] to-white p-4 sm:p-5">
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-[#dce7fb] bg-white px-4 py-3">
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-slate-600">Montant du paiement</p>
+                        <p className="mt-1 text-2xl font-extrabold tracking-tight text-[#173f9d]">
+                          {displayAmount} <span className="text-base">{currency}</span>
+                        </p>
+                      </div>
+                      <img
+                        src={logoUrl || "/operators/wave.png"}
+                        alt="Wave"
+                        className="h-12 w-12 rounded-xl border border-[#e5ecfa] bg-white object-contain p-1"
+                      />
+                    </div>
+                    <div role="tablist" aria-label="Choisir le mode de paiement Wave" className="mt-4 grid grid-cols-2 gap-1 rounded-xl bg-[#eaf0fc] p-1">
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={wavePaymentView === "app"}
+                        onClick={() => setWavePaymentView("app")}
+                        className={`flex min-h-12 items-center justify-center gap-2 rounded-lg px-2 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1947b8] ${
+                          wavePaymentView === "app" ? "bg-[#1947b8] text-white shadow-sm" : "text-[#23457f] hover:bg-white/80"
+                        }`}
+                      >
+                        <Smartphone aria-hidden="true" className="h-4 w-4" />
+                        Ouvrir l’application
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={wavePaymentView === "qr"}
+                        onClick={() => setWavePaymentView("qr")}
+                        className={`flex min-h-12 items-center justify-center gap-2 rounded-lg px-2 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1947b8] ${
+                          wavePaymentView === "qr" ? "bg-[#1947b8] text-white shadow-sm" : "text-[#23457f] hover:bg-white/80"
+                        }`}
+                      >
+                        <QrCode aria-hidden="true" className="h-4 w-4" />
+                        Scanner le QR code
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 p-4 sm:p-5">
+                    {wavePaymentView === "app" ? (
+                      <>
+                        <div className="flex gap-3 rounded-xl border border-[#cfe0ff] bg-[#edf5ff] p-3.5 text-left">
+                          <Info aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#1767b2]" />
+                          <div>
+                            <p className="font-bold text-[#164f8d]">Comment ouvrir l’application de paiement ?</p>
+                            <p className="mt-1 text-sm leading-5 text-[#345c84]">
+                              Appuyez sur le bouton ci-dessous. Vérifiez le montant dans Wave avant de confirmer.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl bg-gradient-to-br from-[#1947b8] to-[#0a2d82] px-5 py-6 text-center text-white shadow-[0_8px_20px_rgba(25,71,184,0.24)]">
+                          <img
+                            src={logoUrl || "/operators/wave.png"}
+                            alt=""
+                            aria-hidden="true"
+                            className="mx-auto h-14 w-14 rounded-2xl bg-white object-contain p-1.5"
+                          />
+                          <h2 className="mt-3 text-2xl font-extrabold">Payer avec Wave</h2>
+                          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/90">
+                            Ouvrez Wave et confirmez le paiement de {displayAmount} {currency}. Revenez ensuite ici pour envoyer la référence de transaction.
+                          </p>
+                        </div>
+
+                        {checkoutClickUrl ? (
+                          <a
+                            href={checkoutClickUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex min-h-[56px] items-center justify-center gap-2 rounded-xl bg-[#1768a8] px-4 text-base font-bold text-white shadow-[0_5px_14px_rgba(23,104,168,0.2)] transition hover:bg-[#115b96] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1768a8]/25 focus-visible:ring-offset-2"
+                          >
+                            <ExternalLink aria-hidden="true" className="h-5 w-5" />
+                            Ouvrir l’application pour payer
+                          </a>
+                        ) : (
+                          <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+                            Le lien de paiement Wave n’est pas encore configuré.
+                          </p>
+                        )}
+                        <p className="text-center text-xs leading-5 text-slate-500">
+                          Le lien s’ouvrira dans un nouvel onglet. Ne confirmez le paiement que si le montant affiché est correct.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex gap-3 rounded-xl border border-[#cfe0ff] bg-[#edf5ff] p-3.5 text-left">
+                          <Info aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#1767b2]" />
+                          <p className="text-sm leading-6 text-[#345c84]">
+                            Ouvrez Wave sur un autre téléphone, scannez ce code, puis confirmez le montant affiché.
+                          </p>
+                        </div>
+                        <div
+                          ref={qrContainerRef}
+                          className="mx-auto grid min-h-[270px] w-full max-w-[310px] place-items-center rounded-2xl border border-[#dce7fb] bg-white p-4 shadow-[0_4px_16px_rgba(23,63,157,0.08)]"
+                        >
+                          {checkoutUrl ? (
+                            qrImageUrl ? (
+                              <img
+                                src={qrImageUrl}
+                                alt="QR code Wave fourni pour le paiement en Côte d’Ivoire"
+                                className="h-auto max-h-[380px] w-full object-contain"
+                              />
+                            ) : (
+                              <QRCodeSVG
+                                value={checkoutUrl}
+                                size={240}
+                                level="M"
+                                marginSize={2}
+                                bgColor="#ffffff"
+                                fgColor="#101820"
+                                title="QR code pour ouvrir le lien de paiement Wave"
+                              />
+                            )
+                          ) : (
+                            <div className="flex flex-col items-center gap-3 px-4 text-center text-slate-400">
+                              <QrCode aria-hidden="true" className="h-16 w-16" />
+                              <span className="text-sm font-medium">QR de paiement non configuré</span>
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={downloadQrCode}
+                          disabled={!qrAvailable}
+                          className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl border border-[#d5e2fa] bg-[#f5f8ff] px-4 font-bold text-[#1947b8] transition hover:bg-[#eaf1ff] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1947b8]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Download aria-hidden="true" className="h-5 w-5" />
+                          Enregistrer le code QR
+                        </button>
+                        <p className="text-center text-xs leading-5 text-slate-500">
+                          Après le paiement, saisissez ci-dessous le numéro payeur et la référence reçue par SMS.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </section>
+              ) : (
               <section className="rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#1947b8] bg-white p-4 text-center shadow-[0_3px_0_#17191c] sm:p-5">
                 <h2 className="text-lg font-bold leading-7 text-[#424a50]">
                   {checkoutUrl
@@ -231,6 +400,7 @@ export default function HostedPaymentCheckout({
                   </p>
                 </div>
               </section>
+              )}
 
               <form
                 onSubmit={(event) => {
@@ -240,8 +410,12 @@ export default function HostedPaymentCheckout({
                 className="space-y-4 rounded-2xl border-2 border-[#17191c] border-t-[5px] border-t-[#1947b8] bg-white p-4 shadow-[0_3px_0_#17191c] sm:p-5"
               >
                 <div className="text-left">
-                  <h2 className="text-lg font-bold leading-7 text-[#424a50]">Soumettre la preuve de paiement</h2>
-                  <p className="mt-1 text-sm leading-5 text-gray-600">Saisissez le numéro payeur et la référence du SMS ou du reçu.</p>
+                  <h2 className="text-lg font-bold leading-7 text-[#424a50]">{isWave ? "Vérifier le paiement" : "Soumettre la preuve de paiement"}</h2>
+                  <p className="mt-1 text-sm leading-5 text-gray-600">
+                    {isWave
+                      ? "Indiquez le numéro payeur et la référence reçue par SMS ou sur le reçu."
+                      : "Saisissez le numéro payeur et la référence du SMS ou du reçu."}
+                  </p>
                 </div>
 
                 <label className="block text-left text-sm font-semibold" htmlFor="hosted-payment-payer-phone">
@@ -291,7 +465,7 @@ export default function HostedPaymentCheckout({
                   className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-xl px-4 text-base font-bold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ backgroundColor: accent }}
                 >
-                  {isSubmitting ? <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> : "Soumettre le paiement"}
+                  {isSubmitting ? <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> : isWave ? "Envoyer pour vérification" : "Soumettre le paiement"}
                 </button>
                 <p className="text-center text-xs leading-5 text-gray-500">
                   {paymentConfigured

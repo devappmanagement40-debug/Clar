@@ -32,21 +32,26 @@ function formatTimeRemaining(totalSeconds: number) {
 function Stepper({
   step,
   labels = ["Numéro de téléphone", "Informations de confirmation", "Paiement terminé"],
+  accentColor = "#D40030",
 }: {
   step: number;
   labels?: [string, string, string];
+  accentColor?: string;
 }) {
   return (
     <div className="flex items-center justify-between mb-7">
       {labels.map((label, i) => (
         <div key={label} className="flex items-center flex-1 last:flex-none">
           <div className={`flex flex-col items-center text-center ${i <= step ? "text-[#111827]" : "text-gray-400"}`}>
-            <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold ${i <= step ? "border-[#D40030] bg-[#D40030] text-white shadow-[0_2px_0_#111827]" : "border-gray-300 bg-white"}`}>
+            <div
+              className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold ${i <= step ? "text-white shadow-[0_2px_0_#111827]" : "border-gray-300 bg-white"}`}
+              style={i <= step ? { borderColor: accentColor, backgroundColor: accentColor } : undefined}
+            >
               {i < step ? <Check className="w-5 h-5" /> : i + 1}
             </div>
             <span className="text-[11px] leading-tight mt-1 w-24">{label}</span>
           </div>
-          {i < 2 && <div className={`h-px flex-1 mx-1 mt-[-18px] ${i < step ? "bg-[#D40030]" : "bg-gray-300"}`} />}
+          {i < 2 && <div className={`h-px flex-1 mx-1 mt-[-18px] ${i < step ? "" : "bg-gray-300"}`} style={i < step ? { backgroundColor: accentColor } : undefined} />}
         </div>
       ))}
     </div>
@@ -72,6 +77,7 @@ export default function RobotPayPage() {
   const requestedProvider = (params.get("provider") || "").toLowerCase();
   const isSoleaspayFlow = requestedProvider === "soleaspay";
   const isManualFlow = requestedProvider === "manual";
+  const isCiManualFlow = isManualFlow && country === "CI";
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
@@ -649,7 +655,7 @@ export default function RobotPayPage() {
     );
   }
   return (
-    <main className={`min-h-screen p-3 text-[#111827] sm:p-6 ${isManualFlow ? "bg-[#FFF0F3]" : "bg-white"}`}>
+    <main className={`min-h-screen p-3 text-[#111827] sm:p-6 ${isCiManualFlow ? "bg-[#f4f7ff]" : isManualFlow ? "bg-[#FFF0F3]" : "bg-white"}`}>
       {!isManualFlow && (
         <aside
           role="timer"
@@ -662,15 +668,16 @@ export default function RobotPayPage() {
         </aside>
       )}
       <div className="max-w-xl mx-auto">
-        <div className={`${isManualFlow ? "rounded-t-2xl bg-[#D40030] px-4 pb-4 pt-4 text-white sm:px-5" : "px-4 pb-5 pt-3 text-[#111827] sm:px-5 sm:pt-4 sm:pb-6"}`}>
+        <div className={`${isManualFlow ? `rounded-t-2xl ${isCiManualFlow ? "bg-[#1947b8]" : "bg-[#D40030]"} px-4 pb-4 pt-4 text-white sm:px-5` : "px-4 pb-5 pt-3 text-[#111827] sm:px-5 sm:pt-4 sm:pb-6"}`}>
           <p className={`${isManualFlow ? "text-sm text-white/90" : "text-sm text-[#5b2500]"} font-bold uppercase tracking-[0.12em]`}>{isManualFlow ? "Montant" : "Montant du dépôt"}</p>
           <p className={`mt-1 ${isManualFlow ? "text-3xl" : "text-4xl"} font-extrabold tracking-tight`}>{amount.toLocaleString()} <span className="text-2xl font-bold">{currency}</span></p>
         </div>
-        <section className={`rounded-2xl border-2 border-[#111827] bg-white shadow-[0_5px_0_#111827,0_10px_18px_rgba(17,24,39,0.18)] ${isManualFlow ? "rounded-t-none p-4 sm:p-5" : "p-4 sm:p-6"}`}>
+        <section className={`rounded-2xl ${isCiManualFlow ? "border border-[#d9e4fb] shadow-[0_12px_34px_rgba(21,66,153,0.12)]" : "border-2 border-[#111827] shadow-[0_5px_0_#111827,0_10px_18px_rgba(17,24,39,0.18)]"} bg-white ${isManualFlow ? "rounded-t-none p-4 sm:p-5" : "p-4 sm:p-6"}`}>
             {isManualFlow ? (
               <Stepper
                 step={manualStepperStep}
                 labels={["Opérateur", "Compte de paiement", "Vérification"]}
+                accentColor={isCiManualFlow ? "#1947b8" : "#D40030"}
               />
             ) : step > 0 ? (
               <Stepper step={Math.max(0, Math.min(2, step - 1))} />
@@ -685,7 +692,7 @@ export default function RobotPayPage() {
                     : "Sélectionnez le mode de paiement :"}
               </p>
                 {isManualFlow && <p className="px-1 text-sm leading-6 text-gray-600">Choisissez l’opérateur du compte auquel vous allez envoyer {amount.toLocaleString()} {currency}.</p>}
-                {loadingOperators ? <Loader2 className="w-7 h-7 animate-spin mx-auto text-[#D40030]" /> : operators.length === 0 ? <p className="text-center text-gray-500">{manualNumbersError && isManualFlow ? "Impossible de charger les moyens de paiement. Réessayez." : providerError instanceof Error ? sanitizeDepositDisplayText(providerError.message, "Aucun opérateur disponible pour ce pays.") : "Aucun opérateur disponible pour ce pays."}</p> : (
+                {loadingOperators ? <Loader2 className={`w-7 h-7 animate-spin mx-auto ${isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}`} /> : operators.length === 0 ? <p className="text-center text-gray-500">{manualNumbersError && isManualFlow ? "Impossible de charger les moyens de paiement. Réessayez." : providerError instanceof Error ? sanitizeDepositDisplayText(providerError.message, "Aucun opérateur disponible pour ce pays.") : "Aucun opérateur disponible pour ce pays."}</p> : (
                   <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     {operators.map((op, i) => (
                       <button
@@ -694,10 +701,12 @@ export default function RobotPayPage() {
                         onClick={() => chooseOperator(op)}
                         aria-pressed={operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider}
                         aria-label={`Sélectionner ${op.name || op.code || "cet opérateur"}`}
-                        className={`group flex min-h-[112px] w-full flex-col items-start justify-between gap-3 rounded-xl border-2 border-[#111827] p-3 text-left transition duration-200 ease-out active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D40030]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:min-h-[124px] sm:p-4 ${
+                        className={`group flex min-h-[112px] w-full flex-col items-start justify-between gap-3 rounded-xl border-2 border-[#111827] p-3 text-left transition duration-200 ease-out active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 ${isCiManualFlow ? "focus-visible:ring-[#1947b8]/25" : "focus-visible:ring-[#D40030]/25"} focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:min-h-[124px] sm:p-4 ${
                           operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider
-                            ? "border-[#D40030] bg-[#FFF0F3] ring-2 ring-[#D40030]/25 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)]"
-                            : "bg-white shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)] hover:-translate-y-0.5 hover:bg-[#FFF8FA] hover:shadow-[0_5px_0_#111827,0_9px_16px_rgba(17,24,39,0.16)]"
+                            ? isCiManualFlow
+                              ? "border-[#1947b8] bg-[#f0f5ff] ring-2 ring-[#1947b8]/25 shadow-[0_3px_0_#173f9d,0_6px_12px_rgba(17,24,39,0.12)]"
+                              : "border-[#D40030] bg-[#FFF0F3] ring-2 ring-[#D40030]/25 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)]"
+                            : `bg-white shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)] hover:-translate-y-0.5 ${isCiManualFlow ? "hover:bg-[#f6f9ff]" : "hover:bg-[#FFF8FA]"} hover:shadow-[0_5px_0_#111827,0_9px_16px_rgba(17,24,39,0.16)]`
                         }`}
                       >
                         <span className="flex w-full min-w-0 items-center justify-between gap-2">
@@ -705,7 +714,7 @@ export default function RobotPayPage() {
                           {op.manualNumber?.logoUrl ? (
                             <img src={op.manualNumber.logoUrl} alt="" aria-hidden="true" className="h-9 w-9 shrink-0 rounded-lg border border-gray-200 bg-white object-contain p-1 sm:h-10 sm:w-10" />
                           ) : (
-                            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#E7A2B2] bg-[#FFF0F3] text-[#D40030] sm:h-10 sm:w-10">
+                            <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg border sm:h-10 sm:w-10 ${isCiManualFlow ? "border-[#cbdaf7] bg-[#eef4ff] text-[#1947b8]" : "border-[#E7A2B2] bg-[#FFF0F3] text-[#D40030]"}`}>
                               <Phone className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
                             </span>
                           )}
@@ -718,13 +727,13 @@ export default function RobotPayPage() {
                             aria-hidden="true"
                             className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
                               operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider
-                                ? "translate-x-0.5 text-[#A60026]"
-                                : "text-gray-500 group-hover:translate-x-0.5 group-hover:text-[#A60026]"
+                                ? `translate-x-0.5 ${isCiManualFlow ? "text-[#1947b8]" : "text-[#A60026]"}`
+                                : `text-gray-500 group-hover:translate-x-0.5 ${isCiManualFlow ? "group-hover:text-[#1947b8]" : "group-hover:text-[#A60026]"}`
                             }`}
                           />
                         </span>
                         {op.manualNumber?.phone && (
-                          <span className="w-full border-t border-[#E7A2B2]/70 pt-2 font-mono text-sm font-semibold tabular-nums text-[#5A1728]">
+                          <span className={`w-full border-t pt-2 font-mono text-sm font-semibold tabular-nums ${isCiManualFlow ? "border-[#dce7fb] text-[#23457f]" : "border-[#E7A2B2]/70 text-[#5A1728]"}`}>
                             {op.manualNumber.phone}
                           </span>
                         )}
@@ -734,10 +743,10 @@ export default function RobotPayPage() {
               )}
               <div className="space-y-1.5">
                 <label htmlFor="robotpay-payer-phone-selection" className="block text-sm font-semibold text-[#111827]">
-                  Numéro du payeur <span className="text-[#D40030]">*</span>
+                  Numéro du payeur <span className={isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}>*</span>
                 </label>
-                <div className="flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:border-[#D40030] focus-within:ring-2 focus-within:ring-[#D40030]/15">
-                  <Phone className="h-4 w-4 shrink-0 text-[#D40030]" aria-hidden="true" />
+                <div className={`flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:ring-2 ${isCiManualFlow ? "focus-within:border-[#1947b8] focus-within:ring-[#1947b8]/15" : "focus-within:border-[#D40030] focus-within:ring-[#D40030]/15"}`}>
+                  <Phone className={`h-4 w-4 shrink-0 ${isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}`} aria-hidden="true" />
                   <span className="ml-2 shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
                   <input
                     id="robotpay-payer-phone-selection"
@@ -755,9 +764,9 @@ export default function RobotPayPage() {
                 type="button"
                 onClick={continueFromOperatorSelection}
                 disabled={!operator || !phone.trim()}
-                className="w-full rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className={`w-full rounded-[11px] border-2 py-3 font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isCiManualFlow ? "border-[#173f9d] bg-[#1947b8] shadow-[0_3px_0_#173f9d,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#153f9f] focus-visible:ring-[#1947b8]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] focus-visible:ring-[#D40030]"} active:shadow-[0_1px_0_#111827]`}
               >
-                Continuer
+                {hostedManualMethod === "wave" ? "Soumettre" : "Continuer"}
               </button>
             </div>
           )}
