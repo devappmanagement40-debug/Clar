@@ -18,6 +18,7 @@ import depositIcon from "@/assets/images/home-icons/deposit.png";
 import withdrawalIcon from "@/assets/images/home-icons/withdrawal.png";
 import supportIcon from "@/assets/images/home-icons/support.png";
 import checkinIcon from "@/assets/images/home-icons/checkin.png";
+import noticeBellIcon from "@/assets/images/home-icons/notification-bell.png";
 import catlBatteries from "@/assets/images/catl-auth-background.webp";
 import catlBooth1 from "@/assets/images/catl-booth-1.webp";
 import catlBooth2 from "@/assets/images/catl-booth-2.webp";
@@ -188,7 +189,7 @@ export default function HomePage() {
             aria-label="Ouvrir les informations du compte"
             aria-describedby="cp-notice-messages"
           >
-            <span className="cp-notice-icon"><img src={checkinIcon} alt="" aria-hidden="true" /></span>
+            <span className="cp-notice-icon"><img src={noticeBellIcon} alt="" aria-hidden="true" /></span>
             <span className="cp-notice-marquee" aria-hidden="true">
               <span className="cp-notice-track">
                 {[0, 1].map((copy) => (
