@@ -1,9 +1,21 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ChevronRight, Clock3, CreditCard, Loader2, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Check,
+  ChevronRight,
+  Clock3,
+  CreditCard,
+  Info,
+  Loader2,
+  MapPin,
+  ShieldCheck,
+  Wallet,
+} from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
@@ -21,17 +33,18 @@ interface WalletData {
 function maskWalletAccount(accountNumber: string) {
   const digits = accountNumber.replace(/\D/g, "");
   if (digits.length < 6) return accountNumber;
-
   const hiddenLength = Math.min(6, digits.length - 5);
   return `${digits.slice(0, 3)}${"•".repeat(hiddenLength)}${digits.slice(-2)}`;
 }
 
 function formatWalletLabel(wallet: WalletData | null) {
-  if (!wallet) return "Choisissez votre portefeuille";
+  if (!wallet) return "Choisissez un compte de réception";
   const method = typeof wallet.paymentMethod === "string" ? wallet.paymentMethod.trim().toUpperCase() : "";
   const accountNumber = typeof wallet.accountNumber === "string" ? maskWalletAccount(wallet.accountNumber) : "";
-  return [method, accountNumber].filter(Boolean).join(" - ") || "Portefeuille enregistré";
+  return [method, accountNumber].filter(Boolean).join(" · ") || "Compte enregistré";
 }
+
+const formatAmount = (amount: number) => amount.toLocaleString("fr-FR");
 
 export default function WithdrawalPage() {
   const { user, refreshUser } = useAuth();
@@ -63,12 +76,16 @@ export default function WithdrawalPage() {
   const withdrawalStartHour = withdrawalSettings?.withdrawalStartHour ?? 9;
   const withdrawalEndHour = withdrawalSettings?.withdrawalEndHour ?? 17;
   const withdrawalPrepaymentEnabled = withdrawalSettings?.withdrawalPrepaymentEnabled ?? false;
-
   const amountAfterFees = amount ? Math.floor(Number(amount) * (1 - withdrawalFee / 100)) : 0;
   const currentHour = new Date().getHours();
   const isWithinWithdrawalHours = currentHour >= withdrawalStartHour && currentHour < withdrawalEndHour;
 
-  const { data: wallets = [], isLoading: walletsLoading } = useQuery<WalletData[]>({
+  const {
+    data: wallets = [],
+    isLoading: walletsLoading,
+    isError: walletsError,
+    refetch: refetchWallets,
+  } = useQuery<WalletData[]>({
     queryKey: ["/api/wallets"],
     refetchOnWindowFocus: true,
   });
@@ -83,7 +100,7 @@ export default function WithdrawalPage() {
   useEffect(() => {
     const savedWalletId = localStorage.getItem("selectedWalletId");
     if (savedWalletId && wallets.length > 0) {
-      const wallet = wallets.find(w => w.id === parseInt(savedWalletId));
+      const wallet = wallets.find((item) => item.id === parseInt(savedWalletId, 10));
       if (wallet) setSelectedWallet(wallet);
       localStorage.removeItem("selectedWalletId");
     }
@@ -91,15 +108,15 @@ export default function WithdrawalPage() {
 
   useEffect(() => {
     if (!selectedWallet && wallets.length > 0) {
-      const defaultWallet = wallets.find(w => w.isDefault);
+      const defaultWallet = wallets.find((wallet) => wallet.isDefault);
       if (defaultWallet) setSelectedWallet(defaultWallet);
     }
   }, [wallets, selectedWallet]);
 
   const withdrawMutation = useMutation({
     mutationFn: async (data: { amount: number; walletId: number }) => {
-      const res = await apiRequest("POST", "/api/withdrawals", data);
-      return res.json();
+      const response = await apiRequest("POST", "/api/withdrawals", data);
+      return response.json();
     },
     onSuccess: () => {
       toast({ title: "Demande envoyée", description: "Votre demande de retrait a été envoyée." });
@@ -124,7 +141,11 @@ export default function WithdrawalPage() {
   const handlePayPrepayment = async () => {
     if (!withdrawalPrepaymentEnabled) return;
     if (!amount || Number(amount) < minWithdrawal) {
-      toast({ title: "Montant invalide", description: `Le montant minimum est de ${minWithdrawal} ${currency}`, variant: "destructive" });
+      toast({
+        title: "Montant invalide",
+        description: `Le montant minimum est de ${minWithdrawal} ${currency}`,
+        variant: "destructive",
+      });
       return;
     }
     setIsPreparingPayment(true);
@@ -149,23 +170,23 @@ export default function WithdrawalPage() {
       return;
     }
     if (!amount || amount < minWithdrawal) {
-      toast({ title: "Montant invalide", description: `Le montant minimum est de ${minWithdrawal} ${currency}`, variant: "destructive" });
+      toast({
+        title: "Montant invalide",
+        description: `Le montant minimum est de ${minWithdrawal} ${currency}`,
+        variant: "destructive",
+      });
       return;
     }
     if (!selectedWallet) {
-      toast({ title: "Compte requis", description: "Veuillez sélectionner un compte bancaire", variant: "destructive" });
+      toast({
+        title: "Compte requis",
+        description: "Veuillez sélectionner un compte bancaire",
+        variant: "destructive",
+      });
       return;
     }
     withdrawMutation.mutate({ amount: Number(amount), walletId: selectedWallet.id });
   };
-
-  if (walletsLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1947b8]" />
-      </div>
-    );
-  }
 
   if (!user) return null;
 
@@ -173,461 +194,615 @@ export default function WithdrawalPage() {
   const hasWallets = wallets.length > 0;
 
   return (
-    <main className="withdraw-reference">
+    <main className="withdraw-page">
       <style>{`
-        .withdraw-reference {
+        .withdraw-page {
+          --wd-ink: #f3f6ff;
+          --wd-blue: #1947b8;
+          --wd-blue-dark: #12358f;
+          --wd-blue-deep: #071a4d;
+          --wd-blue-pale: #eaf1ff;
+          --wd-paper: rgba(5,10,21,.94);
+          --wd-muted: #b3bfd3;
+          --wd-line: rgba(164,188,229,.19);
+          --wd-blue-bright: #a8c4ff;
           min-height: 100dvh;
-          background: #ffffff;
-          color: #111827;
-          font-family: Inter, Arial, sans-serif;
+          padding: 0 0 calc(24px + env(safe-area-inset-bottom));
+          overflow: hidden;
+          background: linear-gradient(180deg, rgba(5,10,21,.92), rgba(5,10,21,.96));
+          color: var(--wd-ink);
+          font-family: var(--font-sans, "DM Sans", sans-serif);
         }
-        .withdraw-reference .withdraw-screen {
-          box-sizing: border-box;
-          width: 100%;
-          max-width: 512px;
+        .withdraw-page *,
+        .withdraw-page *::before,
+        .withdraw-page *::after { box-sizing: border-box; }
+        .withdraw-shell {
+          width: min(100%, 540px);
           min-height: 100dvh;
           margin: 0 auto;
-          overflow: hidden;
-          padding-bottom: calc(64px + env(safe-area-inset-bottom));
-          background: #ffffff;
+          padding-bottom: 26px;
+          background: transparent;
         }
-        .withdraw-reference .withdraw-hero {
+        .withdraw-header {
           position: relative;
-          display: flow-root;
-          box-sizing: border-box;
-          min-height: 196px;
-          padding: 0 16px 16px;
-          background: #ffffff;
-          border-bottom: 1px solid #e5e7eb;
-        }
-        .withdraw-reference .history-button,
-        .withdraw-reference .withdraw-back {
-          position: absolute;
-          z-index: 3;
-          top: 16px;
-          display: grid;
-          width: 40px;
-          height: 40px;
-          place-items: center;
-          border: 2px solid #111827;
-          border-radius: 10px;
-          padding: 0;
-          background: #fff;
-          box-shadow: 0 3px 0 #111827;
-          color: #1947b8;
-          text-decoration: none;
-        }
-        .withdraw-reference .history-button {
-          right: 16px;
-        }
-        .withdraw-reference .withdraw-back {
-          left: 16px;
-        }
-        .withdraw-reference .history-button:active,
-        .withdraw-reference .withdraw-back:active {
-          transform: translateY(2px);
-          box-shadow: 0 1px 0 #111827;
-        }
-        .withdraw-reference .withdraw-back::before {
-          content: none;
-        }
-        .withdraw-reference .hero-art {
-          display: none;
-        }
-        .withdraw-reference .hero-pattern,
-        .withdraw-reference .receipt-icon {
-          display: none;
-        }
-        .withdraw-reference .withdraw-title {
-          position: absolute;
-          z-index: 2;
-          top: 17px;
-          right: 70px;
-          left: 70px;
           display: flex;
+          min-height: 68px;
           align-items: center;
           justify-content: center;
-          gap: 0;
+          padding: 12px 66px;
+          border-bottom: 1px solid rgba(255,255,255,.15);
+          background: var(--wd-blue-deep);
+          color: white;
+        }
+        .withdraw-title {
           margin: 0;
-          color: #111827;
+          color: white;
           font-size: 18px;
-          font-weight: 800;
-          line-height: 1.2;
-          text-align: center;
+          font-weight: 750;
+          letter-spacing: -.02em;
         }
-        .withdraw-reference .balance-card {
-          display: flex;
-          box-sizing: border-box;
-          min-height: 116px;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          margin-top: 64px;
-          padding: 16px;
-          border: 2px solid #111827;
+        .withdraw-icon-link {
+          position: absolute;
+          top: 13px;
+          display: grid;
+          width: 42px;
+          height: 42px;
+          place-items: center;
+          border: 1px solid rgba(255,255,255,.24);
           border-radius: 13px;
-          background: #ffffff;
-          box-shadow: 0 3px 0 #111827;
+          background: rgba(255,255,255,.08);
+          color: white;
+          text-decoration: none;
+          transition: background .18s ease, transform .18s ease;
         }
-        .withdraw-reference .balance-label {
-          margin: 8px 0 0;
-          color: #4b5563;
-          font-size: 14px;
-          font-weight: 500;
-        }
-        .withdraw-reference .balance-value {
-          margin: 0;
-          color: #111827;
-          font-size: 28px;
-          font-weight: 800;
-          line-height: 1.1;
-          white-space: nowrap;
-        }
-        .withdraw-reference .balance-value span {
-          display: none;
-        }
-        .withdraw-reference .balance-copy { min-width: 0; }
-        .withdraw-reference .country-chip {
-          display: inline-flex;
-          min-height: 38px;
+        .withdraw-icon-link:hover { background: rgba(255,255,255,.16); }
+        .withdraw-icon-link:active { transform: translateY(1px); }
+        .withdraw-back-link { left: 16px; }
+        .withdraw-history-link { right: 16px; }
+        .withdraw-hero {
+          position: relative;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 108px;
           align-items: center;
-          gap: 7px;
-          flex-shrink: 0;
-          padding: 0 10px;
-          border: 1px solid #1947b8;
-          border-radius: 999px;
-          background: #1947b8;
-          color: #ffffff;
-          font-size: 12px;
-          font-weight: 700;
-        }
-        .withdraw-reference .country-chip svg { color: #ffffff; }
-        .withdraw-reference .amount-panel {
-          box-sizing: border-box;
-          min-height: 154px;
-          padding: 12px 16px 18px;
-          background: #fff;
-          border-bottom: 2px solid #111827;
-        }
-        .withdraw-reference .amount-label {
-          margin: 0 0 9px;
-          color: #111827;
-          font-size: 16px;
-          font-weight: 800;
-        }
-        .withdraw-reference .amount-field {
-          display: flex;
-          height: 54px;
-          align-items: center;
+          gap: 10px;
+          min-height: 202px;
           overflow: hidden;
-          border: 2px solid #111827;
-          border-radius: 12px;
-          background: #fff;
+          padding: 23px 20px 26px;
+          background:
+            radial-gradient(ellipse at 82% 30%, rgba(93,154,244,.26), transparent 37%),
+            linear-gradient(135deg, #0b286b, #1947b8 73%, #2562cb);
+          color: white;
         }
-        .withdraw-reference .amount-field input {
-          flex: 1;
+        .withdraw-hero::after {
+          position: absolute;
+          right: -43px;
+          bottom: -100px;
+          width: 230px;
+          height: 230px;
+          border: 1px solid rgba(255,255,255,.12);
+          border-radius: 50%;
+          box-shadow: 0 0 0 20px rgba(255,255,255,.035), 0 0 0 43px rgba(255,255,255,.025);
+          content: "";
+          pointer-events: none;
+        }
+        .withdraw-balance-copy { position: relative; z-index: 1; }
+        .withdraw-eyebrow {
+          margin: 0 0 8px;
+          color: rgba(226,237,255,.76);
+          font-size: 11px;
+          font-weight: 750;
+          letter-spacing: .13em;
+          text-transform: uppercase;
+        }
+        .withdraw-balance {
+          margin: 0;
+          color: #fff;
+          font-family: var(--font-mono, "Space Mono", monospace);
+          font-size: clamp(25px, 7vw, 34px);
+          font-weight: 700;
+          letter-spacing: -.055em;
+          line-height: 1.1;
+          font-variant-numeric: tabular-nums;
+        }
+        .withdraw-balance-caption {
+          margin: 9px 0 0;
+          color: rgba(255,255,255,.78);
+          font-size: 12px;
+          line-height: 1.45;
+        }
+        .withdraw-country {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 16px;
+          border: 1px solid rgba(255,255,255,.24);
+          border-radius: 999px;
+          padding: 6px 9px;
+          background: rgba(5,24,75,.2);
+          color: #f2f6ff;
+          font-size: 11px;
+          font-weight: 650;
+        }
+        .withdraw-hero-mark {
+          position: relative;
+          z-index: 1;
+          display: grid;
+          width: 90px;
+          height: 90px;
+          justify-self: end;
+          place-items: center;
+          border: 1px solid rgba(255,255,255,.24);
+          border-radius: 27px;
+          background: linear-gradient(145deg, rgba(255,255,255,.17), rgba(255,255,255,.06));
+          color: white;
+          transform: rotate(4deg);
+        }
+        .withdraw-hero-mark::before,
+        .withdraw-hero-mark::after {
+          position: absolute;
+          width: 46px;
+          height: 46px;
+          border: 1px solid rgba(255,255,255,.18);
+          border-radius: 15px;
+          content: "";
+        }
+        .withdraw-hero-mark::after { width: 60px; height: 60px; border-radius: 20px; }
+        .withdraw-hero-mark svg { z-index: 1; }
+        .withdraw-content { padding: 18px 16px 0; }
+        .withdraw-card {
+          border: 1px solid var(--wd-line);
+          border-radius: 22px;
+          background: #121a2b;
+          box-shadow: 0 12px 32px rgba(0,0,0,.2);
+        }
+        .withdraw-form-card {
+          padding: 19px 17px 18px;
+          border-bottom: 0;
+          border-radius: 22px 22px 0 0;
+          box-shadow: none;
+        }
+        .withdraw-section-kicker {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 0 0 11px;
+          color: var(--wd-ink);
+          font-size: 14px;
+          font-weight: 750;
+        }
+        .withdraw-section-kicker svg { color: var(--wd-blue); }
+        .withdraw-amount-field {
+          display: flex;
+          min-height: 60px;
+          align-items: center;
+          gap: 12px;
+          border: 1px solid #cbd8ea;
+          border-radius: 15px;
+          padding: 0 15px;
+          background: #f3f7fe;
+          transition: border-color .16s ease, box-shadow .16s ease;
+        }
+        .withdraw-amount-field:focus-within {
+          border-color: var(--wd-blue);
+          box-shadow: 0 0 0 3px rgba(25,71,184,.12);
+        }
+        .withdraw-currency {
+          flex: none;
+          color: var(--wd-blue-dark);
+          font-size: 15px;
+          font-weight: 800;
+        }
+        .withdraw-amount-field input {
           width: 100%;
           min-width: 0;
-          height: 100%;
-          padding: 0 16px;
+          height: 56px;
           border: 0;
           outline: 0;
           background: transparent;
-          color: #111827;
-          font-size: 19px;
-        }
-        .withdraw-reference .amount-field input::placeholder { color: #6b7280; opacity: 1; }
-        .withdraw-reference .amount-currency {
-          padding: 0 0 0 14px;
-          color: #111827;
-          font-size: 18px;
-          font-weight: 800;
-        }
-        .withdraw-reference .amount-details {
-          display: flex;
-          justify-content: space-between;
-          gap: 12px;
-          margin-top: 12px;
-          color: #4b5563;
-          font-size: 13px;
-          font-weight: 700;
-        }
-        .withdraw-reference .amount-details strong { color: #111827; }
-        .withdraw-reference .prepayment-notice {
-          display: grid;
-          gap: 7px;
-          margin-top: 16px;
-          padding: 14px;
-          border: 2px solid #111827;
-          border-radius: 12px;
-          background: #edf2ff;
-          color: #4b5563;
-          font-size: 13px;
-          line-height: 1.45;
-        }
-        .withdraw-reference .prepayment-notice strong {
-          color: #111827;
-          font-size: 14px;
-        }
-        .withdraw-reference .pay-prepayment {
-          display: inline-flex;
-          min-height: 38px;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          border: 2px solid #111827;
-          border-radius: 10px;
-          background: #1947b8;
-          color: #ffffff;
-          font-weight: 800;
-          box-shadow: 0 2px 0 #111827;
-        }
-        .withdraw-reference .pay-prepayment:active:not(:disabled) {
-          transform: translateY(2px);
-          box-shadow: none;
-        }
-        .withdraw-reference .pay-prepayment:disabled { opacity: .55; }
-        .withdraw-reference .wallet-choice {
-          display: flex;
-          width: calc(100% - 32px);
-          min-height: 62px;
-          align-items: center;
-          margin: 16px 16px 0;
-          padding: 0 14px;
-          border: 2px solid #111827;
-          border-radius: 12px;
-          background: #fff;
-          color: #111827;
-          text-align: left;
-          box-shadow: 0 3px 0 #111827;
-        }
-        .withdraw-reference .wallet-choice:active {
-          transform: translateY(2px);
-          box-shadow: 0 1px 0 #111827;
-        }
-        .withdraw-reference .wallet-choice > svg:first-child {
-          width: 34px;
-          height: 34px;
-          margin-right: 10px;
-          flex-shrink: 0;
-          color: #1947b8;
-        }
-        .withdraw-reference .wallet-choice svg:last-child {
-          width: 22px;
-          height: 22px;
-          margin-left: auto;
-          color: #1947b8;
-        }
-        .withdraw-reference .wallet-copy {
-          overflow: hidden;
+          color: var(--wd-ink);
           font-size: 15px;
-          font-weight: 800;
+          font-weight: 600;
+        }
+        .withdraw-amount-field input::placeholder { color: #8a98ac; font-weight: 450; opacity: 1; }
+        .withdraw-amount-field input::-webkit-inner-spin-button,
+        .withdraw-amount-field input::-webkit-outer-spin-button { margin: 0; appearance: none; }
+        .withdraw-amount-field input[type=number] { appearance: textfield; }
+        .withdraw-amount-meta {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 6px 12px;
+          margin: 10px 2px 20px;
+          color: var(--wd-muted);
+          font-size: 12px;
+        }
+        .withdraw-amount-meta strong { color: var(--wd-ink); font-weight: 750; }
+        .withdraw-net-amount { color: var(--wd-blue-bright); }
+        .withdraw-wallet-label {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin: 0 0 9px;
+          color: var(--wd-ink);
+          font-size: 14px;
+          font-weight: 750;
+        }
+        .withdraw-wallet-label span:last-child {
+          color: var(--wd-muted);
+          font-size: 11px;
+          font-weight: 600;
+        }
+        .withdraw-wallet-choice {
+          display: flex;
+          width: 100%;
+          min-height: 68px;
+          align-items: center;
+          gap: 12px;
+          border: 1px solid rgba(155,178,219,.27);
+          border-radius: 15px;
+          padding: 11px 12px;
+          background: #0c1423;
+          color: var(--wd-ink);
+          text-align: left;
+          cursor: pointer;
+          transition: border-color .16s ease, background .16s ease, transform .16s ease;
+        }
+        .withdraw-wallet-choice:hover { border-color: rgba(128,166,238,.65); background: #111f37; }
+        .withdraw-wallet-choice:active { transform: translateY(1px); }
+        .withdraw-wallet-icon {
+          display: grid;
+          width: 42px;
+          height: 42px;
+          flex: none;
+          place-items: center;
+          border-radius: 13px;
+          background: rgba(25,71,184,.25);
+          color: var(--wd-blue-bright);
+        }
+        .withdraw-wallet-copy { min-width: 0; flex: 1; }
+        .withdraw-wallet-name {
+          display: block;
+          overflow: hidden;
+          color: var(--wd-ink);
+          font-size: 13px;
+          font-weight: 750;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .withdraw-reference .instructions {
-          margin: 18px 16px 8px;
-          padding: 22px 16px 10px;
-          border: 2px solid #111827;
-          border-top: 5px solid #1947b8;
-          border-radius: 14px;
-          background: #fff;
+        .withdraw-wallet-description {
+          display: block;
+          overflow: hidden;
+          margin-top: 4px;
+          color: var(--wd-muted);
+          font-size: 11px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
-        .withdraw-reference .instructions-title {
-          margin: 0 0 20px;
-          color: #111827;
-          font-size: 19px;
-          font-weight: 800;
-        }
-        .withdraw-reference .instructions-title::before {
-          content: "•";
-          margin-right: 8px;
-          color: #1947b8;
-          font-size: 24px;
-          line-height: 0;
-        }
-        .withdraw-reference .instruction-list {
-          display: grid;
-          margin: 0;
-          padding: 0;
-          list-style: none;
-        }
-        .withdraw-reference .instruction-row {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) auto;
-          align-items: start;
-          gap: 12px;
-          padding: 11px 0;
-          border-bottom: 1px solid #e5e7eb;
-          color: #4b5563;
-          font-size: 14px;
-          line-height: 1.45;
-        }
-        .withdraw-reference .instruction-row:last-child { border-bottom: 0; }
-        .withdraw-reference .instruction-row strong {
-          color: #111827;
-          font-weight: 800;
-          text-align: right;
-        }
-        .withdraw-reference .instruction-row--detail {
-          grid-template-columns: minmax(0, 1fr);
-          gap: 4px;
-        }
-        .withdraw-reference .withdrawal-safety-note {
-          margin: 10px 0 0;
-          padding: 10px 11px;
-          border: 1px solid #f3c1cc;
-          border-radius: 10px;
-          background: #fff5f7;
-          color: #7f2639;
-          font-size: 13px;
-          line-height: 1.45;
-        }
-        .withdraw-reference .withdrawal-safety-note strong { color: #111827; }
-        .withdraw-reference .submit {
+        .withdraw-wallet-choice > svg:last-child { flex: none; color: #b5c6e2; }
+        .withdraw-submit {
           display: flex;
-          width: calc(100% - 32px);
-          min-height: 57px;
+          width: 100%;
+          min-height: 56px;
           align-items: center;
           justify-content: center;
-          margin: 18px 16px 0;
-          border: 2px solid #111827;
-          border-radius: 12px;
-          background: #1947b8;
-          color: #ffffff;
+          gap: 9px;
+          margin-top: 19px;
+          border: 0;
+          border-radius: 15px;
+          padding: 0 18px;
+          background: linear-gradient(105deg, var(--wd-blue), #2460c8);
+          box-shadow: 0 7px 15px rgba(25,71,184,.2);
+          color: white;
+          font-size: 15px;
+          font-weight: 750;
+          cursor: pointer;
+          transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease;
+        }
+        .withdraw-submit:hover:not(:disabled) { box-shadow: 0 9px 19px rgba(25,71,184,.26); }
+        .withdraw-submit:active:not(:disabled) { transform: translateY(1px); }
+        .withdraw-submit:disabled { opacity: .58; cursor: not-allowed; }
+        .withdraw-fee-notice {
+          display: grid;
+          gap: 8px;
+          margin-top: 14px;
+          border: 1px solid rgba(131,164,221,.28);
+          border-radius: 15px;
+          padding: 14px;
+          background: rgba(25,71,184,.14);
+          color: var(--wd-muted);
+          font-size: 12px;
+          line-height: 1.5;
+        }
+        .withdraw-fee-title { display: flex; align-items: center; gap: 7px; color: var(--wd-ink); font-weight: 750; }
+        .withdraw-fee-title svg { color: var(--wd-blue); }
+        .withdraw-pay-fee {
+          display: inline-flex;
+          min-height: 40px;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          border: 1px solid #c2d3ef;
+          border-radius: 11px;
+          background: #eaf1ff;
+          color: var(--wd-blue-dark);
+          font-size: 13px;
+          font-weight: 750;
+          cursor: pointer;
+        }
+        .withdraw-pay-fee:disabled { opacity: .5; cursor: not-allowed; }
+        .withdraw-instructions {
+          margin-top: 0;
+          padding: 19px 17px 16px;
+          border-top: 0;
+          border-radius: 0 0 22px 22px;
+        }
+        .withdraw-instructions-heading {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          margin: 0 0 4px;
+          color: var(--wd-ink);
           font-size: 16px;
           font-weight: 800;
-          box-shadow: 0 4px 0 #111827;
+          letter-spacing: -.02em;
         }
-        .withdraw-reference .submit:active:not(:disabled) {
-          transform: translateY(3px);
-          box-shadow: 0 1px 0 #111827;
+        .withdraw-instructions-heading svg { color: var(--wd-blue); }
+        .withdraw-instructions-intro {
+          margin: 0 0 12px;
+          color: var(--wd-muted);
+          font-size: 12px;
+          line-height: 1.5;
         }
-        .withdraw-reference .submit:disabled { opacity: .6; }
+        .withdraw-rule-list { display: grid; margin: 0; padding: 0; list-style: none; }
+        .withdraw-rule {
+          display: flex;
+          justify-content: space-between;
+          gap: 14px;
+          padding: 11px 0;
+          border-top: 1px solid rgba(164,188,229,.16);
+          color: var(--wd-muted);
+          font-size: 12px;
+          line-height: 1.4;
+        }
+        .withdraw-rule strong { color: var(--wd-blue-bright); font-weight: 750; text-align: right; }
+        .withdraw-rule-detail { display: grid; gap: 4px; }
+        .withdraw-rule-detail strong { text-align: left; }
+        .withdraw-safety {
+          display: flex;
+          align-items: flex-start;
+          gap: 9px;
+          margin: 12px 0 0;
+          border: 1px solid rgba(131,164,221,.24);
+          border-radius: 13px;
+          padding: 12px;
+          background: rgba(25,71,184,.14);
+          color: var(--wd-muted);
+          font-size: 11px;
+          line-height: 1.55;
+        }
+        .withdraw-safety svg { flex: none; margin-top: 1px; color: var(--wd-blue); }
+        .withdraw-safety strong { color: #fff; }
+        .withdraw-loading {
+          display: grid;
+          min-height: 100dvh;
+          place-items: start center;
+          padding: 16px;
+           background: #07101f;
+        }
+        .withdraw-skeleton {
+          width: min(100%, 480px);
+          display: grid;
+          gap: 13px;
+          padding-top: 12px;
+        }
+        .withdraw-skeleton-bar {
+          height: 68px;
+          border-radius: 17px;
+          background: linear-gradient(90deg, #121e33 25%, #1a2a45 42%, #121e33 65%);
+          background-size: 300% 100%;
+          animation: withdraw-shimmer 1.6s ease infinite;
+        }
+        .withdraw-skeleton-bar--hero { height: 185px; border-radius: 0 0 22px 22px; }
+        .withdraw-skeleton-bar--tall { height: 300px; }
+        @keyframes withdraw-shimmer { to { background-position: -150% 0; } }
+        .withdraw-error {
+          display: grid;
+          justify-items: center;
+          gap: 10px;
+          padding: 25px 18px;
+          color: var(--wd-muted);
+          font-size: 13px;
+          text-align: center;
+        }
+        .withdraw-retry {
+          border: 0;
+          border-radius: 10px;
+          padding: 9px 14px;
+          background: var(--wd-blue);
+          color: white;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        @media (min-width: 700px) {
+          .withdraw-page { padding-top: 22px; padding-bottom: 40px; background: transparent; }
+          .withdraw-shell {
+            min-height: 0;
+            overflow: hidden;
+            border: 1px solid rgba(164,188,229,.18);
+            border-radius: 25px;
+            box-shadow: 0 22px 60px rgba(0,0,0,.34);
+          }
+          .withdraw-header { min-height: 70px; }
+        }
         @media (max-width: 360px) {
-          .withdraw-reference .withdraw-hero { min-height: 190px; padding-right: 12px; padding-left: 12px; }
-          .withdraw-reference .history-button { right: 12px; }
-          .withdraw-reference .withdraw-back { left: 12px; }
-          .withdraw-reference .balance-card { margin-top: 64px; padding: 12px; }
-          .withdraw-reference .balance-value { font-size: 23px; }
-          .withdraw-reference .country-chip { gap: 4px; padding: 0 7px; font-size: 11px; }
-          .withdraw-reference .amount-details { font-size: 12px; }
-          .withdraw-reference .instruction { font-size: 14px; }
+          .withdraw-hero { grid-template-columns: minmax(0, 1fr) 76px; min-height: 184px; padding-right: 16px; padding-left: 16px; }
+          .withdraw-hero-mark { width: 68px; height: 68px; border-radius: 22px; }
+          .withdraw-hero-mark::before { width: 37px; height: 37px; }
+          .withdraw-hero-mark::after { width: 48px; height: 48px; }
+          .withdraw-content { padding-right: 12px; padding-left: 12px; }
+          .withdraw-form-card, .withdraw-instructions { padding-right: 14px; padding-left: 14px; }
+          .withdraw-rule { font-size: 11px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .withdraw-page *, .withdraw-page *::before, .withdraw-page *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
       `}</style>
 
-      <div className="withdraw-screen">
-        <section className="withdraw-hero" aria-label="Retrait">
-          <h1 className="withdraw-title">
-            <span>Retrait</span>
-          </h1>
-          <Link href="/history" className="history-button" aria-label="Historique des transactions">
-            <Clock3 aria-hidden="true" />
-          </Link>
-          <Link href="/account" className="withdraw-back" data-testid="button-back" aria-label="Retour">
-            <ArrowLeft aria-hidden="true" />
-          </Link>
-          <div className="balance-card">
-            <div className="balance-copy">
-              <p className="balance-value" data-testid="text-balance">
+      {walletsLoading ? (
+        <div className="withdraw-loading" aria-label="Chargement">
+          <div className="withdraw-skeleton" aria-hidden="true">
+            <div className="withdraw-skeleton-bar withdraw-skeleton-bar--hero" />
+            <div className="withdraw-skeleton-bar withdraw-skeleton-bar--tall" />
+          </div>
+        </div>
+      ) : (
+        <div className="withdraw-shell">
+          <header className="withdraw-header">
+            <Link href="/account" className="withdraw-icon-link withdraw-back-link" data-testid="button-back" aria-label="Retour">
+              <ArrowLeft size={20} aria-hidden="true" />
+            </Link>
+            <h1 className="withdraw-title">Retrait</h1>
+            <Link href="/history" className="withdraw-icon-link withdraw-history-link" aria-label="Historique des transactions">
+              <Clock3 size={19} aria-hidden="true" />
+            </Link>
+          </header>
+
+          <section className="withdraw-hero" aria-label="Solde disponible">
+            <div className="withdraw-balance-copy">
+              <p className="withdraw-eyebrow">Solde disponible</p>
+              <p className="withdraw-balance" data-testid="text-balance">
                 {currency} {Math.round(balance).toLocaleString("fr-FR")}
               </p>
-              <p className="balance-label">Revenus cumulés retirables</p>
-            </div>
-            <div className="country-chip">
-              <MapPin size={16} aria-hidden="true" />
-              <span>{countryInfo?.name || user.country}</span>
-            </div>
-          </div>
-        </section>
-
-        <button
-          onClick={() => navigate(hasWallets ? "/wallet?from=withdrawal" : "/wallet")}
-          className="wallet-choice"
-          data-testid="button-select-wallet"
-        >
-          <CreditCard aria-hidden="true" />
-          <span className="wallet-copy">{formatWalletLabel(selectedWallet)}</span>
-          <ChevronRight aria-hidden="true" />
-        </button>
-
-        <section className="amount-panel" aria-label="Montant de retrait">
-          <p className="amount-label">Montant du retrait</p>
-          <label className="amount-field">
-            <span className="amount-currency">{currency}</span>
-            <input
-              type="number"
-              min={minWithdrawal}
-              value={amount}
-              onChange={(event) => setAmount(event.target.value ? Number(event.target.value) : "")}
-              placeholder="Veuillez saisir le montant"
-              data-testid="input-withdrawal-amount"
-              aria-label="Montant de retrait"
-            />
-          </label>
-          <div className="amount-details">
-            <span>
-              Montant reçu : <strong>{currency} {amountAfterFees.toLocaleString("fr-FR")}</strong>
-            </span>
-            <span>Frais : {withdrawalFee.toFixed(2)} %</span>
-          </div>
-          {withdrawalPrepaymentEnabled && (
-            <div className="prepayment-notice">
-              <strong>Paiement obligatoire avant le retrait</strong>
-              <span>
-                Vous devez payer 25 % du montant du retrait
-                {withdrawalPrepayment > 0
-                  ? `, soit ${withdrawalPrepayment.toLocaleString("fr-FR")} ${currency}`
-                  : ""}{" "}
-                avant que votre demande soit lancée.
+              <p className="withdraw-balance-caption">Revenus disponibles pour retrait</p>
+              <span className="withdraw-country">
+                <MapPin size={13} aria-hidden="true" />
+                {countryInfo?.name || user.country}
               </span>
+            </div>
+            <div className="withdraw-hero-mark" aria-hidden="true">
+              <ArrowUpRight size={30} strokeWidth={1.8} />
+            </div>
+          </section>
+
+          <div className="withdraw-content">
+            <section className="withdraw-card withdraw-form-card" aria-label="Demande de retrait">
+              <label className="withdraw-section-kicker" htmlFor="withdrawal-amount">
+                <Wallet size={17} aria-hidden="true" />
+                Montant du retrait
+              </label>
+              <div className="withdraw-amount-field">
+                <span className="withdraw-currency">{currency}</span>
+                <input
+                  id="withdrawal-amount"
+                  type="number"
+                  min={minWithdrawal}
+                  value={amount}
+                  onChange={(event) => setAmount(event.target.value ? Number(event.target.value) : "")}
+                  placeholder="Saisissez le montant"
+                  data-testid="input-withdrawal-amount"
+                  aria-label="Montant de retrait"
+                />
+              </div>
+              <div className="withdraw-amount-meta">
+                <span>Vous recevrez <strong className="withdraw-net-amount">{currency} {formatAmount(amountAfterFees)}</strong></span>
+                <span>Frais : <strong>{withdrawalFee.toFixed(2)} %</strong></span>
+              </div>
+
+              <p className="withdraw-wallet-label">
+                <span>Compte de réception</span>
+                <span>{selectedWallet ? "Compte sélectionné" : hasWallets ? "Choisir un compte" : "À configurer"}</span>
+              </p>
+              {walletsError ? (
+                <div className="withdraw-card withdraw-error" role="alert">
+                  <span>Impossible de charger vos comptes enregistrés.</span>
+                  <button type="button" className="withdraw-retry" onClick={() => refetchWallets()}>Réessayer</button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => navigate(hasWallets ? "/wallet?from=withdrawal" : "/wallet")}
+                  className="withdraw-wallet-choice"
+                  data-testid="button-select-wallet"
+                >
+                  <span className="withdraw-wallet-icon"><CreditCard size={20} aria-hidden="true" /></span>
+                  <span className="withdraw-wallet-copy">
+                    <span className="withdraw-wallet-name">{formatWalletLabel(selectedWallet)}</span>
+                    <span className="withdraw-wallet-description">
+                      {selectedWallet?.accountName || "Gérez vos comptes de versement"}
+                    </span>
+                  </span>
+                  <ChevronRight size={19} aria-hidden="true" />
+                </button>
+              )}
+
+              {withdrawalPrepaymentEnabled && (
+                <div className="withdraw-fee-notice">
+                  <div className="withdraw-fee-title"><Info size={16} aria-hidden="true" /> Paiement requis avant le retrait</div>
+                  <span>
+                    Vous devez payer 25 % du montant du retrait
+                    {withdrawalPrepayment > 0
+                      ? `, soit ${withdrawalPrepayment.toLocaleString("fr-FR")} ${currency}`
+                      : ""} avant le lancement de votre demande.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handlePayPrepayment}
+                    disabled={isPreparingPayment || !amount || Number(amount) < minWithdrawal}
+                    className="withdraw-pay-fee"
+                    data-testid="button-pay-withdrawal-prepayment"
+                  >
+                    {isPreparingPayment ? <Loader2 size={16} className="animate-spin" /> : "Payer les frais"}
+                  </button>
+                </div>
+              )}
+
               <button
                 type="button"
-                onClick={handlePayPrepayment}
-                disabled={isPreparingPayment || !amount || Number(amount) < minWithdrawal}
-                className="pay-prepayment"
-                data-testid="button-pay-withdrawal-prepayment"
+                onClick={handleSubmit}
+                disabled={withdrawMutation.isPending}
+                className="withdraw-submit"
+                data-testid="button-submit-withdrawal"
               >
-                {isPreparingPayment ? <Loader2 className="h-4 w-4 animate-spin" /> : "Payer"}
+                {withdrawMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <><span>Confirmer le retrait</span><ChevronRight size={18} aria-hidden="true" /></>}
               </button>
-            </div>
-          )}
-        </section>
+            </section>
 
-        <button
-          onClick={handleSubmit}
-          disabled={withdrawMutation.isPending}
-          className="submit"
-          data-testid="button-submit-withdrawal"
-        >
-          {withdrawMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Valider mon retrait"}
-        </button>
-
-        <section className="instructions" aria-label="Instructions de retrait">
-          <h2 className="instructions-title">Instructions de retrait</h2>
-          <ul className="instruction-list">
-            <li className="instruction-row">
-              <span>Montant minimum de retrait</span>
-              <strong>{minWithdrawal.toLocaleString("fr-FR")} {currency}</strong>
-            </li>
-            <li className="instruction-row">
-              <span>Heures de retrait</span>
-              <strong>De {withdrawalStartHour}h à {withdrawalEndHour}h</strong>
-            </li>
-            <li className="instruction-row">
-              <span>Frais de retrait</span>
-              <strong>{withdrawalFee} % par transaction</strong>
-            </li>
-            <li className="instruction-row instruction-row--detail">
-              <strong>Délai de traitement</strong>
-              <span>Généralement dans les 2 heures, et exceptionnellement sous 24 heures.</span>
-            </li>
-          </ul>
-          <p className="withdrawal-safety-note">
-            <strong>À savoir :</strong> seuls les revenus cumulés sont retirables ; les dépôts restent réservés aux achats. Vérifiez vos informations de portefeuille avant de soumettre votre demande.
-          </p>
-        </section>
-      </div>
+            <section className="withdraw-card withdraw-instructions" aria-label="Instructions de retrait">
+              <h2 className="withdraw-instructions-heading"><ShieldCheck size={19} aria-hidden="true" /> Règles de retrait</h2>
+              <p className="withdraw-instructions-intro">Consultez les conditions avant de confirmer votre demande.</p>
+              <ul className="withdraw-rule-list">
+                <li className="withdraw-rule">
+                  <span>Montant minimum</span>
+                  <strong>{minWithdrawal.toLocaleString("fr-FR")} {currency}</strong>
+                </li>
+                <li className="withdraw-rule">
+                  <span>Horaires de traitement</span>
+                  <strong>De {withdrawalStartHour}h à {withdrawalEndHour}h</strong>
+                </li>
+                <li className="withdraw-rule">
+                  <span>Frais par transaction</span>
+                  <strong>{withdrawalFee} %</strong>
+                </li>
+                {withdrawalSettings?.maxWithdrawalsPerDay ? (
+                  <li className="withdraw-rule">
+                    <span>Limite quotidienne</span>
+                    <strong>{withdrawalSettings.maxWithdrawalsPerDay} demande{withdrawalSettings.maxWithdrawalsPerDay > 1 ? "s" : ""} maximum</strong>
+                  </li>
+                ) : null}
+                <li className="withdraw-rule withdraw-rule-detail">
+                  <strong>Délai de traitement</strong>
+                  <span>Généralement sous 2 heures, exceptionnellement sous 24 heures.</span>
+                </li>
+              </ul>
+              <p className="withdraw-safety">
+                <Check size={15} aria-hidden="true" />
+                <span><strong>À savoir :</strong> seuls vos revenus cumulés sont retirables. Les dépôts restent réservés aux achats. Vérifiez les coordonnées de votre compte avant l’envoi.</span>
+              </p>
+            </section>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
