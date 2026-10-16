@@ -13,7 +13,7 @@ Use the user's supplied image icons for homepage quick actions, the announcement
 
 **Why:** The user asked for image icons on the homepage, then requested their reuse in the account shortcuts and matching icons in the account services list.
 
-**How to apply:** Match supplied icons to the relevant labels, preserve actions and layout, and keep existing semantic icons where no supplied image clearly fits (such as password, admin, and logout).
+**How to apply:** Match supplied icons to the relevant labels, preserve actions and layout, use the lock image for password changes and the supplied X image for logout, and keep existing semantic icons where no supplied image fits (such as admin access).
 
 The latest homepage reference shows small bullet separators in the scrolling activity strip; keep that strip display-only and separate from the account ledger.
 

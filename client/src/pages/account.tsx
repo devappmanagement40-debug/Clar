@@ -36,6 +36,8 @@ import rulesServiceIcon from "@assets/IMG_20260829_070922_702_1792169768453.jpg"
 import historyServiceIcon from "@assets/IMG_20260829_070849_484_1792169768572.jpg";
 import giftServiceIcon from "@assets/IMG_20260829_070918_659_1792169768495.jpg";
 import appServiceIcon from "@assets/IMG_20260829_070845_119_1792169768653.jpg";
+import passwordServiceIcon from "@assets/IMG_20260829_070949_286_1792170479316.jpg";
+import logoutServiceIcon from "@assets/IMG_20260829_070914_741_1792170479426.jpg";
 import "./account.css";
 
 interface InstallPromptEvent extends Event {
@@ -134,7 +136,7 @@ export default function AccountPage() {
     { label: "Service client", icon: Headset, image: supportServiceIcon, href: "/service" },
     { label: "Télécharger l’application", icon: Download, image: appServiceIcon, action: "download" as const },
     { label: "Lier une carte bancaire", icon: CreditCard, image: cardServiceIcon, href: "/wallet" },
-    { label: "Changer le mot de passe", icon: KeyRound, image: null, href: "/change-password" },
+    { label: "Changer le mot de passe", icon: KeyRound, image: passwordServiceIcon, href: "/change-password" },
     { label: "Échanger un cadeau", icon: Gift, image: giftServiceIcon, href: "/gift-code" },
   ];
 
@@ -278,7 +280,9 @@ export default function AccountPage() {
               </button>
             )}
             <button className="cp-logout-row" type="button" onClick={handleLogout} data-testid="button-logout">
-              <span className="cp-service-icon"><LogOut aria-hidden="true" /></span>
+              <span className="cp-service-icon cp-service-icon--image">
+                <img src={logoutServiceIcon} alt="" aria-hidden="true" />
+              </span>
               <span>Déconnexion</span>
               <ChevronRight className="cp-service-chevron" aria-hidden="true" />
             </button>
