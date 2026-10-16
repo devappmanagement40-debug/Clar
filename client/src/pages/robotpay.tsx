@@ -11,6 +11,7 @@ import { CI_WAVE_DEFAULT_PAYMENT_LINK, CI_WAVE_DEFAULT_QR_IMAGE } from "@/lib/pa
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 import type { PaymentNumber } from "@shared/schema";
 import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
+import CiWaveDeposit from "@/components/ci-wave-deposit";
 
 type Provider = "ashtech" | "sendavapay" | "soleaspay" | "clapay";
 type Operator = { id?: string; name?: string; operator?: string; slug?: string; code?: string; requiresOtp?: boolean; status?: string; provider?: Provider; manualNumber?: PaymentNumber };
@@ -252,6 +253,18 @@ export default function RobotPayPage() {
   const loadingOperators = isSoleaspayFlow
     ? soleaspayServicesLoading
      : manualNumbersLoading || providerLoading || sendavaLoading || ashtechLoading || clapayLoading;
+  useEffect(() => {
+    if (!isManualFlow || country !== "CI" || operator || operators.length !== 1) return;
+    const onlyOperator = operators[0];
+    if (
+      getHostedManualPaymentMethod(
+        country,
+        onlyOperator.name || onlyOperator.manualNumber?.operatorName || "",
+      ) === "wave"
+    ) {
+      setOperator(onlyOperator);
+    }
+  }, [country, isManualFlow, operator, operators]);
   const sendavaMutation = useMutation({
     mutationFn: async () => {
       if (!operator?.id) throw new Error("Sélectionnez un opérateur");
@@ -600,10 +613,71 @@ export default function RobotPayPage() {
       toast({ title: "Numéro requis", description: "Saisissez le numéro utilisé pour effectuer le paiement.", variant: "destructive" });
       return;
     }
+    if (isCiManualFlow && hostedManualMethod === "wave" && phone.replace(/\D/g, "").length !== 10) {
+      toast({ title: "Numéro invalide", description: "Saisissez les 10 chiffres de votre numéro Wave.", variant: "destructive" });
+      return;
+    }
     setStep(1);
   };
 
   if (!amount || !country) return <main className="flex min-h-screen items-center justify-center bg-white p-6 text-center text-[#111827]"><p className="rounded-xl border-2 border-[#111827] bg-white p-5 font-semibold shadow-[0_4px_0_#111827]">Données de dépôt invalides.</p></main>;
+  const ciWaveSelectionAvailable = isCiManualFlow &&
+    operators.length === 1 &&
+    getHostedManualPaymentMethod(
+      country,
+      operators[0]?.name || operators[0]?.manualNumber?.operatorName || "",
+    ) === "wave";
+  const ciWaveCheckoutActive = isCiManualFlow && hostedManualMethod === "wave" && !!operator?.manualNumber;
+  if (
+    (step === 0 && ciWaveSelectionAvailable && (!operator || hostedManualMethod === "wave")) ||
+    (ciWaveCheckoutActive && (step === 1 || (step === 3 && manualSubmitted)))
+  ) {
+    return (
+      <CiWaveDeposit
+        step={step}
+        amount={amount}
+        currency={currency}
+        operators={operators}
+        selectedOperator={operator}
+        phone={phone}
+        phonePrefix={phonePrefix}
+        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, 10))}
+        onChooseOperator={(item) => chooseOperator(item as Operator)}
+        onContinue={continueFromOperatorSelection}
+        onBack={() => {
+          if (step === 0) {
+            navigate("/deposit");
+            return;
+          }
+          setStep(0);
+        }}
+        submitted={step === 3 && manualSubmitted}
+        status={status}
+        depositId={depositId}
+        secondsRemaining={manualVerificationSecondsLeft}
+        paymentLink={
+          operator?.manualNumber?.paymentLink ||
+          (hostedManualMethod === "wave" && country === "CI" ? CI_WAVE_DEFAULT_PAYMENT_LINK : null)
+        }
+        qrImageUrl={
+          hostedManualMethod === "wave" &&
+          (!operator?.manualNumber?.paymentLink || operator.manualNumber.paymentLink === CI_WAVE_DEFAULT_PAYMENT_LINK)
+            ? CI_WAVE_DEFAULT_QR_IMAGE
+            : null
+        }
+        paymentPhone={operator?.manualNumber?.phone}
+        ownerName={operator?.manualNumber?.ownerName}
+        transactionReference={manualTransactionReference}
+        onTransactionReferenceChange={setManualTransactionReference}
+        onSubmitPayment={() => manualMutation.mutate()}
+        isSubmitting={manualMutation.isPending}
+        onRefreshStatus={refreshManualPaymentStatus}
+        isRefreshing={manualStatusRefreshing}
+        onViewHistory={() => navigate("/deposits-history")}
+        onHome={() => navigate("/")}
+      />
+    );
+  }
   if (
     isManualFlow &&
     hostedManualMethod &&
