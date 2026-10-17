@@ -395,7 +395,7 @@ export default function TogoManualDeposit({
                   value={transactionReference}
                   onChange={(event) => onTransactionReferenceChange(event.target.value)}
                   placeholder="Saisissez l’ID du reçu"
-                  className="min-h-[50px] w-full rounded-lg border-2 border-[#d7dce3] bg-white px-3 text-base text-[#17345b] outline-none focus:border-[#00377d] focus:ring-2 focus:ring-[#00377d]/15"
+                  className="min-h-[50px] w-full rounded-xl border-2 border-[#d7dce3] bg-white px-3 text-base text-[#17345b] outline-none focus:border-[#00377d] focus:ring-2 focus:ring-[#00377d]/15"
                 />
                 <p className="mt-1.5 text-xs leading-5 text-[#68707a]">Saisissez l’identifiant reçu après le transfert.</p>
                 </div>
