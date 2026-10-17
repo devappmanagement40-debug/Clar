@@ -9,6 +9,12 @@ For this project, Plesk's configured application root is `dist`, startup file is
 
 **How to apply:** Keep the runtime manifest generated with `dist`, use `/public` as the document root relative to the application root, use `index.cjs` as startup file, and install dependencies in `dist` before restarting. Keep `SUPABASE_NEW_DATABASE_URL` and `SESSION_SECRET` available to that Node process.
 
+Plesk is the production source of truth for this project; Replit is for development only. A healthy Replit preview does not establish that the Plesk deployment is healthy.
+
+**Why:** The user explicitly clarified that production work and verification must target Plesk.
+
+**How to apply:** For deployment checks, verify the public Plesk domain and its app/API routes directly; use Replit only to inspect or validate source and build artifacts.
+
 Plesk's pnpm installation must explicitly approve bcrypt's native build script; allow only bcrypt rather than enabling scripts for every dependency.
 
 **Why:** Plesk reported `ERR_PNPM_IGNORED_BUILDS` for bcrypt after resolving the runtime dependencies.
