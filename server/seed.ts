@@ -835,8 +835,140 @@ export async function seed() {
       .onConflictDoNothing();
   }
 
-  // Preserve existing payment settings. Deposit routes are configured explicitly
-  // by an administrator; startup seeding must not assign countries automatically.
+  const clapayDepositRoutingMigration = await db.transaction(async (tx) => {
+    const migrationKey = "clapay_bf_ne_deposit_routing_applied";
+    const [marker] = await tx.select({ key: platformSettings.key })
+      .from(platformSettings)
+      .where(eq(platformSettings.key, migrationKey))
+      .limit(1);
+    if (marker) return "already-applied";
+
+    const settingsRows = await tx.select().from(platformSettings);
+    const settings = Object.fromEntries(settingsRows.map(({ key, value }) => [key, value]));
+    const validMethods = new Set([
+      "manual", "soleaspay", "ashtech", "sendavapay", "westpay", "inpay", "clapay",
+    ]);
+    let routing: Record<string, string[]> = {};
+    const rawRouting = settings.depositMethodsByCountry?.trim();
+
+    if (rawRouting) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(rawRouting);
+      } catch {
+        return "invalid-routing";
+      }
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return "invalid-routing";
+      }
+      for (const [rawCountry, rawMethods] of Object.entries(parsed)) {
+        const country = rawCountry.trim().toUpperCase();
+        if (!/^[A-Z]{2}$/.test(country) || !Array.isArray(rawMethods)) {
+          return "invalid-routing";
+        }
+        const methods = rawMethods.map((method) => String(method).trim().toLowerCase());
+        if (methods.some((method) => !validMethods.has(method))) {
+          return "invalid-routing";
+        }
+        routing[country] = Array.from(new Set(methods));
+      }
+    } else {
+      // Materialize the current legacy routes before creating an explicit map,
+      // so this targeted migration does not hide unrelated existing methods.
+      const allCountries = await tx.select().from(countries);
+      const allPaymentNumbers = await tx.select().from(paymentNumbers);
+      const countryListIncludes = (settingValue: string | undefined, countryCode: string, emptyMeansAll = false) => {
+        const codes = (settingValue || "")
+          .split(",")
+          .map((value) => value.trim().toUpperCase())
+          .filter(Boolean);
+        return codes.length === 0 ? emptyMeansAll : codes.includes(countryCode);
+      };
+
+      for (const countryRow of allCountries) {
+        const code = countryRow.code.trim().toUpperCase();
+        const activeMethods = getActiveCountryMethodNames(countryRow.operators);
+        const hasConfiguredMethods = parseCountryMethodEntries(countryRow.operators).length > 0;
+        const methods: string[] = [];
+
+        if (allPaymentNumbers.some((number) =>
+          number.isActive &&
+          number.country.trim().toUpperCase() === code &&
+          (!hasConfiguredMethods || activeMethods.some(
+            (operator) => operator.toLocaleLowerCase() === number.operatorName.trim().toLocaleLowerCase(),
+          ))
+        )) {
+          methods.push("manual");
+        }
+
+        if (
+          settings.soleaspayEnabled === "true" &&
+          countryListIncludes(settings.soleaspayCountries, code)
+        ) methods.push("soleaspay");
+        if (
+          settings.ashtechEnabled === "true" &&
+          countryListIncludes(settings.ashtechCountries, code, true)
+        ) methods.push("ashtech");
+        if (settings.sendavapayEnabled === "true") methods.push("sendavapay");
+        if (
+          settings.westpayEnabled === "true" &&
+          countryListIncludes(settings.westpayCountries, code, true)
+        ) methods.push("westpay");
+        if (
+          settings.inpayEnabled === "true" &&
+          countryListIncludes(settings.inpayCountries, code)
+        ) methods.push("inpay");
+
+        routing[code] = methods;
+      }
+    }
+
+    for (const countryCode of ["BF", "NE"]) {
+      const methods = routing[countryCode] || [];
+      routing[countryCode] = methods.includes("clapay") ? methods : [...methods, "clapay"];
+    }
+
+    if (settings.depositMethodsByCountry?.trim()) {
+      await tx.update(platformSettings)
+        .set({ value: JSON.stringify(routing), modifiedAt: new Date() })
+        .where(eq(platformSettings.key, "depositMethodsByCountry"));
+    } else {
+      await tx.insert(platformSettings)
+        .values({ key: "depositMethodsByCountry", value: JSON.stringify(routing) })
+        .onConflictDoUpdate({
+          target: platformSettings.key,
+          set: { value: JSON.stringify(routing), modifiedAt: new Date() },
+        });
+    }
+
+    if (settings.clapayEnabled === undefined) {
+      await tx.insert(platformSettings)
+        .values({ key: "clapayEnabled", value: "true" })
+        .onConflictDoNothing();
+    } else if (settings.clapayEnabled !== "true") {
+      await tx.update(platformSettings)
+        .set({ value: "true", modifiedAt: new Date() })
+        .where(eq(platformSettings.key, "clapayEnabled"));
+    }
+    if (!settings.clapayChannelName?.trim()) {
+      await tx.insert(platformSettings)
+        .values({ key: "clapayChannelName", value: "Clapay" })
+        .onConflictDoNothing();
+    }
+
+    await tx.insert(platformSettings)
+      .values({ key: migrationKey, value: "applied" })
+      .onConflictDoNothing();
+    return "updated";
+  });
+  if (clapayDepositRoutingMigration === "updated") {
+    console.log("[Clapay deposits] BF and NE enabled; other deposit methods and country routing preserved.");
+  } else if (clapayDepositRoutingMigration === "invalid-routing") {
+    console.error("[Clapay deposits] Country routing is invalid; no settings were changed.");
+  }
+
+  // Preserve existing payment settings. Startup seeding does not assign providers
+  // by default; only the explicit, one-time country migrations above may do so.
   console.log("Settings check complete");
 
   console.log("Database seeding complete!");
