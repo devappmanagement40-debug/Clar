@@ -20,6 +20,7 @@ export type ClapayStatusResult = {
   transactionMethod?: string;
   amount?: number;
   country?: string;
+  confirmationCode?: string;
 };
 
 type RequestValues = Record<string, string | number>;
@@ -241,7 +242,7 @@ function normalizeClapayConfirmationCode(
 ): string | undefined {
   if (typeof value !== "string" && typeof value !== "number") return undefined;
   const code = String(value).trim();
-  if (excludedValues.has(code.toLowerCase())) return undefined;
+  if (excludedValues.has(code.toLowerCase()) || /^CLAPAY-\d+-\d+$/i.test(code)) return undefined;
   return code && code.length <= 80 && !/[\u0000-\u001f\u007f]/.test(code)
     ? code
     : undefined;
@@ -763,6 +764,7 @@ async function checkClapayTransaction(
   statusPath: string,
   statusBodyTemplate: unknown,
   statusValuePath: string,
+  options?: { allowNitaReference?: boolean },
 ): Promise<ClapayStatusResult> {
   const config = loadConfig();
   const body = fillTemplate(statusBodyTemplate, { signature });
@@ -782,6 +784,12 @@ async function checkClapayTransaction(
   const transactionMethod = getAtPath(data, "transaction_method");
   const amount = Number(getAtPath(data, "amount"));
   const country = getAtPath(data, "transaction_country_code");
+  const confirmationCode = options?.allowNitaReference
+    ? extractClapayConfirmationCode(data, "", {
+      allowNitaReference: true,
+      excludedValues: [signature],
+    })
+    : undefined;
   return {
     rawStatus,
     status,
@@ -789,16 +797,21 @@ async function checkClapayTransaction(
     ...(typeof transactionMethod === "string" ? { transactionMethod } : {}),
     ...(Number.isFinite(amount) ? { amount } : {}),
     ...(typeof country === "string" ? { country } : {}),
+    ...(confirmationCode ? { confirmationCode } : {}),
   };
 }
 
-export async function checkClapayPayment(signature: string): Promise<ClapayStatusResult> {
+export async function checkClapayPayment(
+  signature: string,
+  options: { allowNitaReference?: boolean } = {},
+): Promise<ClapayStatusResult> {
   const config = loadConfig();
   return checkClapayTransaction(
     signature,
     config.statusPath,
     config.statusBodyTemplate,
     config.statusValuePath,
+    options,
   );
 }
 

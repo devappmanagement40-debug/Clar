@@ -494,6 +494,13 @@ export default function RobotPayPage() {
         const res = await fetch(url, { credentials: "include" });
         const data = await res.json();
         if (!res.ok) return;
+        if (
+          activeProvider === "clapay"
+          && typeof data.confirmationCode === "string"
+          && data.confirmationCode.trim()
+        ) {
+          setClapayConfirmationCode(data.confirmationCode.trim());
+        }
         setStatus(data.status);
         if (data.status === "approved") {
           setStep(3);

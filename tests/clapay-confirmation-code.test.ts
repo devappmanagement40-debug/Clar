@@ -75,6 +75,17 @@ test("does not expose the merchant signature or order reference as a NITA code",
   );
 });
 
+test("does not treat the platform's Clapay order ID as a NITA confirmation code", () => {
+  assert.equal(
+    extractClapayConfirmationCode(
+      { data: { reference: "CLAPAY-123-456" } },
+      "",
+      { allowNitaReference: true },
+    ),
+    undefined,
+  );
+});
+
 test("ignores empty, oversized, and non-scalar confirmation values", () => {
   assert.equal(extractClapayConfirmationCode({ confirmation_code: " " }), undefined);
   assert.equal(extractClapayConfirmationCode({ confirmation_code: "x".repeat(81) }), undefined);

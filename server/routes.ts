@@ -4433,7 +4433,11 @@ export async function registerRoutes(
         return res.json({ status: deposit.status });
       }
 
-      const verification = await checkClapayPayment(deposit.reference);
+      const isNitaNigerDeposit = deposit.country.toUpperCase() === "NE"
+        && deposit.paymentMethod.toLowerCase().includes("nita");
+      const verification = await checkClapayPayment(deposit.reference, {
+        allowNitaReference: isNitaNigerDeposit,
+      });
       if (verification.status === "approved") {
         const claimedDeposit = await storage.claimDepositApproval(deposit.id);
         if (claimedDeposit) await creditApprovedDeposit(claimedDeposit);
@@ -4444,6 +4448,7 @@ export async function registerRoutes(
       return res.json({
         status: finalDeposit?.status || deposit.status,
         providerStatus: verification.rawStatus,
+        ...(verification.confirmationCode ? { confirmationCode: verification.confirmationCode } : {}),
       });
     } catch (error: any) {
       console.error("[clapay] status verification error:", error);
