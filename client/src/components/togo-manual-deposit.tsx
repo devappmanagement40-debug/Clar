@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  ArrowLeft,
   CheckCircle2,
   Clock3,
   Copy,
@@ -17,6 +16,8 @@ import {
 import type { PaymentNumber } from "@shared/schema";
 import catlLogo from "@/assets/images/catl-logo.png";
 
+const TOGO_TOGOCEL_MERCHANT_ID = "73127420";
+
 type TogoOperator = {
   id?: string;
   name?: string;
@@ -27,7 +28,6 @@ type TogoManualDepositProps = {
   step: number;
   amount: number;
   currency: string;
-  countryName: string;
   phonePrefix: string;
   operators: TogoOperator[];
   isLoadingOperators: boolean;
@@ -38,6 +38,7 @@ type TogoManualDepositProps = {
   onSelectOperator: (operator: TogoOperator) => void;
   onContinue: () => void;
   onBack: () => void;
+  onClose: () => void;
   transactionReference: string;
   onTransactionReferenceChange: (value: string) => void;
   onCopyPaymentTarget: () => void;
@@ -54,15 +55,14 @@ type TogoManualDepositProps = {
 
 function operatorLabel(name?: string) {
   const normalized = name?.toLocaleLowerCase().replace(/[^a-z0-9]/g, "") || "";
-  if (normalized.includes("togocel")) return "Yas Togo (Togocel)";
-  if (normalized.includes("tmoney")) return "TMoney";
+  if (normalized.includes("togocel") || normalized.includes("tmoney") || normalized.includes("yastogo")) return "Yas Togo (Togocel)";
   if (normalized.includes("moov")) return "Moov Money";
   return name || "Mobile Money";
 }
 
 function operatorLogo(name?: string) {
   const normalized = name?.toLocaleLowerCase().replace(/[^a-z0-9]/g, "") || "";
-  if (normalized.includes("tmoney")) return "/operators/tmoney.png";
+  if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "/operators/tmoney.png";
   if (normalized.includes("moov")) return "/operators/moov-money-togo.webp";
   return null;
 }
@@ -76,7 +76,6 @@ export default function TogoManualDeposit({
   step,
   amount,
   currency,
-  countryName,
   phonePrefix,
   operators,
   isLoadingOperators,
@@ -87,6 +86,7 @@ export default function TogoManualDeposit({
   onSelectOperator,
   onContinue,
   onBack,
+  onClose,
   transactionReference,
   onTransactionReferenceChange,
   onCopyPaymentTarget,
@@ -101,12 +101,18 @@ export default function TogoManualDeposit({
   onHome,
 }: TogoManualDepositProps) {
   const [indicativeSeconds, setIndicativeSeconds] = useState(30 * 60);
-  const [amountCopied, setAmountCopied] = useState(false);
-  const [amountCopyFailed, setAmountCopyFailed] = useState(false);
+  const [ussdCopied, setUssdCopied] = useState(false);
+  const [ussdCopyFailed, setUssdCopyFailed] = useState(false);
   const displayAmount = amount.toLocaleString("fr-FR");
   const selectedName = operatorLabel(selectedOperator?.name || selectedOperator?.manualNumber?.operatorName);
   const paymentNumber = selectedOperator?.manualNumber;
   const target = paymentNumber?.paymentLink || paymentNumber?.phone || "";
+  const paymentLogo = paymentNumber?.logoUrl || operatorLogo(selectedOperator?.name || paymentNumber?.operatorName);
+  const selectedOperatorNormalized = (selectedOperator?.name || paymentNumber?.operatorName || "").toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+  const isTogocel = selectedOperatorNormalized.includes("togocel") || selectedOperatorNormalized.includes("tmoney") || selectedOperatorNormalized.includes("yastogo");
+  const ussdCode = isTogocel && !paymentNumber?.paymentLink
+    ? `*145*5*${amount}*${TOGO_TOGOCEL_MERCHANT_ID}#`
+    : "";
   const digits = phone.replace(/\D/g, "");
   const canContinue = Boolean(!hasOperatorsError && selectedOperator?.manualNumber && target && digits.length === 8);
   const isApproved = status === "approved";
@@ -121,30 +127,31 @@ export default function TogoManualDeposit({
     return () => window.clearInterval(interval);
   }, [step]);
 
-  const copyAmount = async () => {
-    setAmountCopyFailed(false);
+  const copyUssdCode = async () => {
+    setUssdCopyFailed(false);
     try {
-      await navigator.clipboard.writeText(String(amount));
-      setAmountCopied(true);
-      window.setTimeout(() => setAmountCopied(false), 1600);
+      await navigator.clipboard.writeText(ussdCode);
+      setUssdCopied(true);
+      window.setTimeout(() => setUssdCopied(false), 1600);
     } catch {
-      setAmountCopied(false);
-      setAmountCopyFailed(true);
+      setUssdCopied(false);
+      setUssdCopyFailed(true);
     }
   };
 
   const renderHeader = (showTimer: boolean) => (
     <header className="bg-[#00377d] px-4 pb-5 pt-3 text-white shadow-[0_4px_12px_rgba(0,35,82,0.2)] sm:px-5">
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-        <img src={catlLogo} alt="CATL" className="h-8 w-auto max-w-[100px] object-contain" />
+      <div className="relative flex min-h-11 items-center justify-end gap-2 border-b border-white/10 pb-3">
+        <div className="absolute left-1/2 top-0 flex h-10 w-[84px] -translate-x-1/2 items-center justify-center rounded-md bg-white px-2 shadow-sm">
+          <img src={catlLogo} alt="CATL" className="h-7 w-full object-contain" />
+        </div>
         {showTimer && (
-          <div className="rounded-md bg-white px-2.5 py-1 text-center text-[#00377d] shadow-sm" aria-label={`Compte à rebours indicatif ${formatTime(indicativeSeconds)}`}>
+          <div className="rounded-md bg-white px-2 py-1 text-center text-[#00377d] shadow-sm" aria-label={`Compte à rebours indicatif ${formatTime(indicativeSeconds)}`}>
             <span className="block font-mono text-sm font-bold tabular-nums">{formatTime(indicativeSeconds)}</span>
-            <span className="block text-[9px] font-semibold leading-3 text-[#64748b]">Indicatif</span>
           </div>
         )}
-        <button type="button" onClick={onBack} aria-label={step === 0 ? "Fermer le dépôt" : "Retour"} className="grid h-9 w-9 place-items-center rounded-full border border-white/30 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd100]">
-          {step === 0 ? <X className="h-5 w-5" aria-hidden="true" /> : <ArrowLeft className="h-5 w-5" aria-hidden="true" />}
+        <button type="button" onClick={onClose} aria-label="Fermer le dépôt" className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/40 bg-[#082b54] text-white hover:bg-[#001f47] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd100]">
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
       <div className="pt-4 text-center">
@@ -152,7 +159,6 @@ export default function TogoManualDeposit({
         <p className="mt-1 text-4xl font-extrabold leading-none tracking-tight text-[#ffd100]">
           <span className="mr-1 text-xl font-bold">{currency}</span>{displayAmount}
         </p>
-        <p className="mt-2 text-xs font-semibold text-white/80">{countryName} · +{phonePrefix}</p>
       </div>
     </header>
   );
@@ -286,34 +292,53 @@ export default function TogoManualDeposit({
               Instructions de paiement
             </h1>
 
-            <div className="rounded-xl border border-[#e0e3e8] bg-white p-3 shadow-[0_3px_10px_rgba(15,35,60,0.08)]">
+            <div className="flex flex-wrap items-center gap-2 px-1">
               <p className="text-sm font-semibold text-[#5e6673]">
                 Destinataire : <strong className="text-[#17345b]">{selectedName}</strong>
               </p>
-              <p className="mt-1 inline-flex rounded-full bg-[#e9f0f8] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#17345b]">
-                Compte Mobile Money
-              </p>
+              <span className="inline-flex rounded-full bg-[#e9f0f8] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#17345b]">
+                {isTogocel ? "Carte marchand" : "Compte marchand"}
+              </span>
             </div>
 
             {target ? (
-              <div className="overflow-hidden rounded-xl border border-[#e0e3e8] bg-white shadow-[0_3px_10px_rgba(15,35,60,0.08)]">
-                <div className="flex min-h-[58px] items-center">
-                  <div className="min-w-0 flex-1 px-3">
-                    <p className="text-[11px] font-bold text-[#758092]">{paymentNumber?.paymentLink ? "Lien de paiement" : "Numéro du compte"}</p>
-                    {paymentNumber?.paymentLink ? (
-                      <p className="truncate text-sm font-extrabold text-[#17345b]">
-                        {paymentNumber.paymentLink}
-                      </p>
-                    ) : (
-                      <p className="break-all font-mono text-lg font-extrabold text-[#17345b]">{paymentNumber?.phone}</p>
-                    )}
+              <>
+                <div>
+                  <div className="overflow-hidden rounded-xl border-2 border-[#d7dce3] bg-white shadow-[0_3px_10px_rgba(15,35,60,0.1)]">
+                    <div className="flex min-h-[58px] items-center">
+                      {paymentLogo && !paymentNumber?.paymentLink && (
+                        <img src={paymentLogo} alt="" aria-hidden="true" className="ml-2 h-8 w-8 shrink-0 rounded-md object-contain" />
+                      )}
+                      <div className="min-w-0 flex-1 px-3">
+                        <p className="text-[11px] font-bold text-[#758092]">{paymentNumber?.paymentLink ? "Lien de paiement" : "Numéro du compte"}</p>
+                        {paymentNumber?.paymentLink ? (
+                          <p className="truncate text-sm font-extrabold text-[#17345b]">{paymentNumber.paymentLink}</p>
+                        ) : (
+                          <p className="break-all font-mono text-lg font-extrabold text-[#17345b]">{paymentNumber?.phone}</p>
+                        )}
+                      </div>
+                      <button type="button" onClick={onCopyPaymentTarget} className="flex min-h-[58px] shrink-0 items-center justify-center gap-1.5 bg-[#00377d] px-3 text-sm font-extrabold text-[#ffd100] hover:bg-[#002f6d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd100]">
+                        <Copy className="h-4 w-4" aria-hidden="true" />
+                        Copier
+                      </button>
+                    </div>
                   </div>
-                  <button type="button" onClick={onCopyPaymentTarget} className="flex min-h-[58px] shrink-0 items-center justify-center gap-1.5 bg-[#00377d] px-3 text-sm font-extrabold text-[#ffd100] hover:bg-[#002f6d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd100]">
-                    <Copy className="h-4 w-4" aria-hidden="true" />
-                    Copier
-                  </button>
                 </div>
-              </div>
+                {ussdCode && (
+                  <div className="mt-3">
+                    <p className="mb-1.5 text-sm font-bold text-[#5e6673]">Code USSD rapide</p>
+                    <div className="overflow-hidden rounded-xl border-2 border-[#d7dce3] bg-white shadow-[0_3px_10px_rgba(15,35,60,0.1)]">
+                      <div className="flex min-h-[58px] items-center">
+                        <p className="min-w-0 flex-1 break-all px-3 font-mono text-base font-extrabold text-[#17345b]">{ussdCode}</p>
+                        <button type="button" onClick={copyUssdCode} className="flex min-h-[58px] shrink-0 items-center justify-center gap-1.5 bg-[#00377d] px-3 text-sm font-extrabold text-[#ffd100] hover:bg-[#002f6d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd100]">
+                          <Copy className="h-4 w-4" aria-hidden="true" />
+                          {ussdCopied ? "Copié" : ussdCopyFailed ? "Erreur" : "Copier"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                 Les coordonnées de réception ne sont pas configurées pour cet opérateur.
@@ -321,38 +346,28 @@ export default function TogoManualDeposit({
             )}
 
             {paymentNumber?.ownerName && (
-              <div className="rounded-xl border border-[#e0e3e8] bg-white px-3 py-3 shadow-[0_3px_10px_rgba(15,35,60,0.08)]">
-                <p className="flex items-center gap-2 text-[11px] font-bold text-[#758092]">
-                  <UserRound className="h-4 w-4 text-[#00377d]" aria-hidden="true" />
-                  Titulaire du compte
-                </p>
-                <p className="mt-1 font-extrabold text-[#17345b]">{paymentNumber.ownerName}</p>
+              <div>
+                <p className="mb-1.5 text-sm font-bold text-[#5e6673]">Titulaire {isTogocel ? "de la carte" : "du compte"}</p>
+                <div className="flex min-h-[50px] items-center gap-2 rounded-xl border-2 border-[#d7dce3] bg-white px-3 shadow-[0_3px_10px_rgba(15,35,60,0.1)]">
+                  <UserRound className="h-5 w-5 shrink-0 text-[#17345b]" aria-hidden="true" />
+                  <p className="font-extrabold text-[#17345b]">{paymentNumber.ownerName}</p>
+                </div>
               </div>
             )}
 
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-[#e0e3e8] bg-white px-3 py-3 shadow-[0_3px_10px_rgba(15,35,60,0.08)]">
-              <div>
-                <p className="text-[11px] font-bold text-[#758092]">Montant à transférer</p>
-                <p className="mt-0.5 font-extrabold text-[#17345b]">{currency} {displayAmount}</p>
-              </div>
-              <button type="button" onClick={copyAmount} className="flex min-h-10 items-center gap-1.5 rounded-md border border-[#00377d] px-3 text-xs font-bold text-[#00377d] hover:bg-[#eef4fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00377d]">
-                <Copy className="h-4 w-4" aria-hidden="true" />
-                {amountCopied ? "Copié" : amountCopyFailed ? "Copie impossible" : "Copier"}
-              </button>
-            </div>
-
-            <div className="rounded-xl border border-[#dce4ee] bg-[#f7faff] p-3 text-sm leading-5 text-[#43556b]">
-              Envoyez exactement <strong>{displayAmount} {currency}</strong> au compte indiqué. Utilisez le menu de transfert de votre opérateur, puis saisissez l’ID de transaction reçu après le paiement.
-            </div>
-
-            <div className="rounded-xl border border-[#e0e3e8] bg-white p-3 shadow-[0_3px_10px_rgba(15,35,60,0.08)]">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-[#758092]">Vérifiez votre numéro</p>
-                  <p className="mt-1 truncate font-extrabold text-[#17345b]">+{phonePrefix} {phone}</p>
+            <div>
+              <h2 className="flex items-center gap-2 text-sm font-extrabold text-[#17212e]">
+                <Phone className="h-5 w-5 text-[#17345b]" aria-hidden="true" />
+                Vérifiez votre numéro
+              </h2>
+              <p className="mt-2 text-sm font-semibold text-[#68707a]">Si incorrect, modifiez-le.</p>
+              <div className="mt-1.5 flex min-h-[48px] items-center overflow-hidden rounded-xl border-2 border-[#d7dce3] bg-white shadow-[0_3px_10px_rgba(15,35,60,0.1)]">
+                <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
+                  <Phone className="h-5 w-5 shrink-0 text-[#17345b]" aria-hidden="true" />
+                  <p className="truncate font-extrabold text-[#17345b]">{phone}</p>
                 </div>
-                <button type="button" onClick={onBack} className="min-h-10 shrink-0 rounded-md bg-[#00377d] px-3 text-xs font-extrabold text-[#ffd100] hover:bg-[#002f6d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd100]">
-                  Modifier
+                <button type="button" onClick={onBack} className="min-h-[48px] shrink-0 bg-[#00377d] px-3 text-sm font-extrabold text-[#ffd100] hover:bg-[#002f6d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ffd100]">
+                  Éditer
                 </button>
               </div>
             </div>
@@ -362,25 +377,28 @@ export default function TogoManualDeposit({
                 event.preventDefault();
                 onSubmit();
               }}
-              className="space-y-3 border-t border-[#dfe3e8] pt-4"
+              className="space-y-4"
             >
-              <label htmlFor="tg-transaction-id" className="block text-sm font-extrabold text-[#263342]">
-                ID de transaction <span className="text-red-600">*</span>
-              </label>
-              <input
-                id="tg-transaction-id"
-                type="text"
-                required
-                minLength={1}
-                maxLength={120}
-                autoComplete="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                value={transactionReference}
-                onChange={(event) => onTransactionReferenceChange(event.target.value)}
-                placeholder="Saisissez l’ID du SMS ou du reçu"
-                className="min-h-[54px] w-full rounded-xl border-2 border-[#c7ced8] bg-white px-3 text-base text-[#263342] outline-none focus:border-[#00377d] focus:ring-2 focus:ring-[#00377d]/15"
-              />
+              <div className="rounded-xl border-2 border-[#d7dce3] bg-white p-3 shadow-[0_3px_10px_rgba(15,35,60,0.1)]">
+                <label htmlFor="tg-transaction-id" className="mb-2 block text-sm font-extrabold text-[#17212e]">
+                  ID de transaction <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="tg-transaction-id"
+                  type="text"
+                  required
+                  minLength={1}
+                  maxLength={120}
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  value={transactionReference}
+                  onChange={(event) => onTransactionReferenceChange(event.target.value)}
+                  placeholder="Saisissez l’ID du reçu"
+                  className="min-h-[50px] w-full rounded-lg border-2 border-[#d7dce3] bg-white px-3 text-base text-[#17345b] outline-none focus:border-[#00377d] focus:ring-2 focus:ring-[#00377d]/15"
+                />
+                <p className="mt-1.5 text-xs leading-5 text-[#68707a]">Saisissez l’identifiant reçu après le transfert.</p>
+                </div>
               <button
                 type="submit"
                 disabled={isSubmitting || !target || !phone || !transactionReference.trim()}

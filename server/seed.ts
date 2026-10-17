@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, tasks, paymentChannels, platformSettings, countries, products } from "@shared/schema";
+import { users, tasks, paymentChannels, platformSettings, countries, paymentNumbers, products } from "@shared/schema";
 import { getActiveCountryMethodNames, parseCountryMethodEntries } from "@shared/country-methods";
 import { catlVipOffers } from "@shared/catl-vip-offers";
 import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
@@ -113,7 +113,7 @@ export async function seed() {
       name: "Togo",
       currency: "XOF",
       phonePrefix: "228",
-      operators: ["Togocel", "Moov Africa Togo", "TMoney"],
+      operators: ["Togocel", "Moov Africa Togo"],
       withdrawalMethods: ["Togocel", "Moov Africa Togo"],
       isActive: true,
     },
@@ -232,14 +232,18 @@ export async function seed() {
       changed = true;
     }
 
-    const tmoney = methods.find((method) => normalizeName(method.name).includes("tmoney"));
-    if (tmoney) {
-      if (!tmoney.isActive) {
-        tmoney.isActive = true;
+    const togocel = methods.find((method) => {
+      const normalized = normalizeName(method.name);
+      return normalized.includes("togocel") || normalized.includes("tmoney") || normalized.includes("yastogo");
+    });
+    if (togocel) {
+      if (!togocel.isActive || togocel.name !== "Togocel") {
+        togocel.name = "Togocel";
+        togocel.isActive = true;
         changed = true;
       }
     } else {
-      methods.push({ name: "TMoney", isActive: true });
+      methods.push({ name: "Togocel", isActive: true });
       changed = true;
     }
 
@@ -251,9 +255,54 @@ export async function seed() {
     return changed ? "updated" : "already-configured";
   });
   if (togoDepositMethodsMigration === "updated") {
-    console.log("[Togo deposits] Moov Money and TMoney enabled; withdrawal methods unchanged.");
+    console.log("[Togo deposits] Moov Money and Togocel enabled; withdrawal methods unchanged.");
   } else if (togoDepositMethodsMigration === "already-configured") {
-    console.log("[Togo deposits] Moov Money and TMoney were already configured.");
+    console.log("[Togo deposits] Moov Money and Togocel were already configured.");
+  }
+
+  const togoTmoneyToTogocelMigration = await db.transaction(async (tx) => {
+    const [togo] = await tx.select({ id: countries.id, operators: countries.operators })
+      .from(countries)
+      .where(eq(countries.code, "TG"))
+      .limit(1);
+    if (!togo) return "missing";
+
+    const [marker] = await tx.insert(platformSettings)
+      .values({ key: "togo_tmoney_to_togocel_applied", value: "applied" })
+      .onConflictDoNothing()
+      .returning({ key: platformSettings.key });
+    if (!marker) return "already-applied";
+
+    const methods = parseCountryMethodEntries(togo.operators);
+    const normalizeName = (name: string) => name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+    const isTogocelAlias = (name: string) => {
+      const normalized = normalizeName(name);
+      return normalized.includes("togocel") || normalized.includes("tmoney") || normalized.includes("yastogo");
+    };
+    const togocelAliases = methods.filter((method) => isTogocelAlias(method.name));
+    const firstAliasIndex = methods.findIndex((method) => isTogocelAlias(method.name));
+    const remainingMethods = methods.filter((method) => !isTogocelAlias(method.name));
+    const togocelActive = togocelAliases.some((method) => method.isActive);
+    remainingMethods.splice(Math.max(0, firstAliasIndex), 0, {
+      name: "Togocel",
+      isActive: togocelAliases.length ? togocelActive : true,
+    });
+
+    await tx.update(countries)
+      .set({ operators: JSON.stringify(remainingMethods) })
+      .where(eq(countries.id, togo.id));
+
+    await tx.update(paymentNumbers)
+      .set({ operatorName: "Togocel" })
+      .where(and(
+        eq(paymentNumbers.country, "TG"),
+        eq(paymentNumbers.operatorName, "TMoney"),
+      ));
+
+    return "updated";
+  });
+  if (togoTmoneyToTogocelMigration === "updated") {
+    console.log("[Togo deposits] TMoney receiver configuration normalized to Togocel; Moov remains separate.");
   }
 
   const currentCountries = await db.select().from(countries);

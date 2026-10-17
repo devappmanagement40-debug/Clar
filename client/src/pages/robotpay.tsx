@@ -253,14 +253,28 @@ export default function RobotPayPage() {
           })),
           ];
   const togoOperatorChoices: Operator[] = isTgManualFlow
-    ? parseOperators(countryInfo?.operators || "[]").flatMap((name) => {
+    ? Array.from(new Set(
+        parseOperators(countryInfo?.operators || "[]")
+          .map((name) => {
+            const normalized = name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+            if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "Togocel";
+            if (normalized.includes("moov")) return "Moov Africa Togo";
+            return name;
+          }),
+      )).flatMap((name) => {
+        const normalizeTogoOperator = (value: string) => {
+          const normalized = value.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+          if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "togocel";
+          if (normalized.includes("moov")) return "moovafricatogo";
+          return normalized;
+        };
         const configuredNumbers = manualNumbers.filter(
-          (number) => number.operatorName.trim().toLocaleLowerCase() === name.trim().toLocaleLowerCase(),
+          (number) => normalizeTogoOperator(number.operatorName) === normalizeTogoOperator(name),
         );
         return configuredNumbers.length
           ? configuredNumbers.map((number) => ({
               id: `manual-${number.id}`,
-              name: number.operatorName,
+              name,
               manualNumber: number,
             }))
           : [{ id: `togo-unconfigured-${name}`, name }];
@@ -654,7 +668,6 @@ export default function RobotPayPage() {
         step={step}
         amount={amount}
         currency={currency}
-        countryName={countryInfo?.name || "Togo"}
         phonePrefix={phonePrefix}
         operators={togoOperatorChoices}
         isLoadingOperators={loadingOperators}
@@ -675,6 +688,7 @@ export default function RobotPayPage() {
           }
           navigate("/");
         }}
+        onClose={() => navigate("/deposit")}
         transactionReference={manualTransactionReference}
         onTransactionReferenceChange={setManualTransactionReference}
         onCopyPaymentTarget={copyPaymentNumber}
