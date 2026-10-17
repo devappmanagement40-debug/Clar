@@ -44,6 +44,9 @@ function clapayOperatorLogo(country: string, operatorName?: string) {
     if (normalized.includes("orange")) return "/operators/orange.png";
     if (normalized.includes("mtn")) return "/operators/mtn.png";
   }
+  if (country === "TG" && (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo"))) {
+    return "/operators/tmoney.png";
+  }
   return null;
 }
 
@@ -115,8 +118,8 @@ export default function RobotPayPage() {
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
-  const isClapayStyledFlow = forcedProvider === "clapay" && (country === "BF" || country === "NE");
-  // Legacy name for shared CATL styling branches; true only for the BF/NE automatic checkout.
+  const isClapayStyledFlow = forcedProvider === "clapay" && (country === "BF" || country === "NE" || country === "TG");
+  // Legacy name for shared CATL styling branches.
   const isBjClapayFlow = isClapayStyledFlow;
   const feePaymentId = Number(params.get("feePaymentId") || 0) || undefined;
   const withdrawalAmount = Number(params.get("withdrawalAmount") || 0) || undefined;
