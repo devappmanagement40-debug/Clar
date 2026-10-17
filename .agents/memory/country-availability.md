@@ -33,8 +33,8 @@ Bénin deposits use MTN and Moov, and the user has explicitly chosen both as wit
 
 **How to apply:** Keep Bénin's MTN and Moov deposit operators separate from its withdrawal-method list and receiver coordinates. Require administrator-configured receiver numbers and names before allowing a manual deposit; show the receiver details and required transaction ID without a USSD shortcut until the exact merchant identifier and command format are confirmed.
 
-For automatic Clapay deposits, Burkina Faso should expose only the live Moov and Orange operators; Niger should expose every active operator returned by Clapay.
+For automatic Clapay deposits, Burkina Faso should expose only the live Moov and Orange operators; Niger should expose every active operator returned by Clapay. Bénin keeps its manual MTN/Moov flow and adds automatic Clapay alongside it, with operators discovered live rather than hardcoded.
 
-**Why:** the user chose these country-specific operator scopes.
+**Why:** the user requested an automatic Bénin deposit page while retaining the existing manual page; provider-specific operator lists can change.
 
-**How to apply:** Keep the shared automatic checkout and live Clapay operator discovery; preserve explicit country routing and avoid hardcoding Niger's operator list.
+**How to apply:** Keep the shared automatic checkout and live Clapay operator discovery; preserve explicit country routing and the manual Bénin path. Do not hardcode provider operators or replace existing deposit methods.

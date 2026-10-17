@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronRight, Clock3, Copy, ExternalLink, Loader2, Phone, RefreshCw, ShieldCheck } from "lucide-react";
+import { Check, ChevronRight, Clock3, Copy, ExternalLink, Loader2, Phone, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { apiRequest, withProcessingIndicator } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ import type { PaymentNumber } from "@shared/schema";
 import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
 import CiWaveDeposit from "@/components/ci-wave-deposit";
 import ManualCountryDeposit from "@/components/manual-country-deposit";
+import catlLogo from "@/assets/images/catl-logo.png";
 
 type Provider = "ashtech" | "sendavapay" | "soleaspay" | "clapay";
 type Operator = { id?: string; name?: string; operator?: string; slug?: string; code?: string; requiresOtp?: boolean; status?: string; provider?: Provider; manualNumber?: PaymentNumber };
@@ -29,6 +30,13 @@ function formatTimeRemaining(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function beninClapayOperatorLogo(operatorName?: string) {
+  const normalized = (operatorName || "").toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+  if (normalized.includes("mtn")) return "/operators/mtn-benin.jpg";
+  if (normalized.includes("moov")) return "/operators/moov.jpg";
+  return null;
 }
 
 function Stepper({
@@ -99,6 +107,7 @@ export default function RobotPayPage() {
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
+  const isBjClapayFlow = forcedProvider === "clapay" && country === "BJ";
   const feePaymentId = Number(params.get("feePaymentId") || 0) || undefined;
   const withdrawalAmount = Number(params.get("withdrawalAmount") || 0) || undefined;
   const parsedClapayReturnDepositId = forcedProvider === "clapay"
@@ -649,7 +658,7 @@ export default function RobotPayPage() {
       return;
     }
     const expectedManualPhoneDigits = country === "BJ" ? 10 : 8;
-    if (isCountrySpecificManualFlow && phone.replace(/\D/g, "").length !== expectedManualPhoneDigits) {
+    if ((isCountrySpecificManualFlow || isBjClapayFlow) && phone.replace(/\D/g, "").length !== expectedManualPhoneDigits) {
       const countryName = country === "BJ" ? "Bénin" : "Togo";
       toast({ title: "Numéro invalide", description: `Saisissez les ${expectedManualPhoneDigits} chiffres de votre numéro Mobile Money au ${countryName}.`, variant: "destructive" });
       return;
@@ -812,8 +821,8 @@ export default function RobotPayPage() {
     );
   }
   return (
-    <main className={`min-h-screen p-3 text-[#111827] sm:p-6 ${isCiManualFlow ? "bg-[#f4f7ff]" : isManualFlow ? "bg-[#FFF0F3]" : "bg-white"}`}>
-      {!isManualFlow && (
+    <main className={`min-h-[100dvh] text-[#111827] ${isBjClapayFlow ? "bg-[#f5f5f5] text-[#263342]" : `p-3 sm:p-6 ${isCiManualFlow ? "bg-[#f4f7ff]" : isManualFlow ? "bg-[#FFF0F3]" : "bg-white"}`}`}>
+      {!isManualFlow && !isBjClapayFlow && (
         <aside
           role="timer"
           aria-label={`Compte à rebours de la recharge : ${formatTimeRemaining(checkoutSecondsLeft)}`}
@@ -824,12 +833,33 @@ export default function RobotPayPage() {
           <span className="font-mono tabular-nums">{formatTimeRemaining(checkoutSecondsLeft)}</span>
         </aside>
       )}
-      <div className="max-w-xl mx-auto">
-        <div className={`${isManualFlow ? `rounded-t-2xl ${isCiManualFlow ? "bg-[#1947b8]" : "bg-[#D40030]"} px-4 pb-4 pt-4 text-white sm:px-5` : "px-4 pb-5 pt-3 text-[#111827] sm:px-5 sm:pt-4 sm:pb-6"}`}>
-          <p className={`${isManualFlow ? "text-sm text-white/90" : "text-sm text-[#5b2500]"} font-bold uppercase tracking-[0.12em]`}>{isManualFlow ? "Montant" : "Montant du dépôt"}</p>
-          <p className={`mt-1 ${isManualFlow ? "text-3xl" : "text-4xl"} font-extrabold tracking-tight`}>{amount.toLocaleString()} <span className="text-2xl font-bold">{currency}</span></p>
+      <div className={`${isBjClapayFlow ? "mx-auto min-h-[100dvh] w-full max-w-[520px]" : "mx-auto max-w-xl"}`}>
+        <div className={`${isBjClapayFlow ? "bg-[#00377d] px-4 pb-5 pt-3 text-white shadow-[0_4px_12px_rgba(0,35,82,0.2)] sm:px-5" : isManualFlow ? `rounded-t-2xl ${isCiManualFlow ? "bg-[#1947b8]" : "bg-[#D40030]"} px-4 pb-4 pt-4 text-white sm:px-5` : "px-4 pb-5 pt-3 text-[#111827] sm:px-5 sm:pt-4 sm:pb-6"}`}>
+          {isBjClapayFlow && (
+            <div className="relative flex min-h-11 items-center justify-end gap-2 border-b border-white/10 pb-3">
+              <div className="absolute left-1/2 top-0 flex h-10 w-[84px] -translate-x-1/2 items-center justify-center rounded-md bg-white px-2 shadow-sm">
+                <img src={catlLogo} alt="CATL" className="h-7 w-full object-contain" />
+              </div>
+              {step > 0 && (
+                <div className="rounded-md bg-white px-2 py-1 text-center text-[#00377d] shadow-sm" aria-label={`Compte à rebours ${formatTimeRemaining(checkoutSecondsLeft)}`}>
+                  <span className="block font-mono text-sm font-bold tabular-nums">{formatTimeRemaining(checkoutSecondsLeft)}</span>
+                </div>
+              )}
+              <button type="button" onClick={() => navigate("/deposit")} aria-label="Fermer le dépôt" className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/40 bg-[#082b54] text-white hover:bg-[#001f47] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd100]">
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+          )}
+          <div className={`${isBjClapayFlow ? "pt-4 text-center" : ""}`}>
+            <p className={`${isBjClapayFlow ? "text-xs font-extrabold text-[#ffd100]" : isManualFlow ? "text-sm text-white/90" : "text-sm text-[#5b2500]"} font-bold uppercase tracking-[0.12em]`}>{isBjClapayFlow ? "Montant à payer" : isManualFlow ? "Montant" : "Montant du dépôt"}</p>
+            <p className={`mt-1 ${isManualFlow || isBjClapayFlow ? "text-3xl" : "text-4xl"} font-extrabold tracking-tight ${isBjClapayFlow ? "leading-none text-[#ffd100]" : ""}`}>
+              {isBjClapayFlow && <span className="mr-1 text-xl font-bold">{currency}</span>}
+              {amount.toLocaleString("fr-FR")}
+              {!isBjClapayFlow && <span className="text-2xl font-bold"> {currency}</span>}
+            </p>
+          </div>
         </div>
-        <section className={`rounded-2xl ${isCiManualFlow ? "border border-[#d9e4fb] shadow-[0_12px_34px_rgba(21,66,153,0.12)]" : "border-2 border-[#111827] shadow-[0_5px_0_#111827,0_10px_18px_rgba(17,24,39,0.18)]"} bg-white ${isManualFlow ? "rounded-t-none p-4 sm:p-5" : "p-4 sm:p-6"}`}>
+        <section className={`${isBjClapayFlow ? "rounded-b-2xl border border-[#d9e4fb] shadow-[0_8px_24px_rgba(0,35,82,0.08)]" : `rounded-2xl ${isCiManualFlow ? "border border-[#d9e4fb] shadow-[0_12px_34px_rgba(21,66,153,0.12)]" : "border-2 border-[#111827] shadow-[0_5px_0_#111827,0_10px_18px_rgba(17,24,39,0.18)]"}`} bg-white ${isManualFlow ? "rounded-t-none p-4 sm:p-5" : isBjClapayFlow ? "p-4 sm:p-5" : "p-4 sm:p-6"}`}>
             {isManualFlow ? (
               <Stepper
                 step={manualStepperStep}
@@ -837,55 +867,70 @@ export default function RobotPayPage() {
                 accentColor={isCiManualFlow ? "#1947b8" : "#D40030"}
               />
             ) : step > 0 ? (
-              <Stepper step={Math.max(0, Math.min(2, step - 1))} />
+              <Stepper
+                step={Math.max(0, Math.min(2, step - 1))}
+                labels={isBjClapayFlow ? ["Opérateur", "Autorisation", "Confirmation"] : undefined}
+                accentColor={isBjClapayFlow ? "#00377d" : undefined}
+              />
             ) : null}
           {step === 0 && (
             <div className="space-y-4">
                 <p className="px-1 text-lg font-bold text-[#111827]">
                 {isManualFlow
                    ? "Sélectionnez un opérateur Mobile Money"
+                  : isBjClapayFlow
+                    ? "Sélectionnez votre opérateur"
                   : isSoleaspayFlow
                     ? "Sélectionnez votre opérateur Mobile Money :"
                     : "Sélectionnez le mode de paiement :"}
               </p>
-                {isManualFlow && <p className="px-1 text-sm leading-6 text-gray-600">Choisissez l’opérateur du compte auquel vous allez envoyer {amount.toLocaleString()} {currency}.</p>}
-                {loadingOperators ? <Loader2 className={`w-7 h-7 animate-spin mx-auto ${isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}`} /> : operators.length === 0 ? <p className="text-center text-gray-500">{manualNumbersError && isManualFlow ? "Impossible de charger les moyens de paiement. Réessayez." : providerError instanceof Error ? sanitizeDepositDisplayText(providerError.message, "Aucun opérateur disponible pour ce pays.") : "Aucun opérateur disponible pour ce pays."}</p> : (
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    {operators.map((op, i) => (
+                {(isManualFlow || isBjClapayFlow) && <p className="px-1 text-sm leading-6 text-gray-600">{isBjClapayFlow ? "Choisissez un opérateur disponible, puis entrez le numéro Mobile Money qui recevra la demande de paiement." : `Choisissez l’opérateur du compte auquel vous allez envoyer ${amount.toLocaleString()} ${currency}.`}</p>}
+                {loadingOperators ? <Loader2 className={`w-7 h-7 animate-spin mx-auto ${isBjClapayFlow ? "text-[#00377d]" : isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}`} /> : operators.length === 0 ? <p className="text-center text-gray-500">{manualNumbersError && isManualFlow ? "Impossible de charger les moyens de paiement. Réessayez." : providerError instanceof Error ? sanitizeDepositDisplayText(providerError.message, "Aucun opérateur disponible pour ce pays.") : "Aucun opérateur disponible pour ce pays."}</p> : (
+                  <div className={`grid gap-3 sm:gap-4 ${isBjClapayFlow ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2"}`}>
+                    {operators.map((op, i) => {
+                      const logoUrl = op.manualNumber?.logoUrl || (isBjClapayFlow ? beninClapayOperatorLogo(op.name) : null);
+                      const isSelected = operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider;
+                      return (
                       <button
                         key={`${op.id || op.name}-${i}`}
                         type="button"
                         onClick={() => chooseOperator(op)}
-                        aria-pressed={operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider}
+                        aria-pressed={isSelected}
                         aria-label={`Sélectionner ${op.name || op.code || "cet opérateur"}`}
-                        className={`group flex min-h-[112px] w-full flex-col items-start justify-between gap-3 rounded-xl border-2 border-[#111827] p-3 text-left transition duration-200 ease-out active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 ${isCiManualFlow ? "focus-visible:ring-[#1947b8]/25" : "focus-visible:ring-[#D40030]/25"} focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:min-h-[124px] sm:p-4 ${
-                          operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider
-                            ? isCiManualFlow
+                        className={`group w-full text-left transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-4 ${
+                          isBjClapayFlow
+                            ? "flex min-h-[76px] items-center gap-3 rounded-xl border-2 border-[#d7dce3] bg-white px-3 py-3 shadow-[0_3px_8px_rgba(15,35,60,0.08)] focus-visible:ring-[#00377d]/15 hover:border-[#00377d]/60 sm:min-h-[84px] sm:p-4"
+                            : `flex min-h-[112px] flex-col items-start justify-between gap-3 rounded-xl border-2 border-[#111827] bg-white p-3 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)] focus-visible:ring-4 ${isCiManualFlow ? "focus-visible:ring-[#1947b8]/25 hover:bg-[#f6f9ff]" : "focus-visible:ring-[#D40030]/25 hover:bg-[#FFF8FA]"} hover:-translate-y-0.5 hover:shadow-[0_5px_0_#111827,0_9px_16px_rgba(17,24,39,0.16)] sm:min-h-[124px] sm:p-4`
+                        } focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
+                          isSelected
+                            ? isBjClapayFlow
+                              ? "border-[#00377d] bg-[#f2f6fc] ring-2 ring-[#00377d]/15 shadow-[0_3px_8px_rgba(0,35,82,0.12)]"
+                              : isCiManualFlow
                               ? "border-[#1947b8] bg-[#f0f5ff] ring-2 ring-[#1947b8]/25 shadow-[0_3px_0_#173f9d,0_6px_12px_rgba(17,24,39,0.12)]"
                               : "border-[#D40030] bg-[#FFF0F3] ring-2 ring-[#D40030]/25 shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)]"
-                            : `bg-white shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.12)] hover:-translate-y-0.5 ${isCiManualFlow ? "hover:bg-[#f6f9ff]" : "hover:bg-[#FFF8FA]"} hover:shadow-[0_5px_0_#111827,0_9px_16px_rgba(17,24,39,0.16)]`
+                            : ""
                         }`}
                       >
                         <span className="flex w-full min-w-0 items-center justify-between gap-2">
                           <span className="flex min-w-0 items-center gap-2.5">
-                          {op.manualNumber?.logoUrl ? (
-                            <img src={op.manualNumber.logoUrl} alt="" aria-hidden="true" className="h-9 w-9 shrink-0 rounded-lg border border-gray-200 bg-white object-contain p-1 sm:h-10 sm:w-10" />
+                          {logoUrl ? (
+                            <img src={logoUrl} alt="" aria-hidden="true" className={`shrink-0 rounded-lg border border-[#e4e7ec] bg-white object-contain p-1 ${isBjClapayFlow ? "h-11 w-11" : "h-9 w-9 sm:h-10 sm:w-10"}`} />
                           ) : (
-                            <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg border sm:h-10 sm:w-10 ${isCiManualFlow ? "border-[#cbdaf7] bg-[#eef4ff] text-[#1947b8]" : "border-[#E7A2B2] bg-[#FFF0F3] text-[#D40030]"}`}>
+                            <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg border ${isBjClapayFlow ? "border-[#d7e2f2] bg-[#eef3fa] text-[#00377d]" : isCiManualFlow ? "border-[#cbdaf7] bg-[#eef4ff] text-[#1947b8]" : "border-[#E7A2B2] bg-[#FFF0F3] text-[#D40030]"}`}>
                               <Phone className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
                             </span>
                           )}
                           <span className="min-w-0">
-                            <span className="block truncate text-base font-bold leading-snug text-[#111827] sm:text-lg">{op.name}</span>
+                            <span className={`block truncate text-base leading-snug sm:text-lg ${isBjClapayFlow ? "font-extrabold text-[#17345b]" : "font-bold text-[#111827]"}`}>{op.name}</span>
                             {op.manualNumber?.ownerName && <span className="mt-0.5 block truncate text-xs font-medium text-gray-500">{op.manualNumber.ownerName}</span>}
                           </span>
                           </span>
                           <ChevronRight
                             aria-hidden="true"
                             className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
-                              operator?.id === op.id && operator?.name === op.name && operator?.provider === op.provider
-                                ? `translate-x-0.5 ${isCiManualFlow ? "text-[#1947b8]" : "text-[#A60026]"}`
-                                : `text-gray-500 group-hover:translate-x-0.5 ${isCiManualFlow ? "group-hover:text-[#1947b8]" : "group-hover:text-[#A60026]"}`
+                              isSelected
+                                ? `translate-x-0.5 ${isBjClapayFlow ? "text-[#00377d]" : isCiManualFlow ? "text-[#1947b8]" : "text-[#A60026]"}`
+                                : `text-gray-500 group-hover:translate-x-0.5 ${isBjClapayFlow ? "group-hover:text-[#00377d]" : isCiManualFlow ? "group-hover:text-[#1947b8]" : "group-hover:text-[#A60026]"}`
                             }`}
                           />
                         </span>
@@ -895,35 +940,45 @@ export default function RobotPayPage() {
                           </span>
                         )}
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
               )}
               <div className="space-y-1.5">
                 <label htmlFor="robotpay-payer-phone-selection" className="block text-sm font-semibold text-[#111827]">
-                  Numéro du payeur <span className={isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}>*</span>
+                  {isBjClapayFlow ? "Votre numéro Mobile Money" : "Numéro du payeur"} <span className={isBjClapayFlow ? "text-[#00377d]" : isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}>*</span>
                 </label>
-                <div className={`flex items-center rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:ring-2 ${isCiManualFlow ? "focus-within:border-[#1947b8] focus-within:ring-[#1947b8]/15" : "focus-within:border-[#D40030] focus-within:ring-[#D40030]/15"}`}>
-                  <Phone className={`h-4 w-4 shrink-0 ${isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}`} aria-hidden="true" />
-                  <span className="ml-2 shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
+                <div className={`flex items-center ${isBjClapayFlow ? "min-h-[54px] overflow-hidden rounded-xl border-2 border-[#00377d] bg-white shadow-[0_3px_8px_rgba(0,35,82,0.1)] focus-within:ring-2 focus-within:ring-[#00377d]/15" : `rounded-[11px] border-2 border-[#111827] px-3 shadow-[0_2px_5px_rgba(17,24,39,0.1)] transition focus-within:ring-2 ${isCiManualFlow ? "focus-within:border-[#1947b8] focus-within:ring-[#1947b8]/15" : "focus-within:border-[#D40030] focus-within:ring-[#D40030]/15"}`}`}>
+                  {isBjClapayFlow ? (
+                    <span className="flex min-h-[50px] min-w-[72px] items-center justify-center bg-[#00377d] px-3 text-base font-extrabold text-white">+{phonePrefix}</span>
+                  ) : (
+                    <>
+                      <Phone className={`h-4 w-4 shrink-0 ${isCiManualFlow ? "text-[#1947b8]" : "text-[#D40030]"}`} aria-hidden="true" />
+                      <span className="ml-2 shrink-0 border-r border-gray-300 pr-2 text-[#111827]">+{phonePrefix}</span>
+                    </>
+                  )}
                   <input
                     id="robotpay-payer-phone-selection"
                     value={phone}
-                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, 12))}
+                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, isBjClapayFlow ? 10 : 12))}
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel-national"
                     aria-required="true"
-                    className="w-full min-w-0 px-3 py-2.5 text-[#111827] outline-none"
+                    maxLength={isBjClapayFlow ? 10 : 12}
+                    placeholder={isBjClapayFlow ? "Entrez 10 chiffres" : undefined}
+                    className="w-full min-w-0 bg-transparent px-3 py-2.5 text-[#111827] outline-none placeholder:text-sm placeholder:text-[#98a2b3]"
                   />
                 </div>
+                {isBjClapayFlow && <p className="rounded-lg border border-[#f0dfa0] bg-[#fff7cf] px-3 py-3 text-xs leading-5 text-[#695b20]">Saisissez le numéro Mobile Money béninois à 10 chiffres. La demande de paiement sera envoyée automatiquement à l’opérateur sélectionné.</p>}
               </div>
               <button
                 type="button"
                 onClick={continueFromOperatorSelection}
                 disabled={!operator || !phone.trim()}
-                className={`w-full rounded-[11px] border-2 py-3 font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isCiManualFlow ? "border-[#173f9d] bg-[#1947b8] shadow-[0_3px_0_#173f9d,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#153f9f] focus-visible:ring-[#1947b8]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] focus-visible:ring-[#D40030]"} active:shadow-[0_1px_0_#111827]`}
+                className={`w-full rounded-[11px] border-2 py-3 font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isBjClapayFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_3px_0_#002b61,0_5px_10px_rgba(0,35,82,0.16)] hover:bg-[#002b61] focus-visible:ring-[#00377d]" : isCiManualFlow ? "border-[#173f9d] bg-[#1947b8] shadow-[0_3px_0_#173f9d,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#153f9f] focus-visible:ring-[#1947b8]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] focus-visible:ring-[#D40030]"} active:shadow-[0_1px_0_#111827]`}
               >
-                {hostedManualMethod === "wave" ? "Soumettre" : "Continuer"}
+                {hostedManualMethod === "wave" ? "Soumettre" : isBjClapayFlow ? "Suivant" : "Continuer"}
               </button>
             </div>
           )}
@@ -997,6 +1052,17 @@ export default function RobotPayPage() {
           )}
           {step === 1 && !isManualFlow && (
             <div className={operator?.manualNumber ? "space-y-3" : "space-y-5"}>
+              {isBjClapayFlow && (
+                <section aria-label="Récapitulatif du dépôt automatique" className="space-y-3 rounded-xl border-2 border-[#d7e2f2] bg-[#f8fbff] p-4 shadow-[0_3px_8px_rgba(0,35,82,0.08)]">
+                  <h2 className="text-base font-extrabold text-[#17345b]">Vérifiez les informations du dépôt</h2>
+                  <div className="space-y-2 rounded-lg border border-[#d7e2f2] bg-white p-3 text-sm">
+                    <div className="flex justify-between gap-3"><span className="font-semibold text-[#667085]">Opérateur</span><span className="text-right font-bold text-[#17345b]">{operator?.name}</span></div>
+                    <div className="flex justify-between gap-3"><span className="font-semibold text-[#667085]">Numéro</span><span className="text-right font-mono font-bold text-[#17345b]">{paymentPhone}</span></div>
+                    <div className="flex justify-between gap-3"><span className="font-semibold text-[#667085]">Montant</span><span className="text-right font-extrabold text-[#00377d]">{amount.toLocaleString("fr-FR")} {currency}</span></div>
+                  </div>
+                  <p className="text-sm leading-5 text-[#536274]">Une demande de paiement sécurisée sera envoyée à votre opérateur. Validez-la sur votre téléphone pour terminer le dépôt.</p>
+                </section>
+              )}
               {operator?.manualNumber && (
                 <section
                   aria-label="Informations de paiement manuel"
@@ -1048,7 +1114,7 @@ export default function RobotPayPage() {
                     onChange={event => setClapayOperatorOtp(event.target.value.trim().slice(0, 64))}
                     autoComplete="one-time-code"
                     inputMode="numeric"
-                    className="w-full rounded-[11px] border-2 border-[#111827] px-3 py-2.5 text-center font-mono text-lg text-[#111827] outline-none transition focus:border-[#D40030] focus:ring-2 focus:ring-[#D40030]/15"
+                    className={`w-full rounded-[11px] border-2 px-3 py-2.5 text-center font-mono text-lg text-[#111827] outline-none transition ${isBjClapayFlow ? "border-[#cbd6e2] focus:border-[#00377d] focus:ring-2 focus:ring-[#00377d]/15" : "border-[#111827] focus:border-[#D40030] focus:ring-2 focus:ring-[#D40030]/15"}`}
                   />
                   <p className="mt-1 text-xs text-gray-600">Saisissez le code demandé par votre opérateur Mobile Money.</p>
                 </div>
@@ -1076,8 +1142,8 @@ export default function RobotPayPage() {
                 </div>
               )}
               <div className="flex items-center justify-center gap-3 pt-1">
-                <button onClick={() => { setOperator(null); setStep(0); }} className="flex-1 rounded-[11px] border-2 border-[#111827] bg-white py-2.5 font-semibold text-[#111827] shadow-[0_3px_0_#111827] transition active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2">Retour</button>
-               <button onClick={submitPhone} disabled={busy || !phone.trim() || (activeProvider === "clapay" && !!operator?.requiresOtp && !clapayOperatorOtp.trim()) || (!!operator?.manualNumber && !manualTransactionReference.trim())} className="flex-1 rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-2.5 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition duration-150 hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">{busy ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : operator?.manualNumber ? "Vérifier" : "Continuer"}</button>
+                <button onClick={() => { setOperator(null); setStep(0); }} className={`flex-1 rounded-[11px] border-2 bg-white py-2.5 font-semibold text-[#111827] transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isBjClapayFlow ? "border-[#cbd6e2] shadow-[0_3px_8px_rgba(15,35,60,0.08)] focus-visible:ring-[#00377d]" : "border-[#111827] shadow-[0_3px_0_#111827] active:shadow-[0_1px_0_#111827] focus-visible:ring-[#D40030]"}`}>Retour</button>
+               <button onClick={submitPhone} disabled={busy || !phone.trim() || (activeProvider === "clapay" && !!operator?.requiresOtp && !clapayOperatorOtp.trim()) || (!!operator?.manualNumber && !manualTransactionReference.trim())} className={`flex-1 rounded-[11px] border-2 py-2.5 font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isBjClapayFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_3px_8px_rgba(0,35,82,0.16)] hover:bg-[#002b61] focus-visible:ring-[#00377d]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] active:shadow-[0_1px_0_#111827] focus-visible:ring-[#D40030]"}`}>{busy ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : operator?.manualNumber ? "Vérifier" : isBjClapayFlow ? "Lancer le dépôt" : "Continuer"}</button>
               </div>
             </div>
           )}
@@ -1146,9 +1212,9 @@ export default function RobotPayPage() {
                 <section
                   aria-label="Code de confirmation Clapay"
                   role="status"
-                  className="rounded-xl border-2 border-[#111827] bg-[#FFF0F3] p-4 text-left shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.1)]"
+                  className={`rounded-xl border-2 p-4 text-left ${isBjClapayFlow ? "border-[#d7e2f2] bg-[#f2f6fc] shadow-[0_3px_8px_rgba(0,35,82,0.08)]" : "border-[#111827] bg-[#FFF0F3] shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.1)]"}`}
                 >
-                  <p className="text-sm font-bold uppercase tracking-[0.08em] text-[#A60026]">
+                  <p className={`text-sm font-bold uppercase tracking-[0.08em] ${isBjClapayFlow ? "text-[#00377d]" : "text-[#A60026]"}`}>
                     Code de confirmation{operator?.name?.toLowerCase().includes("nita") ? " NITA" : ""}
                   </p>
                   <p className="mt-2 break-all text-center font-mono text-2xl font-extrabold tracking-[0.12em] text-[#111827]">
@@ -1162,7 +1228,7 @@ export default function RobotPayPage() {
                   <button
                     type="button"
                     onClick={copyClapayConfirmationCode}
-                    className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-[11px] border-2 border-[#111827] bg-[#D40030] px-3 py-2 text-sm font-bold text-white shadow-[0_2px_0_#111827] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D40030] focus-visible:ring-offset-2"
+                    className={`mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-[11px] border-2 px-3 py-2 text-sm font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isBjClapayFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_2px_8px_rgba(0,35,82,0.12)] hover:bg-[#002b61] focus-visible:ring-[#00377d]" : "border-[#111827] bg-[#D40030] shadow-[0_2px_0_#111827] hover:bg-[#A60026] active:shadow-none focus-visible:ring-[#D40030]"}`}
                   >
                     <Copy aria-hidden="true" className="h-4 w-4" /> Copier le code
                   </button>
@@ -1175,26 +1241,26 @@ export default function RobotPayPage() {
                     href={redirectUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
+                    className={`block rounded-[11px] border-2 py-3 font-bold text-white transition active:translate-y-[2px] ${isBjClapayFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_3px_8px_rgba(0,35,82,0.16)] hover:bg-[#002b61]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] active:shadow-[0_1px_0_#111827]"}`}
                   >
                     Ouvrir la page de paiement
                   </a>
                 </>
               ) : (otpToken || ashtechOtpRequired) ? (
                 <>
-                  {ussd && <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-center font-mono text-xl font-bold tracking-widest text-[#A60026]">{ussd}</p>}
+                  {ussd && <p className={`rounded-lg border px-3 py-3 text-center font-mono text-xl font-bold tracking-widest ${isBjClapayFlow ? "border-[#d7e2f2] bg-[#f2f6fc] text-[#00377d]" : "border-rose-200 bg-rose-50 text-[#A60026]"}`}>{ussd}</p>}
                   <p className="text-sm text-gray-600">{ussd ? "Composez ce code sur votre téléphone pour obtenir le code OTP, puis saisissez-le ci-dessous." : "Un code OTP vous a été envoyé. Saisissez-le ci-dessous."}</p>
                   <input
                     value={activeProvider === "ashtech" ? ashtechOtp : otp}
                     onChange={e => activeProvider === "ashtech" ? setAshtechOtp(e.target.value.replace(/\D/g, "")) : setOtp(e.target.value)}
                     inputMode="numeric"
                     placeholder="Saisissez le code OTP"
-                    className="w-full rounded-[11px] border-2 border-[#111827] p-3 text-center text-xl text-[#111827] outline-none transition focus:border-[#D40030] focus:ring-2 focus:ring-[#D40030]/15"
+                    className={`w-full rounded-[11px] border-2 p-3 text-center text-xl text-[#111827] outline-none transition ${isBjClapayFlow ? "border-[#cbd6e2] focus:border-[#00377d] focus:ring-2 focus:ring-[#00377d]/15" : "border-[#111827] focus:border-[#D40030] focus:ring-2 focus:ring-[#D40030]/15"}`}
                   />
                   <button
                     onClick={submitOtp}
                     disabled={busy}
-                    className="w-full rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827] disabled:cursor-not-allowed disabled:opacity-50"
+                    className={`w-full rounded-[11px] border-2 py-3 font-bold text-white transition active:translate-y-[2px] disabled:cursor-not-allowed disabled:opacity-50 ${isBjClapayFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_3px_8px_rgba(0,35,82,0.16)] hover:bg-[#002b61] focus-visible:ring-2 focus-visible:ring-[#00377d]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] active:shadow-[0_1px_0_#111827]"}`}
                   >
                     Confirmer
                   </button>
@@ -1295,17 +1361,17 @@ export default function RobotPayPage() {
               </div>
             ) : (
               <div className="space-y-5 py-5 text-center">
-                <div className="border-b border-gray-200 pb-3 text-left text-xl font-semibold text-gray-900">Paiement — {countryInfo?.name || country}</div>
-                <p className="text-left text-2xl font-bold text-gray-900">{amount.toLocaleString()} {currency}</p>
+                <div className={`border-b pb-3 text-left text-xl font-extrabold ${isBjClapayFlow ? "border-[#d7e2f2] text-[#17345b]" : "border-gray-200 text-gray-900"}`}>Paiement — {countryInfo?.name || country}</div>
+                <p className={`text-left text-2xl font-bold ${isBjClapayFlow ? "text-[#00377d]" : "text-gray-900"}`}>{amount.toLocaleString("fr-FR")} {currency}</p>
                 <Check className="mx-auto h-24 w-24 rounded-full bg-green-500 p-4 text-white" />
-                <h2 className="text-xl font-bold text-gray-900">Votre paiement a été approuvé</h2>
-                <div className="rounded-xl border-2 border-[#111827] bg-[#FFF8FA] p-3 text-left text-sm leading-7 text-gray-800">
+                <h2 className={`text-xl font-bold ${isBjClapayFlow ? "text-[#17345b]" : "text-gray-900"}`}>Votre paiement a été approuvé</h2>
+                <div className={`rounded-xl border-2 p-3 text-left text-sm leading-7 text-gray-800 ${isBjClapayFlow ? "border-[#d7e2f2] bg-[#f8fbff]" : "border-[#111827] bg-[#FFF8FA]"}`}>
                   <b>Payeur :</b> {phone}<br />
                   <b>ID Transaction :</b> {transactionReference}<br />
                   <b>Date Paiement :</b> {new Date().toLocaleString("fr-FR")}
                 </div>
                 <p className="pt-6 text-gray-600">🔒 Paiement vérifié</p>
-                <button onClick={() => navigate("/")} className="text-lg font-semibold text-[#111827] underline decoration-[#D40030] underline-offset-4 hover:text-[#A60026]">Retourner sur le site</button>
+                <button onClick={() => navigate("/")} className={`text-lg font-semibold underline underline-offset-4 ${isBjClapayFlow ? "text-[#00377d] decoration-[#ffd100] hover:text-[#002b61]" : "text-[#111827] decoration-[#D40030] hover:text-[#A60026]"}`}>Retourner sur le site</button>
               </div>
             )
           )}

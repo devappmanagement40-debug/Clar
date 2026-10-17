@@ -836,7 +836,7 @@ export async function seed() {
   }
 
   const clapayDepositRoutingMigration = await db.transaction(async (tx) => {
-    const migrationKey = "clapay_bf_ne_deposit_routing_applied";
+    const migrationKey = "clapay_bf_ne_bj_deposit_routing_applied";
     const [marker] = await tx.select({ key: platformSettings.key })
       .from(platformSettings)
       .where(eq(platformSettings.key, migrationKey))
@@ -923,7 +923,7 @@ export async function seed() {
       }
     }
 
-    for (const countryCode of ["BF", "NE"]) {
+    for (const countryCode of ["BF", "NE", "BJ"]) {
       const methods = routing[countryCode] || [];
       routing[countryCode] = methods.includes("clapay") ? methods : [...methods, "clapay"];
     }
@@ -962,7 +962,7 @@ export async function seed() {
     return "updated";
   });
   if (clapayDepositRoutingMigration === "updated") {
-    console.log("[Clapay deposits] BF and NE enabled; other deposit methods and country routing preserved.");
+    console.log("[Clapay deposits] BF, NE and BJ enabled; other deposit methods and country routing preserved.");
   } else if (clapayDepositRoutingMigration === "invalid-routing") {
     console.error("[Clapay deposits] Country routing is invalid; no settings were changed.");
   }
