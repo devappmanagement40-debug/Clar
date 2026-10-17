@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { extractClapayConfirmationCode } from "../server/clapay";
+import {
+  extractClapayConfirmationCode,
+  findClapayConfirmationCandidatePaths,
+} from "../server/clapay";
 
 test("extracts a nested NITA confirmation code from Clapay's response", () => {
   assert.equal(
@@ -90,4 +93,14 @@ test("ignores empty, oversized, and non-scalar confirmation values", () => {
   assert.equal(extractClapayConfirmationCode({ confirmation_code: " " }), undefined);
   assert.equal(extractClapayConfirmationCode({ confirmation_code: "x".repeat(81) }), undefined);
   assert.equal(extractClapayConfirmationCode({ confirmation_code: { value: "1234" } }), undefined);
+});
+
+test("confirmation diagnostics return provider field paths without their values", () => {
+  assert.deepEqual(
+    findClapayConfirmationCandidatePaths({
+      data: { payment_ref: "ACHATA80C9C2EA5763" },
+      signature: "do-not-log",
+    }),
+    ["data.payment_ref"],
+  );
 });

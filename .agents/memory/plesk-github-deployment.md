@@ -25,7 +25,7 @@ Plesk can serve the current static `index.html` while its Node.js process is fai
 
 **Why:** The live homepage matched the current `dist/public/index.html` exactly while `/login` and `/api/health` returned Plesk 500 errors. The supplied Plesk screenshots showed only access-log status lines, not the Node runtime exception.
 
-**How to apply:** Verify `/` and a real API route independently. Treat Plesk access-log 500 lines as evidence of the failing URL, not its root cause; inspect Node stdout/stderr and app-root/startup settings before attributing a code defect. Confirm whether Plesk deploys from GitHub or from the ZIP before changing either artifact.
+**How to apply:** Verify `/`, the deployed asset bundle, and a real API route independently: a current JavaScript bundle confirms the static frontend only, not the running Node server or its environment. Treat Plesk access-log 500 lines as evidence of the failing URL, not its root cause; inspect Node stdout/stderr and app-root/startup settings before attributing a code defect. Confirm whether Plesk deploys from GitHub or from the ZIP before changing either artifact.
 
 The August ZIP uses `SUPABASE_DATABASE_URL`, while the current Plesk Node environment uses `SUPABASE_NEW_DATABASE_URL`; the current source and September build use the latter.
 

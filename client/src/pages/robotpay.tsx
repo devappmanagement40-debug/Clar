@@ -108,6 +108,7 @@ export default function RobotPayPage() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const amount = Number(params.get("amount") || 0);
   const country = (params.get("country") || "").toUpperCase();
+  const returnOperatorName = params.get("operator")?.trim() || "";
   const requestedProvider = (params.get("provider") || "").toLowerCase();
   const isSoleaspayFlow = requestedProvider === "soleaspay";
   const isManualFlow = requestedProvider === "manual";
@@ -134,7 +135,11 @@ export default function RobotPayPage() {
   const [step, setStep] = useState(clapayReturnDepositId ? 2 : 0);
   const [phone, setPhone] = useState("");
   const [clapayOperatorOtp, setClapayOperatorOtp] = useState("");
-  const [operator, setOperator] = useState<Operator | null>(null);
+  const [operator, setOperator] = useState<Operator | null>(() =>
+    clapayReturnDepositId && returnOperatorName
+      ? { name: returnOperatorName, provider: "clapay" }
+      : null,
+  );
   const isClapayPhoneValid = !isClapayStyledFlow || phone.replace(/\D/g, "").length === 8;
   const canContinueFromOperatorSelection = Boolean(operator && phone.trim() && isClapayPhoneValid);
   const [depositId, setDepositId] = useState<number | null>(clapayReturnDepositId);
@@ -149,6 +154,7 @@ export default function RobotPayPage() {
     clapayReturnDepositId ? "Retour reçu. Vérification du dépôt CATL…" : "",
   );
   const [clapayConfirmationCode, setClapayConfirmationCode] = useState("");
+  const [nitaCodeMessage, setNitaCodeMessage] = useState("");
   const [redirectUrl, setRedirectUrl] = useState("");
   const [status, setStatus] = useState(clapayReturnDepositId ? "processing" : "pending");
   const [manualTransactionReference, setManualTransactionReference] = useState("");
@@ -182,6 +188,9 @@ export default function RobotPayPage() {
     ? "soleaspay"
     : forcedProvider || providerInfo?.provider || "sendavapay";
   const activeProvider = operator?.provider || provider;
+  const isNitaClapayFlow = country === "NE"
+    && activeProvider === "clapay"
+    && Boolean(operator?.name?.toLowerCase().includes("nita"));
   const hostedManualMethod = isManualFlow && operator?.manualNumber
     ? getHostedManualPaymentMethod(country, operator.name || operator.manualNumber.operatorName)
     : null;
@@ -399,6 +408,11 @@ export default function RobotPayPage() {
       setDepositId(data.depositId);
       setRedirectUrl(data.redirectUrl || "");
       setClapayConfirmationCode(data.confirmationCode || "");
+      setNitaCodeMessage(
+        country === "NE" && operator?.name?.toLowerCase().includes("nita") && !data.confirmationCode
+          ? "Clapay n’a pas encore renvoyé le code NITA. La page continue la vérification."
+          : "",
+      );
       setMessage(sanitizeDepositDisplayText(data.message, "Confirmez le paiement sur votre téléphone."));
       setStatus("processing");
       setStep(2);
@@ -495,14 +509,25 @@ export default function RobotPayPage() {
               ? `/api/deposits/${depositId}/clapay-status`
               : `/api/deposits/${depositId}/sendavapay-status`;
         const res = await fetch(url, { credentials: "include" });
-        const data = await res.json();
-        if (!res.ok) return;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          if (isNitaClapayFlow) {
+            setNitaCodeMessage(sanitizeDepositDisplayText(
+              data.message,
+              "Impossible de récupérer le code NITA auprès de Clapay. Vérifiez la configuration du serveur.",
+            ));
+          }
+          return;
+        }
         if (
           activeProvider === "clapay"
           && typeof data.confirmationCode === "string"
           && data.confirmationCode.trim()
         ) {
           setClapayConfirmationCode(data.confirmationCode.trim());
+          setNitaCodeMessage("");
+        } else if (isNitaClapayFlow && !clapayConfirmationCode) {
+          setNitaCodeMessage("En attente du code de validation NITA transmis par Clapay. La page continue la vérification.");
         }
         setStatus(data.status);
         if (data.status === "approved") {
@@ -516,11 +541,13 @@ export default function RobotPayPage() {
           toast({ title: "Paiement refusé", variant: "destructive" });
         }
       } catch {
-        // Retry on the next poll after transient network errors.
+        if (isNitaClapayFlow && !clapayConfirmationCode) {
+          setNitaCodeMessage("Connexion à Clapay interrompue. La page réessaiera automatiquement.");
+        }
       }
     }, 5000);
     return () => clearInterval(timer);
-  }, [step, depositId, status, activeProvider, refreshUser]);
+  }, [step, depositId, status, activeProvider, isNitaClapayFlow, clapayConfirmationCode, refreshUser]);
 
   useEffect(() => {
     if (phonePrefilled.current || !user?.phone || !phonePrefix) return;
@@ -668,6 +695,7 @@ export default function RobotPayPage() {
     setOperator(nextOperator);
     setManualTransactionReference("");
     setClapayOperatorOtp("");
+    setNitaCodeMessage("");
   };
 
   const continueFromOperatorSelection = () => {
@@ -1287,6 +1315,21 @@ export default function RobotPayPage() {
                   </button>
                 </section>
               )}
+              {isNitaClapayFlow && !clapayConfirmationCode && status !== "rejected" && (
+                <section
+                  aria-label="Récupération du code de confirmation NITA"
+                  role="status"
+                  aria-live="polite"
+                  className="rounded-xl border-2 border-[#d7e2f2] bg-[#f2f6fc] p-4 text-left shadow-[0_3px_8px_rgba(0,35,82,0.08)]"
+                >
+                  <p className="text-sm font-bold uppercase tracking-[0.08em] text-[#00377d]">
+                    Code de confirmation NITA
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#17345b]">
+                    {nitaCodeMessage || "Récupération automatique du code auprès de Clapay. Gardez cette page ouverte."}
+                  </p>
+                </section>
+              )}
               {redirectUrl ? (
                 <>
                   <p className="text-gray-700">{message || "Ouvrez la page sécurisée pour terminer votre paiement."}</p>
@@ -1438,6 +1481,19 @@ export default function RobotPayPage() {
                     >
                       <Copy aria-hidden="true" className="h-4 w-4" /> Copier le code
                     </button>
+                  </section>
+                )}
+                {isNitaClapayFlow && !clapayConfirmationCode && (
+                  <section
+                    aria-label="Code de confirmation NITA non reçu"
+                    role="status"
+                    aria-live="polite"
+                    className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-left"
+                  >
+                    <p className="font-bold text-amber-900">Code de confirmation NITA non reçu</p>
+                    <p className="mt-2 text-sm leading-6 text-amber-900">
+                      {nitaCodeMessage || "Clapay n’a pas transmis le code. Contactez le service client avant de continuer."}
+                    </p>
                   </section>
                 )}
                 <Check className="mx-auto h-24 w-24 rounded-full bg-green-500 p-4 text-white" />

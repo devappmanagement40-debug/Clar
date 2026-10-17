@@ -230,6 +230,49 @@ const CLAPAY_CONFIRMATION_CODE_KEYS = new Set([
 ]);
 
 const CLAPAY_NITA_REFERENCE_KEYS = new Set(["reference", "ref"]);
+const nitaConfirmationDiagnosticLog = new Map<string, number>();
+
+export function findClapayConfirmationCandidatePaths(payload: unknown): string[] {
+  const paths: string[] = [];
+  const interestingField = /(reference|(?:^|_)ref(?:$|_)|code|ticket|receipt|confirm|validation)/i;
+
+  const visit = (value: unknown, path: string, depth: number) => {
+    if (depth > 8 || !value || typeof value !== "object" || paths.length >= 12) return;
+    if (Array.isArray(value)) {
+      value.slice(0, 20).forEach((entry, index) => visit(entry, `${path}[${index}]`, depth + 1));
+      return;
+    }
+
+    for (const [key, entry] of Object.entries(value as JsonRecord)) {
+      const fieldPath = path ? `${path}.${key}` : key;
+      if (interestingField.test(key) && paths.length < 12) paths.push(fieldPath);
+      visit(entry, fieldPath, depth + 1);
+      if (paths.length >= 12) return;
+    }
+  };
+
+  visit(payload, "", 0);
+  return paths;
+}
+
+function logMissingNitaConfirmationCode(stage: "initiate" | "status", payload: unknown) {
+  const candidatePaths = findClapayConfirmationCandidatePaths(payload);
+  const logKey = `${stage}:${candidatePaths.join("|")}`;
+  const now = Date.now();
+  const lastLoggedAt = nitaConfirmationDiagnosticLog.get(logKey) || 0;
+  if (now - lastLoggedAt < 60_000) return;
+
+  nitaConfirmationDiagnosticLog.set(logKey, now);
+  if (nitaConfirmationDiagnosticLog.size > 100) {
+    nitaConfirmationDiagnosticLog.forEach((timestamp, key) => {
+      if (now - timestamp >= 60_000) nitaConfirmationDiagnosticLog.delete(key);
+    });
+  }
+  console.warn("[clapay] NITA confirmation value absent; provider field names only", {
+    stage,
+    candidatePaths,
+  });
+}
 
 type ConfirmationCodeExtractOptions = {
   excludedValues?: string[];
@@ -657,6 +700,9 @@ export async function initiateClapayPayment(values: RequestValues): Promise<{
       allowNitaReference: isNitaNigerDeposit,
     },
   );
+  if (isNitaNigerDeposit && !confirmationCode) {
+    logMissingNitaConfirmationCode("initiate", data);
+  }
   let redirectUrl: string | undefined;
   if (typeof redirectValue === "string" && redirectValue.trim()) {
     try {
@@ -790,6 +836,9 @@ async function checkClapayTransaction(
       excludedValues: [signature],
     })
     : undefined;
+  if (options?.allowNitaReference && !confirmationCode) {
+    logMissingNitaConfirmationCode("status", data);
+  }
   return {
     rawStatus,
     status,

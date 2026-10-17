@@ -4350,6 +4350,7 @@ export async function registerRoutes(
       returnUrl.searchParams.set("country", country);
       returnUrl.searchParams.set("provider", "clapay");
       returnUrl.searchParams.set("clapayDepositId", String(deposit.id));
+      returnUrl.searchParams.set("operator", operatorName);
       if (feePaymentId !== undefined) returnUrl.searchParams.set("feePaymentId", String(feePaymentId));
       if (returnWithdrawalAmount !== undefined) {
         returnUrl.searchParams.set("withdrawalAmount", String(returnWithdrawalAmount));
