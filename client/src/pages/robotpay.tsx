@@ -1140,6 +1140,14 @@ export default function RobotPayPage() {
               )}
               {activeProvider === "clapay" && operator?.requiresOtp && (
                 <div className="text-left">
+                  {country === "BF" && isClapayStyledFlow && (
+                    <div role="note" className="mb-3 rounded-lg border border-[#f0dfa0] bg-[#fff7cf] px-3 py-3 text-sm leading-5 text-[#695b20]">
+                      <p className="font-semibold">Pour obtenir votre code OTP, composez ce code USSD :</p>
+                      <code className="mt-2 block break-all rounded-md bg-white px-3 py-2 text-center font-mono text-base font-bold tracking-wide text-[#17345b]">
+                        {`*144*4*6*${Math.trunc(amount)}#`}
+                      </code>
+                    </div>
+                  )}
                   <label htmlFor="robotpay-clapay-operator-otp" className="mb-1.5 block text-sm font-semibold text-[#111827]">
                     Code OTP opérateur <span className="text-red-500">*</span>
                   </label>
