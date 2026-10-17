@@ -38,3 +38,9 @@ Keep the HTTP listener available before database bootstrap finishes, expose read
 **Why:** Startup waited for Supabase-backed seeding before listening; the live static page loaded while `/login` and `/api` failed at the Plesk proxy.
 
 **How to apply:** When changing startup or deployment bundles, verify the server binds before bootstrap, `/api/health` reports readiness, and API routes work after initialization. Never treat a static homepage response as proof Node is healthy.
+
+After each Plesk deployment, promptly check `/`, `/login`, and `/api/health`. A static homepage returning 200 while Nginx returns its own 404 for the app route and health endpoint means requests are not reaching Express; do not treat that as a confirmed front-end bug.
+
+**Why:** The user asked for quick recovery after deployments, and the live site showed this exact split on 2026-10-17.
+
+**How to apply:** Use read-only requests to verify all three paths. If the response is Plesk/Nginx HTML rather than the app's HTML or JSON, inspect the Plesk Node.js process, startup settings, and proxy/routing before editing application routes. Plesk dashboard access or its process logs are required to confirm an external startup failure.
