@@ -1252,7 +1252,7 @@ export default function RobotPayPage() {
                   <p className={`text-sm font-bold uppercase tracking-[0.08em] ${isBjClapayFlow ? "text-[#00377d]" : "text-[#A60026]"}`}>
                     Code de confirmation{operator?.name?.toLowerCase().includes("nita") ? " NITA" : ""}
                   </p>
-                  <p className="mt-2 break-all text-center font-mono text-2xl font-extrabold tracking-[0.12em] text-[#111827]">
+                  <p className={`mt-2 break-all text-center font-mono text-2xl font-extrabold tracking-[0.12em] ${isBjClapayFlow ? "text-[#17345b]" : "text-[#111827]"}`}>
                     {clapayConfirmationCode}
                   </p>
                   <p className="mt-2 text-sm leading-5 text-gray-700">
@@ -1307,15 +1307,15 @@ export default function RobotPayPage() {
                   <p className="text-sm text-gray-500">Le paiement n’a pas été confirmé. Vous pouvez réessayer.</p>
                   <button
                     onClick={() => { setDepositId(null); setStatus("pending"); setStep(1); }}
-                    className="w-full rounded-[11px] border-2 border-[#111827] bg-[#D40030] py-3 font-bold text-white shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] transition hover:bg-[#A60026] active:translate-y-[2px] active:shadow-[0_1px_0_#111827]"
+                    className={`w-full rounded-[11px] border-2 py-3 font-bold text-white shadow transition active:translate-y-[2px] ${isBjClapayFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_3px_8px_rgba(0,35,82,0.16)] hover:bg-[#002b61] active:shadow-none" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] active:shadow-[0_1px_0_#111827]"}`}
                   >
                     Réessayer
                   </button>
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="mx-auto h-16 w-16 animate-pulse text-green-400" />
-                  <p className="text-lg font-semibold">Paiement en cours de confirmation</p>
+                  <ShieldCheck className={`mx-auto h-16 w-16 animate-pulse ${isBjClapayFlow ? "text-[#00377d]" : "text-green-400"}`} />
+                  <p className={`text-lg font-semibold ${isBjClapayFlow ? "text-[#17345b]" : ""}`}>Paiement en cours de confirmation</p>
                   <p className="text-sm text-gray-500">{message || "Validez la demande sur votre téléphone. La page se met à jour automatiquement."}</p>
                 </>
               )}
