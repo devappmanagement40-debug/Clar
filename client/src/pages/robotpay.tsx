@@ -410,7 +410,7 @@ export default function RobotPayPage() {
       setClapayConfirmationCode(data.confirmationCode || "");
       setNitaCodeMessage(
         country === "NE" && operator?.name?.toLowerCase().includes("nita") && !data.confirmationCode
-          ? "Clapay n’a pas encore renvoyé le code NITA. La page continue la vérification."
+          ? "CATL n’a pas encore reçu le code NITA. La page continue la vérification."
           : "",
       );
       setMessage(sanitizeDepositDisplayText(data.message, "Confirmez le paiement sur votre téléphone."));
@@ -514,7 +514,7 @@ export default function RobotPayPage() {
           if (isNitaClapayFlow) {
             setNitaCodeMessage(sanitizeDepositDisplayText(
               data.message,
-              "Impossible de récupérer le code NITA auprès de Clapay. Vérifiez la configuration du serveur.",
+              "CATL n’a pas pu récupérer le code de validation NITA. Réessayez ou contactez le service client.",
             ));
           }
           return;
@@ -527,7 +527,7 @@ export default function RobotPayPage() {
           setClapayConfirmationCode(data.confirmationCode.trim());
           setNitaCodeMessage("");
         } else if (isNitaClapayFlow && !clapayConfirmationCode) {
-          setNitaCodeMessage("En attente du code de validation NITA transmis par Clapay. La page continue la vérification.");
+          setNitaCodeMessage("En attente du code de validation NITA. CATL continue la vérification.");
         }
         setStatus(data.status);
         if (data.status === "approved") {
@@ -542,7 +542,7 @@ export default function RobotPayPage() {
         }
       } catch {
         if (isNitaClapayFlow && !clapayConfirmationCode) {
-          setNitaCodeMessage("Connexion à Clapay interrompue. La page réessaiera automatiquement.");
+          setNitaCodeMessage("Connexion interrompue. CATL réessaiera automatiquement.");
         }
       }
     }, 5000);
@@ -1326,7 +1326,7 @@ export default function RobotPayPage() {
                     Code de confirmation NITA
                   </p>
                   <p className="mt-2 text-sm leading-6 text-[#17345b]">
-                    {nitaCodeMessage || "Récupération automatique du code auprès de Clapay. Gardez cette page ouverte."}
+                    {nitaCodeMessage || "CATL récupère automatiquement le code de validation. Gardez cette page ouverte."}
                   </p>
                 </section>
               )}
@@ -1492,7 +1492,7 @@ export default function RobotPayPage() {
                   >
                     <p className="font-bold text-amber-900">Code de confirmation NITA non reçu</p>
                     <p className="mt-2 text-sm leading-6 text-amber-900">
-                      {nitaCodeMessage || "Clapay n’a pas transmis le code. Contactez le service client avant de continuer."}
+                      {nitaCodeMessage || "CATL n’a pas reçu le code. Contactez le service client avant de continuer."}
                     </p>
                   </section>
                 )}
