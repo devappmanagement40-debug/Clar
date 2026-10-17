@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronRight, Clock3, Copy, ExternalLink, Loader2, Phone, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { Check, ChevronRight, Clock3, Copy, ExternalLink, Info, Loader2, Phone, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { apiRequest, withProcessingIndicator } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -132,6 +132,8 @@ export default function RobotPayPage() {
   const [phone, setPhone] = useState("");
   const [clapayOperatorOtp, setClapayOperatorOtp] = useState("");
   const [operator, setOperator] = useState<Operator | null>(null);
+  const isClapayPhoneValid = !isClapayStyledFlow || phone.replace(/\D/g, "").length === 8;
+  const canContinueFromOperatorSelection = Boolean(operator && phone.trim() && isClapayPhoneValid);
   const [depositId, setDepositId] = useState<number | null>(clapayReturnDepositId);
   const [transactionReference] = useState(() => `dépôt-${Math.floor(10000 + Math.random() * 90000)}`);
   const [paymentToken, setPaymentToken] = useState("");
@@ -667,6 +669,14 @@ export default function RobotPayPage() {
       toast({ title: "Numéro requis", description: "Saisissez le numéro utilisé pour effectuer le paiement.", variant: "destructive" });
       return;
     }
+    if (isClapayStyledFlow && !isClapayPhoneValid) {
+      toast({
+        title: "Numéro invalide",
+        description: `Saisissez exactement 8 chiffres pour votre numéro Mobile Money${countryInfo?.name ? ` au ${countryInfo.name}` : ""}.`,
+        variant: "destructive",
+      });
+      return;
+    }
     const expectedManualPhoneDigits = country === "BJ" ? 10 : 8;
     if (isCountrySpecificManualFlow && phone.replace(/\D/g, "").length !== expectedManualPhoneDigits) {
       const countryName = country === "BJ" ? "Bénin" : "Togo";
@@ -970,25 +980,41 @@ export default function RobotPayPage() {
                   <input
                     id="robotpay-payer-phone-selection"
                     value={phone}
-                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, 12))}
+                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, isClapayStyledFlow ? 8 : 12))}
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel-national"
                     aria-required="true"
-                    maxLength={12}
+                    maxLength={isClapayStyledFlow ? 8 : 12}
                     className="w-full min-w-0 bg-transparent px-3 py-2.5 text-[#111827] outline-none placeholder:text-sm placeholder:text-[#98a2b3]"
                   />
                 </div>
-                {isClapayStyledFlow && <p className="rounded-lg border border-[#f0dfa0] bg-[#fff7cf] px-3 py-3 text-xs leading-5 text-[#695b20]">La demande de paiement sera envoyée automatiquement à l’opérateur sélectionné. Vérifiez le numéro Mobile Money avant de continuer.</p>}
+                {isClapayStyledFlow && (
+                  <div className="flex items-start gap-2 rounded-lg border border-[#f0dfa0] bg-[#fff7cf] px-3 py-3 text-xs leading-5 text-[#695b20]">
+                    <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+                    <p>Saisissez les 8 chiffres du numéro Mobile Money utilisé pour le dépôt. Clapay lancera ensuite la demande de paiement sur ce numéro.</p>
+                  </div>
+                )}
               </div>
               <button
                 type="button"
                 onClick={continueFromOperatorSelection}
-                disabled={!operator || !phone.trim()}
-                className={`w-full rounded-[11px] border-2 py-3 font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isClapayStyledFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_3px_0_#002b61,0_5px_10px_rgba(0,35,82,0.16)] hover:bg-[#002b61] focus-visible:ring-[#00377d]" : isCiManualFlow ? "border-[#173f9d] bg-[#1947b8] shadow-[0_3px_0_#173f9d,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#153f9f] focus-visible:ring-[#1947b8]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] focus-visible:ring-[#D40030]"} active:shadow-[0_1px_0_#111827]`}
+                disabled={!canContinueFromOperatorSelection}
+                className={`w-full rounded-[11px] border-2 py-3 font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed ${isClapayStyledFlow
+                  ? canContinueFromOperatorSelection
+                    ? "border-[#002b61] bg-[#00377d] shadow-[0_3px_0_#002b61,0_5px_10px_rgba(0,35,82,0.16)] hover:bg-[#002b61] focus-visible:ring-[#00377d]"
+                    : "border-[#c1cad5] bg-[#bdc9d8] shadow-none"
+                  : `disabled:opacity-50 ${isCiManualFlow ? "border-[#173f9d] bg-[#1947b8] shadow-[0_3px_0_#173f9d,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#153f9f] focus-visible:ring-[#1947b8]" : "border-[#111827] bg-[#D40030] shadow-[0_3px_0_#111827,0_5px_10px_rgba(17,24,39,0.16)] hover:bg-[#A60026] focus-visible:ring-[#D40030]"}`
+                } active:shadow-[0_1px_0_#111827]`}
               >
                 {hostedManualMethod === "wave" ? "Soumettre" : isClapayStyledFlow ? "Suivant" : "Continuer"}
               </button>
+              {isClapayStyledFlow && (
+                <div className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#d8eee4] bg-[#ecfbf4] px-4 py-3 text-sm font-bold text-[#41806a]">
+                  <ShieldCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
+                  <span>Chiffré et sécurisé</span>
+                </div>
+              )}
             </div>
           )}
           {step === 1 && isManualFlow && operator?.manualNumber && (
