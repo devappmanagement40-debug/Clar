@@ -12,7 +12,7 @@ import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 import type { PaymentNumber } from "@shared/schema";
 import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
 import CiWaveDeposit from "@/components/ci-wave-deposit";
-import TogoManualDeposit from "@/components/togo-manual-deposit";
+import ManualCountryDeposit from "@/components/manual-country-deposit";
 
 type Provider = "ashtech" | "sendavapay" | "soleaspay" | "clapay";
 type Operator = { id?: string; name?: string; operator?: string; slug?: string; code?: string; requiresOtp?: boolean; status?: string; provider?: Provider; manualNumber?: PaymentNumber };
@@ -67,6 +67,19 @@ function getHostedManualPaymentMethod(country: string, operatorName: string): "w
   return null;
 }
 
+function canonicalManualOperatorName(country: string, name: string): string {
+  const normalized = name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+  if (country === "TG") {
+    if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "Togocel";
+    if (normalized.includes("moov")) return "Moov Africa Togo";
+  }
+  if (country === "BJ") {
+    if (normalized.includes("mtn")) return "MTN Bénin";
+    if (normalized.includes("moov")) return "Moov Africa Bénin";
+  }
+  return name.trim();
+}
+
 export default function RobotPayPage() {
   const [, navigate] = useLocation();
   const { user, refreshUser } = useAuth();
@@ -81,6 +94,8 @@ export default function RobotPayPage() {
   const isManualFlow = requestedProvider === "manual";
   const isCiManualFlow = isManualFlow && country === "CI";
   const isTgManualFlow = isManualFlow && country === "TG";
+  const isBjManualFlow = isManualFlow && country === "BJ";
+  const isCountrySpecificManualFlow = isTgManualFlow || isBjManualFlow;
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
@@ -252,24 +267,14 @@ export default function RobotPayPage() {
             manualNumber: number,
           })),
           ];
-  const togoOperatorChoices: Operator[] = isTgManualFlow
+  const countryManualOperatorChoices: Operator[] = isCountrySpecificManualFlow
     ? Array.from(new Set(
         parseOperators(countryInfo?.operators || "[]")
-          .map((name) => {
-            const normalized = name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
-            if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "Togocel";
-            if (normalized.includes("moov")) return "Moov Africa Togo";
-            return name;
-          }),
+          .map((name) => canonicalManualOperatorName(country, name)),
       )).flatMap((name) => {
-        const normalizeTogoOperator = (value: string) => {
-          const normalized = value.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
-          if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "togocel";
-          if (normalized.includes("moov")) return "moovafricatogo";
-          return normalized;
-        };
+        const canonicalName = canonicalManualOperatorName(country, name);
         const configuredNumbers = manualNumbers.filter(
-          (number) => normalizeTogoOperator(number.operatorName) === normalizeTogoOperator(name),
+          (number) => canonicalManualOperatorName(country, number.operatorName) === canonicalName,
         );
         return configuredNumbers.length
           ? configuredNumbers.map((number) => ({
@@ -277,7 +282,7 @@ export default function RobotPayPage() {
               name,
               manualNumber: number,
             }))
-          : [{ id: `togo-unconfigured-${name}`, name }];
+          : [{ id: `${country.toLocaleLowerCase()}-unconfigured-${name}`, name }];
       })
     : operators;
   const loadingOperators = isSoleaspayFlow
@@ -643,8 +648,10 @@ export default function RobotPayPage() {
       toast({ title: "Numéro requis", description: "Saisissez le numéro utilisé pour effectuer le paiement.", variant: "destructive" });
       return;
     }
-    if (isTgManualFlow && phone.replace(/\D/g, "").length !== 8) {
-      toast({ title: "Numéro invalide", description: "Saisissez les 8 chiffres de votre numéro Mobile Money au Togo.", variant: "destructive" });
+    const expectedManualPhoneDigits = country === "BJ" ? 10 : 8;
+    if (isCountrySpecificManualFlow && phone.replace(/\D/g, "").length !== expectedManualPhoneDigits) {
+      const countryName = country === "BJ" ? "Bénin" : "Togo";
+      toast({ title: "Numéro invalide", description: `Saisissez les ${expectedManualPhoneDigits} chiffres de votre numéro Mobile Money au ${countryName}.`, variant: "destructive" });
       return;
     }
     if (isCiManualFlow && hostedManualMethod === "wave" && phone.replace(/\D/g, "").length !== 10) {
@@ -662,19 +669,22 @@ export default function RobotPayPage() {
       operators[0]?.name || operators[0]?.manualNumber?.operatorName || "",
     ) === "wave";
   const ciWaveCheckoutActive = isCiManualFlow && hostedManualMethod === "wave" && !!operator?.manualNumber;
-  if (isTgManualFlow) {
+  if (isCountrySpecificManualFlow) {
     return (
-      <TogoManualDeposit
+      <ManualCountryDeposit
         step={step}
         amount={amount}
         currency={currency}
+        countryCode={country}
+        countryName={countryInfo?.name || (country === "BJ" ? "Bénin" : "Togo")}
         phonePrefix={phonePrefix}
-        operators={togoOperatorChoices}
+        phoneDigits={country === "BJ" ? 10 : 8}
+        operators={countryManualOperatorChoices}
         isLoadingOperators={loadingOperators}
         hasOperatorsError={manualNumbersError}
         selectedOperator={operator}
         phone={phone}
-        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, 8))}
+        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, country === "BJ" ? 10 : 8))}
         onSelectOperator={chooseOperator}
         onContinue={continueFromOperatorSelection}
         onBack={() => {

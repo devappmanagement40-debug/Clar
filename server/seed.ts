@@ -149,7 +149,7 @@ export async function seed() {
       name: "Bénin",
       currency: "XOF",
       phonePrefix: "229",
-      operators: [],
+      operators: ["MTN Bénin", "Moov Africa Bénin"],
       withdrawalMethods: [],
       isActive: true,
     },
@@ -303,6 +303,139 @@ export async function seed() {
   });
   if (togoTmoneyToTogocelMigration === "updated") {
     console.log("[Togo deposits] TMoney receiver configuration normalized to Togocel; Moov remains separate.");
+  }
+
+  const beninDepositSetupMigration = await db.transaction(async (tx) => {
+    const [benin] = await tx.select({ id: countries.id, operators: countries.operators })
+      .from(countries)
+      .where(eq(countries.code, "BJ"))
+      .limit(1);
+    if (!benin) return "missing";
+
+    const [marker] = await tx.select({ key: platformSettings.key })
+      .from(platformSettings)
+      .where(eq(platformSettings.key, "benin_mtn_moov_deposit_setup_applied"))
+      .limit(1);
+    if (marker) return "already-applied";
+
+    const methods = parseCountryMethodEntries(benin.operators);
+    const normalizeName = (name: string) => name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+    let operatorsChanged = false;
+    const ensureOperator = (canonicalName: string, matches: (normalized: string) => boolean) => {
+      const existing = methods.find((method) => matches(normalizeName(method.name)));
+      if (existing) {
+        if (existing.name !== canonicalName || !existing.isActive) {
+          existing.name = canonicalName;
+          existing.isActive = true;
+          operatorsChanged = true;
+        }
+      } else {
+        methods.push({ name: canonicalName, isActive: true });
+        operatorsChanged = true;
+      }
+    };
+    ensureOperator("MTN Bénin", (name) => name.includes("mtn"));
+    ensureOperator("Moov Africa Bénin", (name) => name.includes("moov"));
+
+    const [routingSetting] = await tx.select({ value: platformSettings.value })
+      .from(platformSettings)
+      .where(eq(platformSettings.key, "depositMethodsByCountry"))
+      .limit(1);
+    let updatedRouting: Record<string, unknown> | null = null;
+    if (routingSetting?.value?.trim()) {
+      try {
+        const parsed: unknown = JSON.parse(routingSetting.value);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return "invalid-routing";
+        const routing = parsed as Record<string, unknown>;
+        const beninMethods = Array.isArray(routing.BJ) ? routing.BJ.map((method) => String(method).toLowerCase()) : [];
+        if (!beninMethods.includes("manual")) {
+          routing.BJ = [...beninMethods, "manual"];
+          updatedRouting = routing;
+        }
+      } catch {
+        return "invalid-routing";
+      }
+    }
+
+    if (operatorsChanged) {
+      await tx.update(countries)
+        .set({ operators: JSON.stringify(methods) })
+        .where(eq(countries.id, benin.id));
+    }
+    if (updatedRouting) {
+      await tx.update(platformSettings)
+        .set({ value: JSON.stringify(updatedRouting) })
+        .where(eq(platformSettings.key, "depositMethodsByCountry"));
+    }
+    await tx.insert(platformSettings)
+      .values({ key: "benin_mtn_moov_deposit_setup_applied", value: "applied" })
+      .onConflictDoNothing();
+    return operatorsChanged || updatedRouting ? "updated" : "already-configured";
+  });
+  if (beninDepositSetupMigration === "updated") {
+    console.log("[Bénin deposits] MTN and Moov enabled; manual deposit routing added without changing withdrawal methods.");
+  } else if (beninDepositSetupMigration === "invalid-routing") {
+    console.error("[Bénin deposits] Could not update the malformed depositMethodsByCountry setting; configuration was left unchanged.");
+  }
+
+  const beninReceiverAccountsMigration = await db.transaction(async (tx) => {
+    const [marker] = await tx.select({ key: platformSettings.key })
+      .from(platformSettings)
+      .where(eq(platformSettings.key, "benin_mtn_moov_receiver_accounts_applied"))
+      .limit(1);
+    if (marker) return "already-applied";
+
+    const existingRows = await tx.select({
+      id: paymentNumbers.id,
+      operatorName: paymentNumbers.operatorName,
+    })
+      .from(paymentNumbers)
+      .where(eq(paymentNumbers.country, "BJ"));
+    const normalizeName = (name: string) => name.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+    const receivers = [
+      {
+        operatorName: "MTN Bénin",
+        phone: "0167369693",
+        ownerName: "HONORINE BIGNON",
+        logoUrl: "/operators/mtn-benin.jpg",
+        matches: (normalized: string) => normalized.includes("mtn"),
+      },
+      {
+        operatorName: "Moov Africa Bénin",
+        phone: "0155704332",
+        ownerName: "SONIA CHADARE",
+        logoUrl: "/operators/moov.jpg",
+        matches: (normalized: string) => normalized.includes("moov"),
+      },
+    ];
+
+    for (const receiver of receivers) {
+      const existing = existingRows.find((row) => receiver.matches(normalizeName(row.operatorName)));
+      const values = {
+        ownerName: receiver.ownerName,
+        phone: receiver.phone,
+        paymentLink: null,
+        operatorName: receiver.operatorName,
+        country: "BJ",
+        logoUrl: receiver.logoUrl,
+        isActive: true,
+      };
+      if (existing) {
+        await tx.update(paymentNumbers)
+          .set(values)
+          .where(eq(paymentNumbers.id, existing.id));
+      } else {
+        await tx.insert(paymentNumbers).values(values);
+      }
+    }
+
+    await tx.insert(platformSettings)
+      .values({ key: "benin_mtn_moov_receiver_accounts_applied", value: "applied" })
+      .onConflictDoNothing();
+    return "updated";
+  });
+  if (beninReceiverAccountsMigration === "updated") {
+    console.log("[Bénin deposits] MTN and Moov receiver accounts configured.");
   }
 
   const currentCountries = await db.select().from(countries);

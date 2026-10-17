@@ -26,3 +26,9 @@ The withdrawal page must keep the country from the user's profile; do not let th
 **Why:** the user chose to keep the profile country for withdrawals.
 
 **How to apply:** Keep withdrawal currency and payout methods tied to the profile country, while limiting deposit and wallet-account country choices to active countries.
+
+Bénin deposits use MTN and Moov. Keep these as deposit operators only; do not infer withdrawal methods or account coordinates from this choice.
+
+**Why:** the user requested these two Bénin deposit methods and supplied the MTN logo.
+
+**How to apply:** Require administrator-configured receiver numbers and names before allowing a manual deposit; use only confirmed merchant identifiers or USSD commands.

@@ -29,7 +29,7 @@ export const FALLBACK_COUNTRIES: Array<{
   { code: "CI", name: "Côte d'Ivoire", currency: "XOF", phonePrefix: "225", operators: [], withdrawalMethods: ["Wave"] },
   { code: "BF", name: "Burkina Faso", currency: "XOF", phonePrefix: "226", operators: ["Orange Burkina", "Moov Africa Burkina"], withdrawalMethods: ["Orange Burkina", "Moov Africa Burkina"] },
   { code: "NE", name: "Niger", currency: "XOF", phonePrefix: "227", operators: ["NITA TRANSFERT", "AMANA TRANSFERT"], withdrawalMethods: ["Airtel Money", "Wave"] },
-  { code: "BJ", name: "Bénin", currency: "XOF", phonePrefix: "229", operators: [], withdrawalMethods: [] },
+  { code: "BJ", name: "Bénin", currency: "XOF", phonePrefix: "229", operators: ["MTN Bénin", "Moov Africa Bénin"], withdrawalMethods: [] },
 ];
 
 // Legacy compatibility - kept for places still using ELIGIBLE_COUNTRIES directly

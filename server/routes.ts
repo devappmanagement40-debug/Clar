@@ -1357,13 +1357,23 @@ export async function registerRoutes(
           if (!isDepositMethodConfigured(normalizedDeposit.country, "manual", settings)) {
             return res.status(400).json({ message: "Le paiement manuel n'est pas configuré pour ce pays" });
           }
-          if (normalizedDeposit.country.toUpperCase() === "TG") {
+          const manualMobileMoneyRules: Record<string, { prefix: string; nationalDigits: number; countryName: string }> = {
+            TG: { prefix: "228", nationalDigits: 8, countryName: "Togo" },
+            BJ: { prefix: "229", nationalDigits: 10, countryName: "Bénin" },
+          };
+          const mobileMoneyRule = manualMobileMoneyRules[normalizedDeposit.country.toUpperCase()];
+          if (mobileMoneyRule) {
             const payerDigits = normalizedDeposit.accountNumber.replace(/\D/g, "");
-            if (payerDigits.length !== 11 || !payerDigits.startsWith("228")) {
-              return res.status(400).json({ message: "Le numéro Mobile Money du Togo doit contenir le préfixe +228 et 8 chiffres" });
+            if (
+              payerDigits.length !== mobileMoneyRule.prefix.length + mobileMoneyRule.nationalDigits ||
+              !payerDigits.startsWith(mobileMoneyRule.prefix)
+            ) {
+              return res.status(400).json({
+                message: `Le numéro Mobile Money du ${mobileMoneyRule.countryName} doit contenir le préfixe +${mobileMoneyRule.prefix} et ${mobileMoneyRule.nationalDigits} chiffres`,
+              });
             }
             if (!normalizedTransactionReference) {
-              return res.status(400).json({ message: "L'ID de transaction est obligatoire pour un dépôt au Togo" });
+              return res.status(400).json({ message: `L'ID de transaction est obligatoire pour un dépôt au ${mobileMoneyRule.countryName}` });
             }
           }
           if (
