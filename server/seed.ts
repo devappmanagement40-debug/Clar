@@ -836,7 +836,7 @@ export async function seed() {
   }
 
   const clapayDepositRoutingMigration = await db.transaction(async (tx) => {
-    const migrationKey = "clapay_bf_ne_bj_deposit_routing_applied";
+    const migrationKey = "clapay_bf_ne_deposit_routing_applied";
     const [marker] = await tx.select({ key: platformSettings.key })
       .from(platformSettings)
       .where(eq(platformSettings.key, migrationKey))
@@ -923,7 +923,7 @@ export async function seed() {
       }
     }
 
-    for (const countryCode of ["BF", "NE", "BJ"]) {
+    for (const countryCode of ["BF", "NE"]) {
       const methods = routing[countryCode] || [];
       routing[countryCode] = methods.includes("clapay") ? methods : [...methods, "clapay"];
     }
@@ -962,9 +962,58 @@ export async function seed() {
     return "updated";
   });
   if (clapayDepositRoutingMigration === "updated") {
-    console.log("[Clapay deposits] BF, NE and BJ enabled; other deposit methods and country routing preserved.");
+    console.log("[Clapay deposits] BF and NE enabled; other deposit methods and country routing preserved.");
   } else if (clapayDepositRoutingMigration === "invalid-routing") {
     console.error("[Clapay deposits] Country routing is invalid; no settings were changed.");
+  }
+
+  const beninClapayScopeCorrection = await db.transaction(async (tx) => {
+    const migrationKey = "clapay_bj_automatic_route_removed_after_scope_correction";
+    const [marker] = await tx.select({ key: platformSettings.key })
+      .from(platformSettings)
+      .where(eq(platformSettings.key, migrationKey))
+      .limit(1);
+    if (marker) return "already-applied";
+
+    const [routingSetting] = await tx.select({ value: platformSettings.value })
+      .from(platformSettings)
+      .where(eq(platformSettings.key, "depositMethodsByCountry"))
+      .limit(1);
+    if (!routingSetting?.value) return "missing-routing";
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(routingSetting.value);
+    } catch {
+      return "invalid-routing";
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return "invalid-routing";
+    }
+
+    const routing = parsed as Record<string, unknown>;
+    const beninMethods = routing.BJ;
+    if (beninMethods !== undefined && !Array.isArray(beninMethods)) {
+      return "invalid-routing";
+    }
+    if (Array.isArray(beninMethods)) {
+      routing.BJ = beninMethods.filter((method) => String(method).trim().toLowerCase() !== "clapay");
+    }
+
+    await tx.update(platformSettings)
+      .set({ value: JSON.stringify(routing), modifiedAt: new Date() })
+      .where(eq(platformSettings.key, "depositMethodsByCountry"));
+    await tx.delete(platformSettings)
+      .where(eq(platformSettings.key, "clapay_bf_ne_bj_deposit_routing_applied"));
+    await tx.insert(platformSettings)
+      .values({ key: migrationKey, value: "applied" })
+      .onConflictDoNothing();
+    return "updated";
+  });
+  if (beninClapayScopeCorrection === "updated") {
+    console.log("[Clapay deposits] Removed automatic routing for BJ; existing country methods were preserved.");
+  } else if (beninClapayScopeCorrection === "invalid-routing") {
+    console.error("[Clapay deposits] Bénin routing correction skipped because the country routing is invalid.");
   }
 
   // Preserve existing payment settings. Startup seeding does not assign providers
