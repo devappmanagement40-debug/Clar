@@ -3,8 +3,8 @@ name: Workflow secret scope
 description: Secret availability differs between ad hoc shell commands and managed app workflows
 ---
 
-In this workspace, an ad hoc shell command did not receive Replit Secrets that the managed application workflow could use. A standalone helper therefore reported missing variables even though the app could connect to its configured database.
+In this workspace, secret-presence metadata did not guarantee that a particular process received the value. Ad hoc and temporary workflows lacked an admin secret until it was re-saved through the secure secret flow; the guarded operation then succeeded in the existing managed workflow.
 
-**Why:** Shell commands and managed workflows can run with different injected environments; secret-presence metadata does not prove a particular process received the value.
+**Why:** Shell commands, temporary workflows, and the managed app can run with different injected environments; a secret key appearing in workspace metadata does not prove the current process received its value.
 
-**How to apply:** Check only whether required keys are present, and run an authorized one-time helper through the actual managed workflow with a temporary guard. Remove the guard promptly and never print secret values.
+**How to apply:** Verify required values inside the exact process without logging them. If a required secret is unavailable, re-save it through the secure secret flow, then run a narrowly guarded helper through the existing managed workflow. Use only the explicitly configured external database, fail closed on a missing or ambiguous account match, restore the normal workflow, remove the helper, and never print secret values.

@@ -3,7 +3,7 @@
 - [Deposit checkout routing](deposit-checkout-routing.md) — Keep aggregator choice internal; manual number deposits stay pending through the countdown until admin review.
 - [WestPay Integration](westpay-integration.md) — Redirect-based deposit flow + HMAC webhook; per-country API keys for withdrawals; secrets only (never in code/DB).
 - [SendavaPay integration](sendavapay-integration.md) — Payin deposit flow: backend creates+initiates, user phone auto-used, OTP/redirect handled, webhook HMAC verified.
-- [Imported database setup](imported-database-setup.md) — Whitelist app tables, preserve `session`, and remember Drizzle push `--verbose` still applies changes.
+- [External database target](imported-database-setup.md) — Use the configured external PostgreSQL only, never Replit DB, and verify live server identity rather than trusting the secret name.
 - [Plesk and GitHub](plesk-github-deployment.md) — Plesk deploys the committed dist build; Replit Git Provider auth is separate from the GitHub connector.
 - [Login privacy](login-privacy.md) — Do not persist passwords or phone numbers in browser storage; privacy scans classify remembered phone numbers as sensitive.
 - [Page visual styling](ton-green-theme.md) — Keep home cards white; use CATL blue for referenced product cards and purchase confirmation.

@@ -141,7 +141,7 @@ export async function seed() {
       currency: "XOF",
       phonePrefix: "227",
       operators: ["NITA TRANSFERT", "AMANA TRANSFERT"],
-      withdrawalMethods: ["Airtel Money", "Wave"],
+      withdrawalMethods: ["Airtel Money", "Wave", "NITA TRANSFERT"],
       isActive: true,
     },
     {
@@ -150,7 +150,7 @@ export async function seed() {
       currency: "XOF",
       phonePrefix: "229",
       operators: ["MTN Bénin", "Moov Africa Bénin"],
-      withdrawalMethods: [],
+      withdrawalMethods: ["MTN Bénin", "Moov Africa Bénin"],
       isActive: true,
     },
   ].map((country) => ({
@@ -442,7 +442,7 @@ export async function seed() {
 
   const legacyWithdrawalDefaults: Record<string, string[]> = {
     CI: ["Wave"],
-    NE: ["Airtel Money", "Wave"],
+    NE: ["Airtel Money", "Wave", "NITA TRANSFERT"],
   };
   for (const country of currentCountries) {
     if (!country.isActive) continue;
