@@ -682,7 +682,8 @@ export async function registerRoutes(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: error.errors[0].message });
       }
-      res.status(500).json({ message: error.message || "Erreur serveur" });
+      console.error("[auth] Registration failed:", error instanceof Error ? error.name : "UnknownError");
+      res.status(503).json({ message: "L'inscription est temporairement indisponible. Réessayez plus tard." });
     }
   });
 
@@ -734,7 +735,8 @@ export async function registerRoutes(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: error.errors[0].message });
       }
-      res.status(500).json({ message: error.message || "Erreur serveur" });
+      console.error("[auth] Login failed:", error instanceof Error ? error.name : "UnknownError");
+      res.status(503).json({ message: "La connexion est temporairement indisponible. Réessayez plus tard." });
     }
   });
 
