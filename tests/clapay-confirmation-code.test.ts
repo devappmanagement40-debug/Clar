@@ -34,6 +34,47 @@ test("uses the configured response path when Clapay names the code differently",
   );
 });
 
+test("extracts the customer reference returned for a NITA Niger deposit", () => {
+  assert.equal(
+    extractClapayConfirmationCode(
+      {
+        data: { reference: "ACHATA80C9C2EA5763" },
+        signature: "merchant-status-signature",
+      },
+      "",
+      {
+        allowNitaReference: true,
+        excludedValues: ["merchant-status-signature", "CLAPAY-123-456"],
+      },
+    ),
+    "ACHATA80C9C2EA5763",
+  );
+});
+
+test("does not treat generic references as customer codes outside the NITA flow", () => {
+  assert.equal(
+    extractClapayConfirmationCode({ data: { reference: "ACHATA80C9C2EA5763" } }),
+    undefined,
+  );
+});
+
+test("does not expose the merchant signature or order reference as a NITA code", () => {
+  assert.equal(
+    extractClapayConfirmationCode(
+      {
+        data: { reference: "CLAPAY-123-456" },
+        signature: "merchant-status-signature",
+      },
+      "",
+      {
+        allowNitaReference: true,
+        excludedValues: ["merchant-status-signature", "CLAPAY-123-456"],
+      },
+    ),
+    undefined,
+  );
+});
+
 test("ignores empty, oversized, and non-scalar confirmation values", () => {
   assert.equal(extractClapayConfirmationCode({ confirmation_code: " " }), undefined);
   assert.equal(extractClapayConfirmationCode({ confirmation_code: "x".repeat(81) }), undefined);

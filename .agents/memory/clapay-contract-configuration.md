@@ -9,11 +9,11 @@ For initiation requests in every country routed to Clapay, send only the local s
 
 If an initiation request times out or returns an ambiguous response, preserve the deposit as processing and retain its merchant transaction reference so a signed callback can reconcile it. Do not mark it rejected unless Clapay definitively refused the request. When operator metadata marks `otpstarter.MERCHANT` true, collect the operator OTP only for the deposit flow and send it as `operator_otp`; never persist or log the OTP. Clapay payouts do not require an operator OTP, even when the shared operator metadata marks one required for deposits; never ask for or send `operator_otp` on payout requests.
 
-Keep a provider-generated customer confirmation code distinct from Clapay's merchant `signature`, which is used for payment status verification. Extract the customer code from an explicitly named response field or a Plesk-configured JSON path, show it only to the authenticated payer, and do not persist or log it.
+Keep a provider-generated customer confirmation code distinct from Clapay's merchant `signature`, which is used for payment status verification. Prefer an explicitly named response field or a Plesk-configured JSON path. For NITA deposits in Niger only, allow a generic `reference`/`ref` fallback when its value differs from both the merchant signature and our outgoing order reference. Show the code only to the authenticated payer; do not persist or log it.
 
-**Why:** For NITA deposits, the customer may need a code returned by Clapay to complete confirmation in the NITA service; confusing it with the transaction signature risks showing the wrong value.
+**Why:** For NITA deposits, the hosted payment page labels the customer confirmation value as a reference. Generic reference fields are ambiguous, so the fallback must stay NITA-specific and must not surface the transaction signature or merchant order reference.
 
-**How to apply:** Preserve the existing signature/reference for status checks. Use `CLAPAY_INITIATE_CONFIRMATION_CODE_PATH` when the provider's response field is not one of the recognized confirmation-code names.
+**How to apply:** Preserve the existing signature/reference for status checks. Use `CLAPAY_INITIATE_CONFIRMATION_CODE_PATH` for other provider response paths; keep the generic reference fallback limited to NITA in Niger and exclude both merchant values.
 
 **Why:** A live initiation was rejected with an invalid-phone response. The user clarified that Clapay requires only the local number in every country routed to it; removing `+` alone is insufficient. Other providers may require international formatting.
 

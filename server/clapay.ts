@@ -215,6 +215,10 @@ const CLAPAY_CONFIRMATION_CODE_KEYS = new Set([
   "confirmcode",
   "paymentcode",
   "paymentconfirmationcode",
+  "paymentreference",
+  "customerreference",
+  "confirmationreference",
+  "referencecode",
   "verificationcode",
   "verificationpin",
   "cashcode",
@@ -224,9 +228,20 @@ const CLAPAY_CONFIRMATION_CODE_KEYS = new Set([
   "ussdcode",
 ]);
 
-function normalizeClapayConfirmationCode(value: unknown): string | undefined {
+const CLAPAY_NITA_REFERENCE_KEYS = new Set(["reference", "ref"]);
+
+type ConfirmationCodeExtractOptions = {
+  excludedValues?: string[];
+  allowNitaReference?: boolean;
+};
+
+function normalizeClapayConfirmationCode(
+  value: unknown,
+  excludedValues: ReadonlySet<string> = new Set(),
+): string | undefined {
   if (typeof value !== "string" && typeof value !== "number") return undefined;
   const code = String(value).trim();
+  if (excludedValues.has(code.toLowerCase())) return undefined;
   return code && code.length <= 80 && !/[\u0000-\u001f\u007f]/.test(code)
     ? code
     : undefined;
@@ -235,17 +250,30 @@ function normalizeClapayConfirmationCode(value: unknown): string | undefined {
 export function extractClapayConfirmationCode(
   payload: unknown,
   configuredPath = "",
+  options: ConfirmationCodeExtractOptions = {},
 ): string | undefined {
+  const excludedValues = new Set(
+    (options.excludedValues || [])
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean),
+  );
   if (configuredPath) {
-    const configuredValue = normalizeClapayConfirmationCode(getAtPath(payload, configuredPath));
+    const configuredValue = normalizeClapayConfirmationCode(
+      getAtPath(payload, configuredPath),
+      excludedValues,
+    );
     if (configuredValue) return configuredValue;
   }
 
-  const findCode = (value: unknown, depth: number): string | undefined => {
+  const findCode = (
+    value: unknown,
+    acceptedKeys: ReadonlySet<string>,
+    depth: number,
+  ): string | undefined => {
     if (depth > 6 || !value || typeof value !== "object") return undefined;
     if (Array.isArray(value)) {
       for (const entry of value.slice(0, 20)) {
-        const result = findCode(entry, depth + 1);
+        const result = findCode(entry, acceptedKeys, depth + 1);
         if (result) return result;
       }
       return undefined;
@@ -254,19 +282,21 @@ export function extractClapayConfirmationCode(
     const entries = Object.entries(value as JsonRecord);
     for (const [key, entry] of entries) {
       const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (CLAPAY_CONFIRMATION_CODE_KEYS.has(normalizedKey)) {
-        const code = normalizeClapayConfirmationCode(entry);
+      if (acceptedKeys.has(normalizedKey)) {
+        const code = normalizeClapayConfirmationCode(entry, excludedValues);
         if (code) return code;
       }
     }
     for (const [, entry] of entries) {
-      const result = findCode(entry, depth + 1);
+      const result = findCode(entry, acceptedKeys, depth + 1);
       if (result) return result;
     }
     return undefined;
   };
 
-  return findCode(payload, 0);
+  const explicitCode = findCode(payload, CLAPAY_CONFIRMATION_CODE_KEYS, 0);
+  if (explicitCode || !options.allowNitaReference) return explicitCode;
+  return findCode(payload, CLAPAY_NITA_REFERENCE_KEYS, 0);
 }
 
 function isAllowedClapayOperator(country: string, name: string): boolean {
@@ -612,7 +642,20 @@ export async function initiateClapayPayment(values: RequestValues): Promise<{
   const messageValue = config.initiateMessagePath
     ? getAtPath(data, config.initiateMessagePath)
     : undefined;
-  const confirmationCode = extractClapayConfirmationCode(data, config.initiateConfirmationCodePath);
+  const operatorLabel = [values.operatorName, values.operator, values.operatorId]
+    .map((value) => String(value || ""))
+    .join(" ")
+    .toLowerCase();
+  const isNitaNigerDeposit = String(values.country || "").toUpperCase() === "NE"
+    && operatorLabel.includes("nita");
+  const confirmationCode = extractClapayConfirmationCode(
+    data,
+    config.initiateConfirmationCodePath,
+    {
+      excludedValues: [String(signature), String(values.reference || "")],
+      allowNitaReference: isNitaNigerDeposit,
+    },
+  );
   let redirectUrl: string | undefined;
   if (typeof redirectValue === "string" && redirectValue.trim()) {
     try {
