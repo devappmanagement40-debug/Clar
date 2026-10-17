@@ -27,13 +27,20 @@ test("recognizes common confirmation-code field names without exposing signature
   );
 });
 
-test("extracts Clapay's documented payment_otp response field", () => {
+test("extracts Clapay's documented payment_otp response field for NITA Niger", () => {
   assert.equal(
     extractClapayConfirmationCode({
       signature: "merchant-status-signature",
       payment_otp: "ACHATA80C9C2EA5763",
-    }),
+    }, "", { allowNitaReference: true }),
     "ACHATA80C9C2EA5763",
+  );
+});
+
+test("does not expose the NITA payment_otp field in other Clapay flows", () => {
+  assert.equal(
+    extractClapayConfirmationCode({ payment_otp: "ACHATA80C9C2EA5763" }),
+    undefined,
   );
 });
 

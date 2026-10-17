@@ -226,11 +226,11 @@ const CLAPAY_CONFIRMATION_CODE_KEYS = new Set([
   "cashinconfirmationcode",
   "transfercode",
   "otpcode",
-  "paymentotp",
   "ussdcode",
 ]);
 
 const CLAPAY_NITA_REFERENCE_KEYS = new Set(["reference", "ref"]);
+const CLAPAY_NITA_CONFIRMATION_CODE_KEYS = new Set(["paymentotp"]);
 const nitaConfirmationDiagnosticLog = new Map<string, number>();
 
 export function findClapayConfirmationCandidatePaths(payload: unknown): string[] {
@@ -341,7 +341,8 @@ export function extractClapayConfirmationCode(
 
   const explicitCode = findCode(payload, CLAPAY_CONFIRMATION_CODE_KEYS, 0);
   if (explicitCode || !options.allowNitaReference) return explicitCode;
-  return findCode(payload, CLAPAY_NITA_REFERENCE_KEYS, 0);
+  return findCode(payload, CLAPAY_NITA_CONFIRMATION_CODE_KEYS, 0)
+    || findCode(payload, CLAPAY_NITA_REFERENCE_KEYS, 0);
 }
 
 function isAllowedClapayOperator(country: string, name: string): boolean {
