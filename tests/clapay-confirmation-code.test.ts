@@ -27,6 +27,16 @@ test("recognizes common confirmation-code field names without exposing signature
   );
 });
 
+test("extracts Clapay's documented payment_otp response field", () => {
+  assert.equal(
+    extractClapayConfirmationCode({
+      signature: "merchant-status-signature",
+      payment_otp: "ACHATA80C9C2EA5763",
+    }),
+    "ACHATA80C9C2EA5763",
+  );
+});
+
 test("uses the configured response path when Clapay names the code differently", () => {
   assert.equal(
     extractClapayConfirmationCode(

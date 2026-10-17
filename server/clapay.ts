@@ -226,6 +226,7 @@ const CLAPAY_CONFIRMATION_CODE_KEYS = new Set([
   "cashinconfirmationcode",
   "transfercode",
   "otpcode",
+  "paymentotp",
   "ussdcode",
 ]);
 
@@ -234,7 +235,7 @@ const nitaConfirmationDiagnosticLog = new Map<string, number>();
 
 export function findClapayConfirmationCandidatePaths(payload: unknown): string[] {
   const paths: string[] = [];
-  const interestingField = /(reference|(?:^|_)ref(?:$|_)|code|ticket|receipt|confirm|validation)/i;
+  const interestingField = /(reference|(?:^|_)ref(?:$|_)|code|otp|ticket|receipt|confirm|validation)/i;
 
   const visit = (value: unknown, path: string, depth: number) => {
     if (depth > 8 || !value || typeof value !== "object" || paths.length >= 12) return;
