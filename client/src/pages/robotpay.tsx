@@ -143,7 +143,7 @@ export default function RobotPayPage() {
   const [ashtechOtpRequired, setAshtechOtpRequired] = useState(false);
   const [ussd, setUssd] = useState("");
   const [message, setMessage] = useState(
-    clapayReturnDepositId ? "Retour reçu. Vérification du paiement auprès de Clapay…" : "",
+    clapayReturnDepositId ? "Retour reçu. Vérification du dépôt CATL…" : "",
   );
   const [clapayConfirmationCode, setClapayConfirmationCode] = useState("");
   const [redirectUrl, setRedirectUrl] = useState("");
@@ -617,7 +617,7 @@ export default function RobotPayPage() {
     if (!clapayConfirmationCode) return;
     try {
       await navigator.clipboard.writeText(clapayConfirmationCode);
-      toast({ title: "Code copié", description: "Le code de confirmation Clapay a été copié." });
+      toast({ title: "Code copié", description: "Le code de confirmation du dépôt CATL a été copié." });
     } catch {
       toast({ title: "Code de confirmation", description: clapayConfirmationCode });
     }
@@ -992,7 +992,7 @@ export default function RobotPayPage() {
                 {isClapayStyledFlow && (
                   <div className="flex items-start gap-2 rounded-lg border border-[#f0dfa0] bg-[#fff7cf] px-3 py-3 text-xs leading-5 text-[#695b20]">
                     <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-                    <p>Saisissez les 8 chiffres du numéro Mobile Money utilisé pour le dépôt. Clapay lancera ensuite la demande de paiement sur ce numéro.</p>
+                    <p>Saisissez les 8 chiffres du numéro Mobile Money utilisé pour le dépôt CATL. La demande de paiement sera ensuite envoyée sur ce numéro.</p>
                   </div>
                 )}
               </div>
@@ -1245,7 +1245,7 @@ export default function RobotPayPage() {
             <div className="space-y-5 text-center">
               {activeProvider === "clapay" && clapayConfirmationCode && (
                 <section
-                  aria-label="Code de confirmation Clapay"
+                  aria-label="Code de confirmation du dépôt CATL"
                   role="status"
                   className={`rounded-xl border-2 p-4 text-left ${isBjClapayFlow ? "border-[#d7e2f2] bg-[#f2f6fc] shadow-[0_3px_8px_rgba(0,35,82,0.08)]" : "border-[#111827] bg-[#FFF0F3] shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.1)]"}`}
                 >
