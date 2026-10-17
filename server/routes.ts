@@ -4425,7 +4425,11 @@ export async function registerRoutes(
       if (!deposit.paymentMethod.startsWith("Clapay — ")) {
         return res.status(400).json({ message: "Ce dépôt ne provient pas de Clapay" });
       }
-      if (deposit.status === "approved" || deposit.status === "rejected") {
+      const isNitaNigerDeposit = deposit.country.toUpperCase() === "NE"
+        && deposit.paymentMethod.toLowerCase().includes("nita");
+      const isTerminalDeposit = deposit.status === "approved" || deposit.status === "rejected";
+      const shouldFetchNitaConfirmationCode = deposit.status === "approved" && isNitaNigerDeposit;
+      if (isTerminalDeposit && !shouldFetchNitaConfirmationCode) {
         return res.json({ status: deposit.status });
       }
       if (!deposit.reference) return res.json({ status: deposit.status });
@@ -4433,15 +4437,13 @@ export async function registerRoutes(
         return res.json({ status: deposit.status });
       }
 
-      const isNitaNigerDeposit = deposit.country.toUpperCase() === "NE"
-        && deposit.paymentMethod.toLowerCase().includes("nita");
       const verification = await checkClapayPayment(deposit.reference, {
         allowNitaReference: isNitaNigerDeposit,
       });
-      if (verification.status === "approved") {
+      if (!isTerminalDeposit && verification.status === "approved") {
         const claimedDeposit = await storage.claimDepositApproval(deposit.id);
         if (claimedDeposit) await creditApprovedDeposit(claimedDeposit);
-      } else if (verification.status === "rejected") {
+      } else if (!isTerminalDeposit && verification.status === "rejected") {
         await storage.updateDeposit(deposit.id, { status: "rejected", processedAt: new Date() });
       }
       const finalDeposit = await storage.getDeposit(deposit.id);

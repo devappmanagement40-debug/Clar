@@ -1416,6 +1416,30 @@ export default function RobotPayPage() {
               <div className="space-y-5 py-5 text-center">
                 <div className={`border-b pb-3 text-left text-xl font-extrabold ${isBjClapayFlow ? "border-[#d7e2f2] text-[#17345b]" : "border-gray-200 text-gray-900"}`}>Paiement — {countryInfo?.name || country}</div>
                 <p className={`text-left text-2xl font-bold ${isBjClapayFlow ? "text-[#00377d]" : "text-gray-900"}`}>{amount.toLocaleString("fr-FR")} {currency}</p>
+                {activeProvider === "clapay" && clapayConfirmationCode && (
+                  <section
+                    aria-label="Code de confirmation du dépôt CATL"
+                    role="status"
+                    className={`rounded-xl border-2 p-4 text-left ${isBjClapayFlow ? "border-[#d7e2f2] bg-[#f2f6fc] shadow-[0_3px_8px_rgba(0,35,82,0.08)]" : "border-[#111827] bg-[#FFF0F3] shadow-[0_3px_0_#111827,0_6px_12px_rgba(17,24,39,0.1)]"}`}
+                  >
+                    <p className={`text-sm font-bold uppercase tracking-[0.08em] ${isBjClapayFlow ? "text-[#00377d]" : "text-[#A60026]"}`}>
+                      Code de confirmation
+                    </p>
+                    <p className={`mt-2 break-all text-center font-mono text-2xl font-extrabold tracking-[0.12em] ${isBjClapayFlow ? "text-[#17345b]" : "text-[#111827]"}`}>
+                      {clapayConfirmationCode}
+                    </p>
+                    <p className="mt-2 text-sm leading-5 text-gray-700">
+                      Utilisez ce code pour terminer la confirmation du paiement auprès de l’opérateur.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={copyClapayConfirmationCode}
+                      className={`mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-[11px] border-2 px-3 py-2 text-sm font-bold text-white transition active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isBjClapayFlow ? "border-[#002b61] bg-[#00377d] shadow-[0_2px_8px_rgba(0,35,82,0.12)] hover:bg-[#002b61] focus-visible:ring-[#00377d]" : "border-[#111827] bg-[#D40030] shadow-[0_2px_0_#111827] hover:bg-[#A60026] active:shadow-none focus-visible:ring-[#D40030]"}`}
+                    >
+                      <Copy aria-hidden="true" className="h-4 w-4" /> Copier le code
+                    </button>
+                  </section>
+                )}
                 <Check className="mx-auto h-24 w-24 rounded-full bg-green-500 p-4 text-white" />
                 <h2 className={`text-xl font-bold ${isBjClapayFlow ? "text-[#17345b]" : "text-gray-900"}`}>Votre paiement a été approuvé</h2>
                 <div className={`rounded-xl border-2 p-3 text-left text-sm leading-7 text-gray-800 ${isBjClapayFlow ? "border-[#d7e2f2] bg-[#f8fbff]" : "border-[#111827] bg-[#FFF8FA]"}`}>
