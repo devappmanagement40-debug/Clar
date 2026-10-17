@@ -104,10 +104,8 @@ export function ProcessingOverlay({ message }: { message: string }) {
 
 export default function GlobalProcessingOverlay() {
   const pendingForegroundQueries = useIsFetching({
-    predicate: (query) => {
-      const queryOptions = query.options as typeof query.options & { refetchInterval?: unknown };
-      return query.state.data === undefined || !queryOptions.refetchInterval;
-    },
+    // Keep cached pages usable while React Query refreshes them in the background.
+    predicate: (query) => query.state.data === undefined,
   });
   const pendingMutations = useIsMutating();
   const [pendingApiRequests, setPendingApiRequests] = useState(0);

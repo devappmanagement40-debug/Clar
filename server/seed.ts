@@ -6,7 +6,66 @@ import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/pla
 import bcrypt from "bcrypt";
 import { and, eq, inArray, sql } from "drizzle-orm";
 
+// Bump this when the production bootstrap below gains a required schema/data migration.
+const PRODUCTION_BOOTSTRAP_VERSION = "1";
+const PRODUCTION_BOOTSTRAP_VERSION_KEY = "__production_bootstrap_version";
+
+async function synchronizeConfiguredAdmin() {
+  const adminPhone = process.env.ADMIN_PHONE || "99935673";
+  const adminCountry = process.env.ADMIN_COUNTRY || "TG";
+  const existingAdmin = await db.select().from(users).where(eq(users.phone, adminPhone));
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminPin = process.env.ADMIN_PIN;
+
+  if (existingAdmin.length === 0) {
+    if (!adminPassword) {
+      console.warn("No administrator exists yet; set ADMIN_PASSWORD to provision the initial admin.");
+    } else {
+      const hashedPassword = await bcrypt.hash(adminPassword, 12);
+      await db.insert(users).values({
+        fullName: "Super Admin",
+        phone: adminPhone,
+        country: adminCountry,
+        password: hashedPassword,
+        referralCode: "ADMIN1",
+        balance: "0",
+        isAdmin: true,
+        isSuperAdmin: true,
+        adminPin: adminPin || null,
+      });
+      console.log("Super admin created");
+      if (adminPin) console.log("Super admin PIN configured");
+    }
+    return;
+  }
+
+  const updateData: { isAdmin: boolean; isSuperAdmin: boolean; adminPin?: string } = {
+    isAdmin: true,
+    isSuperAdmin: true,
+  };
+  if (adminPin) {
+    updateData.adminPin = adminPin;
+    console.log("Super admin PIN updated");
+  }
+  await db.update(users).set(updateData).where(eq(users.phone, adminPhone));
+  console.log("Super admin access verified");
+}
+
 export async function seed() {
+  await synchronizeConfiguredAdmin();
+
+  if (process.env.NODE_ENV === "production") {
+    const [bootstrapVersion] = await db
+      .select({ value: platformSettings.value })
+      .from(platformSettings)
+      .where(eq(platformSettings.key, PRODUCTION_BOOTSTRAP_VERSION_KEY))
+      .limit(1);
+    if (bootstrapVersion?.value === PRODUCTION_BOOTSTRAP_VERSION) {
+      console.log(`Production bootstrap ${PRODUCTION_BOOTSTRAP_VERSION} already applied; skipping seed.`);
+      return;
+    }
+  }
+
   console.log("Seeding database...");
 
   // Create session table for connect-pg-simple (if not exists)
@@ -64,48 +123,6 @@ export async function seed() {
   await db.execute(sql`
     ALTER TABLE "countries" ADD COLUMN IF NOT EXISTS "withdrawal_methods" text
   `);
-
-  // Check if admin already exists. Keep a development fallback for existing
-  // installations, while allowing deployments to configure the admin phone
-  // through the secret store.
-  const adminPhone = process.env.ADMIN_PHONE || "99935673";
-  const adminCountry = process.env.ADMIN_COUNTRY || "TG";
-  const existingAdmin = await db.select().from(users).where(eq(users.phone, adminPhone));
-  const adminPassword = process.env.ADMIN_PASSWORD;
-
-  const adminPin = process.env.ADMIN_PIN;
-
-  if (existingAdmin.length === 0) {
-    if (!adminPassword) {
-      console.warn("No administrator exists yet; set ADMIN_PASSWORD to provision the initial admin.");
-    } else {
-      const hashedPassword = await bcrypt.hash(adminPassword, 12);
-      await db.insert(users).values({
-        fullName: "Super Admin",
-        phone: adminPhone,
-        country: adminCountry,
-        password: hashedPassword,
-        referralCode: "ADMIN1",
-        balance: "0",
-        isAdmin: true,
-        isSuperAdmin: true,
-        adminPin: adminPin || null,
-      });
-      console.log("Super admin created");
-      if (adminPin) console.log("Super admin PIN configured");
-    }
-  } else {
-    // Promote the configured account without replacing its existing login credentials.
-    const updateData: any = { isAdmin: true, isSuperAdmin: true };
-    if (adminPin) {
-      updateData.adminPin = adminPin;
-      console.log("Super admin PIN updated");
-    }
-    await db.update(users)
-      .set(updateData)
-      .where(eq(users.phone, adminPhone));
-    console.log("Super admin access verified");
-  }
 
   const requestedCountries = [
     {
@@ -1019,6 +1036,24 @@ export async function seed() {
   // Preserve existing payment settings. Startup seeding does not assign providers
   // by default; only the explicit, one-time country migrations above may do so.
   console.log("Settings check complete");
+
+  if (process.env.NODE_ENV === "production") {
+    await db
+      .insert(platformSettings)
+      .values({
+        key: PRODUCTION_BOOTSTRAP_VERSION_KEY,
+        value: PRODUCTION_BOOTSTRAP_VERSION,
+        modifiedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: platformSettings.key,
+        set: {
+          value: PRODUCTION_BOOTSTRAP_VERSION,
+          modifiedAt: new Date(),
+        },
+      });
+    console.log(`Production bootstrap ${PRODUCTION_BOOTSTRAP_VERSION} applied.`);
+  }
 
   console.log("Database seeding complete!");
 }
