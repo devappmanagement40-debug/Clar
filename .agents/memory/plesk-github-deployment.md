@@ -3,7 +3,7 @@ name: Plesk GitHub deployment
 description: Production deployment uses a committed dist build and a Node.js startup file relative to the application root.
 ---
 
-For this project, Plesk's configured application root is `dist`, startup file is `index.cjs`, and document root is `dist/public`; Plesk currently uses pnpm. Include a production runtime `package.json` inside `dist` so package installation runs in the configured root.
+For this project, Plesk currently reports Node.js 21.7.3, npm, application root `dist`, startup file `index.cjs`, and document root `dist/public`. Include a production runtime `package.json` inside `dist` so package installation runs in the configured root.
 
 **Why:** The Plesk dashboard showed `dist` as the application root while the full project manifest was one level above it; the compiled server also has external runtime dependencies.
 
@@ -15,11 +15,11 @@ Plesk is the production source of truth for this project; Replit is for developm
 
 **How to apply:** For deployment checks, verify the public Plesk domain and its app/API routes directly; use Replit only to inspect or validate source and build artifacts.
 
-Plesk's pnpm installation must explicitly approve bcrypt's native build script; allow only bcrypt rather than enabling scripts for every dependency.
+Plesk currently uses npm, so its runtime dependencies must be installed from the `dist/package.json` in the configured application root; do not assume pnpm workspace settings are applied there.
 
-**Why:** Plesk reported `ERR_PNPM_IGNORED_BUILDS` for bcrypt after resolving the runtime dependencies.
+**Why:** The Plesk dashboard reports npm as the package manager, even though the build also emits a pnpm workspace file for other environments.
 
-**How to apply:** Keep bcrypt in the generated `dist/pnpm-workspace.yaml` build approval list. In an existing Plesk checkout, run `pnpm approve-builds`, select bcrypt only, then reinstall and restart the app.
+**How to apply:** After updating the deployed `dist`, run Plesk's NPM install from the `dist` application root, confirm it succeeds, then restart the app. Keep `SUPABASE_NEW_DATABASE_URL` and `SESSION_SECRET` configured in Plesk without exposing their values.
 
 Plesk can serve the current static `index.html` while its Node.js process is failing; a working `/` is not proof that login or API routes work. The downloadable `plesk-deploy-bundle.zip` is separate from GitHub's tracked `dist` and can become stale.
 
