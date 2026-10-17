@@ -204,7 +204,7 @@ export default function TasksPage() {
                     : "À compléter";
                 const requirement =
                   task.description?.trim() ||
-                  `Inviter ${task.requiredInvites} personnes à rejoindre votre équipe`;
+                  `Avoir ${task.requiredInvites} filleuls ayant acheté un produit payant`;
                 const giftImage = giftArtworks[index % giftArtworks.length];
 
                 return (
@@ -250,6 +250,9 @@ export default function TasksPage() {
                           {task.reward.toLocaleString("fr-FR")}{" "}
                           <span className="text-[11px] font-bold text-[#151515]">{currency}</span>
                         </p>
+                        <p className="mt-1 text-[10px] leading-snug text-gray-600">
+                          Un filleul compte après l’achat d’un produit payant. Une inscription ou un dépôt seul ne suffit pas.
+                        </p>
 
                         <div className="mt-2 flex items-center justify-between gap-2 text-[10px] font-semibold text-gray-600">
                           <span>Progression</span>
@@ -273,7 +276,7 @@ export default function TasksPage() {
 
                         <div className="mt-2 flex items-center justify-between gap-2">
                           <span className="text-[10px] font-bold text-gray-700">
-                            {task.currentInvites} / {task.requiredInvites} invitations
+                            {task.currentInvites} / {task.requiredInvites} filleuls avec achat
                           </span>
                           {task.isCompleted ? (
                             <span
