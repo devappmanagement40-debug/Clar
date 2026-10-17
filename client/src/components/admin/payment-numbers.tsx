@@ -349,6 +349,14 @@ export default function AdminPaymentNumbers() {
                 <Input value={form.paymentLink} onChange={(e) => setForm(f => ({ ...f, paymentLink: e.target.value }))}
                   placeholder="https://..." type="url" className="mt-1" data-testid="input-payment-link" />
               )}
+              {form.paymentType === "phone"
+                && form.country.toUpperCase() === "TG"
+                && /togocel|tmoney|yas\s*togo/i.test(form.operatorName)
+                && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Ce numéro sert aussi d’identifiant marchand dans le code USSD TMoney.
+                  </p>
+                )}
             </div>
             <div>
               <label className="text-sm font-medium">Nom du propriétaire</label>

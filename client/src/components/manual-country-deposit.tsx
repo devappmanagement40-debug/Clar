@@ -15,8 +15,7 @@ import {
 } from "lucide-react";
 import type { PaymentNumber } from "@shared/schema";
 import catlLogo from "@/assets/images/catl-logo.png";
-
-const TOGO_TOGOCEL_MERCHANT_ID = "73127420";
+import { buildTogocelManualUssdCode } from "@/lib/manual-ussd";
 
 type ManualDepositOperator = {
   id?: string;
@@ -119,9 +118,14 @@ export default function ManualCountryDeposit({
   const paymentLogo = paymentNumber?.logoUrl || operatorLogo(selectedOperator?.name || paymentNumber?.operatorName, countryCode);
   const selectedOperatorNormalized = (selectedOperator?.name || paymentNumber?.operatorName || "").toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
   const isTogocel = selectedOperatorNormalized.includes("togocel") || selectedOperatorNormalized.includes("tmoney") || selectedOperatorNormalized.includes("yastogo");
-  const ussdCode = isTogocel && !paymentNumber?.paymentLink
-    ? `*145*5*${amount}*${TOGO_TOGOCEL_MERCHANT_ID}#`
-    : "";
+  const ussdCode = buildTogocelManualUssdCode({
+    countryCode,
+    operatorName: selectedOperator?.name || paymentNumber?.operatorName || "",
+    amount,
+    recipientPhone: paymentNumber?.phone,
+    paymentLink: paymentNumber?.paymentLink,
+    countryPhonePrefix: phonePrefix,
+  });
   const digits = phone.replace(/\D/g, "");
   const canContinue = Boolean(!hasOperatorsError && selectedOperator?.manualNumber && target && digits.length === phoneDigits);
   const isApproved = status === "approved";

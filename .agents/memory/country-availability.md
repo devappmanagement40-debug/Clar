@@ -38,3 +38,9 @@ For automatic Clapay deposits, Burkina Faso should expose only the live Moov and
 **Why:** on 2026-10-17, the user clarified that the automatic page request covered Burkina Faso and Niger, not Bénin.
 
 **How to apply:** Apply the shared automatic checkout and live Clapay operator discovery to BF/NE only; preserve explicit country routing and the manual Bénin path. Do not hardcode provider operators or replace existing deposit methods.
+
+For Togo manual TMoney/Togocel deposits, generate the USSD merchant identifier from the active number configured for that operator in the admin payment-number panel; do not hardcode it. Strip the Togo country prefix if the saved number includes it.
+
+**Why:** the user expects changing the admin-configured TMoney number to update the USSD instructions shown on manual deposit pages.
+
+**How to apply:** Use the selected active payment number as the source for the TMoney USSD code. Keep the shortcut limited to Togocel/TMoney in Togo and hide it for payment links.

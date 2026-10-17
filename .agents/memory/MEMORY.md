@@ -10,7 +10,7 @@
 - [InPay callback classification](inpay-callbacks.md) — InPay payin and payout callbacks can both include order_number; classify using the merchant reference prefix first.
 - [InPay IP whitelist](inpay-ip-whitelist.md) — InPay rejects API calls with errno 5 until the server's public egress IP is whitelisted.
 - [AshtechPay Burkina flow](ashtechpay-burkina.md) — BF uses exact operator names and requires the returned reference on OTP retries.
-- [Country availability](country-availability.md) — preserve country history and manage deposit and withdrawal methods per country in admin.
+- [Country availability](country-availability.md) — preserve country history, manage methods per country, and derive TMoney USSD from its admin-configured number.
 - [Fictitious financial examples](demo-referrals.md) — Keep varied home activity messages display-only; show each vertical entry as its own framed block, not a table.
 - [Dev workflow port conflict](workflow-port-conflict.md) — a failed restart can leave a prior server child listening on port 5000; inspect the listener before retrying.
 - [Withdrawal balance policy](withdrawal-balance-policy.md) — deposits and signup bonuses are purchase-only; earnings remain the only withdrawable balance.
