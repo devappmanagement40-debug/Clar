@@ -272,7 +272,7 @@ export default function BankerPage() {
                       <div className="grid grid-cols-2 gap-2 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
                         <div>
                           <p className="text-muted-foreground text-xs">Montant</p>
-                          <p className="font-bold text-lg text-primary">{Number(deposit.amount).toLocaleString()} F</p>
+                          <p className="font-bold text-lg text-primary">{Number(deposit.amount).toLocaleString()} CDF</p>
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs">Canal</p>
@@ -366,11 +366,11 @@ export default function BankerPage() {
                       <div className="grid grid-cols-2 gap-2 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
                         <div>
                           <p className="text-muted-foreground text-xs">Montant brut</p>
-                          <p className="font-bold text-lg">{Number(w.amount).toLocaleString()} F</p>
+                          <p className="font-bold text-lg">{Number(w.amount).toLocaleString()} CDF</p>
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs">Montant net</p>
-                          <p className="font-bold text-lg text-primary">{Number(w.netAmount).toLocaleString()} F</p>
+                          <p className="font-bold text-lg text-primary">{Number(w.netAmount).toLocaleString()} CDF</p>
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs">Bénéficiaire</p>
@@ -473,7 +473,7 @@ export default function BankerPage() {
                         </div>
                         <div className="text-right">
                           <p className={`font-bold ${type === "deposit" ? "text-green-600" : "text-orange-600"}`}>
-                            {type === "deposit" ? "+" : "-"}{Number(type === "deposit" ? item.amount : item.netAmount).toLocaleString()} F
+                            {type === "deposit" ? "+" : "-"}{Number(type === "deposit" ? item.amount : item.netAmount).toLocaleString()} CDF
                           </p>
                           <StatusBadge status={item.status} />
                         </div>

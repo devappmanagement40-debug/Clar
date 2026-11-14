@@ -411,7 +411,7 @@ const MASKED_SETTING_VALUE = "********";
 
 async function getActiveCountryCurrency(countryCode: unknown): Promise<string> {
   const code = typeof countryCode === "string" ? countryCode.trim().toUpperCase() : "";
-  if (!code) return "CDF";
+  if (!code || code === "CD") return "CDF";
   const country = (await storage.getActiveCountries())
     .find((entry) => entry.code.toUpperCase() === code);
   return country?.currency || "CDF";
@@ -3071,7 +3071,7 @@ export async function registerRoutes(
         }
       }
 
-      await storage.logAdminAction(req.session.userId!, "approve_deposit", deposit.userId, `Dépôt ${deposit.id} approuvé: ${deposit.amount}F`);
+      await storage.logAdminAction(req.session.userId!, "approve_deposit", deposit.userId, `Dépôt ${deposit.id} approuvé: ${deposit.amount} CDF`);
       res.json(deposit);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -3441,7 +3441,7 @@ export async function registerRoutes(
         processedBy: req.session.userId,
       });
 
-      await storage.logAdminAction(req.session.userId!, "approve_withdrawal", withdrawalData.userId, `Retrait ${withdrawal.id} approuvé: ${withdrawalData.netAmount}F`);
+      await storage.logAdminAction(req.session.userId!, "approve_withdrawal", withdrawalData.userId, `Retrait ${withdrawal.id} approuvé: ${withdrawalData.netAmount} CDF`);
       res.json(withdrawal);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -3604,8 +3604,8 @@ export async function registerRoutes(
 
       switch (action) {
         case "balance":
-          await storage.setWalletTotal(userId, Number(value), `Ajustement administrateur: ${value}F`);
-          await storage.logAdminAction(req.session.userId!, "update_balance", userId, `Solde modifié: ${value}F`);
+          await storage.setWalletTotal(userId, Number(value), `Ajustement administrateur: ${value} CDF`);
+          await storage.logAdminAction(req.session.userId!, "update_balance", userId, `Solde modifié: ${value} CDF`);
           break;
         case "password":
           await storage.updateUser(userId, { password: value });
@@ -4623,10 +4623,11 @@ export async function registerRoutes(
       if (!code || !name || !currency || !phonePrefix) {
         return res.status(400).json({ message: "Code, nom, devise et indicatif sont requis" });
       }
+      const countryCode = String(code).trim().toUpperCase();
       const country = await storage.createCountry({
-        code: code.toUpperCase(),
+        code: countryCode,
         name,
-        currency,
+        currency: countryCode === "CD" ? "CDF" : currency,
         phonePrefix,
         operators: operators || "[]",
         withdrawalMethods: withdrawalMethods ?? null,
@@ -4647,7 +4648,17 @@ export async function registerRoutes(
       const { code, name, currency, phonePrefix, operators, withdrawalMethods, isActive } = req.body;
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
-      if (currency !== undefined) updateData.currency = currency;
+      if (currency !== undefined) {
+        const currentCountry = await storage.getCountry(id);
+        if (currentCountry?.code.trim().toUpperCase() === "CD") {
+          if (String(currency).trim().toUpperCase() !== "CDF") {
+            return res.status(400).json({ message: "La devise de la RDC est fixée à CDF." });
+          }
+          updateData.currency = "CDF";
+        } else {
+          updateData.currency = currency;
+        }
+      }
       if (phonePrefix !== undefined) updateData.phonePrefix = phonePrefix;
       if (operators !== undefined) updateData.operators = operators;
       if (withdrawalMethods !== undefined) updateData.withdrawalMethods = withdrawalMethods;
@@ -4710,7 +4721,7 @@ export async function registerRoutes(
           description: "Dépôt validé par bankier",
         }, { hasDeposited: true });
       }
-      await storage.logAdminAction(req.session.userId!, "approve_deposit", deposit.userId, `Dépôt ${deposit.id} approuvé par bankier: ${deposit.amount}F`);
+      await storage.logAdminAction(req.session.userId!, "approve_deposit", deposit.userId, `Dépôt ${deposit.id} approuvé par bankier: ${deposit.amount} CDF`);
       res.json(deposit);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -4742,7 +4753,7 @@ export async function registerRoutes(
         processedAt: new Date(),
         processedBy: req.session.userId,
       });
-      await storage.logAdminAction(req.session.userId!, "approve_withdrawal", withdrawalData.userId, `Retrait ${withdrawal.id} approuvé par bankier: ${withdrawalData.netAmount}F`);
+      await storage.logAdminAction(req.session.userId!, "approve_withdrawal", withdrawalData.userId, `Retrait ${withdrawal.id} approuvé par bankier: ${withdrawalData.netAmount} CDF`);
       res.json(withdrawal);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

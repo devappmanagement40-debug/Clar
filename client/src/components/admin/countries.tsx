@@ -245,6 +245,9 @@ export default function AdminCountries() {
           Gestion du pays ({countriesForAdmin.length})
         </h2>
       </div>
+      <p className="text-sm text-muted-foreground">
+        Ouvre le pays RDC avec le crayon pour ajouter, renommer ou désactiver séparément les moyens de dépôt et de retrait.
+      </p>
 
       {isLoading && <p className="text-muted-foreground text-sm">Chargement...</p>}
 
@@ -321,13 +324,14 @@ export default function AdminCountries() {
                 />
               </div>
               <div>
-                <Label>Devise (ex: CDF)</Label>
+                <Label>Devise {form.code.toUpperCase() === "CD" ? "(fixée à CDF pour la RDC)" : "(ex: CDF)"}</Label>
                 <Input
                   value={form.currency}
                   onChange={e => setForm({ ...form, currency: e.target.value.toUpperCase() })}
                   placeholder="CDF"
                   maxLength={5}
                   required
+                  readOnly={form.code.toUpperCase() === "CD"}
                   data-testid="input-country-currency"
                 />
               </div>

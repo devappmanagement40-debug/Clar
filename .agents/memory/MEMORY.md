@@ -28,3 +28,4 @@
 - [Provider reference privacy](provider-reference-privacy.md) — Keep provider transaction IDs internal; customer history and payment responses use stable public IDs.
 - [Route parameter normalization](route-parameter-normalization.md) — Normalize Express route parameters before parsing or passing them to string-only helpers.
 - [Admin-configured financial text](admin-configured-financial-text.md) — Customer-facing minimums and financial terms must reflect current admin settings, not fixed UI defaults or stale cache.
+- [Administrator PIN security](admin-pin-security.md) — Store admin PINs as bcrypt hashes and never return them in API responses or logs.

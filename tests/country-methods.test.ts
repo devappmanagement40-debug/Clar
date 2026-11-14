@@ -38,3 +38,15 @@ test("withdrawal methods are determined by country configuration, not country-co
   assert.equal(isAllowedWithdrawalMethod("CI", "Wave", ["Moov"]), false);
   assert.equal(isAllowedWithdrawalMethod("TD", "Airtel Money", ["Airtel Money", "Moov"]), true);
 });
+
+test("RDC withdrawal choices honor administrator activation settings", () => {
+  const stored = JSON.stringify([
+    { name: "Mobile Money A", isActive: true },
+    { name: "Mobile Money B", isActive: false },
+  ]);
+  const activeMethods = getActiveCountryMethodNames(stored);
+
+  assert.deepEqual(getWithdrawalMethods("CD", activeMethods), ["Mobile Money A"]);
+  assert.equal(isAllowedWithdrawalMethod("CD", "Mobile Money A", activeMethods), true);
+  assert.equal(isAllowedWithdrawalMethod("CD", "Mobile Money B", activeMethods), false);
+});

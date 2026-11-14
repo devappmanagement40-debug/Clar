@@ -80,7 +80,7 @@ export default function WithdrawalHistoryPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-500 text-sm">Montant</span>
                     <span className="text-[#3174d1] font-bold text-base">
-                      {parseFloat(w.amount).toLocaleString()}
+                      {parseFloat(w.amount).toLocaleString()} CDF
                     </span>
                   </div>
 

@@ -165,15 +165,15 @@ export default function AdminWithdrawals() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <p className="text-muted-foreground">Montant demandé</p>
-                    <p className="font-medium text-foreground">{withdrawal.amount.toLocaleString()} F</p>
+                    <p className="font-medium text-foreground">{withdrawal.amount.toLocaleString()} CDF</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Montant net</p>
-                    <p className="font-medium text-primary">{withdrawal.netAmount.toLocaleString()} F</p>
+                    <p className="font-medium text-primary">{withdrawal.netAmount.toLocaleString()} CDF</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Frais</p>
-                    <p className="font-medium text-destructive">{withdrawal.fees.toLocaleString()} F</p>
+                    <p className="font-medium text-destructive">{withdrawal.fees.toLocaleString()} CDF</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Moyen</p>

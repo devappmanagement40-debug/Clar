@@ -39,18 +39,18 @@ const quickActions = [
 ] as const;
 
 const announcementLibrary = [
-  "052**85 a obtenu 20 000 F de bonus d'équipe",
-  "55*368 a retiré 23 654 F",
-  "07****42 a obtenu 12 500 F de bonus d'équipe",
-  "01****73 a retiré 8 000 F",
-  "05****91 a obtenu 15 000 F de bonus d'équipe",
-  "07****26 a retiré 32 400 F",
-  "05****14 a obtenu 10 000 F de bonus d'équipe",
-  "01****82 a retiré 15 000 F",
-  "07****63 a obtenu 18 500 F de bonus d'équipe",
-  "05****47 a retiré 27 800 F",
-  "01****29 a obtenu 25 000 F de bonus d'équipe",
-  "07****18 a retiré 11 250 F",
+  "052**85 a obtenu 20 000 CDF de bonus d'équipe",
+  "55*368 a retiré 23 654 CDF",
+  "07****42 a obtenu 12 500 CDF de bonus d'équipe",
+  "01****73 a retiré 8 000 CDF",
+  "05****91 a obtenu 15 000 CDF de bonus d'équipe",
+  "07****26 a retiré 32 400 CDF",
+  "05****14 a obtenu 10 000 CDF de bonus d'équipe",
+  "01****82 a retiré 15 000 CDF",
+  "07****63 a obtenu 18 500 CDF de bonus d'équipe",
+  "05****47 a retiré 27 800 CDF",
+  "01****29 a obtenu 25 000 CDF de bonus d'équipe",
+  "07****18 a retiré 11 250 CDF",
 ] as const;
 
 const userActivityLibrary = [

@@ -61,14 +61,25 @@ async function synchronizeConfiguredAdmin() {
 
   const updateData: { isAdmin: boolean; isSuperAdmin: boolean; adminPin?: string } = {
     isAdmin: true,
-    isSuperAdmin: true,
+    isSuperAdmin: !configuredAdminId,
   };
   if (adminPinHash) {
     updateData.adminPin = adminPinHash;
-    console.log("Super admin PIN updated");
+    console.log("Administrator PIN updated");
   }
-  await db.update(users).set(updateData).where(eq(users.phone, adminPhone));
-  console.log("Super admin access verified");
+  const updatedAdmin = configuredAdminId
+    ? await db.update(users)
+      .set(updateData)
+      .where(eq(users.id, Number(configuredAdminId)))
+      .returning({ id: users.id })
+    : await db.update(users)
+      .set(updateData)
+      .where(eq(users.phone, adminPhone))
+      .returning({ id: users.id });
+  if (updatedAdmin.length !== 1) {
+    throw new Error("The configured administrator account could not be updated.");
+  }
+  console.log(configuredAdminId ? "Administrator access verified" : "Super admin access verified");
 }
 
 export async function seed() {

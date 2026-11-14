@@ -5,6 +5,7 @@ import {
   FALLBACK_COUNTRIES,
   getCountryByCode,
   getCountriesForDisplay,
+  formatCurrency,
 } from "../client/src/lib/countries.ts";
 
 test("Congo-Kinshasa uses CDF and the +243 phone prefix", () => {
@@ -26,4 +27,11 @@ test("Congo-Kinshasa appears in country pickers when the countries API fails", (
   assert.equal(congo?.isActive, true);
   assert.equal(congo?.currency, "CDF");
   assert.equal(congo?.phonePrefix, "243");
+});
+
+test("RDC amounts stay in CDF even if the countries API returns another currency", () => {
+  const staleCountry = { ...FALLBACK_API_COUNTRIES[0], currency: "XOF" };
+
+  assert.equal(getCountryByCode("cd", [staleCountry])?.currency, "CDF");
+  assert.match(formatCurrency(12000, "CD", [staleCountry]), /CDF$/);
 });

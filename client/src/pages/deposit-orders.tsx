@@ -71,7 +71,7 @@ export default function DepositOrdersPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-500 text-sm">Montant</span>
                     <span className="text-[#3174d1] font-bold text-base">
-                      {parseFloat(d.amount).toLocaleString()}
+                      {parseFloat(d.amount).toLocaleString()} CDF
                     </span>
                   </div>
 

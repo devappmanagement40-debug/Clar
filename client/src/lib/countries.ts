@@ -72,15 +72,16 @@ export function parseOperators(operatorsJson: string): string[] {
 }
 
 export function getCountryByCode(code: string, apiCountries?: ApiCountry[]) {
+  const normalizedCode = code.trim().toUpperCase();
   if (apiCountries !== undefined) {
     // API data is loaded — only use it, never fall back to hardcoded data
     // This ensures disabled countries and updated operators are respected
-    const c = apiCountries.find(c => c.code === code && c.isActive);
+    const c = apiCountries.find(c => c.code.trim().toUpperCase() === normalizedCode && c.isActive);
     if (!c) return undefined;
     return {
       code: c.code,
       name: c.name,
-      currency: c.currency,
+      currency: normalizedCode === "CD" ? "CDF" : c.currency || "CDF",
       phonePrefix: c.phonePrefix,
       paymentMethods: parseOperators(c.operators),
       withdrawalMethods: c.withdrawalMethods == null
@@ -89,7 +90,7 @@ export function getCountryByCode(code: string, apiCountries?: ApiCountry[]) {
     };
   }
   // API not yet loaded — use hardcoded fallback temporarily
-  const fallback = FALLBACK_COUNTRIES.find(c => c.code === code);
+  const fallback = FALLBACK_COUNTRIES.find(c => c.code.toUpperCase() === normalizedCode);
   if (!fallback) return undefined;
   return {
     code: fallback.code,
