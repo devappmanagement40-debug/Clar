@@ -408,10 +408,10 @@ const MASKED_SETTING_VALUE = "********";
 
 async function getActiveCountryCurrency(countryCode: unknown): Promise<string> {
   const code = typeof countryCode === "string" ? countryCode.trim().toUpperCase() : "";
-  if (!code) return "FCFA";
+  if (!code) return "CDF";
   const country = (await storage.getActiveCountries())
     .find((entry) => entry.code.toUpperCase() === code);
-  return country?.currency || "FCFA";
+  return country?.currency || "CDF";
 }
 
 function isAdminSettingKey(key: string): boolean {
@@ -708,6 +708,17 @@ export async function registerRoutes(
         const adminCandidate = await storage.getUserByPhoneAnyCountry(data.phone);
         if (adminCandidate?.isAdmin) {
           user = adminCandidate;
+        }
+      }
+
+      const loginCandidate = user;
+      if (loginCandidate && !loginCandidate.isAdmin) {
+        const activeCountries = await storage.getActiveCountries();
+        if (!activeCountries.some(
+          (country) => country.code.toUpperCase() === loginCandidate.country.toUpperCase(),
+        )) {
+          recordFailedAttempt(req);
+          return res.status(400).json({ message: "Identifiants incorrects" });
         }
       }
 
@@ -1935,7 +1946,7 @@ export async function registerRoutes(
         [
           "❌ <b>Erreur de dépôt</b>",
           `Utilisateur : ${formatTelegramValue(errorUser?.fullName || "Inconnu")}`,
-          `Montant : <b>${formatTelegramValue(req.body?.amount)} XOF</b>`,
+          `Montant : <b>${formatTelegramValue(req.body?.amount)} CDF</b>`,
           `Pays : ${formatTelegramValue(req.body?.country)}`,
           `Opérateur : ${formatTelegramValue(req.body?.operator)}`,
           `Erreur exacte : <code>${formatTelegramValue(message)}</code>`,
@@ -2567,7 +2578,7 @@ export async function registerRoutes(
       );
       const withdrawalPrepaymentEnabled = settingsForWithdrawal.withdrawalPrepaymentEnabled === "true";
       if (!Number.isInteger(numericAmount) || numericAmount < minWithdrawal) {
-        return res.status(400).json({ message: `Montant minimum: ${minWithdrawal} FCFA` });
+        return res.status(400).json({ message: `Montant minimum: ${minWithdrawal} CDF` });
       }
 
       if (user.isWithdrawalBlocked) {
@@ -2633,7 +2644,7 @@ export async function registerRoutes(
         if (feePayment.status !== "paid") {
           return res.status(402).json({
             code: "WITHDRAWAL_PREPAYMENT_REQUIRED",
-            message: `Vous devez payer ${requiredAmount} FCFA (25 % du montant du retrait) avant de lancer le retrait.`,
+            message: `Vous devez payer ${requiredAmount} CDF (25 % du montant du retrait) avant de lancer le retrait.`,
             paymentId: feePayment.id,
             requiredAmount,
             paymentUrl: `/robotpay?amount=${requiredAmount}&country=${encodeURIComponent(user.country)}&feePaymentId=${feePayment.id}&withdrawalAmount=${numericAmount}`,
@@ -2846,7 +2857,7 @@ export async function registerRoutes(
     }
   });
 
-  // Daily pointage bonus: uniformly draw 25–100 FCFA every 24h.
+  // Daily pointage bonus: uniformly draw 25–100 CDF every 24h.
   app.post("/api/claim-daily-bonus", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
@@ -2869,7 +2880,7 @@ export async function registerRoutes(
         }
       }
 
-      // A cryptographic uniform draw gives 100 FCFA one chance out of 76.
+      // A cryptographic uniform draw gives 100 CDF one chance out of 76.
       const bonusAmount = dailyBonusFromIndex(randomInt(0, DAILY_BONUS_OUTCOME_COUNT));
       await storage.creditWallet(user.id, "earnings", bonusAmount, {
         type: "bonus",
@@ -2880,7 +2891,7 @@ export async function registerRoutes(
       res.json({
         success: true,
         amount: bonusAmount,
-        message: `Bonus de ${bonusAmount} FCFA ajoute!`,
+        message: `Bonus de ${bonusAmount} CDF ajoute!`,
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -4094,7 +4105,7 @@ export async function registerRoutes(
         createdBy: req.session.userId!,
       });
 
-      await storage.logAdminAction(req.session.userId!, "create_gift_code", null, `Code cadeau cree: ${code} - ${amount} FCFA`);
+      await storage.logAdminAction(req.session.userId!, "create_gift_code", null, `Code cadeau cree: ${code} - ${amount} CDF`);
       res.json(giftCode);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -4152,7 +4163,7 @@ export async function registerRoutes(
       
       res.json({ 
         success: true, 
-        message: `Félicitations! Vous avez reçu ${parseFloat(giftCode.amount).toLocaleString()} FCFA`,
+        message: `Félicitations! Vous avez reçu ${parseFloat(giftCode.amount).toLocaleString()} CDF`,
         amount: parseFloat(giftCode.amount)
       });
     } catch (error: any) {

@@ -30,7 +30,7 @@ const gifts = [
   "/__mockup/images/task-center/gift-crimson.png",
 ];
 
-const currency = "XOF";
+const currency = "CDF";
 
 export function TaskCenterRedesign() {
   const [notice, setNotice] = useState("");

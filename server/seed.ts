@@ -126,51 +126,6 @@ export async function seed() {
 
   const requestedCountries = [
     {
-      code: "TG",
-      name: "Togo",
-      currency: "XOF",
-      phonePrefix: "228",
-      operators: ["Togocel", "Moov Africa Togo"],
-      withdrawalMethods: ["Togocel", "Moov Africa Togo"],
-      isActive: true,
-    },
-    {
-      code: "CI",
-      name: "Côte d'Ivoire",
-      currency: "XOF",
-      phonePrefix: "225",
-      operators: [],
-      withdrawalMethods: ["Wave"],
-      isActive: true,
-    },
-    {
-      code: "BF",
-      name: "Burkina Faso",
-      currency: "XOF",
-      phonePrefix: "226",
-      operators: ["Orange Burkina", "Moov Africa Burkina"],
-      withdrawalMethods: ["Orange Burkina", "Moov Africa Burkina"],
-      isActive: true,
-    },
-    {
-      code: "NE",
-      name: "Niger",
-      currency: "XOF",
-      phonePrefix: "227",
-      operators: ["NITA TRANSFERT", "AMANA TRANSFERT"],
-      withdrawalMethods: ["Airtel Money", "Wave", "NITA TRANSFERT"],
-      isActive: true,
-    },
-    {
-      code: "BJ",
-      name: "Bénin",
-      currency: "XOF",
-      phonePrefix: "229",
-      operators: ["MTN Bénin", "Moov Africa Bénin"],
-      withdrawalMethods: ["MTN Bénin", "Moov Africa Bénin"],
-      isActive: true,
-    },
-    {
       code: "CD",
       name: "Congo-Kinshasa",
       currency: "CDF",
@@ -196,7 +151,7 @@ export async function seed() {
     console.log(`Countries skipped — ${existingCountries.length} existing countries preserved`);
   }
 
-  const countryCatalogMigrationKey = "country_catalog_requested_west_africa_and_cd_applied";
+  const countryCatalogMigrationKey = "country_catalog_requested_cd_only_applied";
   const countryCatalogMigration = await db.transaction(async (tx) => {
     const [marker] = await tx.insert(platformSettings)
       .values({ key: countryCatalogMigrationKey, value: "applied" })
@@ -864,7 +819,7 @@ export async function seed() {
           eq(platformSettings.key, "signupBonus"),
           eq(platformSettings.value, currentSignupBonus),
         ));
-      console.log("Signup bonus setting migrated from 1000 to 500 FCFA");
+      console.log("Signup bonus setting migrated from 1000 to 500 CDF");
     }
     await db.insert(platformSettings)
       .values({ key: signupBonusMigrationKey, value: "true" })

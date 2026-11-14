@@ -181,7 +181,7 @@ export default function TeamPage() {
               <span>Total des membres</span>
             </article>
             <article className="team-summary-card team-summary-card-accent">
-              <strong>{formatNumber(stats?.totalCommission, isLoading)} <small>XOF</small></strong>
+              <strong>{formatNumber(stats?.totalCommission, isLoading)} <small>CDF</small></strong>
               <span>Total des récompenses</span>
             </article>
           </section>
@@ -224,7 +224,7 @@ export default function TeamPage() {
                     <span>Membres</span>
                   </div>
                   <div className="team-level-metric">
-                    <strong>{formatNumber(level.commission, isLoading)} <small>XOF</small></strong>
+                    <strong>{formatNumber(level.commission, isLoading)} <small>CDF</small></strong>
                     <span>Commissions</span>
                   </div>
                 </div>

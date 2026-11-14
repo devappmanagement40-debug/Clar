@@ -19,40 +19,19 @@ function getApiKey(): string {
 }
 
 export const CURRENCY_MAP: Record<string, string> = {
-  TG: "XOF",
-  BJ: "XOF",
-  SN: "XOF",
-  CI: "XOF",
-  ML: "XOF",
-  BF: "XOF",
-  CM: "XAF",
-  GN: "GNF",
   COD: "CDF",
-  COG: "XAF",
   // aliases used in this app
   CD: "CDF",
-  CG: "XAF",
 };
 
 const PHONE_PREFIX_MAP: Record<string, string> = {
-  TG: "228",
-  BJ: "229",
-  SN: "221",
-  CI: "225",
-  ML: "223",
-  BF: "226",
-  CM: "237",
-  GN: "224",
   COD: "243",
   CD: "243",
-  COG: "242",
-  CG: "242",
 };
 
 // Map app country codes → SendavaPay country codes
 export const COUNTRY_CODE_MAP: Record<string, string> = {
   CD: "COD",
-  CG: "COG",
 };
 
 export function toSendavapayCountry(appCountry: string): string {
@@ -70,7 +49,7 @@ export function formatPhone(phone: string, country: string): string {
 }
 
 export function getCurrency(country: string): string {
-  return CURRENCY_MAP[country] || CURRENCY_MAP[toSendavapayCountry(country)] || "XOF";
+  return CURRENCY_MAP[country] || CURRENCY_MAP[toSendavapayCountry(country)] || "CDF";
 }
 
 // ── Backend API (requires SDK key) ─────────────────────────────────────────

@@ -15,11 +15,11 @@ Public pickers may use the seeded country list only when `/api/countries` fails;
 
 **How to apply:** Use the fallback only for failed requests, label it as temporary, and keep inactive-country enforcement on the server.
 
-The active country list includes Togo (TG), Côte d'Ivoire (CI), Burkina Faso (BF), Niger (NE), Bénin (BJ), and Congo-Kinshasa (CD). Congo-Kinshasa uses CDF and phone prefix 243; keep its payment methods admin-configured. Keep other catalog rows inactive rather than deleting them. Bénin uses XOF and phone prefix 229; its deposit operators and withdrawal methods are MTN Bénin and Moov Africa Bénin.
+Only Congo-Kinshasa (CD) is active in public country selectors, and all customer-facing and admin financial amounts display in CDF. It uses phone prefix 243; configure manual deposit methods and recipient details through the admin panel, reusing the existing manual-deposit page unchanged. Keep other country rows inactive rather than deleting them, preserve their history, and preserve administrator login.
 
-**Why:** the user requested the five West African countries on 2026-10-16 and later requested Congo-Kinshasa for signup, login, and deposits with CDF and phone prefix 243.
+**Why:** the user explicitly changed the active-country scope to RDC only, corrected the currency scope to CDF throughout the app, and asked to preserve the existing manual-deposit experience while adding methods through admin settings.
 
-**How to apply:** Keep each country's deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore country-specific runtime overrides. When the active country set or method choices change, update the app's first-install defaults, legacy defaults, API-failure fallbacks, and existing external-database rows without overwriting unrelated methods.
+**How to apply:** Keep RDC deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore other active countries or show XOF/FCFA labels. When country configuration changes, update first-install defaults, API-failure fallbacks, and external-database active flags without overwriting RDC's configured methods or deleting historical rows.
 
 The withdrawal page must keep the country from the user's profile; do not let the withdrawal form select a separate country. Deposit and withdrawal-account setup can use the active-country selector.
 

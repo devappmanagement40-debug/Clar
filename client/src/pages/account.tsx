@@ -100,7 +100,7 @@ export default function AccountPage() {
   if (!user) return null;
 
   const country = getCountryByCode(user.country, apiCountries);
-  const currency = country?.currency || "XOF";
+  const currency = "CDF";
   const balance = Number.parseFloat(user.depositBalance || "0");
   const earnings = Number.parseFloat(user.earningsBalance || "0");
   const phonePrefix = country?.phonePrefix || "";

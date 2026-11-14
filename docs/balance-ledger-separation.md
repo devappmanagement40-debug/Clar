@@ -25,7 +25,7 @@ Le calcul actuel protège le principal des dépôts dans le contrôle des retrai
 
 ## Schéma cible proposé
 
-Ajouter à `users` deux colonnes décimales compatibles avec les montants XOF/XAF :
+Ajouter à `users` deux colonnes décimales compatibles avec les montants CDF :
 
 ```sql
 deposit_balance  numeric(15,2)
@@ -68,6 +68,7 @@ Instantané du 12 octobre 2026, calculé depuis la base Supabase configurée. Le
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | XOF | 2 | 2 048,00 | 0,00 | 0,00 | 0,00 | 2 048,00 |
 
+- Cette ligne conserve la devise de l’instantané historique du 12 octobre 2026; l’application actuelle affiche les montants en CDF.
 - La table des dépôts ne contient aucune ligne dans cet instantané.
 - L’historique contient 3 crédits de type `bonus`, pour un total de 2 048,00 XOF; aucun autre type de transaction n’est présent.
 - Pour les 2 comptes, le solde actuel correspond exactement au total net des transactions enregistrées; aucun écart de registre ni solde proposé négatif n’a été détecté.

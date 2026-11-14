@@ -5,13 +5,13 @@ import "./welcome.css";
 import "./professional.css";
 
 const rules = [
-  "Montant minimum du dépôt : 3 500 XOF.",
-  "Montant minimum du retrait : 1 200 XOF.",
+  "Montant minimum du dépôt : 3 500 CDF.",
+  "Montant minimum du retrait : 1 200 CDF.",
   "Frais de retrait : 20 % du montant demandé. Le montant net estimé après frais est affiché avant validation.",
   "Limite quotidienne de retrait : 1 demande par jour.",
   "Horaires de retrait : de 9 h à 17 h.",
   "Délai de traitement : généralement sous 2 heures et, exceptionnellement, jusqu’à 24 heures.",
-  "Bonus de pointage quotidien : de 20 à 50 XOF, disponible une fois toutes les 24 heures.",
+  "Bonus de pointage quotidien : de 20 à 50 CDF, disponible une fois toutes les 24 heures.",
   "Avant de confirmer une demande, vérifiez les coordonnées du portefeuille et le montant net affiché.",
 ];
 
@@ -68,7 +68,7 @@ function PreviewDashboard() {
       <section className="cp-preview-balance">
         <small>APERÇU DU COMPTE</small>
         <strong>Solde disponible</strong>
-        <div>•••••• FCFA</div>
+        <div>•••••• CDF</div>
       </section>
       <section className="cp-preview-cards">
         <span>Mes activités</span><span>Nos partenaires</span>

@@ -2,9 +2,9 @@ import "./_group.css";
 import { ChevronRight, ShoppingBag } from "lucide-react";
 
 const products = [
-  { id: 1, name: "VIP 1", price: "FCFA 2 500", daily: "FCFA 400", total: "FCFA 36 000", cycle: "90 jours" },
-  { id: 2, name: "VIP 2", price: "FCFA 5 000", daily: "FCFA 800", total: "FCFA 72 000", cycle: "90 jours" },
-  { id: 3, name: "VIP 3", price: "FCFA 10 000", daily: "FCFA 1 600", total: "FCFA 144 000", cycle: "90 jours" },
+  { id: 1, name: "VIP 1", price: "CDF 2 500", daily: "CDF 400", total: "CDF 36 000", cycle: "90 jours" },
+  { id: 2, name: "VIP 2", price: "CDF 5 000", daily: "CDF 800", total: "CDF 72 000", cycle: "90 jours" },
+  { id: 3, name: "VIP 3", price: "CDF 10 000", daily: "CDF 1 600", total: "CDF 144 000", cycle: "90 jours" },
 ];
 
 export default function Current() {

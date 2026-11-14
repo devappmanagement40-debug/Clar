@@ -15,7 +15,7 @@ export default function MyProductsPage() {
   if (!user) return null;
 
   const country = getCountryByCode(user.country);
-  const currency = country?.currency === "FCFA" ? "XOF" : country?.currency || "XOF";
+  const currency = "CDF";
   const allUserProducts = userProducts || [];
   const toAmount = (value: unknown) => {
     const amount = Number(value ?? 0);

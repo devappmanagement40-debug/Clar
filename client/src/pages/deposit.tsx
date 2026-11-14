@@ -266,7 +266,7 @@ export default function DepositPage() {
   const apiCountries = getCountriesForDisplay(loadedCountries, countriesError);
 
   const countryInfo = apiCountries.find(c => c.code === country && c.isActive);
-  const currency = countryInfo?.currency || "FCFA";
+  const currency = "CDF";
 
   const { data: platformSettings, isFetching: settingsRefreshing } = useQuery<Record<string, string>>({
     queryKey: ["/api/settings"],

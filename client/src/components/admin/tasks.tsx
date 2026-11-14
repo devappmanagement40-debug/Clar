@@ -230,7 +230,7 @@ export default function AdminTasks() {
                       {task.requiredInvites.toLocaleString("fr-FR")} invitations
                     </span>
                     <span className="font-semibold text-[#1947b8]">
-                      {task.reward.toLocaleString("fr-FR")} XOF
+                      {task.reward.toLocaleString("fr-FR")} CDF
                     </span>
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export default function AdminTasks() {
                 />
               </label>
               <label className="block space-y-1.5 text-sm font-medium">
-                <span>Récompense (XOF)</span>
+                <span>Récompense (CDF)</span>
                 <Input
                   type="number"
                   min="0"

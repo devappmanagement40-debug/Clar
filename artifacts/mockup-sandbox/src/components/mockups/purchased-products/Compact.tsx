@@ -12,7 +12,7 @@ export default function Compact() {
           </div>
           <div className="purchased-card-title">
             <h2>VIP 1</h2>
-            <p><span>Achat</span><strong>2 500 XOF</strong></p>
+            <p><span>Achat</span><strong>2 500 CDF</strong></p>
           </div>
         </header>
 
@@ -23,11 +23,11 @@ export default function Compact() {
           </div>
           <div className="purchased-card-metric">
             <span>Revenu généré</span>
-            <strong>11 200 XOF</strong>
+            <strong>11 200 CDF</strong>
           </div>
           <div className="purchased-card-metric">
             <span>Revenu total</span>
-            <strong>36 000 XOF</strong>
+            <strong>36 000 CDF</strong>
           </div>
           <div className="purchased-card-metric purchased-card-date">
             <span>Date d’achat</span>

@@ -71,7 +71,7 @@ export default function TasksPage() {
   if (!user) return null;
 
   const taskList = tasks ?? [];
-  const currency = getCountryByCode(user.country)?.currency || "FCFA";
+  const currency = "CDF";
   const totalTaskRewards = taskList
     .filter((task) => task.isCompleted)
     .reduce((sum, task) => sum + task.reward, 0);

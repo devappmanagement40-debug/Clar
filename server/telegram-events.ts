@@ -57,11 +57,11 @@ export function notifyTelegramPaymentEvent(event: PaymentEvent): void {
     `${isDeposit ? "💳" : "💸"} <b>${title}</b>`,
     `ID : <code>${escapeHtml(event.id)}</code>`,
     `Utilisateur ID : <code>${escapeHtml(event.userId)}</code>`,
-    `Montant : <b>${escapeHtml(event.amount)} XOF</b>`,
+    `Montant : <b>${escapeHtml(event.amount)} CDF</b>`,
   ];
 
   if (!isDeposit && event.netAmount != null) {
-    lines.push(`Net après frais : ${escapeHtml(event.netAmount)} XOF`);
+    lines.push(`Net après frais : ${escapeHtml(event.netAmount)} CDF`);
   }
   if (event.paymentMethod) lines.push(`Méthode : ${escapeHtml(event.paymentMethod)}`);
   if (event.country) lines.push(`Pays : ${escapeHtml(event.country)}`);
@@ -109,7 +109,7 @@ export function notifyTelegramPaymentError(params: {
   ];
   if (params.recordId != null) lines.push(`ID : <code>${escapeHtml(params.recordId)}</code>`);
   if (params.userId != null) lines.push(`Utilisateur ID : <code>${escapeHtml(params.userId)}</code>`);
-  if (params.amount != null) lines.push(`Montant : <b>${escapeHtml(params.amount)} XOF</b>`);
+  if (params.amount != null) lines.push(`Montant : <b>${escapeHtml(params.amount)} CDF</b>`);
   if (params.country != null) lines.push(`Pays : ${escapeHtml(params.country)}`);
   if (params.paymentMethod != null) lines.push(`Méthode : ${escapeHtml(params.paymentMethod)}`);
   lines.push(`Erreur exacte : <code>${escapeHtml(errorMessage)}</code>`);

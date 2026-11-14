@@ -42,7 +42,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
             <section>
               <h4 className="font-medium text-foreground mb-2">1. Dépôts</h4>
               <ul className="space-y-1">
-                <li>- Montant minimum : {minDeposit.toLocaleString("fr-FR")} FCFA</li>
+                <li>- Montant minimum : {minDeposit.toLocaleString("fr-FR")} CDF</li>
                 <li>- Les dépôts sont traités dans les plus brefs délais</li>
                 <li>- Assurez-vous que les informations de paiement sont correctes</li>
               </ul>
@@ -51,7 +51,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
             <section>
               <h4 className="font-medium text-foreground mb-2">2. Retraits</h4>
               <ul className="space-y-1">
-                <li>- Montant minimum : {minWithdrawal.toLocaleString("fr-FR")} FCFA</li>
+                <li>- Montant minimum : {minWithdrawal.toLocaleString("fr-FR")} CDF</li>
                 <li>- Frais de retrait : {withdrawalFees}%</li>
                 <li>- Horaires : {withdrawalStartHour}h - {withdrawalEndHour}h</li>
                 <li>- Maximum {maxWithdrawalsPerDay} retrait(s) par jour</li>
@@ -63,11 +63,11 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
             <section>
               <h4 className="font-medium text-foreground mb-2">3. Produits</h4>
               <ul className="space-y-1">
-                <li>- Montant minimum d'achat : 4 500 FCFA</li>
+                <li>- Montant minimum d'achat : 4 500 CDF</li>
                 <li>- Cycle standard : 80 jours</li>
                 <li>- Gains journaliers automatiques</li>
                 <li>- Les gains sont crédités 24h après l'achat</li>
-                <li>- Produit gratuit : réclamez 50 FCFA/jour</li>
+                <li>- Produit gratuit : réclamez 50 CDF/jour</li>
               </ul>
             </section>
 
@@ -83,7 +83,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
 
             <section>
               <h4 className="font-medium text-foreground mb-2">5. Bonus d'inscription</h4>
-              <p>Chaque nouveau membre reçoit {parseInt(signupBonus).toLocaleString()} FCFA de bonus sur le solde des dépôts, réservé aux achats.</p>
+              <p>Chaque nouveau membre reçoit {parseInt(signupBonus).toLocaleString()} CDF de bonus sur le solde des dépôts, réservé aux achats.</p>
             </section>
           </div>
         </ScrollArea>

@@ -294,7 +294,7 @@ export default function AdminClapayPayouts() {
             </label>
 
             <label className="space-y-1.5 text-sm font-medium" htmlFor="clapay-payout-amount">
-              Montant (FCFA)
+              Montant (CDF)
               <Input
                 id="clapay-payout-amount"
                 type="number"
@@ -389,7 +389,7 @@ export default function AdminClapayPayouts() {
                     {payout.providerStatus && (
                       <span className="text-xs text-muted-foreground">{payout.providerStatus}</span>
                     )}
-                    <span className="text-sm font-semibold">{payout.amount.toLocaleString("fr-FR")} FCFA</span>
+                    <span className="text-sm font-semibold">{payout.amount.toLocaleString("fr-FR")} CDF</span>
                   </div>
                   <p className="text-sm">{payout.recipientName} · {payout.recipientPhone}</p>
                   <p className="text-xs text-muted-foreground">

@@ -300,11 +300,6 @@ async function run() {
 
     // ── Seed countries ──
     const countriesData = [
-      { code: "TG", name: "Togo", currency: "XOF", phone_prefix: "228", operators: '["Togocel","Moov Africa Togo","TMoney"]' },
-      { code: "CI", name: "Côte d'Ivoire", currency: "XOF", phone_prefix: "225", operators: "[]" },
-      { code: "BF", name: "Burkina Faso", currency: "XOF", phone_prefix: "226", operators: '["Orange Burkina","Moov Africa Burkina"]' },
-      { code: "NE", name: "Niger", currency: "XOF", phone_prefix: "227", operators: '["NITA TRANSFERT","AMANA TRANSFERT"]' },
-      { code: "BJ", name: "Bénin", currency: "XOF", phone_prefix: "229", operators: "[]" },
       { code: "CD", name: "Congo-Kinshasa", currency: "CDF", phone_prefix: "243", operators: "[]" },
     ];
     for (const c of countriesData) {
@@ -313,7 +308,14 @@ async function run() {
         [c.code, c.name, c.currency, c.phone_prefix, c.operators]
       );
     }
-    console.log("✅ Pays insérés");
+    await client.query(`
+      UPDATE countries
+      SET is_active = (UPPER(code) = 'CD'),
+          name = CASE WHEN UPPER(code) = 'CD' THEN 'Congo-Kinshasa' ELSE name END,
+          currency = CASE WHEN UPPER(code) = 'CD' THEN 'CDF' ELSE currency END,
+          phone_prefix = CASE WHEN UPPER(code) = 'CD' THEN '243' ELSE phone_prefix END
+    `);
+    console.log("✅ Seul le Congo-Kinshasa reste actif; les autres lignes sont conservées pour l'historique");
 
     // Administrator provisioning is intentionally not part of a data migration.
     // Create or update an administrator through the application seed flow with

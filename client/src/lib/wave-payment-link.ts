@@ -1,5 +1,5 @@
 /**
- * Adds the selected XOF amount only to the Côte d’Ivoire Wave checkout.
+ * Adds the selected amount only to the Wave checkout URL.
  * Other countries and payment providers keep their configured URL unchanged.
  */
 export function withCoteDIvoireWaveAmount(

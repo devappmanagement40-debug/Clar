@@ -117,7 +117,7 @@ export default function ProductsPage() {
   if (!user) return null;
 
   const country = getCountryByCode(user.country);
-  const currency = country?.currency || "FCFA";
+  const currency = "CDF";
   const formatAmount = (value: number | null) =>
     value !== null && Number.isFinite(value)
       ? `${currency} ${Math.round(value).toLocaleString("fr-FR")}`

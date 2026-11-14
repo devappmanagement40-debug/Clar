@@ -22,14 +22,14 @@ export function DepositPreview({ strongCards = false }: { strongCards?: boolean 
         </header>
 
         <section className="deposit-intro" aria-label="Minimum de dépôt">
-          <p className="deposit-intro-copy">Recharge minimum : 3 000 FCFA</p>
+          <p className="deposit-intro-copy">Recharge minimum : 3 000 CDF</p>
           <Gift className="deposit-intro-icon" aria-hidden="true" />
         </section>
 
         <section className="account-summary" aria-label="Solde du compte">
           <div>
             <p className="balance-label">Solde du compte :</p>
-            <p className="balance-value">800,00 FCFA</p>
+            <p className="balance-value">800,00 CDF</p>
           </div>
         </section>
 
@@ -49,7 +49,7 @@ export function DepositPreview({ strongCards = false }: { strongCards?: boolean 
             ))}
           </div>
           <label className="amount-input">
-            <span className="currency">FCFA</span>
+            <span className="currency">CDF</span>
             <input
               type="number"
               inputMode="numeric"
@@ -76,7 +76,7 @@ export function DepositPreview({ strongCards = false }: { strongCards?: boolean 
 
         <section className="instructions" aria-label="Bon à savoir">
           <h2 className="instructions-title">Rappel important</h2>
-          <p className="instruction"><strong>Montant minimum de dépôt :</strong> 3 000 FCFA.</p>
+          <p className="instruction"><strong>Montant minimum de dépôt :</strong> 3 000 CDF.</p>
           <p className="instruction"><strong>Vérifiez vos informations de compte</strong> lors du virement pour que votre paiement soit traité correctement.</p>
           <p className="instruction"><strong>Après un virement réussi,</strong> veuillez patienter 10 à 30 minutes.</p>
         </section>

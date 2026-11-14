@@ -49,7 +49,7 @@ const tasks: TaskWithStatus[] = [
   { id: 6, name: "Parrain Elite", requiredInvites: 300, reward: 50000, currentInvites: 150, isCompleted: false, canClaim: false },
 ];
 const isLoading = false;
-const currency = "XOF";
+const currency = "CDF";
 const totalTaskRewards = tasks.filter((task) => task.isCompleted).reduce((sum, task) => sum + task.reward, 0);
 const completedCount = tasks.filter((task) => task.isCompleted).length;
 const claimableCount = tasks.filter((task) => task.canClaim && !task.isCompleted).length;

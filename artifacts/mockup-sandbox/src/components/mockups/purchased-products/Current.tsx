@@ -11,10 +11,10 @@ export default function Current() {
         </div>
         <div className="purchased-card-current-details">
           <h2>VIP 1</h2>
-          <p className="purchased-current-price">2 500 XOF</p>
+          <p className="purchased-current-price">2 500 CDF</p>
           <p className="purchased-current-line">Jours d’exécution :<strong>28 / 90</strong></p>
-          <p className="purchased-current-line">Revenu généré :<strong>11 200 XOF</strong></p>
-          <p className="purchased-current-line">Revenu total :<strong>36 000 XOF</strong></p>
+          <p className="purchased-current-line">Revenu généré :<strong>11 200 CDF</strong></p>
+          <p className="purchased-current-line">Revenu total :<strong>36 000 CDF</strong></p>
           <p className="purchased-current-line">Date :<strong>20 Jul 2026, 15:00</strong></p>
         </div>
       </article>

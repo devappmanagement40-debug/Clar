@@ -22,6 +22,7 @@ test("Congo-Kinshasa appears in country pickers when the countries API fails", (
   const countries = getCountriesForDisplay(undefined, true);
   const congo = countries.find((country) => country.code === "CD");
 
+  assert.deepEqual(countries.map((country) => country.code), ["CD"]);
   assert.equal(congo?.isActive, true);
   assert.equal(congo?.currency, "CDF");
   assert.equal(congo?.phonePrefix, "243");

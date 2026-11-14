@@ -26,7 +26,7 @@ interface CountryForm {
 const emptyForm: CountryForm = {
   code: "",
   name: "",
-  currency: "XOF",
+  currency: "CDF",
   phonePrefix: "",
   operators: [],
   withdrawalMethods: [],
@@ -228,34 +228,28 @@ export default function AdminCountries() {
     setDialogOpen(true);
   };
 
-  const openAdd = () => {
-    setForm(emptyForm);
-    setEditingId(null);
-    setDialogOpen(true);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     saveMutation.mutate(form);
   };
+
+  const countriesForAdmin = (countriesList || []).filter(
+    (country) => country.code.toUpperCase() === "CD",
+  );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Globe className="w-5 h-5" />
-          Gestion des Pays ({countriesList?.length ?? 0})
+          Gestion du pays ({countriesForAdmin.length})
         </h2>
-        <Button onClick={openAdd} size="sm" data-testid="button-add-country">
-          <Plus className="w-4 h-4 mr-1" />
-          Ajouter un pays
-        </Button>
       </div>
 
       {isLoading && <p className="text-muted-foreground text-sm">Chargement...</p>}
 
       <div className="grid gap-3">
-        {countriesList?.map((c) => {
+        {countriesForAdmin.map((c) => {
           const ops = parseCountryMethodEntries(c.operators);
           const withdrawals = parseCountryMethodEntries(c.withdrawalMethods);
           return (
@@ -301,7 +295,7 @@ export default function AdminCountries() {
             </Card>
           );
         })}
-        {countriesList?.length === 0 && (
+        {!isLoading && countriesForAdmin.length === 0 && (
           <p className="text-muted-foreground text-sm text-center py-8">Aucun pays configuré</p>
         )}
       </div>
@@ -327,11 +321,11 @@ export default function AdminCountries() {
                 />
               </div>
               <div>
-                <Label>Devise (ex: XAF)</Label>
+                <Label>Devise (ex: CDF)</Label>
                 <Input
                   value={form.currency}
                   onChange={e => setForm({ ...form, currency: e.target.value.toUpperCase() })}
-                  placeholder="XAF"
+                  placeholder="CDF"
                   maxLength={5}
                   required
                   data-testid="input-country-currency"

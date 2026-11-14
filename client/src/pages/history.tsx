@@ -147,9 +147,7 @@ export default function HistoryPage() {
 
   const isAdmin = !!(user as any)?.isAdmin;
   const countryInfo = user ? getCountryByCode(user.country) : null;
-  const currency = countryInfo?.currency === "XOF" || countryInfo?.currency === "XAF"
-    ? "FCFA"
-    : countryInfo?.currency || "FCFA";
+  const currency = "CDF";
 
   const { data: deposits = [], isLoading: depositsLoading } = useQuery<Deposit[]>({
     queryKey: ["/api/deposits/history"],

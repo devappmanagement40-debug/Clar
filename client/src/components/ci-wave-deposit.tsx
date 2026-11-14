@@ -246,7 +246,7 @@ export default function CiWaveDeposit({
           <section className="space-y-5 px-4 py-5 sm:px-6 sm:py-6">
             <div className="flex items-center justify-between rounded-xl border-2 border-[#d5dce4] bg-[#f7f8fa] px-4 py-3 shadow-sm">
               <span className="text-sm font-semibold text-[#687586]">{copy.paymentAmount}</span>
-              <strong className="text-base font-extrabold text-[#ee9a59]">FCFA {displayAmount}</strong>
+              <strong className="text-base font-extrabold text-[#ee9a59]">CDF {displayAmount}</strong>
             </div>
             <div className="space-y-2.5">
               <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-white bg-white shadow-[0_4px_14px_rgba(23,139,198,0.28)]">
@@ -315,7 +315,7 @@ export default function CiWaveDeposit({
               <button type="button" role="tab" aria-selected={view === "qr"} onClick={() => setView("qr")} className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#178ebd] ${view === "qr" ? "bg-[#ee9a59] text-white shadow-sm" : "text-[#435064] hover:bg-white"}`}><QrCode className="h-4 w-4" aria-hidden="true" />{copy.scanQr}</button>
             </div>
             <div className="flex items-center justify-between rounded-xl border-2 border-[#d5dce4] bg-[#f7f8fa] px-4 py-3 shadow-sm">
-              <span className="text-sm font-semibold text-[#687586]">{copy.amount}</span><strong className="text-lg font-extrabold text-[#c85e1d]">{displayAmount} <span className="text-sm">FCFA</span></strong>
+              <span className="text-sm font-semibold text-[#687586]">{copy.amount}</span><strong className="text-lg font-extrabold text-[#c85e1d]">{displayAmount} <span className="text-sm">CDF</span></strong>
             </div>
             {view === "app" ? (
               <>

@@ -49,7 +49,7 @@ export default function TeamDetailsPage() {
   });
   const { data: countries } = useQuery<ApiCountry[]>({ queryKey: ["/api/countries"] });
 
-  const currency = getCountryByCode(user?.country || "", countries)?.currency || "FCFA";
+  const currency = "CDF";
   const levels = [
     { num: 1 as const, name: "A", members: team?.level1 || [], totalInvested: team?.totalLevel1Invested || 0 },
     { num: 2 as const, name: "B", members: team?.level2 || [], totalInvested: team?.totalLevel2Invested || 0 },

@@ -38,7 +38,7 @@ export default function CheckinPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/daily-bonus-status"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       const amount = Number(data?.amount || 0);
-      const rewardCurrency = getCountryByCode(user?.country || "")?.currency || "XOF";
+      const rewardCurrency = "CDF";
       toast({ title: "Bonus reçu !", description: `${amount} ${rewardCurrency} ajoutés à vos revenus cumulés` });
     },
     onError: (error: Error) => {
@@ -49,7 +49,7 @@ export default function CheckinPage() {
   if (!user) return null;
 
   const country = getCountryByCode(user.country);
-  const currency = country?.currency || "XOF";
+  const currency = "CDF";
   const totalBonusClaimed = bonusStatus?.totalBonusClaimed || 0;
   const canClaim = Boolean(bonusStatus?.canClaim);
   const formatAmount = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;

@@ -26,7 +26,7 @@ export default function RulesPage() {
   const lv1 = settings?.level1Commission || "28";
   const lv2 = settings?.level2Commission || "1";
   const lv3 = settings?.level3Commission || "1";
-  const formatXof = (value: string) => {
+  const formatCurrencyAmount = (value: string) => {
     const amount = Number.parseInt(value, 10);
     return Number.isFinite(amount) ? amount.toLocaleString("fr-FR") : value;
   };
@@ -64,8 +64,8 @@ export default function RulesPage() {
           <section className="cp-rules-section">
             <h2>2. Dépôts et Retraits</h2>
             <ul>
-              <li>Le dépôt minimum est de {minDeposit.toLocaleString("fr-FR")} XOF.</li>
-              <li>Le retrait minimum est de {minWithdrawal.toLocaleString("fr-FR")} XOF.</li>
+              <li>Le dépôt minimum est de {minDeposit.toLocaleString("fr-FR")} CDF.</li>
+              <li>Le retrait minimum est de {minWithdrawal.toLocaleString("fr-FR")} CDF.</li>
               <li>Les frais de retrait affichés avant validation sont de {withdrawalFees}%.</li>
               <li>Les retraits sont disponibles entre {withdrawalStartHour} h et {withdrawalEndHour} h, dans la limite de {maxWithdrawalsPerDay} demande(s) par jour.</li>
               <li>Le montant net reçu et les frais sont présentés avant la confirmation du retrait.</li>
@@ -89,7 +89,7 @@ export default function RulesPage() {
           <section className="cp-rules-section">
             <h2>4. Bonus</h2>
             <ul>
-              <li>Le bonus d’inscription actuellement configuré est de {formatXof(signupBonus)} XOF. Il est crédité sur le solde des dépôts et réservé aux achats.</li>
+              <li>Le bonus d’inscription actuellement configuré est de {formatCurrencyAmount(signupBonus)} CDF. Il est crédité sur le solde des dépôts et réservé aux achats.</li>
               <li>Les bonus et récompenses sont soumis aux conditions affichées dans la rubrique correspondante de l’application.</li>
             </ul>
           </section>

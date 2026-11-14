@@ -608,7 +608,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
           <CardContent className="space-y-4">
             <FormField control={form.control} name="signupBonus" render={({ field }) => (
               <FormItem>
-                <FormLabel>Bonus d'inscription (FCFA)</FormLabel>
+                <FormLabel>Bonus d'inscription (CDF)</FormLabel>
                 <FormControl><Input {...field} type="number" min="0" /></FormControl>
                 <FormDescription>Crédité sur le solde des dépôts et réservé aux achats.</FormDescription>
                 <FormMessage />
@@ -618,14 +618,14 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="minDeposit" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dépôt minimum (FCFA)</FormLabel>
+                  <FormLabel>Dépôt minimum (CDF)</FormLabel>
                   <FormControl><Input {...field} type="number" min="0" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="minWithdrawal" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Retrait minimum (FCFA)</FormLabel>
+                  <FormLabel>Retrait minimum (CDF)</FormLabel>
                   <FormControl><Input {...field} type="number" min="0" /></FormControl>
                   <FormMessage />
                 </FormItem>

@@ -29,7 +29,7 @@ export function Current() {
         <div className="px-5 pb-6 pt-4 text-white">
           <p className="text-xl">Montant :</p>
           <p className="text-4xl font-bold">
-            5 000 <span className="text-2xl font-normal">FCFA</span>
+            5 000 <span className="text-2xl font-normal">CDF</span>
           </p>
         </div>
         <section className="space-y-5">

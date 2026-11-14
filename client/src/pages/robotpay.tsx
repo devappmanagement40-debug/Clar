@@ -198,7 +198,7 @@ export default function RobotPayPage() {
     ? [{ provider: "soleaspay" as const, name: "SoleaPay" }]
     : providerInfo?.providers || (providerInfo ? [{ provider: providerInfo.provider, name: providerInfo.name }] : []);
   const countryInfo = countries.find(c => c.code === country && c.isActive);
-  const currency = countryInfo?.currency || "FCFA";
+  const currency = "CDF";
   const phonePrefix = countryInfo && "phonePrefix" in countryInfo ? countryInfo.phonePrefix : "";
   const paymentPhone = phone.trim().startsWith("+")
     ? phone.trim()

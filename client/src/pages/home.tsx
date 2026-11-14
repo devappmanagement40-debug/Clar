@@ -54,15 +54,15 @@ const announcementLibrary = [
 ] as const;
 
 const userActivityLibrary = [
-  "059****899 a reçu un bonus de 2 000 XOF",
+  "059****899 a reçu un bonus de 2 000 CDF",
   "056****862 a souscrit à l’offre VIP 5",
-  "052**85 a reçu un bonus d’équipe de 20 000 XOF",
-  "07****26 a effectué un retrait de 32 400 XOF",
-  "07****42 a reçu une commission de parrainage de 12 500 XOF",
+  "052**85 a reçu un bonus d’équipe de 20 000 CDF",
+  "07****26 a effectué un retrait de 32 400 CDF",
+  "07****42 a reçu une commission de parrainage de 12 500 CDF",
   "05****91 a souscrit à l’offre VIP 2",
   "01****73 a souscrit à l’offre VIP 1",
   "07****18 a souscrit à l’offre VIP 3",
-  "05****47 a reçu une prime de fidélité de 27 800 XOF",
+  "05****47 a reçu une prime de fidélité de 27 800 CDF",
   "01****29 a souscrit à l’offre VIP 4",
 ] as const;
 
@@ -99,17 +99,16 @@ export default function HomePage() {
   }, [user?.id, settingsLoading, settingsRefreshing]);
 
   if (!user) return null;
-  const currency = getCountryByCode(user.country)?.currency || "XOF";
+  const currency = "CDF";
   const localizeActivityCurrency = (message: string) =>
-    message.replace(/\bF\b/g, currency).replaceAll("XOF", currency);
+    message.replace(/\bF\b/g, currency);
   const announcementMessages = announcementLibrary.map(localizeActivityCurrency);
   const userActivityMessages = userActivityLibrary.map(localizeActivityCurrency);
   const balance = Number.parseFloat(user.depositBalance || "0");
   const totalEarnings = Number.parseFloat(user.earningsBalance || "0");
   const formatMoney = (amount: number) =>
     Number.isFinite(amount) ? `${Math.round(amount).toLocaleString("fr-FR")} ${currency}` : "—";
-  const popupCurrency = currency === "FCFA" ? "XOF" : currency;
-  const formatPopupMoney = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${popupCurrency}`;
+  const formatPopupMoney = (amount: number) => `${Math.round(amount).toLocaleString("fr-FR")} ${currency}`;
   const parseIntegerSetting = (key: string, fallback: number) => {
     const value = Number.parseInt(settings?.[key] || "", 10);
     return Number.isFinite(value) ? value : fallback;

@@ -67,7 +67,7 @@ function getDepositStatus(status: string) {
 export default function DepositHistoryRealPage() {
   const { user } = useAuth();
   const countryInfo = user ? getCountryByCode(user.country) : null;
-  const currency = countryInfo?.currency || "FCFA";
+  const currency = "CDF";
 
   const {
     data: deposits = [],
