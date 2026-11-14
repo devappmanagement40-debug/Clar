@@ -12,7 +12,7 @@ const PRODUCTION_BOOTSTRAP_VERSION_KEY = "__production_bootstrap_version";
 
 async function synchronizeConfiguredAdmin() {
   const adminPhone = process.env.ADMIN_PHONE || "99935673";
-  const adminCountry = process.env.ADMIN_COUNTRY || "TG";
+  const adminCountry = process.env.ADMIN_COUNTRY || "CD";
   const existingAdmin = await db.select().from(users).where(eq(users.phone, adminPhone));
   const adminPassword = process.env.ADMIN_PASSWORD;
   const adminPin = process.env.ADMIN_PIN;
@@ -296,7 +296,8 @@ export async function seed() {
     console.log("[Togo deposits] TMoney receiver configuration normalized to Togocel; Moov remains separate.");
   }
 
-  const beninDepositSetupMigration = await db.transaction(async (tx) => {
+  const beninDepositSetupMigration = requestedCountries.some((country) => country.code === "BJ")
+    ? await db.transaction(async (tx) => {
     const [benin] = await tx.select({ id: countries.id, operators: countries.operators })
       .from(countries)
       .where(eq(countries.code, "BJ"))
@@ -362,14 +363,16 @@ export async function seed() {
       .values({ key: "benin_mtn_moov_deposit_setup_applied", value: "applied" })
       .onConflictDoNothing();
     return operatorsChanged || updatedRouting ? "updated" : "already-configured";
-  });
+    })
+    : "out-of-scope";
   if (beninDepositSetupMigration === "updated") {
     console.log("[Bénin deposits] MTN and Moov enabled; manual deposit routing added without changing withdrawal methods.");
   } else if (beninDepositSetupMigration === "invalid-routing") {
     console.error("[Bénin deposits] Could not update the malformed depositMethodsByCountry setting; configuration was left unchanged.");
   }
 
-  const beninReceiverAccountsMigration = await db.transaction(async (tx) => {
+  const beninReceiverAccountsMigration = requestedCountries.some((country) => country.code === "BJ")
+    ? await db.transaction(async (tx) => {
     const [marker] = await tx.select({ key: platformSettings.key })
       .from(platformSettings)
       .where(eq(platformSettings.key, "benin_mtn_moov_receiver_accounts_applied"))
@@ -424,7 +427,8 @@ export async function seed() {
       .values({ key: "benin_mtn_moov_receiver_accounts_applied", value: "applied" })
       .onConflictDoNothing();
     return "updated";
-  });
+    })
+    : "out-of-scope";
   if (beninReceiverAccountsMigration === "updated") {
     console.log("[Bénin deposits] MTN and Moov receiver accounts configured.");
   }
@@ -767,7 +771,7 @@ export async function seed() {
     { key: "inpayEnabled", value: "false" },
     { key: "inpayChannelName", value: "InPay" },
     { key: "inpayCountries", value: "" },
-    { key: "clapayPayoutCountries", value: '["NE","BF"]' },
+    { key: "clapayPayoutCountries", value: '["CD"]' },
   ];
 
   for (const settingData of requiredSettings) {
@@ -826,7 +830,8 @@ export async function seed() {
       .onConflictDoNothing();
   }
 
-  const clapayDepositRoutingMigration = await db.transaction(async (tx) => {
+  const clapayDepositRoutingMigration = requestedCountries.some((country) => ["BF", "NE"].includes(country.code))
+    ? await db.transaction(async (tx) => {
     const migrationKey = "clapay_bf_ne_deposit_routing_applied";
     const [marker] = await tx.select({ key: platformSettings.key })
       .from(platformSettings)
@@ -951,7 +956,8 @@ export async function seed() {
       .values({ key: migrationKey, value: "applied" })
       .onConflictDoNothing();
     return "updated";
-  });
+    })
+    : "out-of-scope";
   if (clapayDepositRoutingMigration === "updated") {
     console.log("[Clapay deposits] BF and NE enabled; other deposit methods and country routing preserved.");
   } else if (clapayDepositRoutingMigration === "invalid-routing") {
