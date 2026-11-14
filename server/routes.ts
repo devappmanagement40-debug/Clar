@@ -406,6 +406,14 @@ const ADMIN_SETTING_KEYS = new Set([
 ]);
 const MASKED_SETTING_VALUE = "********";
 
+async function getActiveCountryCurrency(countryCode: unknown): Promise<string> {
+  const code = typeof countryCode === "string" ? countryCode.trim().toUpperCase() : "";
+  if (!code) return "FCFA";
+  const country = (await storage.getActiveCountries())
+    .find((entry) => entry.code.toUpperCase() === code);
+  return country?.currency || "FCFA";
+}
+
 function isAdminSettingKey(key: string): boolean {
   return ADMIN_SETTING_KEYS.has(key);
 }
@@ -1298,14 +1306,16 @@ export async function registerRoutes(
          ? await validateWithdrawalFeePayment(user.id, feePaymentId, requestedAmount)
          : undefined;
        if (!withdrawalFeePayment && requestedAmount < minDeposit) {
-        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
+         const currency = await getActiveCountryCurrency(country || user.country);
+         return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} ${currency}` });
       }
        if (
          useInpay === true &&
          (!Number.isInteger(requestedAmount) || requestedAmount % 5 !== 0)
        ) {
+          const currency = await getActiveCountryCurrency(country || user.country);
          return res.status(400).json({
-           message: "Le montant InPay doit être un nombre entier multiple de 5 (ex. 300, 305 ou 310 FCFA)",
+            message: `Le montant InPay doit être un nombre entier multiple de 5 (ex. 300, 305 ou 310 ${currency})`,
            inpay: true,
          });
        }
@@ -1765,7 +1775,8 @@ export async function registerRoutes(
           ? await validateWithdrawalFeePayment(user.id, feePaymentId, numericAmount)
           : undefined;
       if (!withdrawalFeePayment && numericAmount < minDeposit) {
-        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
+        const currency = await getActiveCountryCurrency(selectedCountryCode || user.country);
+        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} ${currency}` });
       }
       if (!country || !operator || !phone) {
         return res.status(400).json({ message: "Pays, opérateur et numéro requis" });
@@ -2011,18 +2022,18 @@ export async function registerRoutes(
       if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
         return res.status(400).json({ message: "Montant invalide" });
       }
+      const currency = sendavapayGetCurrency(country);
       const withdrawalFeePayment = feePaymentId !== undefined && feePaymentId !== null
         ? await validateWithdrawalFeePayment(user.id, feePaymentId, numericAmount)
         : undefined;
       if (!withdrawalFeePayment && numericAmount < minDeposit) {
-        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} FCFA` });
+        return res.status(400).json({ message: `Montant minimum: ${minDeposit.toLocaleString()} ${currency}` });
       }
       if (!payerPhone || !payerPhone.trim()) {
         return res.status(400).json({ message: "Le numéro Mobile Money est requis" });
       }
 
       const svCountry = toSendavapayCountry(country);
-      const currency = sendavapayGetCurrency(country);
       const externalRef = `DEP-${Date.now()}-${user.id}`;
       // Only use the number explicitly entered for this deposit; never reuse the profile phone.
       const customerPhone = sendavapayFormatPhone(payerPhone.trim(), country);
@@ -4309,7 +4320,8 @@ export async function registerRoutes(
         : await validateWithdrawalFeePayment(user.id, feePaymentId, amount);
       const minDeposit = readPositiveIntegerSetting(settings.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
       if (!withdrawalFeePayment && amount < minDeposit) {
-        return res.status(400).json({ message: `Montant minimum : ${minDeposit.toLocaleString()} FCFA` });
+        const currency = await getActiveCountryCurrency(country);
+        return res.status(400).json({ message: `Montant minimum : ${minDeposit.toLocaleString()} ${currency}` });
       }
       if (!operatorId || !operatorName) {
         return res.status(400).json({ message: "Sélectionnez un opérateur Clapay" });

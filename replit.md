@@ -91,14 +91,17 @@ Preferred communication style: Simple, everyday language.
 ## Running on Replit
 
 ### Prerequisites
-- Configure `SUPABASE_NEW_DATABASE_URL` and `SESSION_SECRET` as Replit Secrets.
+- The visual preview does not require database secrets. For the database-backed application, configure `SUPABASE_NEW_DATABASE_URL` and `SESSION_SECRET` as Replit Secrets.
 
 ### First-time setup
 ```bash
 npm install          # install dependencies
-npm run db:push      # create/update the schema in the configured Supabase database
-npm run dev          # start the development server on port 5000
+npm run dev          # start on port 5000
 ```
+
+`npm run dev` starts a clearly labeled, database-free visual preview when neither `SUPABASE_NEW_DATABASE_URL` nor `SUPABASE_DATABASE_URL` is configured. To start only that preview explicitly, run `npm run dev:preview`. The preview does not provide live accounts, stored data, or financial actions.
+
+The database-backed server starts when one of those database URLs is configured. Do not run `npm run db:push` as part of a visual-preview setup; review the external database and schema changes before applying it.
 
 The Supabase schema is managed from `shared/schema.ts` with Drizzle. On first start, the app seeds countries, tasks, payment channels, and platform settings when empty. The app performs one transactional, create-only bootstrap for the eight initial Equinor product offers; a migration marker prevents later starts from recreating deleted offers or overwriting admin edits. Staking products remain managed from the admin panel.
 

@@ -58,6 +58,15 @@ function CountryFlag({ code }: { code: string }) {
           <path fill="#e8112d" d="M24 20h36v20H24z" />
         </svg>
       );
+    case "CD":
+      return (
+        <svg className="country-picker-flag" viewBox="0 0 60 40" aria-hidden="true">
+          <rect width="60" height="40" fill="#007fff" />
+          <path d="M-4 39 48-3h12L7 43H-4z" fill="#f7d618" />
+          <path d="M-4 36 45-3h9L5 43h-9z" fill="#ce1028" />
+          <path d="m14 4 1.8 3.7 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6z" fill="#f7d618" />
+        </svg>
+      );
     default:
       return <span className="country-picker-flag-fallback" aria-hidden="true">{normalizedCode}</span>;
   }

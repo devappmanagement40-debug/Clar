@@ -170,6 +170,15 @@ export async function seed() {
       withdrawalMethods: ["MTN Bénin", "Moov Africa Bénin"],
       isActive: true,
     },
+    {
+      code: "CD",
+      name: "Congo-Kinshasa",
+      currency: "CDF",
+      phonePrefix: "243",
+      operators: [],
+      withdrawalMethods: [],
+      isActive: true,
+    },
   ].map((country) => ({
     ...country,
     operators: JSON.stringify(country.operators),
@@ -187,7 +196,7 @@ export async function seed() {
     console.log(`Countries skipped — ${existingCountries.length} existing countries preserved`);
   }
 
-  const countryCatalogMigrationKey = "country_catalog_requested_west_africa_applied";
+  const countryCatalogMigrationKey = "country_catalog_requested_west_africa_and_cd_applied";
   const countryCatalogMigration = await db.transaction(async (tx) => {
     const [marker] = await tx.insert(platformSettings)
       .values({ key: countryCatalogMigrationKey, value: "applied" })
@@ -201,6 +210,16 @@ export async function seed() {
 
     for (const countryData of requestedCountries) {
       await tx.insert(countries).values(countryData).onConflictDoNothing();
+      if (countryData.code === "CD") {
+        // Correct the RDC display details while preserving admin-managed payment methods.
+        await tx.update(countries)
+          .set({
+            name: countryData.name,
+            currency: countryData.currency,
+            phonePrefix: countryData.phonePrefix,
+          })
+          .where(eq(countries.code, "CD"));
+      }
     }
 
     const requestedCountryCodes = new Set(requestedCountries.map((country) => country.code));

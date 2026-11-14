@@ -15,9 +15,9 @@ Public pickers may use the seeded country list only when `/api/countries` fails;
 
 **How to apply:** Use the fallback only for failed requests, label it as temporary, and keep inactive-country enforcement on the server.
 
-The user's current active country list is exactly Togo (TG), Côte d'Ivoire (CI), Burkina Faso (BF), Niger (NE), and Bénin (BJ). Keep other catalog rows inactive rather than deleting them. Bénin uses XOF and phone prefix 229; its deposit operators and withdrawal methods are MTN Bénin and Moov Africa Bénin.
+The active country list includes Togo (TG), Côte d'Ivoire (CI), Burkina Faso (BF), Niger (NE), Bénin (BJ), and Congo-Kinshasa (CD). Congo-Kinshasa uses CDF and phone prefix 243; keep its payment methods admin-configured. Keep other catalog rows inactive rather than deleting them. Bénin uses XOF and phone prefix 229; its deposit operators and withdrawal methods are MTN Bénin and Moov Africa Bénin.
 
-**Why:** the user requested this exact country list on 2026-10-16 and existing country codes may still be needed for historical records.
+**Why:** the user requested the five West African countries on 2026-10-16 and later requested Congo-Kinshasa for signup, login, and deposits with CDF and phone prefix 243.
 
 **How to apply:** Keep each country's deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore country-specific runtime overrides. When the active country set or method choices change, update the app's first-install defaults, legacy defaults, API-failure fallbacks, and existing external-database rows without overwriting unrelated methods.
 

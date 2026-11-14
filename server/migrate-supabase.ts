@@ -305,6 +305,7 @@ async function run() {
       { code: "BF", name: "Burkina Faso", currency: "XOF", phone_prefix: "226", operators: '["Orange Burkina","Moov Africa Burkina"]' },
       { code: "NE", name: "Niger", currency: "XOF", phone_prefix: "227", operators: '["NITA TRANSFERT","AMANA TRANSFERT"]' },
       { code: "BJ", name: "Bénin", currency: "XOF", phone_prefix: "229", operators: "[]" },
+      { code: "CD", name: "Congo-Kinshasa", currency: "CDF", phone_prefix: "243", operators: "[]" },
     ];
     for (const c of countriesData) {
       await client.query(
