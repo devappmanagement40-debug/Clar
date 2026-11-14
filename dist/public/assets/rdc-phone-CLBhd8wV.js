@@ -1,1 +1,0 @@
-const n="990665835",i=`Le numéro doit contenir exactement 9 chiffres, par exemple ${n}.`,s=/^[0-9]{9}$/;function c(e){return s.test(e.trim())}function r(e){let t=e.replace(/\D/g,"");return t.startsWith("00243")&&t.length>9?t=t.slice(5):t.startsWith("243")&&t.length>9&&(t=t.slice(3)),t.length===10&&t.startsWith("0")&&(t=t.slice(1)),t}export{i as R,c as i,r as n};

@@ -21,6 +21,8 @@ import {
 } from "@shared/schema";
 import {
   isRdcLocalPhoneNumber,
+  isRdcAdminPhoneNumber,
+  isRdcLoginPhoneAuthorized,
   isValidRdcPhoneTransportValue,
   normalizeRdcLocalPhone,
   RDC_LOCAL_PHONE_ERROR,
@@ -293,7 +295,9 @@ async function serializeAuthenticatedUser(user: NonNullable<Awaited<ReturnType<t
   const wallet = await storage.getWalletBalances(user.id);
   return {
     ...user,
-    phone: user.country.toUpperCase() === "CD" ? normalizeRdcLocalPhone(user.phone) : user.phone,
+    phone: user.country.toUpperCase() === "CD" && !user.isAdmin
+      ? normalizeRdcLocalPhone(user.phone)
+      : user.phone,
     depositBalance: wallet.depositBalance.toFixed(2),
     earningsBalance: wallet.earningsBalance.toFixed(2),
     password: undefined,
@@ -715,24 +719,32 @@ export async function registerRoutes(
     if (checkBruteForce(req, res)) return;
     try {
       const data = loginSchema.parse(req.body);
-      
-      const phoneCandidates = data.country.toUpperCase() === "CD"
-        ? [data.phone, `0${data.phone}`, `+243${data.phone}`, `243${data.phone}`, `00243${data.phone}`]
-        : [data.phone];
       let user: Awaited<ReturnType<typeof storage.getUserByPhone>> = undefined;
-      for (const phoneCandidate of phoneCandidates) {
-        user = await storage.getUserByPhone(phoneCandidate, data.country);
-        if (user) break;
-      }
 
-      // Administrators may select any country at login. Regular users must
-      // still authenticate with the country saved on their account.
-      if (!user) {
+      if (data.country.toUpperCase() === "CD" && isRdcAdminPhoneNumber(data.phone)) {
+        const candidate = await storage.getUserByPhone(data.phone, data.country)
+          ?? await storage.getUserByPhoneAnyCountry(data.phone);
+        if (candidate && isRdcLoginPhoneAuthorized(data.phone, candidate.isAdmin)) {
+          user = candidate;
+        }
+      } else {
+        const phoneCandidates = data.country.toUpperCase() === "CD"
+          ? [data.phone, `0${data.phone}`, `+243${data.phone}`, `243${data.phone}`, `00243${data.phone}`]
+          : [data.phone];
         for (const phoneCandidate of phoneCandidates) {
-          const adminCandidate = await storage.getUserByPhoneAnyCountry(phoneCandidate);
-          if (adminCandidate?.isAdmin) {
-            user = adminCandidate;
-            break;
+          user = await storage.getUserByPhone(phoneCandidate, data.country);
+          if (user) break;
+        }
+
+        // Administrators may select any country at login. Regular users must
+        // still authenticate with the country saved on their account.
+        if (!user) {
+          for (const phoneCandidate of phoneCandidates) {
+            const adminCandidate = await storage.getUserByPhoneAnyCountry(phoneCandidate);
+            if (adminCandidate?.isAdmin) {
+              user = adminCandidate;
+              break;
+            }
           }
         }
       }

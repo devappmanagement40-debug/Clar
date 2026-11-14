@@ -3,7 +3,9 @@ import test from "node:test";
 import { depositSchema, loginSchema, registerSchema, walletSchema } from "../shared/schema";
 import {
   isRdcLocalPhoneNumber,
+  isRdcLoginPhoneAuthorized,
   isValidRdcPhoneTransportValue,
+  isValidRdcLoginPhoneFormat,
   normalizeRdcLocalPhone,
 } from "../shared/rdc-phone";
 
@@ -26,7 +28,7 @@ test("provider transport numbers accept local or +243 format only at nine digits
   assert.equal(isValidRdcPhoneTransportValue("+24399066583"), false);
 });
 
-test("registration and login schemas enforce nine digits for RDC", () => {
+test("customers use nine digits while login permits a separately authorized admin length", () => {
   const common = { country: "CD", password: "secret123" };
   assert.equal(
     registerSchema.safeParse({ ...common, fullName: "Test User", phone: "990665835" }).success,
@@ -38,6 +40,11 @@ test("registration and login schemas enforce nine digits for RDC", () => {
   );
   assert.equal(loginSchema.safeParse({ ...common, phone: "990665835" }).success, true);
   assert.equal(loginSchema.safeParse({ ...common, phone: "99066583" }).success, false);
+  assert.equal(registerSchema.safeParse({ ...common, fullName: "Test User", phone: "1234567890" }).success, false);
+  assert.equal(loginSchema.safeParse({ ...common, phone: "1234567890" }).success, true);
+  assert.equal(isValidRdcLoginPhoneFormat("1234567890"), true);
+  assert.equal(isRdcLoginPhoneAuthorized("1234567890", false), false);
+  assert.equal(isRdcLoginPhoneAuthorized("1234567890", true), true);
 });
 
 test("deposit and withdrawal wallet schemas enforce nine-digit RDC numbers", () => {

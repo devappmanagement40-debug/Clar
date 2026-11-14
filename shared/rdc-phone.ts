@@ -2,11 +2,26 @@ export const RDC_LOCAL_PHONE_LENGTH = 9;
 export const RDC_LOCAL_PHONE_EXAMPLE = "990665835";
 export const RDC_LOCAL_PHONE_ERROR =
   `Le numéro doit contenir exactement ${RDC_LOCAL_PHONE_LENGTH} chiffres, par exemple ${RDC_LOCAL_PHONE_EXAMPLE}.`;
+export const RDC_LOGIN_PHONE_ERROR =
+  "Saisissez 9 chiffres pour un compte client ou 10 chiffres pour le compte administrateur.";
 
 const rdcLocalPhonePattern = /^[0-9]{9}$/;
+const rdcAdminPhonePattern = /^[0-9]{10}$/;
 
 export function isRdcLocalPhoneNumber(value: string): boolean {
   return rdcLocalPhonePattern.test(value.trim());
+}
+
+export function isRdcAdminPhoneNumber(value: string): boolean {
+  return rdcAdminPhonePattern.test(value.trim());
+}
+
+export function isValidRdcLoginPhoneFormat(value: string): boolean {
+  return isRdcLocalPhoneNumber(value) || isRdcAdminPhoneNumber(value);
+}
+
+export function isRdcLoginPhoneAuthorized(value: string, isAdmin: boolean): boolean {
+  return isRdcLocalPhoneNumber(value) || (isAdmin && isRdcAdminPhoneNumber(value));
 }
 
 export function normalizeRdcLocalPhone(value: string): string {
