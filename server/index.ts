@@ -11,9 +11,11 @@ import {
   mapAshtechStatus,
 } from "./ashtechpay";
 import { sendDailyTelegramSummary, startTelegramBot } from "./telegram";
+import { pool } from "./db";
 
 const app = express();
 const httpServer = createServer(app);
+const readOnlyServerCheck = process.env.SERVER_READ_ONLY_CHECK === "true";
 let startupState: "starting" | "ready" | "failed" = "starting";
 let finishStartupWait: () => void = () => undefined;
 const startupFinished = new Promise<void>((resolve) => {
@@ -132,6 +134,24 @@ app.use((req, res, next) => {
     next();
   });
 
+  if (readOnlyServerCheck) {
+    const allowedReadOnlyApiPaths = new Set([
+      "/api/auth/me",
+      "/api/settings",
+      "/api/settings/links",
+      "/api/countries",
+    ]);
+    app.use((req, res, next) => {
+      if (
+        req.path.startsWith("/api/") &&
+        (req.method !== "GET" || !allowedReadOnlyApiPaths.has(req.path))
+      ) {
+        return res.status(503).json({ message: "Route désactivée pendant la vérification en lecture seule." });
+      }
+      next();
+    });
+  }
+
   const restoreExistingAdmin = process.env.RESTORE_EXISTING_ADMIN === "true";
   await registerRoutes(httpServer, app);
 
@@ -235,14 +255,55 @@ app.use((req, res, next) => {
 
   const initializeRuntime = async () => {
     try {
-      if (restoreExistingAdmin) {
-        await restoreExistingAccountToSupabase();
+      if (readOnlyServerCheck) {
+        const { rows } = await pool.query<{
+          database_name: string;
+          role_name: string;
+          has_session_table: boolean;
+          has_users_table: boolean;
+          has_settings_table: boolean;
+          has_countries_table: boolean;
+        }>(`
+          SELECT
+            current_database() AS database_name,
+            current_user AS role_name,
+            to_regclass('public.session') IS NOT NULL AS has_session_table,
+            to_regclass('public.users') IS NOT NULL AS has_users_table,
+            to_regclass('public.platform_settings') IS NOT NULL AS has_settings_table,
+            to_regclass('public.countries') IS NOT NULL AS has_countries_table
+        `);
+        const database = rows[0];
+        if (!database) {
+          throw new Error("Read-only verification did not return a database identity.");
+        }
+        log(
+          `External PostgreSQL connection verified: database=${database.database_name}, role=${database.role_name}; no writes were issued.`,
+          "startup-check",
+        );
+        const missingTables = [
+          ["session", database?.has_session_table],
+          ["users", database?.has_users_table],
+          ["platform_settings", database?.has_settings_table],
+          ["countries", database?.has_countries_table],
+        ].filter(([, exists]) => !exists).map(([name]) => name);
+        if (missingTables.length > 0) {
+          throw new Error(`Read-only verification requires existing tables: ${missingTables.join(", ")}`);
+        }
+      } else {
+        if (restoreExistingAdmin) {
+          await restoreExistingAccountToSupabase();
+        }
+        await seed();
       }
-      await seed();
       startupState = "ready";
       finishStartupWait();
-      log("Database initialization completed; API is ready", "startup");
-      startBackgroundJobs();
+      log(
+        readOnlyServerCheck
+          ? "Read-only verification server is ready; bootstrap and background jobs are disabled."
+          : "Database initialization completed; API is ready",
+        readOnlyServerCheck ? "startup-check" : "startup",
+      );
+      if (!readOnlyServerCheck) startBackgroundJobs();
     } catch (error) {
       startupState = "failed";
       finishStartupWait();

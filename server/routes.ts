@@ -357,6 +357,7 @@ const PgSession = ConnectPgSimple(session);
 const sessionDatabaseUrl =
   process.env.SUPABASE_NEW_DATABASE_URL || process.env.SUPABASE_DATABASE_URL;
 const sessionSecret = process.env.SESSION_SECRET;
+const readOnlyServerCheck = process.env.SERVER_READ_ONLY_CHECK === "true";
 
 if (!sessionDatabaseUrl) {
   throw new Error("No database URL configured for session storage.");
@@ -624,8 +625,8 @@ export async function registerRoutes(
       store: new PgSession({
         conString: sessionDatabaseUrl,
         tableName: "session",
-        createTableIfMissing: true,
-        pruneSessionInterval: 60 * 60,
+        createTableIfMissing: !readOnlyServerCheck,
+        pruneSessionInterval: readOnlyServerCheck ? false : 60 * 60,
       }),
        secret: sessionSecret as string,
       resave: false,

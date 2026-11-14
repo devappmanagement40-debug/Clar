@@ -103,6 +103,8 @@ npm run dev          # start on port 5000
 
 The database-backed server starts when one of those database URLs is configured. Do not run `npm run db:push` as part of a visual-preview setup; review the external database and schema changes before applying it.
 
+For a non-mutating server smoke test, run `npm run dev:verify`. It uses only the configured external Supabase URL, checks that the existing session and application tables are present, skips seed/bootstrap and background jobs, and allows only GET requests to `/api/health`, `/api/auth/me`, `/api/settings`, `/api/settings/links`, and `/api/countries`. Session-table creation and pruning are disabled in this mode. `/api/auth/me` should return 401 without a signed-in session; this verifies the unauthenticated boundary, not login or registration, which write to the database.
+
 The Supabase schema is managed from `shared/schema.ts` with Drizzle. On first start, the app seeds countries, tasks, payment channels, and platform settings when empty. The app performs one transactional, create-only bootstrap for the eight initial Equinor product offers; a migration marker prevents later starts from recreating deleted offers or overwriting admin edits. Staking products remain managed from the admin panel.
 
 ### Initial administrator
