@@ -115,7 +115,10 @@ export default function RobotPayPage() {
   const isCiManualFlow = isManualFlow && country === "CI";
   const isTgManualFlow = isManualFlow && country === "TG";
   const isBjManualFlow = isManualFlow && country === "BJ";
-  const isCountrySpecificManualFlow = isTgManualFlow || isBjManualFlow;
+  const isCdManualFlow = isManualFlow && country === "CD";
+  const isCountrySpecificManualFlow = isTgManualFlow || isBjManualFlow || isCdManualFlow;
+  const countryManualPhoneDigits = country === "BJ" || country === "CD" ? 10 : 8;
+  const countryManualName = country === "BJ" ? "Bénin" : country === "CD" ? "RDC" : "Togo";
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
     : "";
@@ -300,8 +303,14 @@ export default function RobotPayPage() {
             manualNumber: number,
           })),
           ];
-  const countryManualOperatorChoices: Operator[] = isCountrySpecificManualFlow
-    ? Array.from(new Set(
+  const countryManualOperatorChoices: Operator[] = isCdManualFlow
+    ? manualNumbers.map(number => ({
+        id: `manual-${number.id}`,
+        name: number.operatorName,
+        manualNumber: number,
+      }))
+    : isCountrySpecificManualFlow
+      ? Array.from(new Set(
         parseOperators(countryInfo?.operators || "[]")
           .map((name) => canonicalManualOperatorName(country, name)),
       )).flatMap((name) => {
@@ -316,8 +325,8 @@ export default function RobotPayPage() {
               manualNumber: number,
             }))
           : [{ id: `${country.toLocaleLowerCase()}-unconfigured-${name}`, name }];
-      })
-    : operators;
+        })
+      : operators;
   const loadingOperators = isSoleaspayFlow
     ? soleaspayServicesLoading
      : manualNumbersLoading || providerLoading || sendavaLoading || ashtechLoading || clapayLoading;
@@ -715,10 +724,9 @@ export default function RobotPayPage() {
       });
       return;
     }
-    const expectedManualPhoneDigits = country === "BJ" ? 10 : 8;
+    const expectedManualPhoneDigits = countryManualPhoneDigits;
     if (isCountrySpecificManualFlow && phone.replace(/\D/g, "").length !== expectedManualPhoneDigits) {
-      const countryName = country === "BJ" ? "Bénin" : "Togo";
-      toast({ title: "Numéro invalide", description: `Saisissez les ${expectedManualPhoneDigits} chiffres de votre numéro Mobile Money au ${countryName}.`, variant: "destructive" });
+      toast({ title: "Numéro invalide", description: `Saisissez les ${expectedManualPhoneDigits} chiffres de votre numéro Mobile Money au ${countryManualName}.`, variant: "destructive" });
       return;
     }
     if (isCiManualFlow && hostedManualMethod === "wave" && phone.replace(/\D/g, "").length !== 10) {
@@ -743,15 +751,15 @@ export default function RobotPayPage() {
         amount={amount}
         currency={currency}
         countryCode={country}
-        countryName={countryInfo?.name || (country === "BJ" ? "Bénin" : "Togo")}
+        countryName={countryInfo?.name || countryManualName}
         phonePrefix={phonePrefix}
-        phoneDigits={country === "BJ" ? 10 : 8}
+        phoneDigits={countryManualPhoneDigits}
         operators={countryManualOperatorChoices}
         isLoadingOperators={loadingOperators}
         hasOperatorsError={manualNumbersError}
         selectedOperator={operator}
         phone={phone}
-        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, country === "BJ" ? 10 : 8))}
+        onPhoneChange={(value) => setPhone(value.replace(/\D/g, "").slice(0, countryManualPhoneDigits))}
         onSelectOperator={chooseOperator}
         onContinue={continueFromOperatorSelection}
         onBack={() => {

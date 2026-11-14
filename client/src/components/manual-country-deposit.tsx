@@ -67,6 +67,8 @@ function operatorLogo(name?: string, countryCode?: string) {
   const normalized = name?.toLocaleLowerCase().replace(/[^a-z0-9]/g, "") || "";
   if (countryCode === "BJ" && normalized.includes("mtn")) return "/operators/mtn-benin.jpg";
   if (countryCode === "BJ" && normalized.includes("moov")) return "/operators/moov.jpg";
+  if (countryCode === "CD" && normalized.includes("airtel")) return "/operators/airtel.png";
+  if (countryCode === "CD" && normalized.includes("orange")) return "/operators/orange.png";
   if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "/operators/tmoney.png";
   if (normalized.includes("moov")) return "/operators/moov-money-togo.webp";
   return null;
