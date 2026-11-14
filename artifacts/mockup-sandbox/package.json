@@ -7,6 +7,7 @@
     "check:deps": "npm ls --depth=0",
     "predev": "npm run check:deps",
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
+    "check:preview": "node scripts/check-preview.mjs",
     "prebuild": "npm run check:deps",
     "build": "vite build --config vite.config.ts",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
