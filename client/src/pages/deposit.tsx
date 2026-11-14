@@ -18,7 +18,7 @@ import {
   DEPOSIT_AMOUNT_PRESETS,
   readPositiveIntegerSetting,
 } from "@shared/platform-settings";
-import type { PaymentNumber } from "@shared/schema";
+import type { PaymentNumber, Product } from "@shared/schema";
 
 type DepositMethodId = "manual" | "soleaspay" | "ashtech" | "sendavapay" | "westpay" | "inpay" | "clapay";
 type DepositMethodChoice = { provider: DepositMethodId };
@@ -272,6 +272,9 @@ export default function DepositPage() {
     queryKey: ["/api/settings"],
     ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
+  const { data: products = [], isError: productAmountsError } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
   const { data: depositMethodsData, isLoading: depositMethodsLoading, isError: depositMethodsError } =
     useQuery<{ country: string; methods: DepositMethodChoice[] }>({
       queryKey: ["/api/deposit/methods", country],
@@ -299,7 +302,24 @@ export default function DepositPage() {
     platformSettings?.minDeposit,
     DEFAULT_MINIMUM_DEPOSIT,
   );
-  const depositPresets = DEPOSIT_AMOUNT_PRESETS;
+  const activeProductAmounts = products
+    .filter((product) =>
+      product.isActive &&
+      !product.isFree &&
+      Number.isSafeInteger(product.price) &&
+      product.price > 0,
+    )
+    .map((product) => product.price);
+  const additionalDepositPresets = new Set<number>([
+    ...DEPOSIT_AMOUNT_PRESETS.filter((preset) => preset > 20_000),
+    ...activeProductAmounts,
+  ]);
+  const depositPresets = [
+    20_000,
+    ...Array.from(additionalDepositPresets)
+      .filter((preset) => preset !== 20_000)
+      .sort((first, second) => first - second),
+  ];
   const ashtechAvailable = depositMethodIds.has("ashtech");
 
   const depositCountryPriority: Record<string, number> = { CI: 0, NE: 1 };
@@ -1490,6 +1510,11 @@ export default function DepositPage() {
               </button>
             ))}
           </div>
+          {productAmountsError && (
+            <p role="status" className="mt-2 text-xs text-amber-700">
+              Les prix des produits n’ont pas pu être chargés. Vous pouvez toujours saisir un montant manuellement.
+            </p>
+          )}
           <label className="amount-input">
             <span className="currency">{currency}</span>
             <input
