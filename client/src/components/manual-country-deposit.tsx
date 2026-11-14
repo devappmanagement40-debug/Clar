@@ -67,11 +67,22 @@ function operatorLogo(name?: string, countryCode?: string) {
   const normalized = name?.toLocaleLowerCase().replace(/[^a-z0-9]/g, "") || "";
   if (countryCode === "BJ" && normalized.includes("mtn")) return "/operators/mtn-benin.jpg";
   if (countryCode === "BJ" && normalized.includes("moov")) return "/operators/moov.jpg";
-  if (countryCode === "CD" && normalized.includes("airtel")) return "/operators/airtel.png";
+  if (countryCode === "CD" && normalized.includes("airtel")) return "/operators/airtel-money-user.jpg";
+  if (countryCode === "CD" && normalized.includes("vodacom")) return "/operators/vodacom-money-user.jpg";
   if (countryCode === "CD" && normalized.includes("orange")) return "/operators/orange.png";
   if (normalized.includes("tmoney") || normalized.includes("togocel") || normalized.includes("yastogo")) return "/operators/tmoney.png";
   if (normalized.includes("moov")) return "/operators/moov-money-togo.webp";
   return null;
+}
+
+function resolveOperatorLogo(name: string | undefined, countryCode: string, configuredLogo?: string | null) {
+  const countryLogo = operatorLogo(name, countryCode);
+  const normalized = name?.toLocaleLowerCase().replace(/[^a-z0-9]/g, "") || "";
+  const isProvidedRdcLogo =
+    countryCode === "CD" &&
+    (normalized.includes("airtel") || normalized.includes("vodacom"));
+  if (isProvidedRdcLogo && countryLogo) return countryLogo;
+  return configuredLogo || countryLogo;
 }
 
 function formatTime(totalSeconds: number) {
@@ -117,7 +128,11 @@ export default function ManualCountryDeposit({
   const selectedName = operatorLabel(selectedOperator?.name || selectedOperator?.manualNumber?.operatorName, countryCode);
   const paymentNumber = selectedOperator?.manualNumber;
   const target = paymentNumber?.paymentLink || paymentNumber?.phone || "";
-  const paymentLogo = paymentNumber?.logoUrl || operatorLogo(selectedOperator?.name || paymentNumber?.operatorName, countryCode);
+  const paymentLogo = resolveOperatorLogo(
+    selectedOperator?.name || paymentNumber?.operatorName,
+    countryCode,
+    paymentNumber?.logoUrl,
+  );
   const selectedOperatorNormalized = (selectedOperator?.name || paymentNumber?.operatorName || "").toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
   const isTogocel = selectedOperatorNormalized.includes("togocel") || selectedOperatorNormalized.includes("tmoney") || selectedOperatorNormalized.includes("yastogo");
   const ussdCode = buildTogocelManualUssdCode({
@@ -199,7 +214,7 @@ export default function ManualCountryDeposit({
                 {operators.map((option, index) => {
                   const name = option.name || option.manualNumber?.operatorName || "Mobile Money";
                   const isSelected = selectedOperator?.id === option.id && selectedOperator?.name === option.name;
-                  const logo = option.manualNumber?.logoUrl || operatorLogo(name, countryCode);
+                  const logo = resolveOperatorLogo(name, countryCode, option.manualNumber?.logoUrl);
                   return (
                     <button
                       key={`${option.id || name}-${index}`}
