@@ -1,0 +1,1 @@
+const s="Africa/Kinshasa",r=9,c=19;function a(i=new Date){const n=new Intl.DateTimeFormat("en-GB",{timeZone:s,hour:"2-digit",hourCycle:"h23"}).format(i);return Number(n)}function A(i,n,e){if(!Number.isInteger(n)||!Number.isInteger(e)||n<0||n>23||e<0||e>23||n>=e)return!1;const t=a(i);return t>=n&&t<e}export{r as D,c as a,A as i};

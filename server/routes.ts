@@ -33,6 +33,7 @@ import {
   DEFAULT_WITHDRAWAL_START_HOUR,
   isWithinKinshasaWithdrawalHours,
 } from "@shared/withdrawal-hours";
+import { hasActiveWithdrawalProduct } from "@shared/withdrawal-eligibility";
 import { DAILY_BONUS_OUTCOME_COUNT, dailyBonusFromIndex } from "@shared/daily-bonus";
 import { toPublicDepositHistoryItem, toPublicWithdrawalHistoryItem } from "./public-transaction-history";
 import { z } from "zod";
@@ -2532,8 +2533,14 @@ export async function registerRoutes(
   // Withdrawals
   app.get("/api/withdrawals/available", requireAuth, async (req, res) => {
     try {
-      const availableBalance = await storage.getWithdrawableBalance(req.session.userId!);
-      res.json({ availableBalance });
+      const [availableBalance, activeProducts] = await Promise.all([
+        storage.getWithdrawableBalance(req.session.userId!),
+        storage.getUserProducts(req.session.userId!),
+      ]);
+      res.json({
+        availableBalance,
+        hasActiveProduct: hasActiveWithdrawalProduct(activeProducts),
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -2543,6 +2550,13 @@ export async function registerRoutes(
     try {
       const user = await storage.getUser(req.session.userId!);
       if (!user) return res.status(401).json({ message: "Non authentifié" });
+      const activeProducts = await storage.getUserProducts(user.id);
+      if (!hasActiveWithdrawalProduct(activeProducts)) {
+        return res.status(403).json({
+          code: "ACTIVE_PRODUCT_REQUIRED",
+          message: "Vous devez avoir au moins un produit actif pour effectuer un retrait.",
+        });
+      }
       const settings = await storage.getSettings();
       if (settings.withdrawalPrepaymentEnabled !== "true") {
         return res.status(400).json({ message: "Le prépaiement des retraits est désactivé." });
@@ -2591,6 +2605,14 @@ export async function registerRoutes(
       
       if (!user) {
         return res.status(401).json({ message: "Non authentifié" });
+      }
+
+      const activeProducts = await storage.getUserProducts(user.id);
+      if (!hasActiveWithdrawalProduct(activeProducts)) {
+        return res.status(403).json({
+          code: "ACTIVE_PRODUCT_REQUIRED",
+          message: "Vous devez avoir au moins un produit actif pour effectuer un retrait.",
+        });
       }
 
       const settingsForWithdrawal = await storage.getSettings();

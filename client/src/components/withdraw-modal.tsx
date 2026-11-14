@@ -63,6 +63,16 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
     ...FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS,
   });
 
+  const {
+    data: withdrawalAvailability,
+    isLoading: isCheckingActiveProduct,
+    isError: activeProductCheckFailed,
+  } = useQuery<{ availableBalance: string; hasActiveProduct: boolean }>({
+    queryKey: ["/api/withdrawals/available"],
+    enabled: open,
+    staleTime: 0,
+  });
+
   const form = useForm<WithdrawForm>({
     resolver: zodResolver(withdrawSchema),
     defaultValues: {
@@ -117,11 +127,20 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
   const netAmount = amount - feeAmount;
   const withdrawalPrepayment = Math.max(1, Math.round(amount * 25 / 100));
 
-  const canWithdraw = !user.isWithdrawalBlocked && defaultWallet;
+  const hasActiveProduct = withdrawalAvailability?.hasActiveProduct === true;
+  const canWithdraw = !user.isWithdrawalBlocked && defaultWallet && hasActiveProduct;
   const isWithinHours = isWithinKinshasaWithdrawalHours(clockNow, startHour, endHour);
 
   const handlePayPrepayment = async () => {
     if (!withdrawalPrepaymentEnabled) return;
+    if (!hasActiveProduct) {
+      toast({
+        title: "Produit actif requis",
+        description: "Vous devez avoir au moins un produit actif pour effectuer un retrait.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (amount < minWithdrawal) {
       toast({ title: "Montant invalide", description: `Le montant minimum est de ${formatCurrency(minWithdrawal, user.country)}`, variant: "destructive" });
       return;
@@ -258,7 +277,11 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
         </DialogHeader>
 
         <div className="withdraw-modal-body">
-        {!canWithdraw ? (
+        {isCheckingActiveProduct ? (
+          <div className="rounded-lg border border-primary/20 bg-primary/10 p-4 text-sm text-muted-foreground">
+            Vérification de votre produit actif…
+          </div>
+        ) : !canWithdraw ? (
           <div className="space-y-4">
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
@@ -268,6 +291,10 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
                   {!defaultWallet && <li>- Enregistrez un portefeuille de retrait</li>}
                   {user.isWithdrawalBlocked && <li>- Votre retrait est bloqué</li>}
                   {user.mustInviteToWithdraw && <li>- Invitez quelqu'un qui investit</li>}
+                  {activeProductCheckFailed && <li>- Impossible de vérifier votre produit actif</li>}
+                  {!activeProductCheckFailed && !hasActiveProduct && (
+                    <li>- Vous devez avoir au moins un produit actif pour retirer</li>
+                  )}
                 </ul>
               </div>
             </div>
@@ -350,7 +377,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
                     variant="outline"
                     className="w-full border-amber-400 bg-white text-amber-900 hover:bg-amber-100"
                     onClick={handlePayPrepayment}
-                    disabled={isPreparingPayment || amount < minWithdrawal}
+                    disabled={isPreparingPayment || !hasActiveProduct || amount < minWithdrawal}
                   >
                     {isPreparingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : "Payer"}
                   </Button>
@@ -360,7 +387,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={withdrawMutation.isPending || amount < minWithdrawal || amount > balance}
+                disabled={withdrawMutation.isPending || !hasActiveProduct || amount < minWithdrawal || amount > balance}
                 data-testid="button-submit-withdraw"
               >
                 {withdrawMutation.isPending ? (

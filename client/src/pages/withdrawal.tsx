@@ -102,7 +102,10 @@ export default function WithdrawalPage() {
     refetchOnWindowFocus: true,
   });
 
-  const { data: availableBalance } = useQuery<{ availableBalance: string }>({
+  const {
+    data: withdrawalAvailability,
+    isError: withdrawalAvailabilityError,
+  } = useQuery<{ availableBalance: string; hasActiveProduct: boolean }>({
     queryKey: ["/api/withdrawals/available"],
     enabled: !!user,
     staleTime: 0,
@@ -149,9 +152,21 @@ export default function WithdrawalPage() {
   const withdrawalPrepayment = withdrawalPrepaymentEnabled && amount
     ? Math.max(1, Math.round(Number(amount) * 25 / 100))
     : 0;
+  const hasActiveProduct = withdrawalAvailability?.hasActiveProduct === true;
+  const activeProductRequirementMessage = withdrawalAvailabilityError
+    ? "Impossible de vérifier votre produit actif. Réessayez dans un instant."
+    : "Vous devez avoir au moins un produit actif pour effectuer un retrait.";
 
   const handlePayPrepayment = async () => {
     if (!withdrawalPrepaymentEnabled) return;
+    if (!hasActiveProduct) {
+      toast({
+        title: "Produit actif requis",
+        description: activeProductRequirementMessage,
+        variant: "destructive",
+      });
+      return;
+    }
     if (!isWithinWithdrawalHours) {
       toast({
         title: "Retrait indisponible",
@@ -181,6 +196,14 @@ export default function WithdrawalPage() {
   };
 
   const handleSubmit = () => {
+    if (!hasActiveProduct) {
+      toast({
+        title: "Produit actif requis",
+        description: activeProductRequirementMessage,
+        variant: "destructive",
+      });
+      return;
+    }
     if (!isWithinWithdrawalHours) {
       toast({
         title: "Retrait indisponible",
@@ -210,7 +233,7 @@ export default function WithdrawalPage() {
 
   if (!user) return null;
 
-  const balance = parseFloat(availableBalance?.availableBalance || "0");
+  const balance = parseFloat(withdrawalAvailability?.availableBalance || "0");
   const hasWallets = wallets.length > 0;
 
   return (
@@ -665,6 +688,25 @@ export default function WithdrawalPage() {
           </section>
 
           <div className="withdraw-content">
+            {withdrawalAvailability?.hasActiveProduct === false && (
+              <div
+                role="alert"
+                className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"
+              >
+                <strong className="block">Produit actif requis</strong>
+                <p className="mt-1">
+                  Pour effectuer un retrait, vous devez avoir au moins un produit actif.
+                </p>
+                <Link href="/products" className="mt-2 inline-block font-semibold underline">
+                  Voir les produits
+                </Link>
+              </div>
+            )}
+            {withdrawalAvailabilityError && (
+              <div role="alert" className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+                Impossible de vérifier votre produit actif. Réessayez dans un instant.
+              </div>
+            )}
             <section className="withdraw-card withdraw-form-card" aria-label="Demande de retrait">
               <label className="withdraw-section-kicker" htmlFor="withdrawal-amount">
                 <Wallet size={17} aria-hidden="true" />
@@ -727,7 +769,7 @@ export default function WithdrawalPage() {
                   <button
                     type="button"
                     onClick={handlePayPrepayment}
-                    disabled={isPreparingPayment || !isWithinWithdrawalHours || !amount || Number(amount) < minWithdrawal}
+                    disabled={isPreparingPayment || !hasActiveProduct || !isWithinWithdrawalHours || !amount || Number(amount) < minWithdrawal}
                     className="withdraw-pay-fee"
                     data-testid="button-pay-withdrawal-prepayment"
                   >
@@ -739,7 +781,7 @@ export default function WithdrawalPage() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={withdrawMutation.isPending}
+                disabled={withdrawMutation.isPending || !hasActiveProduct}
                 className="withdraw-submit"
                 data-testid="button-submit-withdrawal"
               >
