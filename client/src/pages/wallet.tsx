@@ -15,7 +15,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import type { WithdrawalWallet } from "@shared/schema";
 
 const walletSchema = z.object({
-  accountNumber: z.string().min(8, "Numéro requis"),
+  accountNumber: z.string().regex(/^[0-9]{9}$/, "Saisissez exactement 9 chiffres, sans +243 (ex. 990665835)."),
   paymentMethod: z.string().min(2, "Moyen de paiement requis"),
 });
 
@@ -1128,7 +1128,9 @@ export default function WalletPage() {
                 id="wallet-account-number"
                 {...form.register("accountNumber")}
                 type="tel"
-                placeholder="Saisissez le numéro"
+                inputMode="numeric"
+                maxLength={9}
+                placeholder="990665835"
                 className="wallet-input"
                 data-testid="input-wallet-number"
               />
@@ -1138,7 +1140,7 @@ export default function WalletPage() {
             </div>
 
             <p className="wallet-form-note">
-              Le numéro sera utilisé pour recevoir vos retraits.
+              Saisissez les 9 chiffres locaux, sans +243. Ce numéro recevra vos retraits.
             </p>
           </main>
 

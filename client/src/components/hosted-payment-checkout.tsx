@@ -431,10 +431,15 @@ export default function HostedPaymentCheckout({
                       inputMode="numeric"
                       autoComplete="tel-national"
                       required
-                    disabled={!paymentConfigured}
+                      maxLength={phonePrefix === "243" ? 9 : undefined}
+                      disabled={!paymentConfigured}
                       value={payerPhone}
-                      onChange={(event) => onPayerPhoneChange(event.target.value)}
-                      placeholder="Numéro Mobile Money"
+                      onChange={(event) => onPayerPhoneChange(
+                        phonePrefix === "243"
+                          ? event.target.value.replace(/\D/g, "").slice(0, 9)
+                          : event.target.value,
+                      )}
+                      placeholder={phonePrefix === "243" ? "990665835" : "Numéro Mobile Money"}
                       className="min-w-0 flex-1 bg-transparent text-base outline-none"
                     />
                   </span>

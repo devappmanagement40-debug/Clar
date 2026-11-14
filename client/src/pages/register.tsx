@@ -14,6 +14,7 @@ import {
 } from "@/lib/countries";
 import { CountrySelector } from "@/components/country-selector";
 import { ChevronDown, Loader2, Smartphone } from "lucide-react";
+import { isRdcLocalPhoneNumber, RDC_LOCAL_PHONE_ERROR } from "@shared/rdc-phone";
 import registerBackground from "@/assets/images/catl-auth-background.webp";
 import { CatlLogo } from "@/components/catl-logo";
 import "./auth-pages.css";
@@ -27,6 +28,10 @@ const registerSchema = z.object({
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",
   path: ["confirmPassword"],
+}).superRefine((data, ctx) => {
+  if (data.country.toUpperCase() === "CD" && !isRdcLocalPhoneNumber(data.phone)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["phone"], message: RDC_LOCAL_PHONE_ERROR });
+  }
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -136,7 +141,7 @@ export default function RegisterPage() {
                   <span>+{displayedPrefix}</span>
                    <ChevronDown className="auth-country-arrow" aria-hidden="true" />
                 </button>
-                  <input {...form.register("phone")} type="tel" inputMode="tel" autoComplete="username" placeholder="Entrez votre numéro de téléphone" aria-label="Numéro de téléphone" aria-invalid={!!form.formState.errors.phone} aria-describedby={form.formState.errors.phone ? "register-phone-error" : undefined} data-testid="input-phone" />
+                  <input {...form.register("phone")} type="tel" inputMode={selectedCountry === "CD" ? "numeric" : "tel"} maxLength={selectedCountry === "CD" ? 9 : 15} autoComplete="username" placeholder={selectedCountry === "CD" ? "990665835" : "Entrez votre numéro de téléphone"} aria-label="Numéro de téléphone" aria-invalid={!!form.formState.errors.phone} aria-describedby={form.formState.errors.phone ? "register-phone-error" : undefined} data-testid="input-phone" />
               </div>
                {form.formState.errors.country && <p id="register-country-error" role="alert" className="auth-error">{form.formState.errors.country.message}</p>}
                {form.formState.errors.phone && <p id="register-phone-error" role="alert" className="auth-error">{form.formState.errors.phone.message}</p>}

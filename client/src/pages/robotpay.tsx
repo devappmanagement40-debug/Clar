@@ -9,6 +9,11 @@ import { getCountriesForDisplay, parseOperators, type ApiCountry } from "@/lib/c
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import { CI_WAVE_DEFAULT_PAYMENT_LINK, CI_WAVE_DEFAULT_QR_IMAGE } from "@/lib/payment-checkout-defaults";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
+import {
+  isRdcLocalPhoneNumber,
+  normalizeRdcLocalPhone,
+  RDC_LOCAL_PHONE_ERROR,
+} from "@shared/rdc-phone";
 import type { PaymentNumber } from "@shared/schema";
 import HostedPaymentCheckout from "@/components/hosted-payment-checkout";
 import CiWaveDeposit from "@/components/ci-wave-deposit";
@@ -117,7 +122,7 @@ export default function RobotPayPage() {
   const isBjManualFlow = isManualFlow && country === "BJ";
   const isCdManualFlow = isManualFlow && country === "CD";
   const isCountrySpecificManualFlow = isTgManualFlow || isBjManualFlow || isCdManualFlow;
-  const countryManualPhoneDigits = country === "BJ" || country === "CD" ? 10 : 8;
+  const countryManualPhoneDigits = country === "CD" ? 9 : country === "BJ" ? 10 : 8;
   const countryManualName = country === "BJ" ? "Bénin" : country === "CD" ? "RDC" : "Togo";
   const forcedProvider = requestedProvider === "ashtech" || requestedProvider === "sendavapay" || requestedProvider === "clapay"
     ? requestedProvider
@@ -125,6 +130,7 @@ export default function RobotPayPage() {
   const isClapayStyledFlow = forcedProvider === "clapay" && (country === "BF" || country === "NE" || country === "TG");
   // Legacy name for shared CATL styling branches.
   const isBjClapayFlow = isClapayStyledFlow;
+  const phoneInputMaxLength = country === "CD" ? 9 : isClapayStyledFlow ? 8 : 12;
   const feePaymentId = Number(params.get("feePaymentId") || 0) || undefined;
   const withdrawalAmount = Number(params.get("withdrawalAmount") || 0) || undefined;
   const parsedClapayReturnDepositId = forcedProvider === "clapay"
@@ -144,7 +150,8 @@ export default function RobotPayPage() {
       : null,
   );
   const isClapayPhoneValid = !isClapayStyledFlow || phone.replace(/\D/g, "").length === 8;
-  const canContinueFromOperatorSelection = Boolean(operator && phone.trim() && isClapayPhoneValid);
+  const isRdcPhoneValid = country !== "CD" || isRdcLocalPhoneNumber(phone.replace(/\D/g, ""));
+  const canContinueFromOperatorSelection = Boolean(operator && phone.trim() && isClapayPhoneValid && isRdcPhoneValid);
   const [depositId, setDepositId] = useState<number | null>(clapayReturnDepositId);
   const [transactionReference] = useState(() => `dépôt-${Math.floor(10000 + Math.random() * 90000)}`);
   const [paymentToken, setPaymentToken] = useState("");
@@ -568,12 +575,17 @@ export default function RobotPayPage() {
     } else if (trimmedPhone.startsWith("00") && localPhone.startsWith(`00${prefixDigits}`)) {
       localPhone = localPhone.slice(2 + prefixDigits.length);
     }
+    if (country === "CD") localPhone = normalizeRdcLocalPhone(localPhone);
     setPhone(localPhone);
     phonePrefilled.current = true;
-  }, [user?.phone, phonePrefix]);
+  }, [user?.phone, phonePrefix, country]);
 
   const submitPhone = () => {
     if (!phone.trim()) { toast({ title: "Numéro requis", description: "Saisissez le numéro Mobile Money utilisé.", variant: "destructive" }); return; }
+    if (country === "CD" && !isRdcPhoneValid) {
+      toast({ title: "Numéro invalide", description: RDC_LOCAL_PHONE_ERROR, variant: "destructive" });
+      return;
+    }
     if (!operator) { toast({ title: "Opérateur requis", description: "Sélectionnez votre opérateur.", variant: "destructive" }); return; }
     if (activeProvider === "clapay" && operator.requiresOtp && !clapayOperatorOtp.trim()) {
       toast({ title: "Code OTP requis", description: "Saisissez le code demandé par cet opérateur.", variant: "destructive" });
@@ -714,6 +726,10 @@ export default function RobotPayPage() {
     }
     if (!phone.trim()) {
       toast({ title: "Numéro requis", description: "Saisissez le numéro utilisé pour effectuer le paiement.", variant: "destructive" });
+      return;
+    }
+    if (country === "CD" && !isRdcPhoneValid) {
+      toast({ title: "Numéro invalide", description: RDC_LOCAL_PHONE_ERROR, variant: "destructive" });
       return;
     }
     if (isClapayStyledFlow && !isClapayPhoneValid) {
@@ -1026,12 +1042,12 @@ export default function RobotPayPage() {
                   <input
                     id="robotpay-payer-phone-selection"
                     value={phone}
-                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, isClapayStyledFlow ? 8 : 12))}
+                    onChange={event => setPhone(event.target.value.replace(/\D/g, "").slice(0, phoneInputMaxLength))}
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel-national"
                     aria-required="true"
-                    maxLength={isClapayStyledFlow ? 8 : 12}
+                    maxLength={phoneInputMaxLength}
                     className="w-full min-w-0 bg-transparent px-3 py-2.5 text-[#111827] outline-none placeholder:text-sm placeholder:text-[#98a2b3]"
                   />
                 </div>
@@ -1040,6 +1056,11 @@ export default function RobotPayPage() {
                     <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                     <p>Saisissez les 8 chiffres du numéro Mobile Money utilisé pour le dépôt CATL. La demande de paiement sera ensuite envoyée sur ce numéro.</p>
                   </div>
+                )}
+                {country === "CD" && (
+                  <p className="px-1 text-xs text-gray-600">
+                    Saisissez exactement 9 chiffres, sans +243.
+                  </p>
                 )}
               </div>
               <button

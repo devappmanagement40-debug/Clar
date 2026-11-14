@@ -21,6 +21,12 @@ Only Congo-Kinshasa (CD) is active in public country selectors, and all customer
 
 **How to apply:** Keep RDC deposit operators and withdrawal methods editable in the admin panel, including per-method activation. Do not restore other active countries or show XOF/FCFA labels. When country configuration changes, update first-install defaults, API-failure fallbacks, and external-database active flags without overwriting RDC's configured methods or deleting historical rows.
 
+RDC customer phone numbers are entered as exactly nine local digits, such as `990665835`; show `+243` separately where the interface includes a country prefix.
+
+**Why:** The user specified the required nine-digit format for DRC phone numbers.
+
+**How to apply:** Enforce the local nine-digit format in registration, login, deposit, and withdrawal-wallet forms and server validation. Preserve legacy account access by normalizing old leading-zero numbers during input prefills and login lookup; do not rewrite stored phone records without approval.
+
 The withdrawal page must keep the country from the user's profile; do not let the withdrawal form select a separate country. Deposit and withdrawal-account setup can use the active-country selector.
 
 **Why:** the user chose to keep the profile country for withdrawals.

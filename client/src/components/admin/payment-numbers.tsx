@@ -55,6 +55,9 @@ export default function AdminPaymentNumbers() {
         country: manualCountry ? manualCountryInput.toUpperCase().trim() : form.country,
       };
       if (!payload.country) throw new Error("Veuillez sélectionner ou saisir un pays");
+      if (payload.paymentType === "phone" && payload.country.toUpperCase() === "CD" && !/^[0-9]{9}$/.test(payload.phone.trim())) {
+        throw new Error("Pour la RDC, saisissez exactement 9 chiffres locaux, sans +243 (ex. 990665835).");
+      }
       if (editTarget) {
         const res = await apiRequest("PUT", `/api/admin/payment-numbers/${editTarget.id}`, payload);
          if (!res.ok) { const d = await res.json(); throw new Error(d.message || "La mise à jour du numéro de paiement a échoué"); }
@@ -343,8 +346,26 @@ export default function AdminPaymentNumbers() {
                 <label className="text-sm font-medium">Lien de paiement</label>
               )}
               {form.paymentType === "phone" ? (
-                <Input value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
-                  placeholder="Ex: +23599000000" className="mt-1" data-testid="input-phone" />
+                <>
+                  <Input
+                    value={form.phone}
+                    type="tel"
+                    inputMode={(manualCountry ? manualCountryInput : form.country).toUpperCase() === "CD" ? "numeric" : "tel"}
+                    maxLength={(manualCountry ? manualCountryInput : form.country).toUpperCase() === "CD" ? 9 : 32}
+                    onChange={(e) => setForm(f => ({
+                      ...f,
+                      phone: (manualCountry ? manualCountryInput : f.country).toUpperCase() === "CD"
+                        ? e.target.value.replace(/\D/g, "").slice(0, 9)
+                        : e.target.value,
+                    }))}
+                    placeholder={(manualCountry ? manualCountryInput : form.country).toUpperCase() === "CD" ? "990665835" : "Ex: numéro Mobile Money"}
+                    className="mt-1"
+                    data-testid="input-phone"
+                  />
+                  {(manualCountry ? manualCountryInput : form.country).toUpperCase() === "CD" && (
+                    <p className="mt-1 text-xs text-muted-foreground">9 chiffres locaux, sans l’indicatif +243.</p>
+                  )}
+                </>
               ) : (
                 <Input value={form.paymentLink} onChange={(e) => setForm(f => ({ ...f, paymentLink: e.target.value }))}
                   placeholder="https://..." type="url" className="mt-1" data-testid="input-payment-link" />

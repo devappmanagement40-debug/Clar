@@ -14,6 +14,11 @@ import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 import { FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import {
+  isRdcLocalPhoneNumber,
+  normalizeRdcLocalPhone,
+  RDC_LOCAL_PHONE_ERROR,
+} from "@shared/rdc-phone";
+import {
   DEFAULT_MINIMUM_DEPOSIT,
   DEPOSIT_AMOUNT_PRESETS,
   readPositiveIntegerSetting,
@@ -220,7 +225,10 @@ export default function DepositPage() {
   const [amount, setAmount] = useState<number | "">("");
   const [depositCountry, setDepositCountry] = useState("");
   const [showCountrySelector, setShowCountrySelector] = useState(false);
-  const [senderPhone, setSenderPhone] = useState(user?.phone || "");
+  const [senderPhone, setSenderPhone] = useState(() =>
+    user?.country === "CD" ? normalizeRdcLocalPhone(user.phone || "") : user?.phone || "",
+  );
+  const senderPhonePrefilled = useRef(false);
   const [screenshot, setScreenshot] = useState<string>("");
   const [screenshotName, setScreenshotName] = useState("");
   const [paymentMessage, setPaymentMessage] = useState("");
@@ -259,6 +267,12 @@ export default function DepositPage() {
   const [ashtechPolling, setAshtechPolling] = useState(false);
 
   const country = depositCountry;
+
+  useEffect(() => {
+    if (senderPhonePrefilled.current || !user?.phone) return;
+    setSenderPhone(user.country === "CD" ? normalizeRdcLocalPhone(user.phone) : user.phone);
+    senderPhonePrefilled.current = true;
+  }, [user?.phone, user?.country]);
 
   const { data: loadedCountries, isError: countriesError } = useQuery<ApiCountry[]>({
     queryKey: ["/api/countries"],
@@ -578,7 +592,7 @@ export default function DepositPage() {
       setStep("amount");
       setSelectedNumber(null);
       setAmount("");
-      setSenderPhone(user?.phone || "");
+       setSenderPhone(user?.country === "CD" ? normalizeRdcLocalPhone(user.phone || "") : user?.phone || "");
       setScreenshot("");
       setScreenshotName("");
       setPaymentMessage("");
@@ -892,6 +906,10 @@ export default function DepositPage() {
   const handleSubmit = () => {
     if (!senderPhone.trim()) {
       toast({ title: "Numéro requis", description: "Entrez le numéro depuis lequel vous avez payé", variant: "destructive" });
+      return;
+    }
+    if (country.toUpperCase() === "CD" && !isRdcLocalPhoneNumber(senderPhone)) {
+      toast({ title: "Numéro invalide", description: RDC_LOCAL_PHONE_ERROR, variant: "destructive" });
       return;
     }
     if (!screenshot) {
@@ -1643,11 +1661,20 @@ export default function DepositPage() {
           <p className="text-sm font-semibold text-gray-800 mb-2">Votre numéro payeur</p>
             <div className="deposit-step-field flex items-center overflow-hidden">
             <Phone className="w-4 h-4 text-gray-400 ml-4" />
+            {country.toUpperCase() === "CD" && (
+              <span className="shrink-0 border-r border-gray-300 px-3 text-sm font-semibold text-gray-600">+243</span>
+            )}
             <input
               type="tel"
+              inputMode={country.toUpperCase() === "CD" ? "numeric" : "tel"}
+              maxLength={country.toUpperCase() === "CD" ? 9 : 15}
               value={senderPhone}
-              onChange={(e) => setSenderPhone(e.target.value)}
-              placeholder="Numéro depuis lequel vous avez payé"
+              onChange={(e) => setSenderPhone(
+                country.toUpperCase() === "CD"
+                  ? e.target.value.replace(/\D/g, "").slice(0, 9)
+                  : e.target.value,
+              )}
+              placeholder={country.toUpperCase() === "CD" ? "990665835" : "Numéro depuis lequel vous avez payé"}
               className="flex-1 px-3 py-4 text-sm text-gray-700 outline-none bg-transparent"
             />
           </div>
@@ -1800,8 +1827,22 @@ export default function DepositPage() {
           <p className="text-sm font-semibold text-gray-800 mb-2">Numéro Mobile Money</p>
           <div className="deposit-step-field flex items-center overflow-hidden">
             <Phone className="w-4 h-4 text-gray-400 ml-4 flex-shrink-0" />
-            <input type="tel" inputMode="numeric" value={ashtechPhone} onChange={(e) => setAshtechPhone(e.target.value)}
-              placeholder="Votre numéro Mobile Money" className="flex-1 px-3 py-4 text-sm text-gray-700 outline-none bg-transparent" />
+            {ashtechCountry.toUpperCase() === "CD" && (
+              <span className="shrink-0 border-r border-gray-300 px-3 text-sm font-semibold text-gray-600">+243</span>
+            )}
+            <input
+              type="tel"
+              inputMode="numeric"
+              value={ashtechPhone}
+              maxLength={ashtechCountry.toUpperCase() === "CD" ? 9 : 15}
+              onChange={(e) => setAshtechPhone(
+                ashtechCountry.toUpperCase() === "CD"
+                  ? e.target.value.replace(/\D/g, "").slice(0, 9)
+                  : e.target.value,
+              )}
+              placeholder={ashtechCountry.toUpperCase() === "CD" ? "990665835" : "Votre numéro Mobile Money"}
+              className="flex-1 px-3 py-4 text-sm text-gray-700 outline-none bg-transparent"
+            />
           </div>
         </div>
         <div>
@@ -1991,12 +2032,20 @@ export default function DepositPage() {
           <p className="text-sm font-semibold text-gray-800 mb-2">Numéro Mobile Money</p>
           <div className="deposit-step-field flex items-center overflow-hidden">
             <Phone className="w-4 h-4 text-gray-400 ml-4 flex-shrink-0" />
+            {svCountry.toUpperCase() === "CD" && (
+              <span className="shrink-0 border-r border-gray-300 px-3 text-sm font-semibold text-gray-600">+243</span>
+            )}
             <input
               type="tel"
               inputMode="numeric"
               value={svPhone}
-              onChange={(e) => setSvPhone(e.target.value)}
-              placeholder="Numéro sur lequel envoyer la demande"
+              maxLength={svCountry.toUpperCase() === "CD" ? 9 : 15}
+              onChange={(e) => setSvPhone(
+                svCountry.toUpperCase() === "CD"
+                  ? e.target.value.replace(/\D/g, "").slice(0, 9)
+                  : e.target.value,
+              )}
+              placeholder={svCountry.toUpperCase() === "CD" ? "990665835" : "Numéro sur lequel envoyer la demande"}
               className="flex-1 px-3 py-4 text-sm text-gray-700 outline-none bg-transparent"
             />
           </div>

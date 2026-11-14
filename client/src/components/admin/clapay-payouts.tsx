@@ -284,13 +284,21 @@ export default function AdminClapayPayouts() {
               <Input
                 id="clapay-payout-phone"
                 type="tel"
+                inputMode={country === "CD" ? "numeric" : "tel"}
                 value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                placeholder="Numéro local ou international"
+                onChange={(event) => setPhone(
+                  country === "CD"
+                    ? event.target.value.replace(/\D/g, "").slice(0, 9)
+                    : event.target.value,
+                )}
+                placeholder={country === "CD" ? "990665835" : "Numéro local ou international"}
                 autoComplete="off"
-                maxLength={32}
+                maxLength={country === "CD" ? 9 : 32}
                 required
               />
+              {country === "CD" && (
+                <span className="block text-xs text-muted-foreground">9 chiffres locaux, sans +243.</span>
+              )}
             </label>
 
             <label className="space-y-1.5 text-sm font-medium" htmlFor="clapay-payout-amount">

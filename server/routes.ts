@@ -19,6 +19,12 @@ import {
   users,
   type ClapayPayout,
 } from "@shared/schema";
+import {
+  isRdcLocalPhoneNumber,
+  isValidRdcPhoneTransportValue,
+  normalizeRdcLocalPhone,
+  RDC_LOCAL_PHONE_ERROR,
+} from "@shared/rdc-phone";
 import { catlVipOffers } from "@shared/catl-vip-offers";
 import { getWithdrawalMethods, isAllowedWithdrawalMethod } from "@shared/withdrawal-methods";
 import { getActiveCountryMethodNames, hasConfiguredCountryMethods } from "@shared/country-methods";
@@ -287,6 +293,7 @@ async function serializeAuthenticatedUser(user: NonNullable<Awaited<ReturnType<t
   const wallet = await storage.getWalletBalances(user.id);
   return {
     ...user,
+    phone: user.country.toUpperCase() === "CD" ? normalizeRdcLocalPhone(user.phone) : user.phone,
     depositBalance: wallet.depositBalance.toFixed(2),
     earningsBalance: wallet.earningsBalance.toFixed(2),
     password: undefined,
@@ -709,14 +716,24 @@ export async function registerRoutes(
     try {
       const data = loginSchema.parse(req.body);
       
-      let user = await storage.getUserByPhone(data.phone, data.country);
+      const phoneCandidates = data.country.toUpperCase() === "CD"
+        ? [data.phone, `0${data.phone}`, `+243${data.phone}`, `243${data.phone}`, `00243${data.phone}`]
+        : [data.phone];
+      let user: Awaited<ReturnType<typeof storage.getUserByPhone>> = undefined;
+      for (const phoneCandidate of phoneCandidates) {
+        user = await storage.getUserByPhone(phoneCandidate, data.country);
+        if (user) break;
+      }
 
       // Administrators may select any country at login. Regular users must
       // still authenticate with the country saved on their account.
       if (!user) {
-        const adminCandidate = await storage.getUserByPhoneAnyCountry(data.phone);
-        if (adminCandidate?.isAdmin) {
-          user = adminCandidate;
+        for (const phoneCandidate of phoneCandidates) {
+          const adminCandidate = await storage.getUserByPhoneAnyCountry(phoneCandidate);
+          if (adminCandidate?.isAdmin) {
+            user = adminCandidate;
+            break;
+          }
         }
       }
 
@@ -1244,6 +1261,9 @@ export async function registerRoutes(
       }
       let normalizedPhone: string | null = null;
       if (!normalizedLink) {
+        if (String(country).trim().toUpperCase() === "CD" && !isRdcLocalPhoneNumber(String(phone))) {
+          return res.status(400).json({ message: RDC_LOCAL_PHONE_ERROR });
+        }
         normalizedPhone = validatePhone(phone, "Numéro");
       } else {
         const parsedUrl = new URL(normalizedLink);
@@ -1280,6 +1300,9 @@ export async function registerRoutes(
         }
         normalizedPhone = null;
       } else if (phone !== undefined) {
+        if (String(country || "").trim().toUpperCase() === "CD" && !isRdcLocalPhoneNumber(String(phone))) {
+          return res.status(400).json({ message: RDC_LOCAL_PHONE_ERROR });
+        }
         normalizedPhone = phone ? validatePhone(phone, "Numéro") : null;
       }
       const num = await storage.updatePaymentNumber(id, {
@@ -1813,6 +1836,9 @@ export async function registerRoutes(
 
       const requestedOperator = String(operator).trim();
       const requestedPhone = String(phone).trim();
+      if (countryCode === "CD" && !isValidRdcPhoneTransportValue(requestedPhone)) {
+        return res.status(400).json({ message: "Le numéro RDC doit contenir exactement 9 chiffres, sans compter +243." });
+      }
       const canonicalOperator = catalogCountry.operators
         .map((entry) => typeof entry === "string" ? entry : entry.name || entry.code || entry.id || "")
         .map((value) => value.trim())
@@ -2052,6 +2078,9 @@ export async function registerRoutes(
       if (!payerPhone || !payerPhone.trim()) {
         return res.status(400).json({ message: "Le numéro Mobile Money est requis" });
       }
+      if (String(country).toUpperCase() === "CD" && !isValidRdcPhoneTransportValue(String(payerPhone))) {
+        return res.status(400).json({ message: "Le numéro RDC doit contenir exactement 9 chiffres, sans compter +243." });
+      }
 
       const svCountry = toSendavapayCountry(country);
       const externalRef = `DEP-${Date.now()}-${user.id}`;
@@ -2135,6 +2164,9 @@ export async function registerRoutes(
       if (!user) return res.status(401).json({ message: "Non authentifié" });
       if (!payerPhone || !payerPhone.trim()) {
         return res.status(400).json({ message: "Le numéro Mobile Money est requis" });
+      }
+      if (String(payerCountry).toUpperCase() === "CD" && !isValidRdcPhoneTransportValue(String(payerPhone))) {
+        return res.status(400).json({ message: "Le numéro RDC doit contenir exactement 9 chiffres, sans compter +243." });
       }
 
       const svCountry = toSendavapayCountry(payerCountry);
@@ -3275,6 +3307,9 @@ export async function registerRoutes(
       country.phonePrefix,
       input.country,
     );
+    if (input.country === "CD" && !isRdcLocalPhoneNumber(localPhone)) {
+      return res.status(400).json({ message: RDC_LOCAL_PHONE_ERROR });
+    }
     if (localPhone.length < 6 || localPhone.length > 15) {
       return res.status(400).json({ message: "Le numéro de téléphone local est invalide" });
     }
@@ -4411,6 +4446,9 @@ export async function registerRoutes(
       const parsedPhone = phoneNumberSchema.safeParse(rawPhone);
       if (!parsedPhone.success) {
         return res.status(400).json({ message: "Le numéro de téléphone est invalide" });
+      }
+      if (country === "CD" && !isValidRdcPhoneTransportValue(rawPhone)) {
+        return res.status(400).json({ message: "Le numéro RDC doit contenir exactement 9 chiffres, sans compter +243." });
       }
 
       const operators = await getClapayOperators(country);

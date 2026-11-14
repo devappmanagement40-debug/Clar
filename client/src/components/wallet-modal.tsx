@@ -18,7 +18,7 @@ import type { WithdrawalWallet } from "@shared/schema";
 
 const walletSchema = z.object({
   accountName: z.string().min(2, "Nom du compte requis"),
-  accountNumber: z.string().min(8, "Numéro requis"),
+  accountNumber: z.string().regex(/^[0-9]{9}$/, "Saisissez exactement 9 chiffres, sans +243 (ex. 990665835)."),
   paymentMethod: z.string().min(2, "Moyen de paiement requis"),
 });
 
@@ -198,7 +198,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                     <FormItem>
                       <FormLabel>Numéro</FormLabel>
                       <FormControl>
-                        <Input {...field} type="tel" placeholder="Votre numéro" data-testid="input-wallet-number" />
+                         <Input {...field} type="tel" inputMode="numeric" maxLength={9} placeholder="990665835" data-testid="input-wallet-number" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
