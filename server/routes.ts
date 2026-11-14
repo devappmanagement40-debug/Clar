@@ -4,6 +4,7 @@ import { randomInt, randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import session from "express-session";
 import { storage } from "./storage";
+import { hashAdminPin, verifyAdminPin } from "./admin-pin";
 import { db } from "./db";
 import bcrypt from "bcrypt";
 import {
@@ -283,6 +284,7 @@ async function serializeAuthenticatedUser(user: NonNullable<Awaited<ReturnType<t
     depositBalance: wallet.depositBalance.toFixed(2),
     earningsBalance: wallet.earningsBalance.toFixed(2),
     password: undefined,
+    adminPin: undefined,
   };
 }
 
@@ -3115,11 +3117,18 @@ export async function registerRoutes(
       if (!user.adminPin) {
         return res.status(400).json({ message: "Code PIN non configure" });
       }
-      
-      if (user.adminPin !== pin) {
+      if (typeof pin !== "string" || pin.length > 128) {
+        return res.status(400).json({ message: "Code PIN invalide" });
+      }
+
+      const verification = await verifyAdminPin(pin, user.adminPin);
+      if (!verification.valid) {
         return res.status(401).json({ message: "Code PIN incorrect" });
       }
-      
+      if (verification.needsUpgrade) {
+        await storage.updateUser(user.id, { adminPin: await hashAdminPin(pin) });
+      }
+
       res.json({ success: true });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -3526,7 +3535,7 @@ export async function registerRoutes(
       const { users: allUsers, total } = await storage.getAllUsers(search, limit, offset);
       const usersWithTeam = await Promise.all(allUsers.map(async (user) => {
         const teamStats = await storage.getTeamStatsSimple(user.id);
-        return { ...user, password: undefined, ...teamStats, referrerName: null };
+        return { ...user, password: undefined, adminPin: undefined, ...teamStats, referrerName: null };
       }));
       res.json({ users: usersWithTeam, total, page, limit, totalPages: Math.ceil(total / limit) });
     } catch (error: any) {
@@ -3628,11 +3637,14 @@ export async function registerRoutes(
           }
           const user5 = await storage.getUser(userId);
           const newAdminStatus = !user5?.isAdmin;
+          if (newAdminStatus && (typeof value !== "string" || !/^\d{4,8}$/.test(value))) {
+            return res.status(400).json({ message: "Le PIN doit contenir entre 4 et 8 chiffres." });
+          }
           await storage.updateUser(userId, { 
             isAdmin: newAdminStatus,
             adminSetBy: req.session.userId,
             adminSetAt: new Date(),
-            adminPin: newAdminStatus && value ? value : null,
+            adminPin: newAdminStatus ? await hashAdminPin(value) : null,
           });
           await storage.logAdminAction(req.session.userId!, "toggle_admin", userId, `Admin: ${newAdminStatus}`);
           break;
@@ -3640,7 +3652,10 @@ export async function registerRoutes(
           if (!adminUser?.isSuperAdmin) {
             return res.status(403).json({ message: "Action réservée au super admin" });
           }
-          await storage.updateUser(userId, { adminPin: value });
+          if (typeof value !== "string" || !/^\d{4,8}$/.test(value)) {
+            return res.status(400).json({ message: "Le PIN doit contenir entre 4 et 8 chiffres." });
+          }
+          await storage.updateUser(userId, { adminPin: await hashAdminPin(value) });
           await storage.logAdminAction(req.session.userId!, "update_admin_pin", userId, `PIN admin mis à jour`);
           break;
         case "toggle-password-required":

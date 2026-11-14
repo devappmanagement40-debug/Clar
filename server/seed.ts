@@ -5,18 +5,38 @@ import { catlVipOffers } from "@shared/catl-vip-offers";
 import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
 import bcrypt from "bcrypt";
 import { and, eq, inArray, sql } from "drizzle-orm";
+import { hashAdminPin } from "./admin-pin";
 
 // Bump this when the production bootstrap below gains a required schema/data migration.
 const PRODUCTION_BOOTSTRAP_VERSION = "1";
 const PRODUCTION_BOOTSTRAP_VERSION_KEY = "__production_bootstrap_version";
 
 async function synchronizeConfiguredAdmin() {
+  const configuredAdminId = process.env.ADMIN_USER_ID?.trim();
   const adminPhone = process.env.ADMIN_PHONE || "99935673";
   const adminCountry = process.env.ADMIN_COUNTRY || "CD";
-  const existingAdmin = await db.select().from(users).where(eq(users.phone, adminPhone));
+  let existingAdmin;
+  if (configuredAdminId) {
+    const userId = Number(configuredAdminId);
+    if (!Number.isSafeInteger(userId) || userId <= 0) {
+      throw new Error("ADMIN_USER_ID must be a positive integer.");
+    }
+    existingAdmin = await db.select().from(users).where(eq(users.id, userId));
+  } else {
+    existingAdmin = await db.select().from(users).where(eq(users.phone, adminPhone));
+  }
   const adminPassword = process.env.ADMIN_PASSWORD;
   const adminPin = process.env.ADMIN_PIN;
+  const adminPinHash = adminPin ? await hashAdminPin(adminPin) : null;
 
+  if (configuredAdminId && existingAdmin.length === 0) {
+    console.warn("Configured administrator account was not found; no administrator changes were made.");
+    return;
+  }
+  if (configuredAdminId && !adminPinHash) {
+    console.warn("Administrator promotion skipped until ADMIN_PIN is configured.");
+    return;
+  }
   if (existingAdmin.length === 0) {
     if (!adminPassword) {
       console.warn("No administrator exists yet; set ADMIN_PASSWORD to provision the initial admin.");
@@ -31,7 +51,7 @@ async function synchronizeConfiguredAdmin() {
         balance: "0",
         isAdmin: true,
         isSuperAdmin: true,
-        adminPin: adminPin || null,
+        adminPin: adminPinHash,
       });
       console.log("Super admin created");
       if (adminPin) console.log("Super admin PIN configured");
@@ -43,8 +63,8 @@ async function synchronizeConfiguredAdmin() {
     isAdmin: true,
     isSuperAdmin: true,
   };
-  if (adminPin) {
-    updateData.adminPin = adminPin;
+  if (adminPinHash) {
+    updateData.adminPin = adminPinHash;
     console.log("Super admin PIN updated");
   }
   await db.update(users).set(updateData).where(eq(users.phone, adminPhone));
