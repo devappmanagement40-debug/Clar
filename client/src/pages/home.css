@@ -373,7 +373,7 @@ body:has(.cp-home) { background: #081d58 !important; }
   background: #fff;
   color: var(--cp-ink);
 }
-.cp-dialog-telegram:focus-visible,
+.cp-dialog-social:focus-visible,
 .cp-dialog-close:focus-visible,
 .cp-dialog-x:focus-visible { outline: 3px solid rgba(25, 71, 184, .4); outline-offset: 3px; }
 .cp-dialog-x {
@@ -414,7 +414,7 @@ body:has(.cp-home) { background: #081d58 !important; }
 .cp-dialog-list li { padding-left: 3px; }
 .cp-dialog-list li::marker { color: var(--cp-accent-deep); font-weight: 800; }
 .cp-dialog-actions { display: flex; width: 100%; flex: none; flex-direction: column; gap: 0; border-top: 2px solid #dfe2e8; border-radius: 0 0 20px 20px; padding: 0; background: #fff; }
-.cp-dialog-telegram,
+.cp-dialog-social,
 .cp-dialog-close {
   display: flex;
   width: 100%;
@@ -429,24 +429,26 @@ body:has(.cp-home) { background: #081d58 !important; }
   cursor: pointer;
   transition: transform .15s ease, background-color .15s ease;
 }
-.cp-dialog-telegram {
+.cp-dialog-social {
   min-height: 58px;
   gap: 11px;
-  border: 2px solid var(--cp-accent-deep);
   border-radius: 12px;
   padding: 7px 12px;
-  background: var(--cp-accent);
-  box-shadow: 0 4px 0 var(--cp-accent-deep);
   color: #fff;
   font-size: 14px;
   text-decoration: none;
   transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
+.cp-dialog-telegram { border: 2px solid var(--cp-accent-deep); background: var(--cp-accent); box-shadow: 0 4px 0 var(--cp-accent-deep); }
+.cp-dialog-whatsapp { border: 2px solid #128c4a; background: #25d366; box-shadow: 0 4px 0 #128c4a; }
 .cp-telegram-logo { display: grid; width: 32px; height: 32px; flex: none; place-items: center; overflow: hidden; border-radius: 50%; }
 .cp-telegram-logo svg { display: block; width: 100%; height: 100%; }
-.cp-dialog-telegram > span:not(.cp-telegram-logo) { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-wrap: balance; }
+.cp-whatsapp-logo { display: grid; width: 32px; height: 32px; flex: none; place-items: center; overflow: hidden; border-radius: 50%; }
+.cp-whatsapp-logo svg { display: block; width: 100%; height: 100%; }
+.cp-dialog-social > span:not(.cp-telegram-logo):not(.cp-whatsapp-logo) { flex: 1; overflow: hidden; padding: 0 3px; text-align: center; text-wrap: balance; }
 .cp-dialog-close { min-height: 60px; border: 0; border-radius: 0 0 19px 19px; background: #fff; color: #191919; font-size: 16px; font-weight: 700; }
 .cp-dialog-telegram:hover { background: var(--cp-accent-deep); box-shadow: 0 1px 0 var(--cp-accent-deep); transform: translateY(2px); }
+.cp-dialog-whatsapp:hover { background: #128c4a; box-shadow: 0 1px 0 #128c4a; transform: translateY(2px); }
 .cp-dialog-close:hover { background: #f7f7f7; }
 
 @keyframes cp-rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
@@ -492,7 +494,7 @@ body:has(.cp-home) { background: #081d58 !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cp-action-icon, .cp-dialog-telegram, .cp-dialog-close,
+  .cp-action-icon, .cp-dialog-social, .cp-dialog-close,
   .cp-action, .cp-balance, .cp-notice { transition: none; }
   .cp-notice-track { animation: none; }
   .cp-notice-group:not(:first-child) { display: none; }

@@ -140,7 +140,11 @@ export default function HomePage() {
     "Avant de confirmer une demande, vérifiez les coordonnées du portefeuille et le montant net affiché.",
   ];
   const groupLink = settings?.groupLink || "";
+  const whatsappGroupLink = settings?.whatsappGroupLink || "";
   const groupEnabled = settings?.groupEnabled !== "false";
+  const showTelegramGroup = groupEnabled && Boolean(groupLink.trim());
+  const showWhatsappGroup = Boolean(whatsappGroupLink.trim());
+  const showCommunityLinks = showTelegramGroup || showWhatsappGroup;
   const popupButtonLabel = settings?.popupButtonLabel || "Rejoindre le groupe Telegram";
 
   return (
@@ -259,8 +263,8 @@ export default function HomePage() {
             <DialogDescription className="cp-dialog-message">
               Bienvenue sur votre espace. Consultez les conditions des dépôts, des retraits et des bonus avant toute opération.
             </DialogDescription>
-            {groupEnabled && groupLink && (
-              <a className="cp-dialog-telegram" href={groupLink} target="_blank" rel="noreferrer" onClick={() => setWelcomePopupOpen(false)}>
+            {showTelegramGroup && (
+              <a className="cp-dialog-social cp-dialog-telegram" href={groupLink} target="_blank" rel="noreferrer" onClick={() => setWelcomePopupOpen(false)}>
                 <span className="cp-telegram-logo" aria-hidden="true">
                   <svg viewBox="0 0 40 40" focusable="false">
                     <circle cx="20" cy="20" r="20" fill="#229ED9" />
@@ -274,15 +278,30 @@ export default function HomePage() {
                 <ChevronRight size={19} aria-hidden="true" />
               </a>
             )}
+            {showWhatsappGroup && (
+              <a className="cp-dialog-social cp-dialog-whatsapp" href={whatsappGroupLink} target="_blank" rel="noreferrer" onClick={() => setWelcomePopupOpen(false)}>
+                <span className="cp-whatsapp-logo" aria-hidden="true">
+                  <svg viewBox="0 0 40 40" focusable="false">
+                    <circle cx="20" cy="20" r="20" fill="rgba(255,255,255,.18)" />
+                    <path
+                      d="M20 7.2A12.7 12.7 0 0 0 9.1 26.4L7.3 33l6.8-1.8A12.7 12.7 0 1 0 20 7.2Zm0 22.9c-2 0-3.9-.5-5.5-1.6l-.4-.2-4 .9 1-3.9-.3-.4A10.1 10.1 0 1 1 20 30.1Zm5.6-7.6c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.5-1.6-.9-.8-1.6-1.8-1.8-2.1-.2-.3 0-.5.1-.7l.5-.6.3-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.6s1.1 3 1.2 3.2c.2.2 2.2 3.4 5.4 4.7.8.3 1.4.5 1.9.6.8.2 1.5.2 2 .1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.4Z"
+                      fill="white"
+                    />
+                  </svg>
+                </span>
+                <span>Rejoindre le groupe WhatsApp</span>
+                <ChevronRight size={19} aria-hidden="true" />
+              </a>
+            )}
             <img
               className="cp-dialog-company-image"
               src={catlBooth1}
               alt="Stand CATL dans un salon professionnel"
               loading="lazy"
             />
-            {groupEnabled && groupLink && (
+            {showCommunityLinks && (
               <p className="cp-dialog-community-note">
-                Pour recevoir les annonces et échanger avec la communauté, vous pouvez rejoindre notre groupe Telegram.
+                Pour recevoir les annonces et échanger avec la communauté, vous pouvez rejoindre nos groupes.
               </p>
             )}
             <ol className="cp-dialog-list">

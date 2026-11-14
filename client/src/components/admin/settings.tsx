@@ -108,7 +108,8 @@ const settingsSchema = z.object({
   channelLink: z.string().min(5, "Lien requis"),
   channelType: z.string().min(1, "Réseau requis"),
   channelLabel: z.string().min(1, "Label requis"),
-  groupLink: z.string().min(5, "Lien requis"),
+  groupLink: z.string().trim(),
+  whatsappGroupLink: z.string().trim(),
   groupType: z.string().min(1, "Réseau requis"),
   groupLabel: z.string().min(1, "Label requis"),
   popupButtonLabel: z.string().min(1, "Label requis"),
@@ -179,7 +180,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       channelLink: "https://t.me/sybotx",
       channelType: "telegram",
       channelLabel: "Chaîne officielle",
-      groupLink: "https://t.me/sybotx",
+      groupLink: "",
+      whatsappGroupLink: "",
       groupType: "telegram",
       groupLabel: "Groupe de discussion",
       popupButtonLabel: "Cliquez ici pour rejoindre le groupe Telegram",
@@ -225,7 +227,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         channelLink: settings.channelLink || "https://t.me/sybotx",
         channelType: settings.channelType || "telegram",
         channelLabel: settings.channelLabel || "Chaîne officielle",
-        groupLink: settings.groupLink || "https://t.me/sybotx",
+        groupLink: settings.groupLink || "",
+        whatsappGroupLink: settings.whatsappGroupLink || "",
         groupType: settings.groupType || "telegram",
         groupLabel: settings.groupLabel || "Groupe de discussion",
         popupButtonLabel: settings.popupButtonLabel || "Cliquez ici pour rejoindre le groupe Telegram",
@@ -530,7 +533,7 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
             {/* Group */}
             <div className="space-y-2 border rounded-xl p-3">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Lien 4 — Groupe de discussion</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Lien 4 — Groupe Telegram</p>
                 <FormField control={form.control} name="groupEnabled" render={({ field }) => (
                   <FormItem className="flex items-center gap-2 space-y-0">
                     <FormLabel className="text-xs text-gray-500">{field.value ? "Actif" : "Désactivé"}</FormLabel>
@@ -565,8 +568,17 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
               </div>
               <FormField control={form.control} name="groupLink" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lien URL</FormLabel>
+                  <FormLabel>Lien du groupe Telegram</FormLabel>
                   <FormControl><Input {...field} placeholder="https://t.me/..." /></FormControl>
+                  <FormDescription>Laissez vide pour ne pas afficher le bouton Telegram dans le popup d’accueil. Le bouton WhatsApp est géré séparément ci-dessous.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="whatsappGroupLink" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lien du groupe WhatsApp</FormLabel>
+                  <FormControl><Input {...field} placeholder="https://chat.whatsapp.com/..." /></FormControl>
+                  <FormDescription>Laissez vide pour ne pas afficher le bouton WhatsApp dans le popup d’accueil.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )} />
