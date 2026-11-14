@@ -55,7 +55,7 @@ function redactLogValue(value: unknown): unknown {
   if (!value || typeof value !== "object") return value;
   return Object.fromEntries(
     Object.entries(value as Record<string, unknown>).map(([key, child]) => {
-      if (/password|secret|token|screenshot|accountNumber|adminPin/i.test(key)) {
+      if (/password|secret|token|screenshot|accountNumber|adminPin|phone|fullName/i.test(key)) {
         return [key, "[redacted]"];
       }
       return [key, redactLogValue(child)];
