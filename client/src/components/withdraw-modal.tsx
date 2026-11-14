@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -12,6 +12,11 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient, FRESH_PLATFORM_SETTINGS_QUERY_OPTIONS } from "@/lib/queryClient";
 import { formatCurrency, getCountryByCode } from "@/lib/countries";
 import { DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+  isWithinKinshasaWithdrawalHours,
+} from "@shared/withdrawal-hours";
 import { Loader2, AlertCircle, Clock, Wallet } from "lucide-react";
 import type { WithdrawalWallet } from "@shared/schema";
 import { useLocation } from "wouter";
@@ -32,6 +37,13 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [isPreparingPayment, setIsPreparingPayment] = useState(false);
+  const [clockNow, setClockNow] = useState(() => new Date());
+
+  useEffect(() => {
+    if (!open) return;
+    const interval = window.setInterval(() => setClockNow(new Date()), 30_000);
+    return () => window.clearInterval(interval);
+  }, [open]);
 
   const { data: wallets } = useQuery<WithdrawalWallet[]>({
     queryKey: ["/api/wallets"],
@@ -94,8 +106,8 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
   const balance = parseFloat(user.earningsBalance || "0");
   const defaultWallet = wallets?.find(w => w.isDefault);
   const fees = withdrawalSettings?.withdrawalFees || 18;
-  const startHour = withdrawalSettings?.withdrawalStartHour || 8;
-  const endHour = withdrawalSettings?.withdrawalEndHour || 17;
+  const startHour = withdrawalSettings?.withdrawalStartHour ?? DEFAULT_WITHDRAWAL_START_HOUR;
+  const endHour = withdrawalSettings?.withdrawalEndHour ?? DEFAULT_WITHDRAWAL_END_HOUR;
   const minWithdrawal = withdrawalSettings?.minWithdrawal ?? DEFAULT_MINIMUM_WITHDRAWAL;
   const withdrawalPrepaymentEnabled = withdrawalSettings?.withdrawalPrepaymentEnabled ?? false;
   const country = getCountryByCode(user.country);
@@ -106,12 +118,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
   const withdrawalPrepayment = Math.max(1, Math.round(amount * 25 / 100));
 
   const canWithdraw = !user.isWithdrawalBlocked && defaultWallet;
-  const isCameroonOrBenin = user.country === "CM" || user.country === "BJ";
-  const actualStartHour = isCameroonOrBenin ? 9 : startHour;
-  const actualEndHour = isCameroonOrBenin ? 18 : endHour;
-
-  const currentHour = new Date().getHours();
-  const isWithinHours = currentHour >= actualStartHour && currentHour < actualEndHour;
+  const isWithinHours = isWithinKinshasaWithdrawalHours(clockNow, startHour, endHour);
 
   const handlePayPrepayment = async () => {
     if (!withdrawalPrepaymentEnabled) return;
@@ -272,8 +279,7 @@ export default function WithdrawModal({ open, onClose }: WithdrawModalProps) {
               <div className="text-sm">
                 <p className="font-medium text-foreground">Hors des heures de retrait</p>
                 <p className="text-muted-foreground mt-1">
-                  Les retraits sont disponibles de {actualStartHour}h à {actualEndHour}h
-                  {isCameroonOrBenin && " (Cameroun et Bénin)"}
+                  Les retraits sont disponibles de {startHour}h à {endHour}h, heure de Kinshasa.
                 </p>
               </div>
             </div>

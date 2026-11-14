@@ -8,6 +8,10 @@ import {
   DEFAULT_MINIMUM_WITHDRAWAL,
   readPositiveIntegerSetting,
 } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+} from "@shared/withdrawal-hours";
 import "./rules.css";
 
 export default function RulesPage() {
@@ -20,8 +24,8 @@ export default function RulesPage() {
   const minDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
   const minWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFees = settings?.withdrawalFees || "18";
-  const withdrawalStartHour = settings?.withdrawalStartHour || "9";
-  const withdrawalEndHour = settings?.withdrawalEndHour || "17";
+  const withdrawalStartHour = settings?.withdrawalStartHour || String(DEFAULT_WITHDRAWAL_START_HOUR);
+  const withdrawalEndHour = settings?.withdrawalEndHour || String(DEFAULT_WITHDRAWAL_END_HOUR);
   const maxWithdrawalsPerDay = settings?.maxWithdrawalsPerDay || "3";
   const lv1 = settings?.level1Commission || "28";
   const lv2 = settings?.level2Commission || "1";
@@ -67,7 +71,7 @@ export default function RulesPage() {
               <li>Le dépôt minimum est de {minDeposit.toLocaleString("fr-FR")} CDF.</li>
               <li>Le retrait minimum est de {minWithdrawal.toLocaleString("fr-FR")} CDF.</li>
               <li>Les frais de retrait affichés avant validation sont de {withdrawalFees}%.</li>
-              <li>Les retraits sont disponibles entre {withdrawalStartHour} h et {withdrawalEndHour} h, dans la limite de {maxWithdrawalsPerDay} demande(s) par jour.</li>
+              <li>Les retraits sont disponibles entre {withdrawalStartHour} h et {withdrawalEndHour} h, heure de Kinshasa, dans la limite de {maxWithdrawalsPerDay} demande(s) par jour.</li>
               <li>Le montant net reçu et les frais sont présentés avant la confirmation du retrait.</li>
             </ul>
           </section>

@@ -18,6 +18,10 @@ import {
   DEFAULT_MINIMUM_WITHDRAWAL,
 } from "@shared/platform-settings";
 import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+} from "@shared/withdrawal-hours";
+import {
   DEFAULT_CLAPAY_PAYOUT_COUNTRIES,
   parseClapayPayoutCountries,
 } from "@shared/clapay-payout-countries";
@@ -188,8 +192,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
       minWithdrawal: String(DEFAULT_MINIMUM_WITHDRAWAL),
       withdrawalFees: "18",
       maxWithdrawalsPerDay: "3",
-      withdrawalStartHour: "9",
-      withdrawalEndHour: "17",
+       withdrawalStartHour: String(DEFAULT_WITHDRAWAL_START_HOUR),
+       withdrawalEndHour: String(DEFAULT_WITHDRAWAL_END_HOUR),
       withdrawalPrepaymentEnabled: false,
       level1Commission: "28",
       level2Commission: "1",
@@ -234,8 +238,8 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
         minWithdrawal: settings.minWithdrawal || String(DEFAULT_MINIMUM_WITHDRAWAL),
         withdrawalFees: settings.withdrawalFees || "18",
         maxWithdrawalsPerDay: settings.maxWithdrawalsPerDay || "3",
-        withdrawalStartHour: settings.withdrawalStartHour || "9",
-        withdrawalEndHour: settings.withdrawalEndHour || "17",
+        withdrawalStartHour: settings.withdrawalStartHour || String(DEFAULT_WITHDRAWAL_START_HOUR),
+        withdrawalEndHour: settings.withdrawalEndHour || String(DEFAULT_WITHDRAWAL_END_HOUR),
         withdrawalPrepaymentEnabled: settings.withdrawalPrepaymentEnabled === "true",
         level1Commission: settings.level1Commission || "28",
         level2Commission: settings.level2Commission || "1",
@@ -666,14 +670,14 @@ export default function AdminSettings({ isSuperAdmin }: AdminSettingsProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="withdrawalStartHour" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Heure début retraits</FormLabel>
+                  <FormLabel>Heure début retraits (Kinshasa)</FormLabel>
                   <FormControl><Input {...field} type="number" min="0" max="23" /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={form.control} name="withdrawalEndHour" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Heure fin retraits</FormLabel>
+                  <FormLabel>Heure fin retraits (Kinshasa)</FormLabel>
                   <FormControl><Input {...field} type="number" min="0" max="23" /></FormControl>
                   <FormMessage />
                 </FormItem>

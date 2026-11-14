@@ -3,6 +3,10 @@ import { users, tasks, paymentChannels, platformSettings, countries, paymentNumb
 import { getActiveCountryMethodNames, parseCountryMethodEntries } from "@shared/country-methods";
 import { catlVipOffers } from "@shared/catl-vip-offers";
 import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+} from "@shared/withdrawal-hours";
 import bcrypt from "bcrypt";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { hashAdminPin } from "./admin-pin";
@@ -778,8 +782,8 @@ export async function seed() {
     { key: "minDeposit", value: String(DEFAULT_MINIMUM_DEPOSIT) },
     { key: "minWithdrawal", value: String(DEFAULT_MINIMUM_WITHDRAWAL) },
     { key: "withdrawalFees", value: "18" },
-    { key: "withdrawalStartHour", value: "9" },
-    { key: "withdrawalEndHour", value: "17" },
+    { key: "withdrawalStartHour", value: String(DEFAULT_WITHDRAWAL_START_HOUR) },
+    { key: "withdrawalEndHour", value: String(DEFAULT_WITHDRAWAL_END_HOUR) },
     { key: "maxWithdrawalsPerDay", value: "3" },
     { key: "withdrawalPrepaymentEnabled", value: "false" },
     { key: "level1Commission", value: "28" },

@@ -1,5 +1,9 @@
 import pg from "pg";
 import { DEFAULT_MINIMUM_DEPOSIT, DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+} from "@shared/withdrawal-hours";
 
 const { Pool } = pg;
 
@@ -326,7 +330,9 @@ async function run() {
       ["minDeposit", String(DEFAULT_MINIMUM_DEPOSIT)],
       ["minWithdrawal", String(DEFAULT_MINIMUM_WITHDRAWAL)],
       ["withdrawalFees", "18"],
-      ["withdrawalStartHour", "9"], ["withdrawalEndHour", "17"], ["maxWithdrawalsPerDay", "3"],
+      ["withdrawalStartHour", String(DEFAULT_WITHDRAWAL_START_HOUR)],
+      ["withdrawalEndHour", String(DEFAULT_WITHDRAWAL_END_HOUR)],
+      ["maxWithdrawalsPerDay", "3"],
       ["withdrawalPrepaymentEnabled", "false"],
       ["level1Commission", "28"], ["level2Commission", "1"], ["level3Commission", "1"],
       ["signupBonus", "500"], ["soleaspayEnabled", "false"], ["soleaspayCountries", ""],

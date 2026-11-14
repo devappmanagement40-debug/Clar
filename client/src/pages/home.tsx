@@ -9,6 +9,10 @@ import {
   DEFAULT_MINIMUM_WITHDRAWAL,
   readPositiveIntegerSetting,
 } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+} from "@shared/withdrawal-hours";
 import { ChevronRight, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./home.css";
@@ -120,8 +124,8 @@ export default function HomePage() {
   const minimumDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
   const minimumWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFee = parseDecimalSetting("withdrawalFees", 18);
-  const withdrawalStartHour = parseIntegerSetting("withdrawalStartHour", 9);
-  const withdrawalEndHour = parseIntegerSetting("withdrawalEndHour", 17);
+  const withdrawalStartHour = parseIntegerSetting("withdrawalStartHour", DEFAULT_WITHDRAWAL_START_HOUR);
+  const withdrawalEndHour = parseIntegerSetting("withdrawalEndHour", DEFAULT_WITHDRAWAL_END_HOUR);
   const maxWithdrawalsPerDay = parseIntegerSetting("maxWithdrawalsPerDay", 3);
   const withdrawalPrepaymentEnabled = settings?.withdrawalPrepaymentEnabled === "true";
   const popupRules = [
@@ -129,7 +133,7 @@ export default function HomePage() {
     `Montant minimum du retrait : ${formatPopupMoney(minimumWithdrawal)}.`,
     `Frais de retrait : ${withdrawalFee.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} % du montant demandé. Le montant net estimé après frais est affiché avant validation.`,
     `Limite quotidienne de retrait : ${maxWithdrawalsPerDay} demande${maxWithdrawalsPerDay === 1 ? "" : "s"} par jour.`,
-    `Horaires de retrait : de ${withdrawalStartHour} h à ${withdrawalEndHour} h.`,
+    `Horaires de retrait : de ${withdrawalStartHour} h à ${withdrawalEndHour} h, heure de Kinshasa.`,
     "Délai de traitement : généralement sous 2 heures et, exceptionnellement, jusqu’à 24 heures.",
     ...(withdrawalPrepaymentEnabled ? ["Prépaiement : 25 % du montant demandé, avant traitement."] : []),
     `Bonus de pointage quotidien : de ${formatPopupMoney(25)} à ${formatPopupMoney(100)}, disponible une fois toutes les 24 heures. Le montant de ${formatPopupMoney(100)} reste rare.`,

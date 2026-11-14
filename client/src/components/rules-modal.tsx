@@ -7,6 +7,10 @@ import {
   DEFAULT_MINIMUM_WITHDRAWAL,
   readPositiveIntegerSetting,
 } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+} from "@shared/withdrawal-hours";
 
 interface RulesModalProps {
   open: boolean;
@@ -23,8 +27,8 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
   const minDeposit = readPositiveIntegerSetting(settings?.minDeposit, DEFAULT_MINIMUM_DEPOSIT);
   const minWithdrawal = readPositiveIntegerSetting(settings?.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL);
   const withdrawalFees = settings?.withdrawalFees || "18";
-  const withdrawalStartHour = settings?.withdrawalStartHour || "9";
-  const withdrawalEndHour = settings?.withdrawalEndHour || "17";
+  const withdrawalStartHour = settings?.withdrawalStartHour || String(DEFAULT_WITHDRAWAL_START_HOUR);
+  const withdrawalEndHour = settings?.withdrawalEndHour || String(DEFAULT_WITHDRAWAL_END_HOUR);
   const maxWithdrawalsPerDay = settings?.maxWithdrawalsPerDay || "3";
   const lv1 = settings?.level1Commission || "28";
   const lv2 = settings?.level2Commission || "1";
@@ -53,7 +57,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
               <ul className="space-y-1">
                 <li>- Montant minimum : {minWithdrawal.toLocaleString("fr-FR")} CDF</li>
                 <li>- Frais de retrait : {withdrawalFees}%</li>
-                <li>- Horaires : {withdrawalStartHour}h - {withdrawalEndHour}h</li>
+                <li>- Horaires : {withdrawalStartHour}h - {withdrawalEndHour}h, heure de Kinshasa</li>
                 <li>- Maximum {maxWithdrawalsPerDay} retrait(s) par jour</li>
                 <li>- Seul le solde des gains est retirable; aucun produit actif n'est requis</li>
                 <li>- Un portefeuille de retrait doit être enregistré</li>

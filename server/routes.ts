@@ -28,6 +28,11 @@ import {
   DEFAULT_MINIMUM_WITHDRAWAL,
   readPositiveIntegerSetting,
 } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+  isWithinKinshasaWithdrawalHours,
+} from "@shared/withdrawal-hours";
 import { DAILY_BONUS_OUTCOME_COUNT, dailyBonusFromIndex } from "@shared/daily-bonus";
 import { toPublicDepositHistoryItem, toPublicWithdrawalHistoryItem } from "./public-transaction-history";
 import { z } from "zod";
@@ -2542,6 +2547,20 @@ export async function registerRoutes(
       if (settings.withdrawalPrepaymentEnabled !== "true") {
         return res.status(400).json({ message: "Le prépaiement des retraits est désactivé." });
       }
+      const withdrawalStartHour = Number.parseInt(
+        settings.withdrawalStartHour || String(DEFAULT_WITHDRAWAL_START_HOUR),
+        10,
+      );
+      const withdrawalEndHour = Number.parseInt(
+        settings.withdrawalEndHour || String(DEFAULT_WITHDRAWAL_END_HOUR),
+        10,
+      );
+      if (!isWithinKinshasaWithdrawalHours(new Date(), withdrawalStartHour, withdrawalEndHour)) {
+        return res.status(400).json({
+          code: "WITHDRAWAL_OUTSIDE_HOURS",
+          message: `Les retraits sont disponibles de ${withdrawalStartHour}h à ${withdrawalEndHour}h, heure de Kinshasa.`,
+        });
+      }
       const withdrawalAmount = Number(req.body.amount);
       if (!Number.isInteger(withdrawalAmount) || withdrawalAmount <= 0) {
         return res.status(400).json({ message: "Montant de retrait invalide" });
@@ -2575,6 +2594,20 @@ export async function registerRoutes(
       }
 
       const settingsForWithdrawal = await storage.getSettings();
+      const withdrawalStartHour = Number.parseInt(
+        settingsForWithdrawal.withdrawalStartHour || String(DEFAULT_WITHDRAWAL_START_HOUR),
+        10,
+      );
+      const withdrawalEndHour = Number.parseInt(
+        settingsForWithdrawal.withdrawalEndHour || String(DEFAULT_WITHDRAWAL_END_HOUR),
+        10,
+      );
+      if (!isWithinKinshasaWithdrawalHours(new Date(), withdrawalStartHour, withdrawalEndHour)) {
+        return res.status(400).json({
+          code: "WITHDRAWAL_OUTSIDE_HOURS",
+          message: `Les retraits sont disponibles de ${withdrawalStartHour}h à ${withdrawalEndHour}h, heure de Kinshasa.`,
+        });
+      }
       const minWithdrawal = readPositiveIntegerSetting(
         settingsForWithdrawal.minWithdrawal,
         DEFAULT_MINIMUM_WITHDRAWAL,
@@ -2974,7 +3007,7 @@ export async function registerRoutes(
         channelLabel: settings.channelLabel || "Chaîne officielle",
         groupLabel: settings.groupLabel || "Groupe de discussion",
         withdrawalStartHour: settings.withdrawalStartHour || "9",
-        withdrawalEndHour: settings.withdrawalEndHour || "17",
+        withdrawalEndHour: settings.withdrawalEndHour || String(DEFAULT_WITHDRAWAL_END_HOUR),
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2987,7 +3020,7 @@ export async function registerRoutes(
       res.json({
         withdrawalFees: parseFloat(settings.withdrawalFees || "18"),
         withdrawalStartHour: parseInt(settings.withdrawalStartHour || "9"),
-        withdrawalEndHour: parseInt(settings.withdrawalEndHour || "17"),
+        withdrawalEndHour: parseInt(settings.withdrawalEndHour || String(DEFAULT_WITHDRAWAL_END_HOUR), 10),
         maxWithdrawalsPerDay: parseInt(settings.maxWithdrawalsPerDay || "3"),
         minWithdrawal: readPositiveIntegerSetting(settings.minWithdrawal, DEFAULT_MINIMUM_WITHDRAWAL),
         withdrawalPrepaymentEnabled: settings.withdrawalPrepaymentEnabled === "true",

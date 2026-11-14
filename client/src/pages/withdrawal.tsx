@@ -15,6 +15,11 @@ import {
 import { Link, useLocation } from "wouter";
 import { getCountryByCode } from "@/lib/countries";
 import { DEFAULT_MINIMUM_WITHDRAWAL } from "@shared/platform-settings";
+import {
+  DEFAULT_WITHDRAWAL_END_HOUR,
+  DEFAULT_WITHDRAWAL_START_HOUR,
+  isWithinKinshasaWithdrawalHours,
+} from "@shared/withdrawal-hours";
 import { catlBatteryBackground } from "@/assets/catl-media";
 import withdrawalActionIcon from "@/assets/images/home-icons/withdrawal.png";
 import withdrawHistoryIcon from "@assets/IMG_20260829_070945_804_1792174059478.jpg";
@@ -50,9 +55,15 @@ export default function WithdrawalPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number | "">("");
+  const [clockNow, setClockNow] = useState(() => new Date());
   const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null);
   const [isPreparingPayment, setIsPreparingPayment] = useState(false);
   const [, navigate] = useLocation();
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setClockNow(new Date()), 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   const countryInfo = user ? getCountryByCode(user.country) : null;
   const currency = "CDF";
@@ -71,12 +82,15 @@ export default function WithdrawalPage() {
 
   const minWithdrawal = withdrawalSettings?.minWithdrawal ?? DEFAULT_MINIMUM_WITHDRAWAL;
   const withdrawalFee = withdrawalSettings?.withdrawalFees ?? 18;
-  const withdrawalStartHour = withdrawalSettings?.withdrawalStartHour ?? 9;
-  const withdrawalEndHour = withdrawalSettings?.withdrawalEndHour ?? 17;
+  const withdrawalStartHour = withdrawalSettings?.withdrawalStartHour ?? DEFAULT_WITHDRAWAL_START_HOUR;
+  const withdrawalEndHour = withdrawalSettings?.withdrawalEndHour ?? DEFAULT_WITHDRAWAL_END_HOUR;
   const withdrawalPrepaymentEnabled = withdrawalSettings?.withdrawalPrepaymentEnabled ?? false;
   const amountAfterFees = amount ? Math.floor(Number(amount) * (1 - withdrawalFee / 100)) : 0;
-  const currentHour = new Date().getHours();
-  const isWithinWithdrawalHours = currentHour >= withdrawalStartHour && currentHour < withdrawalEndHour;
+  const isWithinWithdrawalHours = isWithinKinshasaWithdrawalHours(
+    clockNow,
+    withdrawalStartHour,
+    withdrawalEndHour,
+  );
 
   const {
     data: wallets = [],
@@ -138,6 +152,14 @@ export default function WithdrawalPage() {
 
   const handlePayPrepayment = async () => {
     if (!withdrawalPrepaymentEnabled) return;
+    if (!isWithinWithdrawalHours) {
+      toast({
+        title: "Retrait indisponible",
+        description: `Horaires de retrait : de ${withdrawalStartHour}h à ${withdrawalEndHour}h, heure de Kinshasa.`,
+        variant: "destructive",
+      });
+      return;
+    }
     if (!amount || Number(amount) < minWithdrawal) {
       toast({
         title: "Montant invalide",
@@ -162,7 +184,7 @@ export default function WithdrawalPage() {
     if (!isWithinWithdrawalHours) {
       toast({
         title: "Retrait indisponible",
-        description: `Horaires de retrait : de ${withdrawalStartHour}h à ${withdrawalEndHour}h.`,
+        description: `Horaires de retrait : de ${withdrawalStartHour}h à ${withdrawalEndHour}h, heure de Kinshasa.`,
         variant: "destructive",
       });
       return;
@@ -705,7 +727,7 @@ export default function WithdrawalPage() {
                   <button
                     type="button"
                     onClick={handlePayPrepayment}
-                    disabled={isPreparingPayment || !amount || Number(amount) < minWithdrawal}
+                    disabled={isPreparingPayment || !isWithinWithdrawalHours || !amount || Number(amount) < minWithdrawal}
                     className="withdraw-pay-fee"
                     data-testid="button-pay-withdrawal-prepayment"
                   >
@@ -735,7 +757,7 @@ export default function WithdrawalPage() {
                 </li>
                 <li className="withdraw-rule">
                   <span>Horaires de traitement</span>
-                  <strong>De {withdrawalStartHour}h à {withdrawalEndHour}h</strong>
+                   <strong>De {withdrawalStartHour}h à {withdrawalEndHour}h, heure de Kinshasa</strong>
                 </li>
                 <li className="withdraw-rule">
                   <span>Frais par transaction</span>
