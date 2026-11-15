@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { catlBatteryBackground } from "@/assets/catl-media";
-import telegramIcon from "@assets/tg-1_1787390593655.png";
+import telegramIcon from "@/assets/images/telegram-icon.png";
 
 export default function GiftCodePage() {
   const { refreshUser } = useAuth();

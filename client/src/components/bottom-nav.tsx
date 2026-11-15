@@ -1,8 +1,8 @@
 import { useLocation } from "wouter";
-import homeNavIcon from "@assets/20260228_010602_1787388821497.png";
+import homeNavIcon from "@/assets/images/bottom-nav-home.png";
 import productsNavIcon from "@/assets/products-nav.svg";
 import teamNavIcon from "@/assets/team-nav.svg";
-import accountNavIcon from "@assets/20260228_010619_1787388821589.png";
+import accountNavIcon from "@/assets/images/bottom-nav-account.png";
 
 const navItems = [
   { path: "/",            label: "maison",  icon: homeNavIcon },

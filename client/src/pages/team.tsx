@@ -5,8 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { getQueryFn } from "@/lib/queryClient";
 import { parseTeamStats, type TeamStats } from "@/lib/team-stats";
 import { Copy, Share2, X } from "lucide-react";
+import { FaFacebookF } from "react-icons/fa";
 import instagramIcon from "@assets/Instagram_icon_1787367952152.png";
-import facebookIcon from "@assets/images_(27)_1787367952249.png";
 import whatsappIcon from "@assets/images_(26)_1787367952281.png";
 import telegramIcon from "@assets/tg-1_1787367952311.png";
 import "./team.css";
@@ -122,7 +122,7 @@ export default function TeamPage() {
   const shareLinks = [
     { name: "WhatsApp", icon: whatsappIcon, url: `https://wa.me/?text=${encodeURIComponent(referralMessage)}` },
     { name: "Telegram", icon: telegramIcon, url: `https://t.me/share/url?url=${encodedLink}&text=${encodedText}` },
-    { name: "Facebook", icon: facebookIcon, url: `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}&quote=${encodedText}` },
+    { name: "Facebook", url: `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}&quote=${encodedText}` },
     { name: "X", url: `https://x.com/intent/post?url=${encodedLink}&text=${encodedText}` },
   ];
 
@@ -248,7 +248,7 @@ export default function TeamPage() {
                   aria-label={`Partager sur ${target.name}`}
                   data-testid={`share-${target.name.toLowerCase()}`}
                   onClick={target.name === "Facebook" ? () => void copy(referralMessage, "Message d'invitation") : undefined}>
-                  {target.icon ? <img src={target.icon} alt="" /> : <X aria-hidden="true" />}
+                  {target.name === "Facebook" ? <FaFacebookF aria-hidden="true" /> : target.icon ? <img src={target.icon} alt="" /> : <X aria-hidden="true" />}
                   <span>{target.name}</span>
                 </a>
               ))}

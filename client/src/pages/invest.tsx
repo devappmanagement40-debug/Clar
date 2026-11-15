@@ -14,7 +14,7 @@ import serviceIcon from "@assets/20260311_214852_1773265973964.png";
 import productImg1 from "@assets/téléchargement_(16)_1784561452683.jpeg";
 import productImg2 from "@assets/téléchargement_(20)_1784561452229.jpeg";
 import productImg3 from "@assets/téléchargement_(19)_1784561452588.jpeg";
-import productImg4 from "@assets/images_(50)_1783210180466.jpeg";
+import productImg4 from "@/assets/images/product-4.webp";
 import productImg5 from "@assets/images_(41)_1783210181134.jpeg";
 import productImg6 from "@assets/images_(49)_1783210181155.jpeg";
 import productImg7 from "@assets/images_(40)_1783210181193.jpeg";
