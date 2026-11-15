@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { getCountriesForDisplay, parseOperators, type ApiCountry } from "@/lib/countries";
 import { sanitizeDepositDisplayText } from "@/lib/deposit-display";
+import { getManualDepositAccountNumber } from "@shared/manual-deposit-account-number";
 import { CI_WAVE_DEFAULT_PAYMENT_LINK, CI_WAVE_DEFAULT_QR_IMAGE } from "@/lib/payment-checkout-defaults";
 import { withCoteDIvoireWaveAmount } from "@/lib/wave-payment-link";
 import {
@@ -491,7 +492,7 @@ export default function RobotPayPage() {
         amount,
         feePaymentId,
         accountName: user?.fullName || "",
-        accountNumber: paymentPhone,
+        accountNumber: getManualDepositAccountNumber(country, phone, paymentPhone),
         paymentMethod: number.operatorName,
         country,
         paymentNumberId: number.id,
